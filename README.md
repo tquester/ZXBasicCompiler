@@ -9,4 +9,4 @@ www.speccy-scene.de
 
 If we compile a ZX Spectrum BASIC program with 16bit Integers instead of floats, the speed increase is like this
 
-https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel1/BasicVSAssembler.gif
+![Speed compare](https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel1/BasicVSAssembler.gif)
