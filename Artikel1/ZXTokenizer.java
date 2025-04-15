@@ -188,10 +188,13 @@ public class ZXTokenizer {
 		int iLine = b2int(mZxBasic[mPos]) * 256 + b2int(mZxBasic[mPos + 1]);
 		int iLen = b2int(mZxBasic[mPos + 2]) + b2int(mZxBasic[mPos + 3]) * 256;
 		line.line = iLine;
+		if (iLine == 0x7800) return false; // todo; where is the end of the BASIC program on tape?
 		line.len = iLen;
 		line.mPos = 0;
 		line.bytes = new byte[iLen];
+		
 		for (int i = 0; i < iLen; i++) {
+			if (mPos + 5 + i >= mZxBasic.length ) break;
 			line.bytes[i] = mZxBasic[mPos + 4 + i];
 		}
 		mPos += iLen + 4;

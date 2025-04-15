@@ -1,10 +1,24 @@
 package zxcompiler;
 
+import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
 // writes Z80 code
 public class Z80Emitter {
+	static final boolean BlockComments=true;
+	// in order to optimize the code, it is stored in machine readable format
+	
+	class Z80Command {
+		public Z80Command(String command2, String param1, String param2) {
+			this.command = command2;
+			this.par1 = param1;
+			this.par2 = param2;
+		}
+		public String command;
+		public String par1=null;
+		public String par2=null;
+	}
 	class Variable {
 		public static int TYP_INT;
 		public static int TYP_STRING;
@@ -12,28 +26,37 @@ public class Z80Emitter {
 		public String name;
 		public int    typ;
 	}
+
 	public StringBuffer sbCode = new StringBuffer();	
 	String lastCommand="";
 	int    lastLabel=0;
 	TreeMap<String, Variable> mMapVariables = new TreeMap<String, Z80Emitter.Variable>();
+	ArrayList<Z80Command> mCommands = new ArrayList<Z80Emitter.Z80Command>();
 	
 	void emitString(String str) {
 		sbCode.append(str+"\n");
 		System.out.println(str);
 	}
 	
-	void emitCommand(String command) {
+	void emitCommand(String command, String param1) {
+		emitCommand(command,param1,null);
+	}
+	void emitCommand(String command, String param1, String param2) {
+		mCommands.add(new Z80Command(command, param1, param2));
+		String str = command;
+		if (param1 != null) str += " "+param1;
+		if (param2 != null) str += ","+param2;
 		if (lastCommand.compareTo("PUSH HL") == 0) {
-			if (command.compareTo("POP HL")==0) { 
-					lastCommand = command;
+			if (str.compareTo("POP HL")==0) { 
+					lastCommand = str;
 					return;
 			} else
 				emitString("\t"+lastCommand);
 			
 		}
-		lastCommand = command;
-		if (command.compareTo("PUSH HL") != 0)			
-			emitString("\t"+command);
+		lastCommand = str;
+		if (str.compareTo("PUSH HL") != 0)			
+			emitString("\t"+str);
 		
 	}
 	
@@ -50,108 +73,131 @@ public class Z80Emitter {
 	public void writeVariables() {
 		for (Variable v: mMapVariables.values()) {
 			if (v.typ == Variable.TYP_INT) {
-				emitString(String.format("ZXBASIC_VAR_%s:", v.name));
+				emitString(String.format("ZXBASIC_VAR_%s:\tdw 0", v.name));
 			}
 		}
 	}
 	
 	public void emitPushInteger(String number) {
-		emitCommand(String.format("LD HL, %s", number));
-		emitCommand("PUSH HL");
+		emitCommand("LD", String.format("HL, %s", number));
+		emitCommand("PUSH","HL");
 	}
 	
 	public void emitPushIntegerVariable(String varname) {
-		emitCommand(String.format("LD HL, (ZXBASIC_VAR_%s)", varname));
-		emitCommand("PUSH HL");
+		emitCommand("LD",String.format("HL, (ZXBASIC_VAR_%s)", varname));
+		emitCommand("PUSH","HL");
 	}
 	
 	public void emitStoreIntegerVar(String varname) {
-		emitCommand("POP HL");
-		emitCommand(String.format("LD (BASIC_VAR_%s),HL", varname));
+		emitBlockComment("Store "+varname);
+		emitCommand("POP","HL");
+		emitCommand("LD",String.format("(ZXBASIC_VAR_%s),HL", varname));
+		emitBlockCommentEnd();
 	}
 	
 	public void emitPlus() {
-		emitCommand("POP HL");
-		emitCommand("POP DE");
-		emitCommand("ADD HL, DE");
-		emitCommand("PUSH HL");
+		emitBlockComment("+");
+		emitCommand("POP","HL");
+		emitCommand("POP","DE");
+		emitCommand("ADD","HL, DE");
+		emitCommand("PUSH","HL");
+		emitBlockCommentEnd();
 	}
 
 	public void emitMinus() {
-		emitCommand("POP HL");
-		emitCommand("POP DE");
-		emitCommand("SUB HL, DE");
-		emitCommand("PUSH HL");
+		emitBlockComment("-");
+		emitCommand("POP","HL");
+		emitCommand("POP","DE");
+		emitCommand("EX","HL,DE");
+		emitCommand("SUB","HL, DE");
+		emitCommand("PUSH","HL");
+		emitBlockCommentEnd();
 	}
 	
 	public void emitMult() {
-		emitCommand("POP HL");
-		emitCommand("POP DE");
-		emitCommand("call Mult16bit");
-		emitCommand("PUSH HL");
+		emitBlockComment("*");
+		emitCommand("POP","HL");
+		emitCommand("POP","DE");
+		emitCommand("call","Mult16bit");
+		emitCommand("PUSH","HL");
+		emitBlockCommentEnd();
 	}
 
 	public void emitDiv() {
-		emitCommand("POP HL");
-		emitCommand("POP DE");
-		emitCommand("call Div16bit");
-		emitCommand("PUSH HL");
+		emitBlockComment("/");
+		emitCommand("POP","HL");
+		emitCommand("POP","DE");
+		emitCommand("call","Div16bit");
+		emitCommand("PUSH","HL");
+		emitBlockCommentEnd();
 	}
 	
 	public void emitSmaller() {
-		emitCommand("POP HL");
-		emitCommand("POP DE");
-		emitCommand("SUB HL, DE");
-		emitCommand("LD  HL,0");
-		emitCommand("call c, HL1");
-		emitCommand("PUSH HL");
+		emitBlockComment("<");
+		emitCommand("POP","HL");
+		emitCommand("POP","DE");
+		emitCommand("SUB","HL, DE");
+		emitCommand("LD","HL,0");
+		emitCommand("call","c, HL1");
+		emitCommand("PUSH","HL");
+		emitBlockCommentEnd();
 	}
 	
 	public void emitBigger() {
-		emitCommand("POP HL");
-		emitCommand("POP DE");
-		emitCommand("SUB HL, DE");
-		emitCommand("LD  HL,0");
-		emitCommand("call nc, HL1");
-		emitCommand("PUSH HL");
+		emitBlockComment("OR");
+		emitCommand("POP","HL");
+		emitCommand("POP","DE");
+		emitCommand("SUB","HL","DE");
+		emitCommand("LD","HL","0");
+		emitCommand("call", "nc", "HL1");
+		emitCommand("PUSH","HL");
+		emitBlockCommentEnd();
 	}
 
 	public void emitSmallerEqual() {
-		emitCommand("POP HL");
-		emitCommand("POP DE");
-		emitCommand("SUB HL, DE");
-		emitCommand("LD  HL,0");
-		emitCommand("call c, HL1");
-		emitCommand("call z, HL1");
-		emitCommand("PUSH HL");
+		emitBlockComment("<=");
+		emitCommand("POP","HL");
+		emitCommand("POP","DE");
+		emitCommand("SUB", "HL", "DE");
+		emitCommand("LD", "HL","0");
+		emitCommand("call", "c", "HL1");
+		emitCommand("call", "z", "HL1");
+		emitCommand("PUSH","HL");
+		emitBlockCommentEnd();
 	}
 	
 	public void emitBiggerEqual() {
-		emitCommand("POP HL");
-		emitCommand("POP DE");
-		emitCommand("SUB HL, DE");
-		emitCommand("LD  HL,0");
-		emitCommand("call nc, HL1");
-		emitCommand("call z, HL1");
-		emitCommand("PUSH HL");
+		emitBlockComment(">=");
+		emitCommand("POP","HL");
+		emitCommand("POP","DE");
+		emitCommand("SUB","HL", "DE");
+		emitCommand("LD",  "HL","0");
+		emitCommand("call","nc", "HL1");
+		emitCommand("call", "z", "HL1");
+		emitCommand("PUSH","HL");
+		emitBlockCommentEnd();
 	}
 
 	public void emitUnequal() {
-		emitCommand("POP HL");
-		emitCommand("POP DE");
-		emitCommand("SUB HL, DE");
-		emitCommand("LD  HL,0");
-		emitCommand("call nz, HL1");
-		emitCommand("PUSH HL");
+		emitBlockComment("<>");
+		emitCommand("POP","HL");
+		emitCommand("POP","DE");
+		emitCommand("SUB","HL", "DE");
+		emitCommand("LD",  "HL","0");
+		emitCommand("CALL","NZ", "HL1");
+		emitCommand("PUSH","HL");
+		emitBlockCommentEnd();
 	}
 
 	public void emitEqual() {
-		emitCommand("POP HL");
-		emitCommand("POP DE");
-		emitCommand("SUB HL, DE");
-		emitCommand("LD  HL,0");
-		emitCommand("call z, HL1");
-		emitCommand("PUSH HL");
+		emitBlockComment("==");
+		emitCommand("POP","HL");
+		emitCommand("POP","DE");
+		emitCommand("SUB", "HL", "DE");
+		emitCommand("LD",  "HL","0");
+		emitCommand("CALL","Z", "HL1");
+		emitCommand("PUSH","HL");
+		emitBlockCommentEnd();
 	}
 
 	public void emitLine(int line) {
@@ -159,21 +205,27 @@ public class Z80Emitter {
 	}
 
 	public void emitOr() {
-		emitCommand("POP HL");
-		emitCommand("POP DE");
-		emitCommand("LD  A,L");
-		emitCommand("OR  E");
-		emitCommand("LD  L,A");
-		emitCommand("LD  H,0");
+		emitBlockComment("OR");
+		emitCommand("POP","HL");
+		emitCommand("POP","DE");
+		emitCommand("LD","A","L");
+		emitCommand("OR","E");
+		emitCommand("LD","L","A");
+		emitCommand("LD","H","0");
+		emitCommand("PUSH", "HL");
+		emitBlockCommentEnd();
 	}
 
 	public void emitAnd() {
-		emitCommand("POP HL");
-		emitCommand("POP DE");
-		emitCommand("LD  A,L");
-		emitCommand("AND  E");
-		emitCommand("LD  L,A");
-		emitCommand("LD  H,0");
+		emitBlockComment("AND");
+		emitCommand("POP","HL");
+		emitCommand("POP","DE");
+		emitCommand("LD","A","L");
+		emitCommand("AND","E");
+		emitCommand("LD","L","A");
+		emitCommand("LD","H","0");
+		emitCommand("PUSH", "HL");
+		emitBlockCommentEnd();
 	}
 
 	public void emitComment(String string) {
@@ -182,13 +234,25 @@ public class Z80Emitter {
 
 	public String emitCheckFor0() {
 		String label = newLabel();
-		emitCommand("POP HL");
-		emitCommand("LD  A,L");
-		emitCommand("OR  A");
-		emitCommand("JR  Z,"+label);
+		emitBlockComment("check for 0");
+		emitCommand("POP", "HL");
+		emitCommand("LD", "A","L");
+		emitCommand("CP", "0");
+		emitCommand("JR", "Z",label);
+		emitBlockCommentEnd();
+		
 		
 		// TODO Auto-generated method stub
 		return label;
+	}
+
+	private void emitBlockComment(String string) {
+		if (BlockComments) 	emitComment(string);		
+	}
+
+	private void emitBlockCommentEnd() {
+		if (BlockComments) 	emitComment("---");
+		
 	}
 
 	private String newLabel() {
@@ -202,16 +266,24 @@ public class Z80Emitter {
 	}
 
 	public void emitJumpToLine(String line) {
-		emitCommand(String.format("JP ZX_LINE_%s", line));
+		emitCommand("JP",String.format("ZX_LINE_%s", line));
 	}
 
 	public void emitCallToLine(String line) {
-		emitCommand(String.format("CALL ZX_LINE_%:", line));
+		emitCommand("CALL",String.format("ZX_LINE_%:", line));
 		
 	}
 
 	public void emitReturn() {
-		emitCommand("RET");
+		emitCommand("RET",null);
 		
+	}
+	
+	public void emitPlot() {
+		emitCommand("POP","HL");
+		emitCommand("POP","DE");
+		emitCommand("LD","B","L");
+		emitCommand("LD","C","E");
+		emitCommand("CALL","RuntimePlot");
 	}
 }

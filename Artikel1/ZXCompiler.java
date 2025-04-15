@@ -67,7 +67,6 @@ public class ZXCompiler {
 				case ZXToken.ZXB_IF:
 					lexan(lookahead);
 					expr();
-//					match(ZXTokenizer.ParserToken.ZXTokenTyp.ZX_Token);
 					String label = mEmitter.emitCheckFor0();
 					while (true) {
 						if (lexan(lookahead) == false) break;
@@ -77,15 +76,13 @@ public class ZXCompiler {
 							break;
 					}
 					mEmitter.emitLabel(label);
-					
-					
 					break;
 				case ZXToken.ZXB_PLOT:
 					lexan(lookahead);;
 					expr();
 					match(ZXTokenizer.ParserToken.ZXTokenTyp.ZX_Comma);
 					expr();
-					mEmitter.emitCommand("call RuntimePlot");
+					mEmitter.emitPlot();
 					break;
 					
 				case ZXToken.ZXB_GOTO:
