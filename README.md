@@ -7,3 +7,6 @@ You can download the source code and the demo tapes from this git repository
 You can join our user group at
 www.speccy-scene.de 
 
+If we compile a ZX Spectrum BASIC program with 16bit Integers instead of floats, the speed increase is like this
+
+https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel1/BasicVSAssembler.gif
