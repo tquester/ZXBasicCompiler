@@ -1,6 +1,5 @@
 
 CBASIC_START
-compiledBasic:
 ZX_LINE_100:
 	LD HL, 6 
 	CALL runtimePaper
@@ -8,8 +7,7 @@ ZX_LINE_100:
 	CALL runtimeInk
 ZX_LINE_105:
 ;105  CLS 
-	CALL runtimeCls
-	
+	CALL cls
 ZX_LINE_106:
 ;106  GOSUB 3000{00 00 b8 0b 00 }
 	CALL ZX_LINE_3000:
@@ -249,7 +247,7 @@ ZX_LINE_3150:
 	LD HL, 1
 	PUSH HL
 FOR_1:
-	LD HL,(DATAPTR)
+	LD HL,DATAPTR
 	LD DE,(HL)
 	INC HL
 	INC HL
@@ -340,7 +338,7 @@ STRING_2:	dw 15
 STRING_3:	dw 1
 	db"A"
 STRING_4:	dw 7
-	db	"UDG:",144,145,146
+	db"UDG:",144,145,146
 DATAPTR:	DW 0
 DATA_3000:
 	dw 24

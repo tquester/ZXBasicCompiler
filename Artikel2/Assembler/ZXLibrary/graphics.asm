@@ -19,7 +19,7 @@ ClearScreen:
     	call        fill_backg 		
         ld          b,0
         ld          c,0
-        call        locate	
+;        call        locate	
 		ret
 		
 clear_screen: 
@@ -1563,6 +1563,76 @@ CopyScreenLineHLtoDE1:	push bc
 						djnz CopyScreenLineHLtoDE1
 						ret
 
+clearScreen:		push	af
+					push	bc
+					push	hl
+					ld		hl, screen_start
+					ld		bc, screen_len
+clearScreenLoop:	ld		a,0
+					ld		(hl),a
+					inc		hl
+					dec		bc
+					ld		a,c
+					cp		0
+					jr		nz,clearScreenLoop
+					ld		a,b
+					cp		0
+					jr		nz,clearScreenLoop
+
+					ld		hl, SCREEN_ATTR
+					ld		bc, attrib_len
+					
+clearAttribLoop:	ld		a, WHITE*PAPER+BLACK
+					ld		(hl),a
+					inc		hl
+					dec		bc
+					ld		a,c
+					cp		0
+					jr		nz,clearAttribLoop
+					ld		a,b
+					cp		0
+					jr		nz,clearAttribLoop
+
+					pop		hl
+					pop		bc
+					pop		af
+					ret 	
+
+
+clearLowerScreenWhite:
+					ld		a,WHITE*PAPER+BLACK
+					jr  	clearLowerScreen
+clearLowerScreenBlue:
+					ld		a,LIGHTBLUE*PAPER+BLACK
+
+
+; clears the screen from line 16 to 24 with the color in a
+clearLowerScreen:	push	bc
+					push	hl
+					push	af
+					ld		c,129
+					ld		b,192-129
+clearLowerScreen1:	ld		a,c
+					call	calcLine
+					push	bc
+					ld		b,32
+					ld		a,0
+clearLowerScreen2:	ld		(hl),a
+					inc		hl
+					djnz	clearLowerScreen2
+					pop		bc
+					inc		c
+					djnz	clearLowerScreen1
+
+					pop		af
+					ld		hl,SCREEN_ATTR+32*16
+					ld		b,(24-16)*32
+clearLowerScreen3:	ld		(hl),a
+					inc		hl
+					djnz	clearLowerScreen3
+					pop		hl
+					pop		bc
+					ret																								
 
 
 						

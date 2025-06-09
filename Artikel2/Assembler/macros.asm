@@ -225,28 +225,25 @@ NUM   MACRO	value
 
                 ORG     #5C00
 .bas_start    
-				LINE
-				DB      ZXB_LET,"codebase=",ZXB_VAL, '"32768"'
-				LEND
 				LINE	
-                DB      ZXB_LOAD, '"'                           ; LOAD "
-.code_name      DB      prog_name?                              ; code name
-                ASSERT ($ - .code_name) <= 10                   ; (max 10 chars)
-                DB      '"',ZXB_CODE,'codebase:'                       ; " CODE a:
-				LEND
-
-				LINE	
-				DB      ZXB_CLEAR, ZXB_VAL, '"32768":'
+         				DB      ZXB_CLEAR, ZXB_VAL, '"32768":'
                 DB      ZXB_LET,"codebase=",ZXB_VAL, '"32768":'
 				
 				LEND
+				LINE	
+                DB      ZXB_LOAD, '"'                           ; LOAD "
+;.code_name      DB      prog_name?                              ; code name
+;                ASSERT ($ - .code_name) <= 10                   ; (max 10 chars)
+                DB      '"',ZXB_CODE,'codebase'                       ; " CODE a:
+				LEND
 
-                LINE
-                db      zxb_cls
-                LEND
+				LINE	
+                DB      zxb_print, '"Start mit Tastendruck":'                           ; LOAD "
+                DB      zxb_zxb_pause, ZXB_VAL, '"0"'                       ; " CODE a:
+				LEND
 
-				LINE 
-				db zxb_cls
+				LINE	
+                DB      zxb_print, ZXB_USR,'codebase'                           ; LOAD "
 				LEND
 
 

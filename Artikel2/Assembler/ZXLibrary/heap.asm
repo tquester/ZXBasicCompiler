@@ -1,6 +1,6 @@
 
-ZXHeapStart:            dw  $D000
-ZXHeapTop:             dw  $D000
+ZXHeapStart:            dw  $F000
+ZXHeapTop:             dw  $F000
 ZXHeapEnd:             dw  $FFF0
 ZXHeapFreeBlock:        dw 0
 ZXHeapFreeBlockSize:    dw 0
@@ -46,7 +46,7 @@ ZXHeapWalk:
                     if DEBUG=1
                     call printf
                     db    "----------- heap ----------/n"
-                    db    "addr ty back size/n",0
+                    db    "addr ty back back size/n",0
                     ld ix, (ZXHeapStart)
 ZXHeapWalk1:        ld hl, ix
                     call printHex4Hl
@@ -56,12 +56,50 @@ ZXHeapWalk1:        ld hl, ix
                     call printHex2
                     ld   a,' '
                     call printA
-                    ld   hl,(ix+ZXBLockBacklink)
+                    ld   hl,(ix+ZXBLockBacklink)                    
                     call printHex4Hl
+                    ld   a,' '
+                    call printA
+                    ld   a,h
+                    or   l
+                    jr   z,ZXHeapWalk2
+                    ld   bc,(HL)
+                    call printHex4
+                    jr   ZXHeapWalk3
+ZXHeapWalk2:        ld   a,' '
+                    call   printA                    
+                    call   printA                    
+                    call   printA                    
+                    call   printA                    
+ZXHeapWalk3:                    
+
+
                     ld   a,' '
                     call printA
                     ld   hl,(ix+ZXBlockSize)
                     call printDezHL
+                    ld   a,23
+                    ld   (charX),a
+               
+                    ld   hl,ix
+                    ld   bc,5
+                    add  hl,bc
+                    ld   bc,(ix+ZXBlockSize)
+                    ld   a,c
+
+                    and  $7f
+                    cp   0
+                    jr   z,ZXHeapPrintContents3
+                    cp   8
+                    jr   c,ZXHeapPrintContents2
+                    ld   a,8
+ZXHeapPrintContents2:                    
+                    ld   b,a
+ZXHeapPrintContents:ld     a,(hl)
+                    inc    hl
+                    call   printA
+                    djnz   ZXHeapPrintContents
+ZXHeapPrintContents3:                    
                     call newline
                     ld   hl,(ix+ZXBlockSize)
                     ld   bc,5
@@ -72,10 +110,10 @@ ZXHeapWalk1:        ld hl, ix
                     ld de,(ZXHeapEnd)
                     ld hl,ix
                     sub hl,de
-                    jr  nc, ZXHeapWalk2
-                    jr   z, ZXHeapWalk2
-                    jr  ZXHeapWalk1
-ZXHeapWalk2:        ld  hl,ix
+                    jr  nc, ZXHeapWalk4
+                    jr   z, ZXHeapWalk4
+                    jp  ZXHeapWalk1
+ZXHeapWalk4:        ld  hl,ix
                     call printHex4Hl
                     call newline                    
                     endif
@@ -87,18 +125,28 @@ ZXHeapTest:        if DEBUG=1
 
                    call ZXClearHeap
                    call ZXHeapWalk
+
+
+
+                   ld   hl, TestString1
+                   ld   de, ZXVariableAStr
+                   ld   bc, TestString1Len
+                   call ZXSaveString
+
                    ld   a,1
                    ld   bc,100
-                   call ZXAlloc
-                   ld   (ZXHeapTestM1),hl
+                   ld   hl,ZXHeapTestM1
+                   call ZXAllocWithBacklink
+
                    ld   bc,30
                    ld   a,2
-                   call ZXAlloc
-                   ld   (ZXHeapTestM2),hl
+                   ld   hl,ZXHeapTestM2
+                   call ZXAllocWithBacklink
+
                    ld   a,1
                    ld   bc,256
-                   call ZXAlloc
-                   ld   (ZXHeapTestM3),hl
+                   ld   hl,ZXHeapTestM3
+                   call ZXAllocWithBacklink
 
                    call ZXHeapWalk
                    call GetKey
@@ -119,7 +167,10 @@ ZXHeapTest:        if DEBUG=1
                    ret
 ZXHeapTestM1:      dw 0                   
 ZXHeapTestM2:      dw 0                   
-ZXHeapTestM3:      dw 0                   
+ZXHeapTestM3:      dw 0   
+ZXVariableAStr:    dw 0
+TestString1:      db 'Hallo Welt'
+TestString1Len:   equ 10
 
 
 
@@ -169,15 +220,15 @@ ZXAlloc:                push ix
 ZXAllocLoop1:           ld de,(ZXHeapEnd)
                         ld hl,ix
                         sub hl,de
-                        jr  nc,ZXAllocNotFound   ; we moved past the end of the known heap, return with error
-                        jr  z,ZXAllocNotFound
+                        jp  nc,ZXAllocNotFound   ; we moved past the end of the known heap, return with error
+                        jp  z,ZXAllocNotFound
                         ld de,(ix+ZXBlockSize)    
                         ld A,(ix)
                         cp 0
-                        jr nz, ZXAllocLoopNextBlock
+                        jp nz, ZXAllocLoopNextBlock
                         ld HL,de
                         sub hl,bc
-                        jr  c,ZXAllocLoopNextBlock ; block too small
+                        jp  c,ZXAllocLoopNextBlock ; block too small
 
 ; we found a heap block with the size that fits, de is the block size of the free entry
 ; bc is the blocksize we want to allocate + 5
@@ -206,10 +257,57 @@ ZXAllocLoop1:           ld de,(ZXHeapEnd)
                         pop ix
                         ret
 
+; A = Block type
+; BC = Block Size
+; HL = Pointer to Variable
+ZXAllocWithBacklink:    push  hl
+                        call ZXAlloc                           ; HL points to the new memory
+                        cp   0                                 ; if a = 0
+                        jr   z, ZXAllocWithBacklink2
+                        call ZXGarbage2                        ; If no memory left, try garbage collection
+                        call ZXAlloc                           ; and allocate again
+                        cp   0
+                        jr   z,ZXAllocWithBacklink2
+                        pop hl                                 ; return with error
+                        ret
+ZXAllocWithBacklink2:   pop  de
+                        push de
+                        push hl                                ; HL = newly created memory
+                        ld   bc,5                              ; sub 5 -> go to header
+                        sub  hl,bc
+                        ld   bc,ZXBLockBacklink                ; go to backlink address
+                        add  hl,bc
+                        ld   (hl),de
+                        pop de
+                        pop  hl
+                        ld   (hl),de
+                        ret 
+
+; hl = String
+; bc = Length of String
+; de = Variable
+ZXSaveString:          push hl
+                        push bc
+                        ex   de,hl
+                        push hl
+                        call ZXAllocWithBacklink
+                        pop hl
+                        pop  bc
+                        ld   de,(hl)
+                        pop  hl
+                        ldir 
+                        ret
+
+
+
+
+
+
+
 ZXAllocLoopNextBlock:   add ix,de
                         ld DE,5
                         add ix,de
-                        jr  ZXAllocLoop1
+                        jp  ZXAllocLoop1
 
 ZXFree:                 push bc
                         ld   bc,5                       ; Subtract block size

@@ -1,18 +1,21 @@
 
-CBASIC_START
+CBASIC_START: equ $
 compiledBasic:
 ZX_LINE_100:
+	ld  A,(ZX_TV_FLAG)
+	and A,254
+	ld  (ZX_TV_FLAG),A
+
 	LD HL, 6 
 	CALL runtimePaper
-	LD HL, 1
+	LD HL, 3
 	CALL runtimeInk
 ZX_LINE_105:
 ;105  CLS 
 	CALL runtimeCls
-	
 ZX_LINE_106:
 ;106  GOSUB 3000{00 00 b8 0b 00 }
-	CALL ZX_LINE_3000:
+;p	CALL ZX_LINE_3000:
 ZX_LINE_110:
 ;110  PRINT  INK 2{00 00 02 00 00 }; AT 0{00 00 00 00 00 },9{00 00 09 00 00 };"line fill demo"
 	LD HL, 2
@@ -24,17 +27,19 @@ ZX_LINE_110:
 	CALL runtimePrintAt
 	LD HL, STRING_0
 	CALL runtimePrintString
-	CALL runtimePrintNewline
+	;CALL runtimePrintNewline
 	LD A,(ZX_ATTR_P)
 	LD (ZX_ATTR_T),A
 ZX_LINE_120:
-;120  PRINT  OVER 1{00 00 01 00 00 };  BRIGHT 1{00 00 01 00 00 }; PAPER 4{00 00 04 00 00 }; AT 21{00 00 15 00 00 },5{00 00 05 00 00 }; FLASH 1{00 00 01 00 00 };"(C)"; FLASH 0{00 00 00 00 00 };" Thomas Quester";
+;120  PRINT  OVER 1{00 00 01 00 00 }; INVERSE 1{00 00 01 00 00 };  BRIGHT 1{00 00 01 00 00 }; PAPER 4{00 00 04 00 00 }; AT 21{00 00 15 00 00 },5{00 00 05 00 00 }; FLASH 1{00 00 01 00 00 };"(C)"; FLASH 0{00 00 00 00 00 };" Thomas Quester";
 	LD HL, 1
 	CALL runtimeLocalOver
 	LD HL, 1
 	CALL runtimeLocalBright
 	LD HL, 4
 	CALL runtimeLocalPaper
+	LD HL, 1
+	CALL runtimeLocalInk
 	LD HL, 21
 	PUSH HL
 	LD HL, 5
@@ -46,10 +51,13 @@ ZX_LINE_120:
 	CALL runtimePrintString
 	LD HL, 0
 	CALL runtimeLocalFlash
+	LD HL, 1
+	CALL runtimeInk
 	LD HL, STRING_2
 	CALL runtimePrintString
 	LD A,(ZX_ATTR_P)
 	LD (ZX_ATTR_T),A
+
 ZX_LINE_1000:
 ;1000  LET x=1{00 00 01 00 00 }: LET y=21{00 00 15 00 00 }: LET dx=1{00 00 01 00 00 }: LET dy=1{00 00 01 00 00 }
 	LD HL, 1
@@ -78,9 +86,8 @@ ZX_LINE_1010:
 	PUSH HL
 	LD HL, (ZXBASIC_VAR_y)
 	POP DE
-	LD B,L
-	LD C,E
 	CALL runtimePlot
+	;call plot
 ZX_LINE_1020:
 ;1020  LET x=x+dx
 	LD HL, (ZXBASIC_VAR_x)
@@ -114,7 +121,7 @@ ZX_LINE_1040:
 	POP DE
 	SUB HL,DE
 	LD HL,0
-	call nc,HL1
+	;call c,HL1
 	call z,HL1
 ;---
 	PUSH HL
@@ -125,7 +132,7 @@ ZX_LINE_1040:
 	POP DE
 	SUB HL,DE
 	LD HL,0
-	call c,HL1
+	;call nc,HL1
 	call z,HL1
 ;---
 ;OR
@@ -250,6 +257,7 @@ ZX_LINE_3150:
 	PUSH HL
 FOR_1:
 	LD HL,(DATAPTR)
+
 	LD DE,(HL)
 	INC HL
 	INC HL
@@ -300,24 +308,15 @@ ZX_LINE_3190:
 	ADD HL,BC
 	LD (ZXBASIC_VAR_i),HL
 	LD DE,(IX+2)
-	EX HL,DE
+	EX  HL,DE
 	SUB HL,DE
 	JP NC,FOR_0
 	POP AF
 	POP AF
 ZX_LINE_3200:
-;3200  PRINT  INK 1{00 00 01 00 00 }; AT 0{00 00 00 00 00 },0{00 00 00 00 00 };"UDG:";
-	LD HL, 1
-	CALL runtimeLocalInk
-	LD HL, 0
-	PUSH HL
-	LD HL, 0
-	POP DE
-	CALL runtimePrintAt
+;3200  PRINT "";
 	LD HL, STRING_4
 	CALL runtimePrintString
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
 ZX_LINE_3210:
 ;3210  RETURN 
 	RET
@@ -339,8 +338,8 @@ STRING_2:	dw 15
 	db" Thomas Quester"
 STRING_3:	dw 1
 	db"A"
-STRING_4:	dw 7
-	db	"UDG:",144,145,146
+STRING_4:	dw 3
+	db 144,145,146
 DATAPTR:	DW 0
 DATA_3000:
 	dw 24
@@ -369,8 +368,6 @@ DATA_3020:
 	dw 129
 	dw 255
 	dw 36
-
-
 
 
     DISPLAY "Compiled Basic = ", /D, $-CBASIC_START,  " bytes"

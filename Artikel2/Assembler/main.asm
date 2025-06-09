@@ -1,7 +1,7 @@
 ;===========================================================================
 ; main.asm
 ;===========================================================================
-DEBUG                       equ 1
+DEBUG                       equ 0
 ; Prepared Sprites werden in 8 Shift-Positionen gespeichert. Für 16bit Sprites braucht es 
 ; 6 Characters also 8*6*32 = 384 Bytes
 ; Wenn das Sprite mit *DATA angelegt wird, wird das 16x16bit Image einfach um 1, 2, ,..7 
@@ -36,7 +36,8 @@ NEX:    equ 1   ;  1=Create nex file, 0=create sna file
 
 START:
         RELOCATE_START 
-main:  
+main:   call compiledBasic
+        ret
         jp debugDemo
 ;        jp relocator_code
 scroll: ret
@@ -56,12 +57,13 @@ scroll: ret
 ; Include modules
 ;===========================================================================
     include "ZXLibrary/zxspectrum.asm"
-    include "ZXLibrary/graphics.asm"
+    ;include "ZXLibrary/graphics.asm"
     include "ZXLibrary/heap.asm"
     if DEBUG=1
     include "ZXLibrary/print.asm"
     endif
     include "ZXLibrary/math.asm"
+    include "basicRuntime.asm"
     include "compiledBasic.asm"
     
     
@@ -70,6 +72,8 @@ scroll: ret
 
 
 debugDemo:
+    call        compiledBasic
+
     if DEBUG=1
     ; Disable interrupts
     di
@@ -88,8 +92,6 @@ debugDemo:
     call        compiledBasic
     ret
 
-HL1: LD HL,1
-     ret
 
 RuntimePlot:
     ld  b,e
