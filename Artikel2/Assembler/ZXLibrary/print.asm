@@ -676,12 +676,8 @@ printDezHL:       	push    ix
                     push    de
                     push    bc
 					LAlloc  10
-
-
-
                     ld      (ix),0
                     inc     ix
-
 printdezHLLoop:     
                     ld      d,10
                     push    hl                          ; stack = hl
@@ -754,7 +750,7 @@ printHex4:			LD		A,B
 					JR		printHex2
 
 printPagedHL:		PUSHA
-printPagePage:		call	clearScreen 
+printPagePage:		call	cls
 					ld		bc,0
 					ld		de, charX
 					call	printSetAt

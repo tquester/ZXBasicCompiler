@@ -120,7 +120,7 @@ ZXHeapWalk4:        ld  hl,ix
                     ret
 
 ZXHeapTest:        if DEBUG=1    
-                    call ClearScreen                
+                    call cls                
                   
 
                    call ZXClearHeap
@@ -150,7 +150,7 @@ ZXHeapTest:        if DEBUG=1
 
                    call ZXHeapWalk
                    call GetKey
-                   call ClearScreen
+                   call cls
 
                    ld   hl,(ZXHeapTestM2)
                    call ZXFree

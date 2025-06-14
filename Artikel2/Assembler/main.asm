@@ -57,10 +57,10 @@ scroll: ret
 ; Include modules
 ;===========================================================================
     include "ZXLibrary/zxspectrum.asm"
-    ;include "ZXLibrary/graphics.asm"
     include "ZXLibrary/heap.asm"
     if DEBUG=1
     include "ZXLibrary/print.asm"
+    include "ZXLibrary/graphics.asm"
     endif
     include "ZXLibrary/math.asm"
     include "basicRuntime.asm"
@@ -72,6 +72,11 @@ scroll: ret
 
 
 debugDemo:
+    if DEBUG=1
+    ld          a,WHITE*PAPER+BLACK
+    ld          (ZX_ATTR_P),a   
+    ld          (ZX_ATTR_T),a
+    endif
     call        compiledBasic
 
     if DEBUG=1
@@ -122,7 +127,9 @@ STACK_SIZE: equ 400    ; in words
     defw 0  ; WPMEM, 2
 stack_bottom:
     defs    STACK_SIZE*2, 0
+    endif
 stack_top:
+    if DEBUG=1
     ;defw 0
     defw 0  ; WPMEM, 2
     endif
