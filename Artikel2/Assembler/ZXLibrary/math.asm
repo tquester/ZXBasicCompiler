@@ -29,7 +29,64 @@ Mul8bLoop:
 Mul8bSkip:
         djnz Mul8bLoop
         ret
+// ----------------------------------------------------
+// The following routine divides ac by de and places the quotient in ac and the remainder in hl
+// ----------------------------------------------------
+div_ac_de:
+   push bc
+   ld	hl, 0
+   ld	b, 16
 
+_loopdiv_ac_de:
+   sll	c
+   rla
+   adc	hl, hl
+   sbc	hl, de
+   jr	nc, $+4
+   add	hl, de
+   dec	c
+_div_ac_de2:
+   djnz	_loopdiv_ac_de:
+   pop bc
+   
+   ret
+
+;
+; Divide 16-bit values (with 16-bit result)
+; In: Divide BC by divider DE
+; Out: BC = result, HL = rest
+;
+Div16:
+    ld hl,0
+    ld a,b
+    ld b,8
+Div16_Loop1:
+    rla
+    adc hl,hl
+    sbc hl,de
+    jr nc,Div16_NoAdd1
+    add hl,de
+Div16_NoAdd1:
+    djnz Div16_Loop1
+    rla
+    cpl
+    ld b,a
+    ld a,c
+    ld c,b
+    ld b,8
+Div16_Loop2:
+    rla
+    adc hl,hl
+    sbc hl,de
+    jr nc,Div16_NoAdd2
+    add hl,de
+Div16_NoAdd2:
+    djnz Div16_Loop2
+    rla
+    cpl
+    ld b,c
+    ld c,a
+    ret   
 ; ----------------------------------------------------
 ; The following routine divides hl by c and places the quotient in hl and the remainder in a
 DivHlCRest: 

@@ -1,7 +1,19 @@
+RUNTIME_START: 
+
 zxromCl         equ $0D6B
 zxromPlot:      equ $22DC+3
 zxromClSet:     equ $0DD9 ; b = B	Line number C	Column number
 zxromAlpha:     equ $2C8D
+runtimeMult16bit: equ $30A9
+
+runtimeDiv16bit: 
+                ex hl,de
+                ld bc,hl
+
+                call Div16                
+                ld hl,bc
+                 ret
+
 ; * 128 If the character position is flashing, 0 if it is steady 
 ;	64 if the character position is bright, 0 if it is normal 
 ;	8* the code for the paper colour 
@@ -16,7 +28,7 @@ PRINTA:                 macro
                         endif
                         endm
 runtimeCls:             ld      e,0
-                        ld      h,0
+                        ld      l,0
                         call    runtimePrintAt
                         LD		HL,$4000
                         LD		BC,6144
@@ -38,8 +50,7 @@ rt_cls2:
                         LD    A,B
                         OR    C
                         JP		NZ, rt_cls2
-                        ld    bc,0
-                        call  runtimePrintAt
+
                         RET
     ret
 runtimeLocalInk:
@@ -391,6 +402,10 @@ CTOB:
     ld b,c
     ret
 
+runtimeCheckBreak:      call    $1F54
+                        ret     c
+                        ld     sp,(runtimeSaveSP)
+                        ret
 rtGetKeyOrJoystick		call	ReadKeyboard
 						cp		0
 						jr		nz, rtGetKeyOrJoystick2
@@ -514,6 +529,6 @@ rtKeyboard_Map:         DB $FE, 1,"Z","X","C","V"
                         DB $BF,13,"L","K","J","H"
                         DB $7F," ",2,"M","N","B"   
 
+runtimeSaveSP:          dw 0
 
-
- 
+ DISPLAY "Runtime Size =",/D, $-RUNTIME_START, " bytes"
