@@ -1,11 +1,21 @@
 # ZXBasicCompiler
-ZXBasic Compiler
+
+Diese BASIC-Compiler lädt das BASIC aus einer .TAP-Datei, d.h. man benutzt den ZX Spectrum Emulator zum Editieren und Testen.
+Der Compiler erzeugt daraufhin eine Textdatei welche mit einem Assembler kompiliert werden muss (sjasmplus). 
+Wenn die Optimierung eingeschaltet ist, wird eine gut lesbare Assemblerdatei erzeugt welche bei Bedarf weiter bearbeitet werden kann.
+
+# Demo Tapes
+BASIC: https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel2/compilerdemo.tap
+Kompiliert: https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel2/Assembler/compiled.tap
+Assembler-code: https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel2/Assembler/compiledBasic.asm
+
+# ZXBasic Compiler
 Dieser Compiler ist ein Artikel für die Spectrum User Group.
-Er erstellt einen BASIC-Compiler in Java für den ZX Spectrum.
-Sie können den Quellcode und die Demobänder von diesem Git-Repository herunterladen
+Im Ordner Artikel1 befindet sich ein rudimentärer Compiler welcher im Artikel erläutert wird.
+Im Ordner Artikel2 befindet sich die aktuell in Entwicklung befindliche Version.
 
 Sie können der Benutzergruppe beitreten unter
-www.speccy-scene.de 
+https://www.speccy-scene.de 
 
 Wenn wir ein ZX Spectrum BASIC Programm mit 16bit Integers anstelle von Floats kompilieren, sieht der Geschwindigkeitszuwachs wie folgt aus
 Der linke Bildschirm ist interpretiertes BASIC, der rechte Bildschirm das gleiche Programm, kompiliert mit unserem Compiler
