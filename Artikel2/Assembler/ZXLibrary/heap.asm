@@ -1,4 +1,4 @@
-
+HEAPSTART:            
 ZXHeapStart:            dw  $F000
 ZXHeapTop:             dw  $F000
 ZXHeapEnd:             dw  $FFF0
@@ -22,10 +22,12 @@ ZXHeapClear:            push hl
                         ld (ZXHeapTop),hl
                         ld de,(ZXHeapEnd)
                         push hl
+                        ex  hl,de
                         sub hl,de
-                        ld  de,hl
+                        ld  bc,hl
                         pop hl
 ZXHeapClearLooop:       ld   (hl),$0
+                        inc  hl
                         dec bc
                         ld  a,c
                         or  b
@@ -33,17 +35,135 @@ ZXHeapClearLooop:       ld   (hl),$0
                         pop bc
                         pop de
                         pop hl
+                        call ZXClearHeap
                         ret
 
-ZXBlockType:            equ 0
-ZXBLockBacklink:        equ 1
-ZXBlockSize:            equ 3           
+ZXBlockType:            equ 0          ; 1 Byte typ
+ZXBLockBacklink:        equ 1          ; 2 Byte backlink
+ZXBlockSize:            equ 3          ; 2 Byte size of block
+ZXBlockMemory:          equ 5          ; Memory starts here, so the first 5 bytes are used for the header
+ZXHeapHeaderSize:      equ 5          ; Size of the header in bytes
+ZXHeapWalkStart:        equ 0          ; Start of the heap walk
 
+ZXHeapTypeEmpty         equ 0          ; Empty heap element
+ZXHeapTypeUsed          equ 1          ; Used heap element 
+ZXHeapTypeTemp           equ 2         ; Temporary heap element (used in eval() for temp result)
+
+ZXHeapBlockFirst:       ld       ix, (ZXHeapStart)
+                        ret
+ZXHeapBlockNext:        push hl
+                        push de
+                        ld de,(ZXHeapEnd)
+                        ld hl,ix
+                        sub hl,de
+                        jr  nc, ZXHeapBlockNextEnd
+                        jr   z, ZXHeapBlockNextEnd
+                        ld hl,ix
+                        ld  de,(ix+ZXBlockSize) ; Get the size of the current block
+                        add hl,de               ; Add the size of the current block to the pointer
+                        LD  DE,5
+                        add HL,DE
+                        ld   ix,hl              ; Set the new pointer to the next block
+
+                        pop  de
+                        pop  hl
+                        LD   A,1
+                        cp   0
+                        ret
+ZXHeapBlockNextEnd:     pop  de
+                        pop  hl
+                        LD   A,0
+                        cp   0
+                        ret    
+; IX = current heap block
+; DE = prev Heap block or 0
+; Check if Block IX is free
+; Check if Block DE is free
+; if both are free, combine the blocks and set IX to DE
+
+
+
+
+
+
+ZXFreeTemp:             call     ZXHeapBlockFirst
+ZXFreeTempLoop:         LD       a,(ix+ZXBlockType)
+                        cp       ZXHeapTypeTemp
+                        jr       nz,ZXFreeTempLoop1
+                        ld       a,ZXHeapTypeEmpty
+                        ld       (ix+ZXBlockType),a ; Mark as empty
+ZXFreeTempLoop1:      
+                        push     ix
+                        pop      de
+                        call     ZXHeapBlockNext
+                        ret     z
+                        jr       ZXFreeTempLoop
+
+ZXHeapCompactFree:      ; Compact the heap by combining empty blocks to bigger blocks
+                        LD IX, (ZXHeapStart)
+                        LD BC, (ZXHeapEnd)
+ZXHeapCompactFree1:     ld    a,(ix+ZXBlockType) ; Get the type of the current block
+                        cp    ZXHeapTypeEmpty
+                        jr    nz,ZXHeapCompactFreeNext ; If empty, combine with next block
+; the block at ix is a free block.
+; lets see if the next block is also free
+; if the next block is the heap end, return                        
+                        ld    hl,ix
+                        ld    DE,(ix+ZXBlockSize)
+                        add   hl,de
+                        LD    DE,5
+                        add   hl,de                        
+                        push  hl
+                        sub   hl,bc
+                        jr    nz, ZXHeapFreeCompact2 ; If not at the end of the heap, continue
+                        pop   hl
+                        ret
+ZXHeapFreeCompact2:         ; now hl points to a free block which is next to ix
+                        pop   hl
+                        ld    a,(HL)
+                        cp    ZXHeapTypeEmpty
+                        jr    nz,ZXHeapCompactFreeNext ; If not empty, continue with next block
+                        ; Combine the two blocks
+                        ld    de,ZXBlockSize
+                        add   hl,de
+                        ld    de,(hl)              ; de contains size of next block
+                        ld    hl,(ix+ZXBlockSize) ; hl contains size of current block
+                        add   hl,de
+                        ld    de,5
+                        add   hl,de
+                        ld   (ix+ZXBlockSize),hl  ; Store the new size of the combined block
+                        jr   ZXHeapCompactFree1
+ZXHeapCompactFreeNext:      ld    DE,(ix+ZXBlockSize)
+                        add   ix,de
+                        LD    DE,5
+                        add   ix,de
+                        ld    hl,ix
+                        sub   hl,bc
+                        jr    nz,ZXHeapCompactFree1 ; If not at the end of the heap, continue
+                        ret
+
+                        
 ; --------------------------------------------------------
 ; heap walk. Displays the heap (Debug only)
 ; --------------------------------------------------------
-ZXHeapWalk:
+ZXHeapWalk:         if DEBUG=1
+                    PUSHA
+                    call saveScreen 
+                    call ZXHeapWalkPrint
+                    if DEBUGSAVESCREEN
+                    call GetKey
+                    call restoreScreen
+                    endif 
+                    endif
+                    POPA
+                    ret
+
+ZXHeapWalkPrint:
                     if DEBUG=1
+                    PUSHA
+                    ld a,0
+                    ld (charX),a
+                    ld (charY),a
                     call printf
                     db    "----------- heap ----------/n"
                     db    "addr ty back back size/n",0
@@ -71,29 +191,39 @@ ZXHeapWalk2:        ld   a,' '
                     call   printA                    
                     call   printA                    
                     call   printA                    
-ZXHeapWalk3:                    
-
-
-                    ld   a,' '
+ZXHeapWalk3:        ld   a,' '
                     call printA
                     ld   hl,(ix+ZXBlockSize)
                     call printDezHL
+                    ld   a,(ix)
+                    cp   ZXHeapTypeEmpty
+                    jr   z,ZXHeapPrintContents3
                     ld   a,23
-                    ld   (charX),a
-               
+                    ld   (charX),a 
+
                     ld   hl,ix
                     ld   bc,5
                     add  hl,bc
                     ld   bc,(ix+ZXBlockSize)
                     ld   a,c
-
                     and  $7f
                     cp   0
                     jr   z,ZXHeapPrintContents3
                     cp   8
                     jr   c,ZXHeapPrintContents2
                     ld   a,8
-ZXHeapPrintContents2:                    
+ZXHeapPrintContents2:  
+                    ld   bc,(hl)
+                    ld   d,a
+                    ld   a,b
+                    or   c
+                    jr  z,ZXHeapPrintContents3
+                    ld  b,c
+                    ld  a,d
+                    inc  hl
+                    inc  hl
+                    cp   a
+                    jr   nc,ZXHeapPrintContents                  
                     ld   b,a
 ZXHeapPrintContents:ld     a,(hl)
                     inc    hl
@@ -117,22 +247,27 @@ ZXHeapWalk4:        ld  hl,ix
                     call printHex4Hl
                     call newline                    
                     endif
+                    POPA
                     ret
 
-ZXHeapTest:        if DEBUG=1    
-                    call cls                
-                  
-
+ZXHeapTest:        if DEBUG=1 
+                   call cls                
                    call ZXClearHeap
                    call ZXHeapWalk
-
-
-
+                   ld  HL,$0
+                   call ZXCheckIfHlisHeapBlock
+                   ld  HL,$3000
+                   call ZXCheckIfHlisHeapBlock
+                   ld  HL,$fffe
+                   call ZXCheckIfHlisHeapBlock
+                   ld  hl,(ZXHeapStart)   
+                   call ZXCheckIfHlisHeapBlock
+                  ld hl,$f0f0
+                   call ZXCheckIfHlisHeapBlock
                    ld   hl, TestString1
                    ld   de, ZXVariableAStr
                    ld   bc, TestString1Len
                    call ZXSaveString
-
                    ld   a,1
                    ld   bc,100
                    ld   hl,ZXHeapTestM1
@@ -161,10 +296,47 @@ ZXHeapTest:        if DEBUG=1
                    ld   a,1
                    ld   bc,4
                    call ZXAlloc
-                call ZXHeapWalk
+                   call restoreScreen
+                   call ZXHeapWalk
                    call GetKey
                    endif
                    ret
+
+                   if DEBUG=1
+saveScreen:       if DEBUGSAVESCREEN=1
+                  push hl
+                  push de
+                  push bc
+                  call GetKey
+                  ld  de,saveSreenData
+                  ld  hl,$4000
+                  ld  bc,6144+768
+                  ldir
+                  call cls
+                  pop  bc
+                  pop  de
+                  pop hl
+                  endif
+                  ret
+restoreScreen:   if DEBUGSAVESCREEN=1
+                  push hl
+                  push de
+                  push bc
+                  ld  hl,saveSreenData
+                  ld  de,$4000
+                  ld  bc,6144+768
+                  ldir
+                  pop  bc
+                  pop  de
+                  pop hl
+                  endif              
+                  ret
+
+saveSreenData:    if DEBUGSAVESCREEN=1
+                  defs 6144+768
+                  endif
+                  endif
+
 ZXHeapTestM1:      dw 0                   
 ZXHeapTestM2:      dw 0                   
 ZXHeapTestM3:      dw 0   
@@ -188,15 +360,13 @@ ZXClearHeap:         push   ix
                      sub  hl,de
                      ld   de,5
                      sub  hl,de
-                     ld   (ix+ZXBlockType),0
+                     ld   (ix+ZXBlockType),ZXHeapTypeEmpty ; Mark as empty
                      ld   (ix+ZXBlockSize),hl
                      ld   (ix+ZXBLockBacklink),0
                      pop  de
                      pop  hl
                      pop  ix
                      ret
-
-
 
 ; --------------------------------------------------------
 ; Allocate memory
@@ -206,7 +376,6 @@ ZXClearHeap:         push   ix
 ; A = 0 : Failed
 ; A = 1 : OK
 ; --------------------------------------------------------
-
 
 ZXAlloc:                push ix
                         push bc
@@ -256,7 +425,6 @@ ZXAllocLoop1:           ld de,(ZXHeapEnd)
                         pop  bc
                         pop ix
                         ret
-
 ; A = Block type
 ; BC = Block Size
 ; HL = Pointer to Variable
@@ -303,13 +471,45 @@ ZXSaveString:          push hl
 
 
 
-
 ZXAllocLoopNextBlock:   add ix,de
                         ld DE,5
                         add ix,de
                         jp  ZXAllocLoop1
 
-ZXFree:                 push bc
+ZXCheckIfHlisHeapBlock:
+                        push de
+                        push hl
+                        ex   hl,de
+                        ld   hl,(ZXHeapStart)
+                        sub  hl,de
+                        jr  z,ZXIsHeapBlock
+                        jr  nc,ZXNotHeapBlock              ; If hl is negative, we are not in the heap
+                        ld  hl,(ZXHeapEnd)
+                        sub hl,de
+                        jr  z,ZXIsHeapBlock
+                        jr  c,ZXNotHeapBlock            
+ZXIsHeapBlock:
+                        ld  a,1
+                        cp 0
+                        pop hl
+                        pop de  ; If hl is negative, we are not in the heap
+                        ret                                   ; Otherwise return with z reset                        
+ZXNotHeapBlock:         ld   a,0
+                        cp   0
+                        pop  hl
+                        pop  de
+                        ret
+ZXFreeStringVar:        push hl
+                        push de
+                        ld   de,(hl)
+                        ld   hl,de
+                        call ZXFree
+                        pop  de
+                        pop  hl
+                        ret                        
+ZXFree:                 call ZXCheckIfHlisHeapBlock
+                        ret  z
+                        push bc
                         ld   bc,5                       ; Subtract block size
                         sub  hl,bc
                         ld   (hl),0                     ; Mark block as free
@@ -320,22 +520,41 @@ ZXFree:                 push bc
                         pop bc                        
                         ret
 
-
+; HL points to a memory block. If the block is in the heap, set the type to used
+ZXClaim:                call ZXCheckIfHlisHeapBlock
+                        ret  z
+                        push hl
+                        push de
+                        ld   de,ZXHeapHeaderSize
+                        sub  hl,de
+                        ld   (hl),ZXHeapTypeUsed ; Mark as used
+                        pop  de
+                        pop  hl
+                        ret
 ; We did not find any memory block with the required size (or did not find any block at all)
 ; now create a new block at the end of the memory.
-ZXAllocNotFound:        ld   hl,0
+ZXAllocNotFound:        ld   hl,error_no_heap
+                        call runtimePrintString
+                        ld   sp,(runtimeSaveSP)
+                        ret
+                        ld   hl,0
                         ld   a,$ff
                         pop  de
                         pop  bc
                         pop ix
                         ret
 
+                   
+error_no_heap:          dw error_no_heap1-$-2
+                        db "No memory left in heap"
+error_no_heap1          equ $                        
 
 
 ZXGarbage2:             ret
 
 
 
+      DISPLAY "Heap Size =",/D, $-HEAPSTART, " bytes"
 
 
 

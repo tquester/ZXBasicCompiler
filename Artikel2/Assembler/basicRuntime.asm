@@ -4,14 +4,120 @@ zxromCl         equ $0D6B
 zxromPlot:      equ $22DC+3
 zxromClSet:     equ $0DD9 ; b = B	Line number C	Column number
 zxromAlpha:     equ $2C8D
-runtimeMult16bit: equ $30A9
+zxMult16bit: equ $30A9
+
+zxcalc_jump_true:		equ $00 
+zxcalc_tan:		        equ $21 
+zxcalc_exchange:		equ $01 
+zxcalc_asn:		        equ $22 
+zxcalc_delete:		    equ $02 
+zxcalc_acs:		        equ $23 
+zxcalc_subtract:		equ $03 
+zxcalc_atn:		        equ $24 
+zxcalc_multiply:		equ $04 
+zxcalc_ln:		        equ $25 
+zxcalc_division:		equ $05 
+zxcalc_exp:		        equ $26 
+zxcalc_to_power:		equ $06 
+zxcalc_int:		        equ $27 
+zxcalc_or:		        equ $07 
+zxcalc_sqr:		        equ $28 
+zxcalc_no_and_no:		equ $08 
+zxcalc_sgn:		        equ $29 
+zxcalc_no_l_eql:		equ $09 
+zxcalc_abs:		        equ $2A 
+zxcalc_no_gr_eq:		equ $0A 
+zxcalc_peek:		    equ $2B 
+zxcalc_nos_neql:		equ $0B 
+zxcalc_in:		        equ $2C 
+zxcalc_no_grtr:		    equ $0C 
+zxcalc_usr_no:		    equ $2D 
+zxcalc_no_less:		    equ $0D 
+zxcalc_st:		        equ $2E 
+zxcalc_nos_eql:		    equ $0E 
+zxcalc_ch:		        equ $2F 
+zxcalc_addition:		equ $0F 
+zxcalc_not:		        equ $30 
+zxcalc_str_and_no:		equ $10 
+zxcalc_duplicate:		equ $31 
+zxcalc_str_l_eql:		equ $11 
+zxcalc_n_mod_m:		    equ $32 
+zxcalc_str_gr_eq:		equ $12 
+zxcalc_jump:		    equ $33 
+zxcalc_strs_neql:		equ $13 
+zxcalc_stk_data:		equ $34 
+zxcalc_str_grtr:		equ $14 
+zxcalc_dec_jr_nz:		equ $35 
+zxcalc_str_less:		equ $15 
+zxcalc_less_0:		    equ $36 
+zxcalc_strs_eql:		equ $16 
+zxcalc_greater_0:		equ $37 
+zxcalc_strs_add:		equ $17 
+zxcalc_end_calc:		equ $38 
+zxcalc_valstr:		    equ $18 
+zxcalc_get_argt:		equ $39 
+zxcalc_usr_str:		    equ $19 
+zxcalc_truncate:		equ $3A 
+zxcalc_read_in:		    equ $1A 
+zxcalc_fp_calc_2:		equ $3B 
+zxcalc_negate:		    equ $1B 
+zxcalc_e_to_fp:		    equ $3C 
+zxcalc_code:		    equ $1C 
+zxcalc_re_stack:		equ $3D 
+zxcalc_val:		        equ $1D 
+zxcalc_series_06:		equ $3E 
+zxcalc_len:		        equ $1E 
+zxcalc_stk_zero:		equ $3F 
+zxcalc_sin:		        equ $1F 
+zxcalc_st_mem_0:		equ $40 
+zxcalc_cos:		        equ $20 
+zxcalc_get_mem_0:		equ $41 
+
+xorb1:          ld a,1
+                xor b
+                ld b,a
+                ret
+neghl:          ex hl,de
+                xor a
+                ld l,a
+                ld h,a
+                sbc hl,de
+                ret                
+runtimeMult16bit:
+                ld b,0
+                call sgnabs
+                cp $ff
+                call z,xorb1
+                ex hl,de
+                call sgnabs
+                cp $ff
+                call z,xorb1
+                push bc
+                ld bc,hl
+                call zxMult16bit
+                pop bc
+                ld  a,b
+                cp  $1
+                call z,neghl
+                 ret
 
 runtimeDiv16bit: 
+                ld b,0
+                call sgnabs
+                cp $ff
+                call z,xorb1
                 ex hl,de
+                call sgnabs
+                cp $ff
+                call z,xorb1
+                push bc
                 ld bc,hl
-
                 call Div16                
                 ld hl,bc
+                pop bc
+                ld  a,b
+                cp  $1
+                call z,neghl
                  ret
 
 ; * 128 If the character position is flashing, 0 if it is steady 
@@ -20,12 +126,13 @@ runtimeDiv16bit:
 ;	the code for the ink colour
 
 PRINTA:                 macro
-                        if DEBUG=1
-                        call printA
-                        else
+;                        if DEBUG=1
+;                        call printA
+;                        else
+                        PUSH HL
                         call $09F4
-                    ;   rst $10
-                        endif
+                        POP HL                    ;   rst $10
+;                        endif
                         endm
 runtimeCls:             ld      e,0
                         ld      l,0
@@ -187,7 +294,6 @@ runtimePaper:
 runtimePlot:  
 	LD B,L
 	LD C,E
-
     call zxromPlot
     ret
 
@@ -249,13 +355,13 @@ runtimePrntString1:
     ret
 
 runtimePrintAt:
-    if DEBUG=1
-    ld a,l
-    ld (charX),a
+;    if DEBUG=1
+;    ld a,l
+;    ld (charX),a
 
-    ld a,e
-    ld (charY),a
-    else
+;    ld a,e
+;    ld (charY),a
+;    else
     ld b,e
     ld c,l
     ld a,24
@@ -266,7 +372,7 @@ runtimePrintAt:
     ld c,a
 ;    ld (ZX_S_POSN_COL),bc
     call zxromClSet
-    endif
+ ;   endif
     ret
 
 runtimePrintNewline:
@@ -274,7 +380,18 @@ runtimePrintNewline:
     PRINTA
     ret    
 
-runtimePrintInt:    push    ix
+runtimePrintTab:
+    ld a,6
+    PRINTA
+    ret    
+
+runtimePrintInt:   call sgnabs
+                   cp a,$ff
+                   jr nz,runtimePrintPos
+                   ld a,"-"
+                   PRINTA
+runtimePrintPos:                    
+                   push    ix
                     push    iy
                     push    hl
                     push    de
@@ -512,7 +629,264 @@ rtReadMKeyboard_2:	    INC HL                                  ; Go to next tabl
                         POP     HL
                         RET
 
+; -----------------------------
+; Stringverarbeitung
+; -----------------------------
+
+; HL = Adress of variable
+; DE = Adress of string to store
+runtimeStoreString:
+    call ZXFreeStringVar ; Free old string if it is a heap string
+    push hl
+    ld   l,e
+    ld   h,d
+    call ZXClaim ; Claim memory for the string
+    pop  hl
+    ld   (hl),de
+    call ZXFreeTemp
+    call ZXHeapCompactFree
+
+    ret
+; BC = String
+; DE = von                  ;   1 = erste Position
+; HL = bis    
+runtimeSubstring:
+            dec de
+            
+            push bc
+            push hl
+            pop  bc
+            pop  hl
+            ld   a,b
+            and  c
+            cp   $ff
+            call z, runtimeSubstringEnd
+           ; dec  bc
+; jetzt: hl = String
+    ;        de = start
+    ;        bc = ende    
+            push hl
+            ld hl,bc
+            sub hl,de
+            ld  bc,hl              ; bc = länge
+            pop hl
+            add hl,de              ; hl = Start des Strings
+            push  hl
+            ld   a,ZXHeapTypeTemp
+            inc  bc
+            inc  bc                 ; 2 bytes for length
+            call ZXAlloc           ; hl = Ziel
+            pop  de                ; de = Quelle, bc = Länge
+            push hl
+            dec  bc
+            dec  bc
+            ld   (hl),bc
+            inc  hl
+            inc  hl
+            inc  de
+            inc  de
+            ex  de,hl
+            ldir 
+            pop  hl
+            ret
+    ret
+
+runtimeSubstringEnd
+    ld  c,(hl)              ; Lade die Länge nach Bc
+    inc hl
+    ld  b,(hl)
+    dec hl
+    ret    
+
+; HL = second string
+; DE = first String
+runtimeStringAdd:
+    push hl
+    push de
+    ld   bc,(hl)
+    ld   hl,bc
+    ld   a,(de)
+    ld   c,a
+    inc  de
+    ld   a,(de)
+    ld   b,a
+    dec  de
+    add  hl,bc          ; Länge beider Strings
+    ld   bc,hl
+    inc  bc
+    inc  bc
+    ld   a,ZXHeapTypeTemp
+    call ZXAlloc
+    push hl
+    pop  ix
+    dec  bc
+    dec  bc
+    ld   (hl),bc
+    inc  hl
+    inc  hl
+    ld   de,hl          ; Ziel
+    pop  hl
+    ld   c,(hl)
+    inc  hl
+    ld   b,(hl)
+    inc  hl
+    call ldirnotzero
+    pop  hl
+    ld   bc,(hl)
+    inc  hl
+    inc  hl
+    call ldirnotzero
+    push ix
+    pop  hl
+    ret
+
+ldirnotzero:
+    ld   a,b
+    or   c
+    ret  z
+    ldir
+    ret
+runtimeChr:
+    push hl
+    ld bc,3
+    ld  a,ZXHeapTypeTemp
+    call ZXAlloc    
+    ld   bc,1
+    ld   (hl),bc
+    inc  hl
+    inc  hl
+    pop  bc
+    ld   (hl),c
+    dec  hl
+    dec hl
+    ret
+    
+
+
+
+; BC = String (2 bytes length + string)
+; HL = Char Position + 1
+runtimeCharAt:
+    push hl
+    push bc
+    ld   bc, 3      ; 1 Byte String + 2 Byte Len
+    call ZXAlloc
+    dec  bc
+    dec  bc
+    ld   (hl),bc
+    inc  hl
+    inc  hl
+    pop  de
+    pop  bc
+    push hl
+    dec  bc         ; bc = char position, de = string, hl = new String
+    inc  de
+    inc  de
+    ex   de,hl
+    add  hl,bc
+    ld   a,(hl)
+    ld   (de),a
+    pop  hl
+    dec  hl
+    dec  hl
+    ret
+runtimeVal:
+
+    ret
+runtimePrintFloat:
+    call $2DE3;    2DE3: THE 'PRINT A FLOATING-POINT NUMBER' SUBROUTINE 
+    ret
+
+; input HL
+; Output HL, A
+;   if HL is a negative number, a positive number is returned and A is 255 (-1)
+;   if HL is null, A = 0
+;   if HL is positive A = 1
+
+sgnabs:    
+    ld  a,h
+    or  l
+    jr  z, sgnabszero
+    ld  a,h
+    and $80
+    jr  nz,sgnabs1
+    ld  a,1
+    ret
+sgnabs1:
+    push de
+    ex   hl,de
+    xor  a
+    ld   h,a
+    ld   l,a
+    sbc hl,de
+    pop  de
+    ld   a,255
+    ret
 		
+sgnabszero:
+    ld a,0
+    ret
+
+runtimeIntToFloat:
+    LD      BC,HL
+    call    $2D2B               ;  2D2B: THE 'STACK-BC' SUBROUTINE
+    ret
+
+runtimeFloatToInt:
+    call    $2DA2;              ; FTP-TO-BC    
+    LD      HL,BC
+    ret
+; Store a float in the variable (hl), remove from calculator stack
+runtimeStoreFloat:
+    ex hl,de                    ; Save Pointer to Var to DE
+    LD HL,($5C65)	            ; Fetch the 'old' STKEND.
+	LD BC,$05	
+    sub hl,bc                ; There are 5 bytes to move.
+    ldir                        ; Copy varable to stack
+    LD ($5C65),HL               ; Save STKEND
+    ret
+
+; Store the variable (hl) on the calculator stack
+runtimePushFloatVar:
+    ex hl,de                    ; Save Pointer to Var to DE
+    LD HL,($5C65)	            ; Fetch the 'old' STKEND.
+	LD BC,$05	                ; There are 5 bytes to move.
+    sub HL,BC	                ; The 'new' STKEND='old' STKEND minus 5.
+    ldir                        ; Copy varable to stack
+    LD ($5C65),HL               ; Save STKEND
+    ret
+
+runtimePushPi:
+		RST $28	                ; Now use the calculator.
+        db $A3	                ; stk_pi_2: The value of π/2 is put on the calculator stack as the 'last value'.
+    	db zxcalc_end_calc      ; end_calc
+	    INC (HL)	            ; The exponent is incremented thereby doubling the 'last value' giving π.
+        ret
+
+runtimeAddFloat:
+    RST $28
+    db  $0F                     ; ADD
+    db  $38                     ; end calc
+
+    ret    
+runtimeMinusFloat:
+    RST $28
+    db  $03                     ; SUB
+    db  $38                     ; end calc
+    ret    
+
+runtimeMultFloat:
+    RST $28
+    db  $04                     ; NULT
+    db  $38                     ; end calc
+    ret
+runtimeDivFloat:
+    RST $28
+    db  $05                     ; DIV
+    db  $38                     ; end calc
+    ret
+
+
 
 rtReadKeyboardPressedKeys:defs 5*8+1,0						
 

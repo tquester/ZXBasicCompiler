@@ -3,7 +3,7 @@
 ; main.asm
 ;===========================================================================
 DEBUG                       equ 0			; Enables debug mode. Used to test so new functions. Compiled BASIC runs with custom PRINT command
-DEBUGBASIC                  equ 1			; Initializes the ZX Spectrum using a copy of the startup, then starts the compiled BASIC program.
+DEBUGBASIC                  equ 0			; Initializes the ZX Spectrum using a copy of the startup, then starts the compiled BASIC program.
 											; Rom routines are allowed
 DEBUGSAVESCREEN				equ 0			; Heep Walk saves and restores the screen (costs 6144+768 Bytes )
 DEBUGMATH                   equ 0			; Calls the Math Debug code on run	
@@ -70,10 +70,22 @@ InitSpectrum:
         ld HL, 20
         ld ($5C36),HL       ; RASP
         ld HL, PROGSTART-21*8
-        ld ($5C78), HL      ; UDG
-;        CALL $11B7
+    ;    ld ($5C78), HL      ; UDG
+    ;    CALL $11B7
         call NEW
 
+        LD DE,(23635)          ; Start of BASIC
+        ld HL,BASIC 
+        ld BC,BASIC_LEN
+    ;   ldir
+        
+		LD DE,BASIC_END
+	;	ld ($5C59),DE
+		inc DE
+	;	ld ($5C49),DE
+
+;       LD A,$20	; Channel 'K' is opened before calling the EDITOR.
+;    	CALL 15EF; CHAN_OPEN
 
 
 
@@ -204,16 +216,16 @@ RAM_SET	LD ($5CB2),HL	; Set RAMTOP.
 	LD (IY+$31),$02	; Set the size of the lower part of the display (DF-SZ) and clear the whole display.
 	CALL $0D6B; CLS
 	XOR A	; Now print the message '© 1982 Sinclair Research Ltd' on the bottom line.
-	LD DE,$1538
-	CALL $0BDB; PO_MSG
+	;LD DE,$1538
+	;CALL $0BDB; PO_MSG
 	ld  A,(IY+$02)
 	and $fe	; Clear bit 0 of TV-FLAG.
 	ld (IY+$02),A
 	SET 5,(IY+$02)	; Signal 'the lower part will required to be cleared' (set bit 5 of TV-FLAG).
-	LD  HL,32000
+	LD  HL,27121
 	ld  (23651),HL
 	LD  (23653),HL
-	;call compiledBasic
+	call compiledBasic
 
  	jp  $12a2
 	RET        

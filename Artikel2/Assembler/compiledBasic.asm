@@ -1,56 +1,61 @@
 
 CBASIC_START
 compiledBasic:
+	call ZXHeapClear
 	LD (runtimeSaveSP),SP
+ZX_LINE_10:
+ZX_LINE_20:
+; 20  LET a=1{00 00 01 00 00 }
+	LD HL,1
+	LD (ZXBASIC_VAR_a),HL
+ZX_LINE_30:
+; 30  LET a=a+1{00 00 01 00 00 }
+	LD HL,(ZXBASIC_VAR_a)
+	INC HL
+	LD (ZXBASIC_VAR_a),HL
+ZX_LINE_40:
+; 40  LET a=a-1{00 00 01 00 00 }
+	LD HL,(ZXBASIC_VAR_a)
+	DEC HL
+	LD (ZXBASIC_VAR_a),HL
 ZX_LINE_100:
-	CALL runtimeCheckBreak
-	LD HL, 6 
+; 100  PAPER 6 {00 00 06 00 00 }: INK 1{00 00 01 00 00 }
+	LD HL,6 
 	CALL runtimePaper
-	CALL runtimeCheckBreak
-	LD HL, 1
+	LD HL,1
 	CALL runtimeInk
 ZX_LINE_105:
-;105  CLS 
-	CALL runtimeCheckBreak
+; 105  CLS 
 	CALL runtimeCls
 ZX_LINE_106:
-;106  GOTO 3300{00 00 e4 0c 00 }
-	CALL runtimeCheckBreak
+; 106  GOTO 3300{00 00 e4 0c 00 }
 	JP ZX_LINE_3300
 ZX_LINE_110:
-;110  LET a$="1234"
-	CALL runtimeCheckBreak
-	LD HL, STRING_0
-;Store stringa_string
+; 110  LET a$="1234"
+	LD HL,STRING_0	;1234
 	PUSH HL
 	POP DE
 	LD HL,ZXBASIC_VAR_a_string
 	CALL runtimeStoreString
-;---
 ZX_LINE_120:
-;120  PRINT a$(1{00 00 01 00 00 } TO 2{00 00 02 00 00 })
-	CALL runtimeCheckBreak
-	LD HL, (ZXBASIC_VAR_a_string)
+; 120  PRINT a$(1{00 00 01 00 00 } TO 2{00 00 02 00 00 })
+	LD HL,(ZXBASIC_VAR_a_string)
 	PUSH HL
-	LD HL, 1
-	PUSH HL
-	LD HL, 2
-	POP DE
+	LD DE,1
+	LD HL,2
 	POP BC
 	CALL runtimeSubstring
 	CALL runtimePrintString
 	CALL runtimePrintNewline
+	CALL ZXFreeTemp
 ZX_LINE_130:
-;130  DIM b$(10{00 00 0a 00 00 })
-	CALL runtimeCheckBreak
+; 130  DIM b$(10{00 00 0a 00 00 })
 ZX_LINE_135:
-;135  LET b$(1{00 00 01 00 00 })="Hallo"
-	CALL runtimeCheckBreak
-	LD HL, 1
+; 135  LET b$(1{00 00 01 00 00 })="Hallo"
+	LD HL,1
 	ADD HL,HL
 	PUSH HL
-	LD HL, STRING_1
-;Store stringb_string
+	LD HL,STRING_1	;Hallo
 	PUSH HL
 	POP DE
 	POP HL
@@ -58,204 +63,123 @@ ZX_LINE_135:
 	ADD HL,BC
 	LD (HL),DE
 ZX_LINE_140:
-;140  PRINT b$(1{00 00 01 00 00 })(2{00 00 02 00 00 } TO )(1{00 00 01 00 00 } TO )
-	CALL runtimeCheckBreak
-	LD HL, 1
+; 140  PRINT b$(1{00 00 01 00 00 })(2{00 00 02 00 00 } TO )(1{00 00 01 00 00 } TO )
+	LD HL,1
 	ADD HL,HL
 	LD DE, ZXBASIC_VAR_b_string
 	ADD HL,DE
 	LD DE,(HL)
 	PUSH DE
-	LD HL, 2
-	PUSH HL
-	LD HL, -1
-	POP DE
+	LD DE,2
+	LD HL,-1
 	POP BC
 	CALL runtimeSubstring
 	PUSH HL
-	LD HL, 1
-	PUSH HL
-	LD HL, -1
-	POP DE
+	LD DE,1
+	LD HL,-1
 	POP BC
 	CALL runtimeSubstring
 	CALL runtimePrintString
 	CALL runtimePrintNewline
+	CALL ZXFreeTemp
 ZX_LINE_1000:
-;1000  LET x=1{00 00 01 00 00 }: LET y=21{00 00 15 00 00 }: LET dx=1{00 00 01 00 00 }: LET dy=1{00 00 01 00 00 }
-	CALL runtimeCheckBreak
-	LD HL, 1
-;Store x
+; 1000  LET x=1{00 00 01 00 00 }: LET y=21{00 00 15 00 00 }: LET dx=1{00 00 01 00 00 }: LET dy=1{00 00 01 00 00 }
+	LD HL,1
 	LD (ZXBASIC_VAR_x),HL
-;---
-	CALL runtimeCheckBreak
-	LD HL, 21
-;Store y
+	LD HL,21
 	LD (ZXBASIC_VAR_y),HL
-;---
-	CALL runtimeCheckBreak
-	LD HL, 1
-;Store dx
+	LD HL,1
 	LD (ZXBASIC_VAR_dx),HL
-;---
-	CALL runtimeCheckBreak
-	LD HL, 1
-;Store dy
+	LD HL,1
 	LD (ZXBASIC_VAR_dy),HL
-;---
 ZX_LINE_1005:
-;1005  FOR i=1{00 00 01 00 00 } TO 5000{00 00 88 13 00 }
-	CALL runtimeCheckBreak
-	LD HL, 1
-;Store i
+; 1005  FOR i=1{00 00 01 00 00 } TO 5000{00 00 88 13 00 }
+	LD HL,1
 	LD (ZXBASIC_VAR_i),HL
-;---
-	LD HL, 5000
+	LD HL,5000
 	PUSH HL
-	LD HL, 1
+	LD HL,1
 	PUSH HL
 FOR_0:
 ZX_LINE_1010:
-;1010  PLOT  OVER 1{00 00 01 00 00 }; INK 3{00 00 03 00 00 };x,y
-	CALL runtimeCheckBreak
-	LD HL, 1
+; 1010  PLOT  OVER 1{00 00 01 00 00 }; INK 3{00 00 03 00 00 };x,y
+	LD HL,1
 	CALL runtimeLocalOver
-	LD HL, 3
+	LD HL,3
 	CALL runtimeLocalInk
-	LD HL, (ZXBASIC_VAR_x)
-	PUSH HL
-	LD HL, (ZXBASIC_VAR_y)
-	POP DE
-	LD B,L
-	LD C,E
+	LD DE,(ZXBASIC_VAR_x)
+	LD HL,(ZXBASIC_VAR_y)
 	CALL runtimePlot
 ZX_LINE_1020:
-;1020  LET x=x+dx
-	CALL runtimeCheckBreak
-	LD HL, (ZXBASIC_VAR_x)
-	PUSH HL
-	LD HL, (ZXBASIC_VAR_dx)
-;+
-	POP DE
-	ADD HL, DE
-;---
-;Store x
+; 1020  LET x=x+dx
+	LD DE,(ZXBASIC_VAR_x)
+	LD HL,(ZXBASIC_VAR_dx)
+	ADD HL,DE
 	LD (ZXBASIC_VAR_x),HL
-;---
 ZX_LINE_1030:
-;1030  LET y=y+dy
-	CALL runtimeCheckBreak
-	LD HL, (ZXBASIC_VAR_y)
-	PUSH HL
-	LD HL, (ZXBASIC_VAR_dy)
-;+
-	POP DE
-	ADD HL, DE
-;---
-;Store y
+; 1030  LET y=y+dy
+	LD DE,(ZXBASIC_VAR_y)
+	LD HL,(ZXBASIC_VAR_dy)
+	ADD HL,DE
 	LD (ZXBASIC_VAR_y),HL
-;---
 ZX_LINE_1040:
-;1040  IF x <= 1{00 00 01 00 00 } ORX x >= 250{00 00 fa 00 00 } THEN  LET dx=0{00 00 00 00 00 }-dx
-	CALL runtimeCheckBreak
-	LD HL, (ZXBASIC_VAR_x)
-	PUSH HL
-	LD HL, 1
-;<=
-	POP DE
+; 1040  IF x <= 1{00 00 01 00 00 } ORX x >= 250{00 00 fa 00 00 } THEN  LET dx=0{00 00 00 00 00 }-dx
+	LD DE,(ZXBASIC_VAR_x)
+	LD HL,1
 	SUB HL,DE
 	LD HL,0
 	call nc,HL1
 	call z,HL1
-;---
 	PUSH HL
-	LD HL, (ZXBASIC_VAR_x)
-	PUSH HL
-	LD HL, 250
-;>=
-	POP DE
+	LD DE,(ZXBASIC_VAR_x)
+	LD HL,250
 	SUB HL,DE
 	LD HL,0
 	call c,HL1
 	call z,HL1
-;---
-;OR
 	POP DE
 	LD A,L
 	OR E
 	LD L,A
 	LD H,0
-;---
-;check for 0
 	LD A,L
 	CP 0
 	JR Z,ZXB_LABEL_1
-;---
-	CALL runtimeCheckBreak
-	LD HL, 0
-	PUSH HL
-	LD HL, (ZXBASIC_VAR_dx)
-;-
-	POP DE
-	EX HL,DE
-	SUB HL, DE
-;---
-;Store dx
+	LD HL,0
+	LD DE,(ZXBASIC_VAR_dx)
+	SUB HL,DE
 	LD (ZXBASIC_VAR_dx),HL
-;---
 ZXB_LABEL_1:
 ZX_LINE_1050:
-;1050  IF y <= 20{00 00 14 00 00 } ORX y >= 160{00 00 a0 00 00 } THEN  LET dy=0{00 00 00 00 00 }-dy
-	CALL runtimeCheckBreak
-	LD HL, (ZXBASIC_VAR_y)
-	PUSH HL
-	LD HL, 20
-;<=
-	POP DE
+; 1050  IF y <= 20{00 00 14 00 00 } ORX y >= 160{00 00 a0 00 00 } THEN  LET dy=0{00 00 00 00 00 }-dy
+	LD DE,(ZXBASIC_VAR_y)
+	LD HL,20
 	SUB HL,DE
 	LD HL,0
 	call nc,HL1
 	call z,HL1
-;---
 	PUSH HL
-	LD HL, (ZXBASIC_VAR_y)
-	PUSH HL
-	LD HL, 160
-;>=
-	POP DE
+	LD DE,(ZXBASIC_VAR_y)
+	LD HL,160
 	SUB HL,DE
 	LD HL,0
 	call c,HL1
 	call z,HL1
-;---
-;OR
 	POP DE
 	LD A,L
 	OR E
 	LD L,A
 	LD H,0
-;---
-;check for 0
 	LD A,L
 	CP 0
 	JR Z,ZXB_LABEL_2
-;---
-	CALL runtimeCheckBreak
-	LD HL, 0
-	PUSH HL
-	LD HL, (ZXBASIC_VAR_dy)
-;-
-	POP DE
-	EX HL,DE
-	SUB HL, DE
-;---
-;Store dy
+	LD HL,0
+	LD DE,(ZXBASIC_VAR_dy)
+	SUB HL,DE
 	LD (ZXBASIC_VAR_dy),HL
-;---
 ZXB_LABEL_2:
 ZX_LINE_1060:
-;1060  NEXT i
-	CALL runtimeCheckBreak
+; 1060  NEXT i
 	LD HL,0
 	ADD HL,SP
 	LD IX,HL
@@ -270,58 +194,40 @@ ZX_LINE_1060:
 	POP AF
 	POP AF
 ZX_LINE_1070:
-;1070  RETURN 
-	CALL runtimeCheckBreak
+; 1070  RETURN 
 	RET
 ZX_LINE_1100:
-;1100  REM 
-	CALL runtimeCheckBreak
+; 1100  REM 
 ZX_LINE_1120:
-;1120  FOR i=0{00 00 00 00 00 } TO 255{00 00 ff 00 00 } STEP 3{00 00 03 00 00 }
-	CALL runtimeCheckBreak
-	LD HL, 0
-;Store i
+; 1120  FOR i=0{00 00 00 00 00 } TO 255{00 00 ff 00 00 } STEP 3{00 00 03 00 00 }
+	LD HL,0
 	LD (ZXBASIC_VAR_i),HL
-;---
-	LD HL, 255
+	LD HL,255
 	PUSH HL
-	LD HL, 3
+	LD HL,3
 	PUSH HL
 FOR_1:
 ZX_LINE_1130:
-;1130  PLOT  INK 1{00 00 01 00 00 };i,0{00 00 00 00 00 }
-	CALL runtimeCheckBreak
-	LD HL, 1
+; 1130  PLOT  INK 1{00 00 01 00 00 };i,0{00 00 00 00 00 }
+	LD HL,1
 	CALL runtimeLocalInk
-	LD HL, (ZXBASIC_VAR_i)
-	PUSH HL
-	LD HL, 0
-	POP DE
-	LD B,L
-	LD C,E
+	LD DE,(ZXBASIC_VAR_i)
+	LD HL,0
 	CALL runtimePlot
 ZX_LINE_1140:
-;1140  DRAW  INK 1{00 00 01 00 00 };255{00 00 ff 00 00 }-i,170{00 00 aa 00 00 }
-	CALL runtimeCheckBreak
-	LD HL, 1
+; 1140  DRAW  INK 1{00 00 01 00 00 };255{00 00 ff 00 00 }-i,170{00 00 aa 00 00 }
+	LD HL,1
 	CALL runtimeLocalInk
-	LD HL, 255
-	PUSH HL
-	LD HL, (ZXBASIC_VAR_i)
-;-
-	POP DE
-	EX HL,DE
-	SUB HL, DE
-;---
-	PUSH HL
-	LD HL, 170
-	POP DE
+	LD HL,255
+	LD DE,(ZXBASIC_VAR_i)
+	SUB HL,DE
+	LD DE,HL
+	LD HL,170
 	LD B,L
 	LD C,E
 	CALL runtimeDraw
 ZX_LINE_1150:
-;1150  NEXT i
-	CALL runtimeCheckBreak
+; 1150  NEXT i
 	LD HL,0
 	ADD HL,SP
 	LD IX,HL
@@ -336,55 +242,39 @@ ZX_LINE_1150:
 	POP AF
 	POP AF
 ZX_LINE_1155:
-;1155  RETURN 
-	CALL runtimeCheckBreak
+; 1155  RETURN 
 	RET
 ZX_LINE_1160:
-;1160  FOR i=1{00 00 01 00 00 } TO 170{00 00 aa 00 00 } STEP 3{00 00 03 00 00 }
-	CALL runtimeCheckBreak
-	LD HL, 1
-;Store i
+; 1160  FOR i=1{00 00 01 00 00 } TO 170{00 00 aa 00 00 } STEP 3{00 00 03 00 00 }
+	LD HL,1
 	LD (ZXBASIC_VAR_i),HL
-;---
-	LD HL, 170
+	LD HL,170
 	PUSH HL
-	LD HL, 3
+	LD HL,3
 	PUSH HL
 FOR_2:
 ZX_LINE_1170:
-;1170  PLOT  INK 2{00 00 02 00 00 };0{00 00 00 00 00 },i
-	CALL runtimeCheckBreak
-	LD HL, 2
+; 1170  PLOT  INK 2{00 00 02 00 00 };0{00 00 00 00 00 },i
+	LD HL,2
 	CALL runtimeLocalInk
-	LD HL, 0
-	PUSH HL
-	LD HL, (ZXBASIC_VAR_i)
-	POP DE
-	LD B,L
-	LD C,E
+	LD DE,0
+	LD HL,(ZXBASIC_VAR_i)
 	CALL runtimePlot
 ZX_LINE_1180:
-;1180  DRAW  INK 2{00 00 02 00 00 };255{00 00 ff 00 00 },170{00 00 aa 00 00 }-i
-	CALL runtimeCheckBreak
-	LD HL, 2
+; 1180  DRAW  INK 2{00 00 02 00 00 };255{00 00 ff 00 00 },170{00 00 aa 00 00 }-i
+	LD HL,2
 	CALL runtimeLocalInk
-	LD HL, 255
+	LD HL,255
 	PUSH HL
-	LD HL, 170
-	PUSH HL
-	LD HL, (ZXBASIC_VAR_i)
-;-
-	POP DE
-	EX HL,DE
-	SUB HL, DE
-;---
+	LD HL,170
+	LD DE,(ZXBASIC_VAR_i)
+	SUB HL,DE
 	POP DE
 	LD B,L
 	LD C,E
 	CALL runtimeDraw
 ZX_LINE_1190:
-;1190  NEXT i
-	CALL runtimeCheckBreak
+; 1190  NEXT i
 	LD HL,0
 	ADD HL,SP
 	LD IX,HL
@@ -399,86 +289,53 @@ ZX_LINE_1190:
 	POP AF
 	POP AF
 ZX_LINE_1195:
-;1195  RETURN 
-	CALL runtimeCheckBreak
+; 1195  RETURN 
 	RET
 ZX_LINE_1200:
-;1200  REM Scroll left
-	CALL runtimeCheckBreak
-	CALL runtimeCheckBreak
-	CALL runtimeCheckBreak
-	CALL runtimeCheckBreak
+; 1200  REM Scroll left
 ZX_LINE_1210:
-;1210  LET adr=16384{00 00 00 40 00 }
-	CALL runtimeCheckBreak
-	LD HL, 16384
-;Store adr
+; 1210  LET adr=16384{00 00 00 40 00 }
+	LD HL,16384
 	LD (ZXBASIC_VAR_adr),HL
-;---
 ZX_LINE_1220:
-;1220  FOR l=1{00 00 01 00 00 } TO 192{00 00 c0 00 00 }
-	CALL runtimeCheckBreak
-	LD HL, 1
-;Store l
+; 1220  FOR l=1{00 00 01 00 00 } TO 192{00 00 c0 00 00 }
+	LD HL,1
 	LD (ZXBASIC_VAR_l),HL
-;---
-	LD HL, 192
+	LD HL,192
 	PUSH HL
-	LD HL, 1
+	LD HL,1
 	PUSH HL
 FOR_3:
 ZX_LINE_1225:
-;1225  LET adrl=adr
-	CALL runtimeCheckBreak
-	LD HL, (ZXBASIC_VAR_adr)
-;Store adrl
+; 1225  LET adrl=adr
+	LD HL,(ZXBASIC_VAR_adr)
 	LD (ZXBASIC_VAR_adrl),HL
-;---
 ZX_LINE_1230:
-;1230  FOR p=0{00 00 00 00 00 } TO 30{00 00 1e 00 00 }
-	CALL runtimeCheckBreak
-	LD HL, 0
-;Store p
+; 1230  FOR p=0{00 00 00 00 00 } TO 30{00 00 1e 00 00 }
+	LD HL,0
 	LD (ZXBASIC_VAR_p),HL
-;---
-	LD HL, 30
+	LD HL,30
 	PUSH HL
-	LD HL, 1
+	LD HL,1
 	PUSH HL
 FOR_4:
 ZX_LINE_1240:
-;1240  POKE adrl+p, PEEK (adrl+p+1{00 00 01 00 00 })
-	CALL runtimeCheckBreak
-	LD HL, (ZXBASIC_VAR_adrl)
+; 1240  POKE adrl+p, PEEK (adrl+p+1{00 00 01 00 00 })
+	LD DE,(ZXBASIC_VAR_adrl)
+	LD HL,(ZXBASIC_VAR_p)
+	ADD HL,DE
 	PUSH HL
-	LD HL, (ZXBASIC_VAR_p)
-;+
-	POP DE
-	ADD HL, DE
-;---
-	PUSH HL
-	LD HL, (ZXBASIC_VAR_adrl)
-	PUSH HL
-	LD HL, (ZXBASIC_VAR_p)
-;+
-	POP DE
-	ADD HL, DE
-;---
-	PUSH HL
-	LD HL, 1
-;+
-	POP DE
-	ADD HL, DE
-;---
-	LD A,(HL)
-	LD L,A
+	LD DE,(ZXBASIC_VAR_adrl)
+	LD HL,(ZXBASIC_VAR_p)
+	ADD HL,DE
+	INC HL
+	LD L,(HL)
 	LD H,0
 	POP DE
 	EX HL,DE
 	LD (HL),E
 ZX_LINE_1250:
-;1250  NEXT p
-	CALL runtimeCheckBreak
+; 1250  NEXT p
 	LD HL,0
 	ADD HL,SP
 	LD IX,HL
@@ -493,36 +350,20 @@ ZX_LINE_1250:
 	POP AF
 	POP AF
 ZX_LINE_1260:
-;1260  POKE adr+31{00 00 1f 00 00 },0{00 00 00 00 00 }
-	CALL runtimeCheckBreak
-	LD HL, (ZXBASIC_VAR_adr)
-	PUSH HL
-	LD HL, 31
-;+
-	POP DE
-	ADD HL, DE
-;---
-	PUSH HL
-	LD HL, 0
-	POP DE
-	EX HL,DE
+; 1260  POKE adr+31{00 00 1f 00 00 },0{00 00 00 00 00 }
+	LD DE,(ZXBASIC_VAR_adr)
+	LD HL,31
+	ADD HL,DE
+	LD DE,0
 	LD (HL),E
 ZX_LINE_1270:
-;1270  LET adr=adr+32{00 00 20 00 00 }
-	CALL runtimeCheckBreak
-	LD HL, (ZXBASIC_VAR_adr)
-	PUSH HL
-	LD HL, 32
-;+
-	POP DE
-	ADD HL, DE
-;---
-;Store adr
+; 1270  LET adr=adr+32{00 00 20 00 00 }
+	LD DE,(ZXBASIC_VAR_adr)
+	LD HL,32
+	ADD HL,DE
 	LD (ZXBASIC_VAR_adr),HL
-;---
 ZX_LINE_1280:
-;1280  NEXT l
-	CALL runtimeCheckBreak
+; 1280  NEXT l
 	LD HL,0
 	ADD HL,SP
 	LD IX,HL
@@ -537,65 +378,47 @@ ZX_LINE_1280:
 	POP AF
 	POP AF
 ZX_LINE_1290:
-;1290  RETURN 
-	CALL runtimeCheckBreak
+; 1290  RETURN 
 	RET
 ZX_LINE_3000:
-;3000  DATA 24{00 00 18 00 00 },60{00 00 3c 00 00 },126{00 00 7e 00 00 },219{00 00 db 00 00 },255{00 00 ff 00 00 },36{00 00 24 00 00 },90{00 00 5a 00 00 },165{00 00 a5 00 00 }
-	CALL runtimeCheckBreak
+; 3000  DATA 24{00 00 18 00 00 },60{00 00 3c 00 00 },126{00 00 7e 00 00 },219{00 00 db 00 00 },255{00 00 ff 00 00 },36{00 00 24 00 00 },90{00 00 5a 00 00 },165{00 00 a5 00 00 }
 ZX_LINE_3010:
-;3010  DATA 60{00 00 3c 00 00 },66{00 00 42 00 00 },102{00 00 66 00 00 },153{00 00 99 00 00 },129{00 00 81 00 00 },90{00 00 5a 00 00 },66{00 00 42 00 00 },60{00 00 3c 00 00 }
-	CALL runtimeCheckBreak
+; 3010  DATA 60{00 00 3c 00 00 },66{00 00 42 00 00 },102{00 00 66 00 00 },153{00 00 99 00 00 },129{00 00 81 00 00 },90{00 00 5a 00 00 },66{00 00 42 00 00 },60{00 00 3c 00 00 }
 ZX_LINE_3020:
-;3020  DATA 0{00 00 00 00 00 },0{00 00 00 00 00 },255{00 00 ff 00 00 },153{00 00 99 00 00 },255{00 00 ff 00 00 },129{00 00 81 00 00 },255{00 00 ff 00 00 },36{00 00 24 00 00 }
-	CALL runtimeCheckBreak
+; 3020  DATA 0{00 00 00 00 00 },0{00 00 00 00 00 },255{00 00 ff 00 00 },153{00 00 99 00 00 },255{00 00 ff 00 00 },129{00 00 81 00 00 },255{00 00 ff 00 00 },36{00 00 24 00 00 }
 ZX_LINE_3100:
-;3100  LET pos= USR "A"
-	CALL runtimeCheckBreak
-	LD HL, STRING_2
+; 3100  LET pos= USR "A"
+	LD HL,STRING_2	;A
 	CALL runtimeUsrUDG
-;Store pos
 	LD (ZXBASIC_VAR_pos),HL
-;---
 ZX_LINE_3110:
-;3110  RESTORE 3000{00 00 b8 0b 00 }
-	CALL runtimeCheckBreak
+; 3110  RESTORE 3000{00 00 b8 0b 00 }
 	LD HL,DATA_3000
 	LD (DATAPTR),HL
 ZX_LINE_3120:
-;3120  LET pos=65368{00 00 58 ff 00 }
-	CALL runtimeCheckBreak
-	LD HL, 65368
-;Store pos
+; 3120  LET pos=65368{00 00 58 ff 00 }
+	LD HL,65368
 	LD (ZXBASIC_VAR_pos),HL
-;---
 ZX_LINE_3130:
-;3130  FOR i=1{00 00 01 00 00 } TO 3{00 00 03 00 00 }
-	CALL runtimeCheckBreak
-	LD HL, 1
-;Store i
+; 3130  FOR i=1{00 00 01 00 00 } TO 3{00 00 03 00 00 }
+	LD HL,1
 	LD (ZXBASIC_VAR_i),HL
-;---
-	LD HL, 3
+	LD HL,3
 	PUSH HL
-	LD HL, 1
+	LD HL,1
 	PUSH HL
 FOR_5:
 ZX_LINE_3140:
-;3140  FOR j=1{00 00 01 00 00 } TO 8{00 00 08 00 00 }
-	CALL runtimeCheckBreak
-	LD HL, 1
-;Store j
+; 3140  FOR j=1{00 00 01 00 00 } TO 8{00 00 08 00 00 }
+	LD HL,1
 	LD (ZXBASIC_VAR_j),HL
-;---
-	LD HL, 8
+	LD HL,8
 	PUSH HL
-	LD HL, 1
+	LD HL,1
 	PUSH HL
 FOR_6:
 ZX_LINE_3150:
-;3150  READ a
-	CALL runtimeCheckBreak
+; 3150  READ a
 	LD HL,(DATAPTR)
 	LD DE,(HL)
 	INC HL
@@ -603,30 +426,17 @@ ZX_LINE_3150:
 	LD (DATAPTR),HL
 	LD (ZXBASIC_VAR_a),DE
 ZX_LINE_3160:
-;3160  POKE pos,a
-	CALL runtimeCheckBreak
-	LD HL, (ZXBASIC_VAR_pos)
-	PUSH HL
-	LD HL, (ZXBASIC_VAR_a)
-	POP DE
-	EX HL,DE
+; 3160  POKE pos,a
+	LD HL,(ZXBASIC_VAR_pos)
+	LD DE,(ZXBASIC_VAR_a)
 	LD (HL),E
 ZX_LINE_3170:
-;3170  LET pos=pos+1{00 00 01 00 00 }
-	CALL runtimeCheckBreak
-	LD HL, (ZXBASIC_VAR_pos)
-	PUSH HL
-	LD HL, 1
-;+
-	POP DE
-	ADD HL, DE
-;---
-;Store pos
+; 3170  LET pos=pos+1{00 00 01 00 00 }
+	LD HL,(ZXBASIC_VAR_pos)
+	INC HL
 	LD (ZXBASIC_VAR_pos),HL
-;---
 ZX_LINE_3180:
-;3180  NEXT j
-	CALL runtimeCheckBreak
+; 3180  NEXT j
 	LD HL,0
 	ADD HL,SP
 	LD IX,HL
@@ -641,8 +451,7 @@ ZX_LINE_3180:
 	POP AF
 	POP AF
 ZX_LINE_3190:
-;3190  NEXT i
-	CALL runtimeCheckBreak
+; 3190  NEXT i
 	LD HL,0
 	ADD HL,SP
 	LD IX,HL
@@ -657,186 +466,139 @@ ZX_LINE_3190:
 	POP AF
 	POP AF
 ZX_LINE_3200:
-;3200  PRINT  INK 1{00 00 01 00 00 }; AT 0{00 00 00 00 00 },0{00 00 00 00 00 };"UDG:";
-	CALL runtimeCheckBreak
-	LD HL, 1
+; 3200  PRINT  INK 1{00 00 01 00 00 }; AT 0{00 00 00 00 00 },0{00 00 00 00 00 };"UDG:";
+	LD HL,1
 	CALL runtimeLocalInk
-	LD HL, 0
-	PUSH HL
-	LD HL, 0
-	POP DE
+	LD DE,0
+	LD HL,0
 	CALL runtimePrintAt
-	LD HL, STRING_3
+	LD HL,STRING_3	;UDG:\90\91\92
 	CALL runtimePrintString
 	LD A,(ZX_ATTR_P)
 	LD (ZX_ATTR_T),A
 ZX_LINE_3210:
-;3210  RETURN 
-	CALL runtimeCheckBreak
+; 3210  RETURN 
 	RET
 ZX_LINE_3300:
-;3300  CLS 
-	CALL runtimeCheckBreak
+; 3300  CLS 
 	CALL runtimeCls
 ZX_LINE_3310:
-;3310  PRINT  AT 4{00 00 04 00 00 },0{00 00 00 00 00 };"Menu"
-	CALL runtimeCheckBreak
-	LD HL, 4
-	PUSH HL
-	LD HL, 0
-	POP DE
+; 3310  PRINT  AT 4{00 00 04 00 00 },0{00 00 00 00 00 };"Menu"
+	LD DE,4
+	LD HL,0
 	CALL runtimePrintAt
-	LD HL, STRING_4
+	LD HL,STRING_4	;Menu
 	CALL runtimePrintString
 	CALL runtimePrintNewline
 ZX_LINE_3320:
-;3320  PRINT " 1 Plot"
-	CALL runtimeCheckBreak
-	LD HL, STRING_5
+; 3320  PRINT " 1 Plot"
+	LD HL,STRING_5	; 1 Plot
 	CALL runtimePrintString
 	CALL runtimePrintNewline
 ZX_LINE_3330:
-;3330  PRINT " 2 Array Test"
-	CALL runtimeCheckBreak
-	LD HL, STRING_6
+; 3330  PRINT " 2 Array Test"
+	LD HL,STRING_6	; 2 Array Test
 	CALL runtimePrintString
 	CALL runtimePrintNewline
 ZX_LINE_3340:
-;3340  PRINT " 3 Scroll in Basic"
-	CALL runtimeCheckBreak
-	LD HL, STRING_7
+; 3340  PRINT " 3 Scroll in Basic"
+	LD HL,STRING_7	; 3 Scroll in Basic
 	CALL runtimePrintString
 	CALL runtimePrintNewline
 ZX_LINE_3345:
-;3345  PRINT " 4 Data+UDG"
-	CALL runtimeCheckBreak
-	LD HL, STRING_8
+; 3345  PRINT " 4 Data+UDG"
+	LD HL,STRING_8	; 4 Data+UDG
 	CALL runtimePrintString
 	CALL runtimePrintNewline
 ZX_LINE_3350:
-;3350  PRINT " 5 Mult+Div";
-	CALL runtimeCheckBreak
-	LD HL, STRING_9
+; 3350  PRINT " 5 Mult+Div"
+	LD HL,STRING_9	; 5 Mult+Div
 	CALL runtimePrintString
+	CALL runtimePrintNewline
+ZX_LINE_3360:
+; 3360  PRINT " 6 Strings"
+	LD HL,STRING_10	; 6 Strings
+	CALL runtimePrintString
+	CALL runtimePrintNewline
+ZX_LINE_3365:
+; 3365  PRINT " 7 Float"
+	LD HL,STRING_11	; 7 Float
+	CALL runtimePrintString
+	CALL runtimePrintNewline
 ZX_LINE_3400:
-;3400  LET k= CODE  INKEY 
-	CALL runtimeCheckBreak
+; 3400  LET k= CODE  INKEY 
 	CALL runtimeInkey
 	CALL runtimeCode
-;Store k
 	LD (ZXBASIC_VAR_k),HL
-;---
 ZX_LINE_3410:
-;3410  PRINT  AT 0{00 00 00 00 00 },20{00 00 14 00 00 };k;"  "
-	CALL runtimeCheckBreak
-	LD HL, 0
-	PUSH HL
-	LD HL, 20
-	POP DE
+; 3410  PRINT  AT 0{00 00 00 00 00 },20{00 00 14 00 00 };k;"  "
+	LD DE,0
+	LD HL,20
 	CALL runtimePrintAt
-	LD HL, (ZXBASIC_VAR_k)
+	LD HL,(ZXBASIC_VAR_k)
 	CALL runtimePrintInt
-	LD HL, STRING_10
+	LD HL,STRING_12	;  
 	CALL runtimePrintString
 	CALL runtimePrintNewline
 ZX_LINE_3420:
-;3420  IF k=49{00 00 31 00 00 } THEN  CLS : PRINT "Zeichne 5000 Punkte": GOSUB 1000{00 00 e8 03 00 }: GOSUB 3600{00 00 10 0e 00 }: GOTO 3300{00 00 e4 0c 00 }
-	CALL runtimeCheckBreak
-	LD HL, (ZXBASIC_VAR_k)
-	PUSH HL
-	LD HL, 49
-;==
-	POP DE
+; 3420  IF k=49{00 00 31 00 00 } THEN  CLS : PRINT "Zeichne 5000 Punkte": GOSUB 1000{00 00 e8 03 00 }: GOSUB 3600{00 00 10 0e 00 }: GOTO 3300{00 00 e4 0c 00 }
+	LD DE,(ZXBASIC_VAR_k)
+	LD HL,49
 	SUB HL,DE
 	LD HL,0
 	CALL Z,HL1
-;---
-;check for 0
 	LD A,L
 	CP 0
 	JR Z,ZXB_LABEL_3
-;---
-	CALL runtimeCheckBreak
 	CALL runtimeCls
-	CALL runtimeCheckBreak
-	LD HL, STRING_11
+	LD HL,STRING_13	;Zeichne 5000 Punkte
 	CALL runtimePrintString
 	CALL runtimePrintNewline
-	CALL runtimeCheckBreak
 	CALL ZX_LINE_1000:
-	CALL runtimeCheckBreak
 	CALL ZX_LINE_3600:
-	CALL runtimeCheckBreak
 	JP ZX_LINE_3300
 ZXB_LABEL_3:
 ZX_LINE_3425:
-;3425  IF k=50{00 00 32 00 00 } THEN  CLS : GOSUB 4000{00 00 a0 0f 00 }: GOSUB 3600{00 00 10 0e 00 }: GOTO 3300{00 00 e4 0c 00 }
-	CALL runtimeCheckBreak
-	LD HL, (ZXBASIC_VAR_k)
-	PUSH HL
-	LD HL, 50
-;==
-	POP DE
+; 3425  IF k=50{00 00 32 00 00 } THEN  CLS : GOSUB 4000{00 00 a0 0f 00 }: GOSUB 3600{00 00 10 0e 00 }: GOTO 3300{00 00 e4 0c 00 }
+	LD DE,(ZXBASIC_VAR_k)
+	LD HL,50
 	SUB HL,DE
 	LD HL,0
 	CALL Z,HL1
-;---
-;check for 0
 	LD A,L
 	CP 0
 	JR Z,ZXB_LABEL_4
-;---
-	CALL runtimeCheckBreak
 	CALL runtimeCls
-	CALL runtimeCheckBreak
 	CALL ZX_LINE_4000:
-	CALL runtimeCheckBreak
 	CALL ZX_LINE_3600:
-	CALL runtimeCheckBreak
 	JP ZX_LINE_3300
 ZXB_LABEL_4:
 ZX_LINE_3430:
-;3430  IF k=51{00 00 33 00 00 } THEN  CLS : PRINT "Screen Scroll": PRINT "in Basic": GOSUB 1100{00 00 4c 04 00 }: FOR i=1{00 00 01 00 00 } TO 32{00 00 20 00 00 }: GOSUB 1200{00 00 b0 04 00 }: NEXT i: GOSUB 3600{00 00 10 0e 00 }: GOTO 3300{00 00 e4 0c 00 }
-	CALL runtimeCheckBreak
-	LD HL, (ZXBASIC_VAR_k)
-	PUSH HL
-	LD HL, 51
-;==
-	POP DE
+; 3430  IF k=51{00 00 33 00 00 } THEN  CLS : PRINT "Screen Scroll": PRINT "in Basic": GOSUB 1100{00 00 4c 04 00 }: FOR i=1{00 00 01 00 00 } TO 32{00 00 20 00 00 }: GOSUB 1200{00 00 b0 04 00 }: NEXT i: GOSUB 3600{00 00 10 0e 00 }: GOTO 3300{00 00 e4 0c 00 }
+	LD DE,(ZXBASIC_VAR_k)
+	LD HL,51
 	SUB HL,DE
 	LD HL,0
 	CALL Z,HL1
-;---
-;check for 0
 	LD A,L
 	CP 0
 	JR Z,ZXB_LABEL_5
-;---
-	CALL runtimeCheckBreak
 	CALL runtimeCls
-	CALL runtimeCheckBreak
-	LD HL, STRING_12
+	LD HL,STRING_14	;Screen Scroll
 	CALL runtimePrintString
 	CALL runtimePrintNewline
-	CALL runtimeCheckBreak
-	LD HL, STRING_13
+	LD HL,STRING_15	;in Basic
 	CALL runtimePrintString
 	CALL runtimePrintNewline
-	CALL runtimeCheckBreak
 	CALL ZX_LINE_1100:
-	CALL runtimeCheckBreak
-	LD HL, 1
-;Store i
+	LD HL,1
 	LD (ZXBASIC_VAR_i),HL
-;---
-	LD HL, 32
+	LD HL,32
 	PUSH HL
-	LD HL, 1
+	LD HL,1
 	PUSH HL
 FOR_7:
-	CALL runtimeCheckBreak
 	CALL ZX_LINE_1200:
-	CALL runtimeCheckBreak
 	LD HL,0
 	ADD HL,SP
 	LD IX,HL
@@ -850,191 +612,146 @@ FOR_7:
 	JP NC,FOR_7
 	POP AF
 	POP AF
-	CALL runtimeCheckBreak
 	CALL ZX_LINE_3600:
-	CALL runtimeCheckBreak
 	JP ZX_LINE_3300
 ZXB_LABEL_5:
 ZX_LINE_3440:
-;3440  IF k=52{00 00 34 00 00 } THEN  CLS : GOSUB 3000{00 00 b8 0b 00 }: GOSUB 3600{00 00 10 0e 00 }: GOTO 3300{00 00 e4 0c 00 }
-	CALL runtimeCheckBreak
-	LD HL, (ZXBASIC_VAR_k)
-	PUSH HL
-	LD HL, 52
-;==
-	POP DE
+; 3440  IF k=52{00 00 34 00 00 } THEN  CLS : GOSUB 3000{00 00 b8 0b 00 }: GOSUB 3600{00 00 10 0e 00 }: GOTO 3300{00 00 e4 0c 00 }
+	LD DE,(ZXBASIC_VAR_k)
+	LD HL,52
 	SUB HL,DE
 	LD HL,0
 	CALL Z,HL1
-;---
-;check for 0
 	LD A,L
 	CP 0
 	JR Z,ZXB_LABEL_6
-;---
-	CALL runtimeCheckBreak
 	CALL runtimeCls
-	CALL runtimeCheckBreak
 	CALL ZX_LINE_3000:
-	CALL runtimeCheckBreak
 	CALL ZX_LINE_3600:
-	CALL runtimeCheckBreak
 	JP ZX_LINE_3300
 ZXB_LABEL_6:
 ZX_LINE_3450:
-;3450  IF k=53{00 00 35 00 00 } THEN  GOSUB 4200{00 00 68 10 00 }: GOTO 3300{00 00 e4 0c 00 }
-	CALL runtimeCheckBreak
-	LD HL, (ZXBASIC_VAR_k)
-	PUSH HL
-	LD HL, 53
-;==
-	POP DE
+; 3450  IF k=53{00 00 35 00 00 } THEN  GOSUB 4200{00 00 68 10 00 }: GOTO 3300{00 00 e4 0c 00 }
+	LD DE,(ZXBASIC_VAR_k)
+	LD HL,53
 	SUB HL,DE
 	LD HL,0
 	CALL Z,HL1
-;---
-;check for 0
 	LD A,L
 	CP 0
 	JR Z,ZXB_LABEL_7
-;---
-	CALL runtimeCheckBreak
 	CALL ZX_LINE_4200:
-	CALL runtimeCheckBreak
 	JP ZX_LINE_3300
 ZXB_LABEL_7:
-ZX_LINE_3499:
-;3499  GOTO 3400{00 00 48 0d 00 }
-	CALL runtimeCheckBreak
-	JP ZX_LINE_3400
-ZX_LINE_3600:
-;3600  REM Press Key to continue
-	CALL runtimeCheckBreak
-	CALL runtimeCheckBreak
-	CALL runtimeCheckBreak
-	CALL runtimeCheckBreak
-	CALL runtimeCheckBreak
-	CALL runtimeCheckBreak
-	CALL runtimeCheckBreak
-	CALL runtimeCheckBreak
-ZX_LINE_3610:
-;3610  PRINT  AT 21{00 00 15 00 00 },0{00 00 00 00 00 };"Weiter mit Tastendruck";
-	CALL runtimeCheckBreak
-	LD HL, 21
-	PUSH HL
-	LD HL, 0
-	POP DE
-	CALL runtimePrintAt
-	LD HL, STRING_14
-	CALL runtimePrintString
-ZX_LINE_3620:
-;3620  LET k= CODE  INKEY 
-	CALL runtimeCheckBreak
-	CALL runtimeInkey
-	CALL runtimeCode
-;Store k
-	LD (ZXBASIC_VAR_k),HL
-;---
-ZX_LINE_3630:
-;3630  IF k=0{00 00 00 00 00 } THEN  GOTO 3620{00 00 24 0e 00 }
-	CALL runtimeCheckBreak
-	LD HL, (ZXBASIC_VAR_k)
-	PUSH HL
-	LD HL, 0
-;==
-	POP DE
+ZX_LINE_3460:
+; 3460  IF k=54{00 00 36 00 00 } THEN  GOSUB 4300{00 00 cc 10 00 }: GOTO 3300{00 00 e4 0c 00 }
+	LD DE,(ZXBASIC_VAR_k)
+	LD HL,54
 	SUB HL,DE
 	LD HL,0
 	CALL Z,HL1
-;---
-;check for 0
 	LD A,L
 	CP 0
 	JR Z,ZXB_LABEL_8
-;---
-	CALL runtimeCheckBreak
-	JP ZX_LINE_3620
+	CALL ZX_LINE_4300:
+	JP ZX_LINE_3300
 ZXB_LABEL_8:
+ZX_LINE_3465:
+; 3465  IF k=55{00 00 37 00 00 } THEN  GOSUB 4500{00 00 94 11 00 }: GOTO 3300{00 00 e4 0c 00 }
+	LD DE,(ZXBASIC_VAR_k)
+	LD HL,55
+	SUB HL,DE
+	LD HL,0
+	CALL Z,HL1
+	LD A,L
+	CP 0
+	JR Z,ZXB_LABEL_9
+	CALL ZX_LINE_4500:
+	JP ZX_LINE_3300
+ZXB_LABEL_9:
+ZX_LINE_3499:
+; 3499  GOTO 3400{00 00 48 0d 00 }
+	JP ZX_LINE_3400
+ZX_LINE_3600:
+; 3600  REM Press Key to continue
+ZX_LINE_3610:
+; 3610  PRINT  AT 21{00 00 15 00 00 },0{00 00 00 00 00 };"Weiter mit Tastendruck";
+	LD DE,21
+	LD HL,0
+	CALL runtimePrintAt
+	LD HL,STRING_16	;Weiter mit Tastendruck
+	CALL runtimePrintString
+ZX_LINE_3620:
+; 3620  LET k= CODE  INKEY 
+	CALL runtimeInkey
+	CALL runtimeCode
+	LD (ZXBASIC_VAR_k),HL
+ZX_LINE_3630:
+; 3630  IF k=0{00 00 00 00 00 } THEN  GOTO 3620{00 00 24 0e 00 }
+	LD DE,(ZXBASIC_VAR_k)
+	LD HL,0
+	SUB HL,DE
+	LD HL,0
+	CALL Z,HL1
+	LD A,L
+	CP 0
+	JR Z,ZXB_LABEL_10
+	JP ZX_LINE_3620
+ZXB_LABEL_10:
 ZX_LINE_3640:
-;3640  PAUSE 0{00 00 00 00 00 }
-	CALL runtimeCheckBreak
-	LD HL, 0
+; 3640  PAUSE 0{00 00 00 00 00 }
+	LD HL,0
 	CALL runtimePause
 ZX_LINE_3650:
-;3650  RETURN 
-	CALL runtimeCheckBreak
+; 3650  RETURN 
 	RET
 ZX_LINE_4000:
-;4000  DIM a(8{00 00 08 00 00 },8{00 00 08 00 00 })
-	CALL runtimeCheckBreak
+; 4000  DIM a(8{00 00 08 00 00 },8{00 00 08 00 00 })
 ZX_LINE_4010:
-;4010  LET x=1{00 00 01 00 00 }
-	CALL runtimeCheckBreak
-	LD HL, 1
-;Store x
+; 4010  LET x=1{00 00 01 00 00 }
+	LD HL,1
 	LD (ZXBASIC_VAR_x),HL
-;---
 ZX_LINE_4020:
-;4020  FOR i=1{00 00 01 00 00 } TO 8{00 00 08 00 00 }
-	CALL runtimeCheckBreak
-	LD HL, 1
-;Store i
+; 4020  FOR i=1{00 00 01 00 00 } TO 8{00 00 08 00 00 }
+	LD HL,1
 	LD (ZXBASIC_VAR_i),HL
-;---
-	LD HL, 8
+	LD HL,8
 	PUSH HL
-	LD HL, 1
+	LD HL,1
 	PUSH HL
 FOR_8:
 ZX_LINE_4030:
-;4030  FOR j=1{00 00 01 00 00 } TO 8{00 00 08 00 00 }
-	CALL runtimeCheckBreak
-	LD HL, 1
-;Store j
+; 4030  FOR j=1{00 00 01 00 00 } TO 8{00 00 08 00 00 }
+	LD HL,1
 	LD (ZXBASIC_VAR_j),HL
-;---
-	LD HL, 8
+	LD HL,8
 	PUSH HL
-	LD HL, 1
+	LD HL,1
 	PUSH HL
 FOR_9:
 ZX_LINE_4040:
-;4040  LET a(i,j)=x: LET x=x+1{00 00 01 00 00 }
-	CALL runtimeCheckBreak
-	LD HL, (ZXBASIC_VAR_i)
+; 4040  LET a(i,j)=x: LET x=x+1{00 00 01 00 00 }
+	LD HL,(ZXBASIC_VAR_i)
 	ADD HL,HL
 	ADD HL,HL
 	ADD HL,HL
-	PUSH HL
-	LD HL, (ZXBASIC_VAR_j)
-;+
-	POP DE
-	ADD HL, DE
-;---
+	LD DE,HL
+	LD HL,(ZXBASIC_VAR_j)
+	ADD HL,DE
 	ADD HL,HL
 	PUSH HL
-	LD HL, (ZXBASIC_VAR_x)
-;Store a
+	LD HL,(ZXBASIC_VAR_x)
 	PUSH HL
 	POP DE
 	POP HL
 	LD BC,ZXBASIC_VAR_a
 	ADD HL,BC
 	LD (HL),DE
-	CALL runtimeCheckBreak
-	LD HL, (ZXBASIC_VAR_x)
-	PUSH HL
-	LD HL, 1
-;+
-	POP DE
-	ADD HL, DE
-;---
-;Store x
+	LD HL,(ZXBASIC_VAR_x)
+	INC HL
 	LD (ZXBASIC_VAR_x),HL
-;---
 ZX_LINE_4050:
-;4050  NEXT j
-	CALL runtimeCheckBreak
+; 4050  NEXT j
 	LD HL,0
 	ADD HL,SP
 	LD IX,HL
@@ -1049,8 +766,7 @@ ZX_LINE_4050:
 	POP AF
 	POP AF
 ZX_LINE_4060:
-;4060  NEXT i
-	CALL runtimeCheckBreak
+; 4060  NEXT i
 	LD HL,0
 	ADD HL,SP
 	LD IX,HL
@@ -1065,52 +781,41 @@ ZX_LINE_4060:
 	POP AF
 	POP AF
 ZX_LINE_4070:
-;4070  FOR i=1{00 00 01 00 00 } TO 8{00 00 08 00 00 }
-	CALL runtimeCheckBreak
-	LD HL, 1
-;Store i
+; 4070  FOR i=1{00 00 01 00 00 } TO 8{00 00 08 00 00 }
+	LD HL,1
 	LD (ZXBASIC_VAR_i),HL
-;---
-	LD HL, 8
+	LD HL,8
 	PUSH HL
-	LD HL, 1
+	LD HL,1
 	PUSH HL
 FOR_10:
 ZX_LINE_4075:
-;4075  PRINT "Zeile ";i
-	CALL runtimeCheckBreak
-	LD HL, STRING_15
+; 4075  PRINT "Zeile ";i
+	LD HL,STRING_17	;Zeile 
 	CALL runtimePrintString
-	LD HL, (ZXBASIC_VAR_i)
+	LD HL,(ZXBASIC_VAR_i)
 	CALL runtimePrintInt
 	CALL runtimePrintNewline
 ZX_LINE_4080:
-;4080  FOR j=1{00 00 01 00 00 } TO 8{00 00 08 00 00 }
-	CALL runtimeCheckBreak
-	LD HL, 1
-;Store j
+; 4080  FOR j=1{00 00 01 00 00 } TO 8{00 00 08 00 00 }
+	LD HL,1
 	LD (ZXBASIC_VAR_j),HL
-;---
-	LD HL, 8
+	LD HL,8
 	PUSH HL
-	LD HL, 1
+	LD HL,1
 	PUSH HL
 FOR_11:
 ZX_LINE_4090:
-;4090  PRINT " ";a(i,j);
-	CALL runtimeCheckBreak
-	LD HL, STRING_16
+; 4090  PRINT " ";a(i,j);
+	LD HL,STRING_18	; 
 	CALL runtimePrintString
-	LD HL, (ZXBASIC_VAR_i)
+	LD HL,(ZXBASIC_VAR_i)
 	ADD HL,HL
 	ADD HL,HL
 	ADD HL,HL
-	PUSH HL
-	LD HL, (ZXBASIC_VAR_j)
-;+
-	POP DE
-	ADD HL, DE
-;---
+	LD DE,HL
+	LD HL,(ZXBASIC_VAR_j)
+	ADD HL,DE
 	ADD HL,HL
 	LD DE, ZXBASIC_VAR_a
 	ADD HL,DE
@@ -1119,8 +824,7 @@ ZX_LINE_4090:
 	POP HL
 	CALL runtimePrintInt
 ZX_LINE_4100:
-;4100  NEXT j
-	CALL runtimeCheckBreak
+; 4100  NEXT j
 	LD HL,0
 	ADD HL,SP
 	LD IX,HL
@@ -1135,12 +839,10 @@ ZX_LINE_4100:
 	POP AF
 	POP AF
 ZX_LINE_4110:
-;4110  PRINT 
-	CALL runtimeCheckBreak
+; 4110  PRINT 
 	CALL runtimePrintNewline
 ZX_LINE_4120:
-;4120  NEXT i
-	CALL runtimeCheckBreak
+; 4120  NEXT i
 	LD HL,0
 	ADD HL,SP
 	LD IX,HL
@@ -1155,83 +857,67 @@ ZX_LINE_4120:
 	POP AF
 	POP AF
 ZX_LINE_4130:
-;4130  RETURN 
-	CALL runtimeCheckBreak
+; 4130  RETURN 
 	RET
 ZX_LINE_4200:
-;4200  REM Mal und Durch
-	CALL runtimeCheckBreak
-	CALL runtimeCheckBreak
-	CALL runtimeCheckBreak
-	CALL runtimeCheckBreak
-	CALL runtimeCheckBreak
-	CALL runtimeCheckBreak
+; 4200  REM Mal und Durch
 ZX_LINE_4210:
-;4210  CLS : PRINT  AT 0{00 00 00 00 00 },0{00 00 00 00 00 };"Multiplizieren, Dividieren"
-	CALL runtimeCheckBreak
+; 4210  CLS : PRINT  AT 0{00 00 00 00 00 },0{00 00 00 00 00 };"Multiplizieren, Dividieren"
 	CALL runtimeCls
-	CALL runtimeCheckBreak
-	LD HL, 0
-	PUSH HL
-	LD HL, 0
-	POP DE
+	LD DE,0
+	LD HL,0
 	CALL runtimePrintAt
-	LD HL, STRING_17
+	LD HL,STRING_19	;Multiplizieren, Dividieren
 	CALL runtimePrintString
 	CALL runtimePrintNewline
 ZX_LINE_4220:
-;4220  FOR i=2{00 00 02 00 00 } TO 9{00 00 09 00 00 }
-	CALL runtimeCheckBreak
-	LD HL, 2
-;Store i
+; 4220  FOR i=2{00 00 02 00 00 } TO 9{00 00 09 00 00 }
+	LD HL,2
 	LD (ZXBASIC_VAR_i),HL
-;---
-	LD HL, 9
+	LD HL,9
 	PUSH HL
-	LD HL, 1
+	LD HL,1
 	PUSH HL
 FOR_12:
 ZX_LINE_4224:
-;4224  PRINT 
-	CALL runtimeCheckBreak
+; 4224  IF i>2{00 00 02 00 00 } THEN  PRINT 
+	LD DE,(ZXBASIC_VAR_i)
+	LD HL,2
+	SUB HL,DE
+	LD HL,0
+	call c,HL1
+	LD A,L
+	CP 0
+	JR Z,ZXB_LABEL_11
 	CALL runtimePrintNewline
+ZXB_LABEL_11:
 ZX_LINE_4225:
-;4225  PRINT "x*";i;"=";
-	CALL runtimeCheckBreak
-	LD HL, STRING_18
+; 4225  PRINT "x*";i;"=";
+	LD HL,STRING_20	;x*
 	CALL runtimePrintString
-	LD HL, (ZXBASIC_VAR_i)
+	LD HL,(ZXBASIC_VAR_i)
 	CALL runtimePrintInt
-	LD HL, STRING_19
+	LD HL,STRING_21	;=
 	CALL runtimePrintString
 ZX_LINE_4230:
-;4230  FOR j=2{00 00 02 00 00 } TO 9{00 00 09 00 00 }
-	CALL runtimeCheckBreak
-	LD HL, 2
-;Store j
+; 4230  FOR j=2{00 00 02 00 00 } TO 9{00 00 09 00 00 }
+	LD HL,2
 	LD (ZXBASIC_VAR_j),HL
-;---
-	LD HL, 9
+	LD HL,9
 	PUSH HL
-	LD HL, 1
+	LD HL,1
 	PUSH HL
 FOR_13:
 ZX_LINE_4240:
-;4240  PRINT i*j;" ";
-	CALL runtimeCheckBreak
-	LD HL, (ZXBASIC_VAR_i)
-	PUSH HL
-	LD HL, (ZXBASIC_VAR_j)
-;*
-	POP DE
+; 4240  PRINT i*j;" ";
+	LD DE,(ZXBASIC_VAR_i)
+	LD HL,(ZXBASIC_VAR_j)
 	call runtimeMult16bit
-;---
 	CALL runtimePrintInt
-	LD HL, STRING_16
+	LD HL,STRING_18	; 
 	CALL runtimePrintString
 ZX_LINE_4250:
-;4250  NEXT j
-	CALL runtimeCheckBreak
+; 4250  NEXT j
 	LD HL,0
 	ADD HL,SP
 	LD IX,HL
@@ -1246,8 +932,7 @@ ZX_LINE_4250:
 	POP AF
 	POP AF
 ZX_LINE_4255:
-;4255  NEXT i
-	CALL runtimeCheckBreak
+; 4255  NEXT i
 	LD HL,0
 	ADD HL,SP
 	LD IX,HL
@@ -1262,44 +947,42 @@ ZX_LINE_4255:
 	POP AF
 	POP AF
 ZX_LINE_4256:
-;4256  PRINT 
-	CALL runtimeCheckBreak
+; 4256  PRINT 
+	CALL runtimePrintNewline
+ZX_LINE_4257:
+; 4257  PRINT "Mult/Div signed"
+	LD HL,STRING_22	;Mult/Div signed
+	CALL runtimePrintString
 	CALL runtimePrintNewline
 ZX_LINE_4270:
-;4270  LET z=30000{00 00 30 75 00 }
-	CALL runtimeCheckBreak
-	LD HL, 30000
-;Store z
+; 4270  LET z=30000{00 00 30 75 00 }: LET x=3{00 00 03 00 00 }
+	LD HL,30000
 	LD (ZXBASIC_VAR_z),HL
-;---
+	LD HL,3
+	LD (ZXBASIC_VAR_x),HL
 ZX_LINE_4280:
-;4280  FOR i=1{00 00 01 00 00 } TO 5{00 00 05 00 00 }: PRINT z: LET z=z/10{00 00 0a 00 00 }: NEXT i
-	CALL runtimeCheckBreak
-	LD HL, 1
-;Store i
+; 4280  FOR i=1{00 00 01 00 00 } TO 5{00 00 05 00 00 }: PRINT z,x: LET z=z/10{00 00 0a 00 00 }: LET x=x*10{00 00 0a 00 00 }: NEXT i
+	LD HL,1
 	LD (ZXBASIC_VAR_i),HL
-;---
-	LD HL, 5
+	LD HL,5
 	PUSH HL
-	LD HL, 1
+	LD HL,1
 	PUSH HL
 FOR_14:
-	CALL runtimeCheckBreak
-	LD HL, (ZXBASIC_VAR_z)
+	LD HL,(ZXBASIC_VAR_z)
+	CALL runtimePrintInt
+	CALL runtimePrintTab
+	LD HL,(ZXBASIC_VAR_x)
 	CALL runtimePrintInt
 	CALL runtimePrintNewline
-	CALL runtimeCheckBreak
-	LD HL, (ZXBASIC_VAR_z)
-	PUSH HL
-	LD HL, 10
-;/
-	POP DE
+	LD DE,(ZXBASIC_VAR_z)
+	LD HL,10
 	call runtimeDiv16bit
-;---
-;Store z
 	LD (ZXBASIC_VAR_z),HL
-;---
-	CALL runtimeCheckBreak
+	LD DE,(ZXBASIC_VAR_x)
+	LD HL,10
+	call runtimeMult16bit
+	LD (ZXBASIC_VAR_x),HL
 	LD HL,0
 	ADD HL,SP
 	LD IX,HL
@@ -1314,45 +997,38 @@ FOR_14:
 	POP AF
 	POP AF
 ZX_LINE_4285:
-;4285  LET z=-30000{00 00 30 75 00 }
-	CALL runtimeCheckBreak
-	LD HL, 30000
-;-
-	POP DE
-	EX HL,DE
-	SUB HL, DE
-;---
-;Store z
+; 4285  LET z=0{00 00 00 00 00 }-30000{00 00 30 75 00 }: LET x=0{00 00 00 00 00 }-3{00 00 03 00 00 }
+	LD HL,0
+	LD DE,30000
+	SUB HL,DE
 	LD (ZXBASIC_VAR_z),HL
-;---
+	LD HL,0
+	LD DE,3
+	SUB HL,DE
+	LD (ZXBASIC_VAR_x),HL
 ZX_LINE_4286:
-;4286  FOR i=1{00 00 01 00 00 } TO 5{00 00 05 00 00 }: PRINT z: LET z=z/10{00 00 0a 00 00 }: NEXT i
-	CALL runtimeCheckBreak
-	LD HL, 1
-;Store i
+; 4286  FOR i=1{00 00 01 00 00 } TO 5{00 00 05 00 00 }: PRINT z,x: LET z=z/10{00 00 0a 00 00 }: LET x=x*10{00 00 0a 00 00 }: NEXT i
+	LD HL,1
 	LD (ZXBASIC_VAR_i),HL
-;---
-	LD HL, 5
+	LD HL,5
 	PUSH HL
-	LD HL, 1
+	LD HL,1
 	PUSH HL
 FOR_15:
-	CALL runtimeCheckBreak
-	LD HL, (ZXBASIC_VAR_z)
+	LD HL,(ZXBASIC_VAR_z)
+	CALL runtimePrintInt
+	CALL runtimePrintTab
+	LD HL,(ZXBASIC_VAR_x)
 	CALL runtimePrintInt
 	CALL runtimePrintNewline
-	CALL runtimeCheckBreak
-	LD HL, (ZXBASIC_VAR_z)
-	PUSH HL
-	LD HL, 10
-;/
-	POP DE
+	LD DE,(ZXBASIC_VAR_z)
+	LD HL,10
 	call runtimeDiv16bit
-;---
-;Store z
 	LD (ZXBASIC_VAR_z),HL
-;---
-	CALL runtimeCheckBreak
+	LD DE,(ZXBASIC_VAR_x)
+	LD HL,10
+	call runtimeMult16bit
+	LD (ZXBASIC_VAR_x),HL
 	LD HL,0
 	ADD HL,SP
 	LD IX,HL
@@ -1367,110 +1043,279 @@ FOR_15:
 	POP AF
 	POP AF
 ZX_LINE_4290:
-;4290  GOSUB 3600{00 00 10 0e 00 }: RETURN 
-	CALL runtimeCheckBreak
+; 4290  GOSUB 3600{00 00 10 0e 00 }: RETURN 
 	CALL ZX_LINE_3600:
-	CALL runtimeCheckBreak
 	RET
 ZX_LINE_4300:
-;4300  REM Strings
-	CALL runtimeCheckBreak
-	CALL runtimeCheckBreak
+; 4300  REM Strings
 ZX_LINE_4301:
-;4301  CLS 
-	CALL runtimeCheckBreak
+; 4301  CLS 
 	CALL runtimeCls
 ZX_LINE_4310:
-;4310  LET a$="1234"
-	CALL runtimeCheckBreak
-	LD HL, STRING_0
-;Store stringa_string
+; 4310  LET a$="1234"
+	LD HL,STRING_0	;1234
 	PUSH HL
 	POP DE
 	LD HL,ZXBASIC_VAR_a_string
 	CALL runtimeStoreString
-;---
 ZX_LINE_4320:
-;4320  PRINT "a$=";a$
-	CALL runtimeCheckBreak
-	LD HL, STRING_20
+; 4320  PRINT "a$=";a$
+	LD HL,STRING_23	;a$=
 	CALL runtimePrintString
-	LD HL, (ZXBASIC_VAR_a_string)
+	LD HL,(ZXBASIC_VAR_a_string)
 	CALL runtimePrintString
 	CALL runtimePrintNewline
 ZX_LINE_4330:
-;4330  PRINT "val a$="; VAL a$
-	CALL runtimeCheckBreak
-	LD HL, STRING_21
+; 4330  PRINT "val a$="; VAL a$
+	LD HL,STRING_24	;val a$=
 	CALL runtimePrintString
-	LD HL, (ZXBASIC_VAR_a_string)
+	LD HL,(ZXBASIC_VAR_a_string)
 	CALL runtimeVal
-	PUSH HL
 	CALL runtimePrintFloat
 	CALL runtimePrintNewline
 ZX_LINE_4340:
-;4340  PRINT "start=";a$( TO 2{00 00 02 00 00 })
-	CALL runtimeCheckBreak
-	LD HL, STRING_22
+; 4340  PRINT "start=";a$( TO 2{00 00 02 00 00 })
+	LD HL,STRING_25	;start=
 	CALL runtimePrintString
-	LD HL, (ZXBASIC_VAR_a_string)
+	LD HL,(ZXBASIC_VAR_a_string)
 	PUSH HL
-	LD HL, 2
-	POP DE
+	LD DE,1
+	LD HL,2
 	POP BC
 	CALL runtimeSubstring
 	CALL runtimePrintString
 	CALL runtimePrintNewline
+	CALL ZXFreeTemp
 ZX_LINE_4350:
-;4350  PRINT "ende=";a$(2{00 00 02 00 00 } TO )
-	CALL runtimeCheckBreak
-	LD HL, STRING_23
+; 4350  PRINT "ende=";a$(2{00 00 02 00 00 } TO )
+	LD HL,STRING_26	;ende=
 	CALL runtimePrintString
-	LD HL, (ZXBASIC_VAR_a_string)
+	LD HL,(ZXBASIC_VAR_a_string)
 	PUSH HL
-	LD HL, 2
-	PUSH HL
-	LD HL, -1
-	POP DE
+	LD DE,2
+	LD HL,-1
 	POP BC
 	CALL runtimeSubstring
 	CALL runtimePrintString
 	CALL runtimePrintNewline
+	CALL ZXFreeTemp
 ZX_LINE_4360:
-;4360  PRINT "mitte=";a$(1{00 00 01 00 00 } TO 2{00 00 02 00 00 })
-	CALL runtimeCheckBreak
-	LD HL, STRING_24
+; 4360  PRINT "mitte=";a$(1{00 00 01 00 00 } TO 2{00 00 02 00 00 })
+	LD HL,STRING_27	;mitte=
 	CALL runtimePrintString
-	LD HL, (ZXBASIC_VAR_a_string)
+	LD HL,(ZXBASIC_VAR_a_string)
 	PUSH HL
-	LD HL, 1
-	PUSH HL
-	LD HL, 2
-	POP DE
+	LD DE,1
+	LD HL,2
 	POP BC
 	CALL runtimeSubstring
 	CALL runtimePrintString
 	CALL runtimePrintNewline
+	CALL ZXFreeTemp
 ZX_LINE_4370:
-;4370  PRINT "2.Byte=";a$(2{00 00 02 00 00 })
-	CALL runtimeCheckBreak
-	LD HL, STRING_25
+; 4370  PRINT "2.Byte=";a$(2{00 00 02 00 00 })
+	LD HL,STRING_28	;2.Byte=
 	CALL runtimePrintString
-	LD HL, (ZXBASIC_VAR_a_string)
+	LD HL,(ZXBASIC_VAR_a_string)
 	PUSH HL
-	LD HL, 2
+	LD HL,2
 	POP BC
 	CALL runtimeCharAt
 	CALL runtimePrintString
 	CALL runtimePrintNewline
+	CALL ZXFreeTemp
+ZX_LINE_4380:
+; 4380  LET x$="": FOR i=32{00 00 20 00 00 } TO 255{00 00 ff 00 00 }: LET x$=x$+ CHR i: NEXT i: PRINT x$
+	LD HL,STRING_29	;
+	PUSH HL
+	POP DE
+	LD HL,ZXBASIC_VAR_x_string
+	CALL runtimeStoreString
+	LD HL,32
+	LD (ZXBASIC_VAR_i),HL
+	LD HL,255
+	PUSH HL
+	LD HL,1
+	PUSH HL
+FOR_16:
+	LD HL,(ZXBASIC_VAR_x_string)
+	PUSH HL
+	LD HL,(ZXBASIC_VAR_i)
+	CALL runtimeChr
+	POP DE
+	CALL runtimeStringAdd
+	PUSH HL
+	POP DE
+	LD HL,ZXBASIC_VAR_x_string
+	CALL runtimeStoreString
+	LD HL,0
+	ADD HL,SP
+	LD IX,HL
+	LD HL,(ZXBASIC_VAR_i)
+	LD BC,(IX+0)
+	ADD HL,BC
+	LD (ZXBASIC_VAR_i),HL
+	LD DE,(IX+2)
+	EX HL,DE
+	SUB HL,DE
+	JP NC,FOR_16
+	POP AF
+	POP AF
+	LD HL,(ZXBASIC_VAR_x_string)
+	CALL runtimePrintString
+	CALL runtimePrintNewline
 ZX_LINE_4499:
-;4499  GOSUB 3600{00 00 10 0e 00 }: RETURN 
-	CALL runtimeCheckBreak
+; 4499  GOSUB 3600{00 00 10 0e 00 }: RETURN 
 	CALL ZX_LINE_3600:
-	CALL runtimeCheckBreak
+	RET
+ZX_LINE_4500:
+; 4500  CLS : PRINT "test float und float mit int"
+	CALL runtimeCls
+	LD HL,STRING_30	;test float und float mit int
+	CALL runtimePrintString
+	CALL runtimePrintNewline
+ZX_LINE_4501:
+; 4501  GOSUB 4600{00 00 f8 11 00 }
+	CALL ZX_LINE_4600:
+ZX_LINE_4503:
+; 4503  PRINT "pi="; PI 
+	LD HL,STRING_31	;pi=
+	CALL runtimePrintString
+	CALL runtimePushPi
+	CALL runtimePrintFloat
+	CALL runtimePrintNewline
+ZX_LINE_4504:
+; 4504  LET pi= PI 
+	CALL runtimePushPi
+	LD HL,ZXBASIC_VAR_pi
+	CALL runtimeStoreFloat
+ZX_LINE_4505:
+; 4505  PRINT "var pi=";pi
+	LD HL,STRING_32	;var pi=
+	CALL runtimePrintString
+	LD HL,ZXBASIC_VAR_pi
+	CALL runtimePushFloatVar
+	CALL runtimePrintFloat
+	CALL runtimePrintNewline
+ZX_LINE_4510:
+; 4510  LET f1=1{00 00 01 00 00 }: LET f2=7{00 00 07 00 00 }
+	LD HL,1
+	CALL runtimeIntToFloat
+	LD HL,ZXBASIC_VAR_f1
+	CALL runtimeStoreFloat
+	LD HL,7
+	CALL runtimeIntToFloat
+	LD HL,ZXBASIC_VAR_f2
+	CALL runtimeStoreFloat
+ZX_LINE_4515:
+; 4515  LET i1= INT f1: LET i2= INT f2
+	LD HL,ZXBASIC_VAR_f1
+	CALL runtimePushFloatVar
+	CALL runtimeFloatToInt
+	LD (ZXBASIC_VAR_i1),HL
+	LD HL,ZXBASIC_VAR_f2
+	CALL runtimePushFloatVar
+	CALL runtimeFloatToInt
+	LD (ZXBASIC_VAR_i2),HL
+ZX_LINE_4516:
+; 4516  PRINT "f1=";f1;" f2=";f2: PRINT "i1=";i1;" i2=";i2
+	LD HL,STRING_33	;f1=
+	CALL runtimePrintString
+	LD HL,ZXBASIC_VAR_f1
+	CALL runtimePushFloatVar
+	CALL runtimePrintFloat
+	LD HL,STRING_34	; f2=
+	CALL runtimePrintString
+	LD HL,ZXBASIC_VAR_f2
+	CALL runtimePushFloatVar
+	CALL runtimePrintFloat
+	CALL runtimePrintNewline
+	LD HL,STRING_35	;i1=
+	CALL runtimePrintString
+	LD HL,(ZXBASIC_VAR_i1)
+	CALL runtimePrintInt
+	LD HL,STRING_36	; i2=
+	CALL runtimePrintString
+	LD HL,(ZXBASIC_VAR_i2)
+	CALL runtimePrintInt
+	CALL runtimePrintNewline
+ZX_LINE_4520:
+; 4520  LET f3=f1/f2
+	LD HL,ZXBASIC_VAR_f1
+	CALL runtimePushFloatVar
+	LD HL,ZXBASIC_VAR_f2
+	CALL runtimePushFloatVar
+	CALL runtimeDivFloat
+	LD HL,ZXBASIC_VAR_f3
+	CALL runtimeStoreFloat
+ZX_LINE_4530:
+; 4530  PRINT "f1/f2=";f3
+	LD HL,STRING_37	;f1/f2=
+	CALL runtimePrintString
+	LD HL,ZXBASIC_VAR_f3
+	CALL runtimePushFloatVar
+	CALL runtimePrintFloat
+	CALL runtimePrintNewline
+ZX_LINE_4540:
+; 4540  PRINT "10-f3=";10{00 00 0a 00 00 }-f3: PRINT "f3-10=";f3-10{00 00 0a 00 00 }
+	LD HL,STRING_38	;10-f3=
+	CALL runtimePrintString
+	LD HL,10
+	PUSH HL
+	LD HL,ZXBASIC_VAR_f3
+	CALL runtimePushFloatVar
+	POP HL
+	CALL runtimeIntToFloat
+	CALL runtimeMinusFloat
+	CALL runtimePrintFloat
+	CALL runtimePrintNewline
+	LD HL,STRING_39	;f3-10=
+	CALL runtimePrintString
+	LD HL,ZXBASIC_VAR_f3
+	CALL runtimePushFloatVar
+	LD HL,10
+	CALL runtimeIntToFloat
+	CALL runtimeMinusFloat
+	CALL runtimePrintFloat
+	CALL runtimePrintNewline
+ZX_LINE_4599:
+; 4599  GOTO 3600{00 00 10 0e 00 }
+	JP ZX_LINE_3600
+ZX_LINE_4600:
+; 4600  PRINT "STKBOT="; PEEK (23651{00 00 63 5c 00 })+ PEEK (23652{00 00 64 5c 00 })*256{00 00 00 01 00 },
+	LD HL,STRING_40	;STKBOT=
+	CALL runtimePrintString
+	LD A,(23651)
+	LD L,A
+	LD H,0
+	PUSH HL
+	LD A,(23652)
+	LD H,A
+	LD L,0
+	POP DE
+	ADD HL,DE
+	CALL runtimePrintInt
+	CALL runtimePrintTab
+ZX_LINE_4620:
+; 4620  PRINT "STKEND="; PEEK 23653{00 00 65 5c 00 }+ PEEK 23654{00 00 66 5c 00 }*256{00 00 00 01 00 }
+	LD HL,STRING_41	;STKEND=
+	CALL runtimePrintString
+	LD A,(23653)
+	LD L,A
+	LD H,0
+	PUSH HL
+	LD A,(23654)
+	LD H,A
+	LD L,0
+	POP DE
+	ADD HL,DE
+	CALL runtimePrintInt
+	CALL runtimePrintNewline
+ZX_LINE_4630:
+; 4630  RETURN 
 	RET
 ZX_LINE_9998:
-;9998  STOP 
+; 9998  STOP 
 ZXBASIC_VAR_a:	defs 162
 ZXBASIC_VAR_a_string:	dw 0
 ZXBASIC_VAR_adr:	dw 0
@@ -1478,57 +1323,95 @@ ZXBASIC_VAR_adrl:	dw 0
 ZXBASIC_VAR_b_string:	defs 22
 ZXBASIC_VAR_dx:	dw 0
 ZXBASIC_VAR_dy:	dw 0
+ZXBASIC_VAR_f1:	defs 5
+ZXBASIC_VAR_f2:	defs 5
+ZXBASIC_VAR_f3:	defs 5
 ZXBASIC_VAR_i:	dw 0
+ZXBASIC_VAR_i1:	dw 0
+ZXBASIC_VAR_i2:	dw 0
 ZXBASIC_VAR_j:	dw 0
 ZXBASIC_VAR_k:	dw 0
 ZXBASIC_VAR_l:	dw 0
 ZXBASIC_VAR_p:	dw 0
+ZXBASIC_VAR_pi:	defs 5
 ZXBASIC_VAR_pos:	dw 0
 ZXBASIC_VAR_x:	dw 0
+ZXBASIC_VAR_x_string:	dw 0
 ZXBASIC_VAR_y:	dw 0
 ZXBASIC_VAR_z:	dw 0
 STRING_0:	dw 4
 	db	"1234"
 STRING_1:	dw 5
 	db	"Hallo"
-STRING_10:	dw 2
+STRING_10:	dw 10
+	db	" 6 Strings"
+STRING_11:	dw 8
+	db	" 7 Float"
+STRING_12:	dw 2
 	db	"  "
-STRING_11:	dw 19
+STRING_13:	dw 19
 	db	"Zeichne 5000 Punkte"
-STRING_12:	dw 13
+STRING_14:	dw 13
 	db	"Screen Scroll"
-STRING_13:	dw 8
+STRING_15:	dw 8
 	db	"in Basic"
-STRING_14:	dw 22
+STRING_16:	dw 22
 	db	"Weiter mit Tastendruck"
-STRING_15:	dw 6
+STRING_17:	dw 6
 	db	"Zeile "
-STRING_16:	dw 1
+STRING_18:	dw 1
 	db	" "
-STRING_17:	dw 26
+STRING_19:	dw 26
 	db	"Multiplizieren, Dividieren"
-STRING_18:	dw 2
-	db	"x*"
-STRING_19:	dw 1
-	db	"="
 STRING_2:	dw 1
 	db	"A"
-STRING_20:	dw 3
+STRING_20:	dw 2
+	db	"x*"
+STRING_21:	dw 1
+	db	"="
+STRING_22:	dw 15
+	db	"Mult/Div signed"
+STRING_23:	dw 3
 	db	"a$="
-STRING_21:	dw 7
+STRING_24:	dw 7
 	db	"val a$="
-STRING_22:	dw 6
+STRING_25:	dw 6
 	db	"start="
-STRING_23:	dw 5
+STRING_26:	dw 5
 	db	"ende="
-STRING_24:	dw 6
+STRING_27:	dw 6
 	db	"mitte="
-STRING_25:	dw 7
+STRING_28:	dw 7
 	db	"2.Byte="
+STRING_29:	dw 0
 STRING_3:	dw 13
 	db	"UDG:", $90, $91, $92
+STRING_30:	dw 28
+	db	"test float und float mit int"
+STRING_31:	dw 3
+	db	"pi="
+STRING_32:	dw 7
+	db	"var pi="
+STRING_33:	dw 3
+	db	"f1="
+STRING_34:	dw 4
+	db	" f2="
+STRING_35:	dw 3
+	db	"i1="
+STRING_36:	dw 4
+	db	" i2="
+STRING_37:	dw 6
+	db	"f1/f2="
+STRING_38:	dw 6
+	db	"10-f3="
+STRING_39:	dw 6
+	db	"f3-10="
 STRING_4:	dw 4
 	db	"Menu"
+STRING_40:	dw 7
+	db	"STKBOT="
+STRING_41:	dw 7
+	db	"STKEND="
 STRING_5:	dw 7
 	db	" 1 Plot"
 STRING_6:	dw 13

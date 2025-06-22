@@ -284,13 +284,18 @@ cls1:
                         JP		NZ, cls1
                         LD		BC,768
 cls2:
-                        LD		A,(WHITE*8+BLACK)
+                        LD		A,WHITE*8+BLACK
                         LD		(HL),A
                         INC		HL
                         DEC		BC
                         LD    A,B
                         OR    C
                         JP		NZ, cls2
+                        if DEBUG=1
+                        ld     a,0
+                        ld     (charX),a
+                        ld     (charY),a
+                        endif
                         RET
 
 changeScreenAttrib:
