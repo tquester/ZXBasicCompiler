@@ -25,18 +25,31 @@ public class ZXTokenizer {
 			ZX_OpenArray, // [
 			ZX_CloseArray, // ]
 			ZX_Colon,
+			ZX_Hash,
+			ZX_Semicolon,
 			ZX_EndOfLine,
 			ZX_Token, // LET, PLOT etc.
-			EOS, ZX_Comma
+			EOS, ZX_Comma, NULL
 		};
 
 		public String literal; // either a varible name or a number
 		public ZXTokenTyp typ; //
 		public int zxToken; // Any ZX Token
+		public int[] floatLiteral;
 		public void copyFrom(ParserToken other) {
 			literal = other.literal;
 			typ = other.typ;
 			zxToken = other.zxToken;
+		}
+		public String toString() {
+			
+			if (typ == ZXTokenTyp.ZX_Token)
+				return String.format("Token: %s", ZXToken.instance().tokenToStr(zxToken));
+			String s = typ.toString();
+			if (typ == ZXTokenTyp.ZX_Float || typ== ZXTokenTyp.ZX_Integer ||
+				typ == ZXTokenTyp.ZX_String || typ == ZXTokenTyp.ZX_literal)
+				 s += " = "+literal;
+			return s;
 		}
 	};
 
@@ -48,6 +61,8 @@ public class ZXTokenizer {
 		public int line;
 		public int len;
 		public byte[] bytes;
+		private ParserToken mUngetToken=null;
+		private ParserToken mPrevToken=new ParserToken();
 
 		public String toString() {
 			ZXToken token = new ZXToken();
@@ -78,8 +93,22 @@ public class ZXTokenizer {
 			}
 			return strLine;
 		}
+		
+		public void unget(ParserToken token) {
+			mUngetToken = new ParserToken();
+			mUngetToken.copyFrom(token);
+			token.copyFrom(mPrevToken);
+		}
 
 		public boolean getNextToken(ParserToken token) {
+			mPrevToken.copyFrom(token);
+			if (mUngetToken != null)
+			{
+				token.copyFrom(mUngetToken);
+				mUngetToken = null;
+				return true;
+				
+			}
 			if (mPos >= bytes.length)
 				return false;
 			int b = bytes[mPos++];
@@ -110,6 +139,9 @@ public class ZXTokenizer {
 			case ']':
 				token.typ = ParserToken.ZXTokenTyp.ZX_CloseArray;
 				break;
+			case '#':
+				token.typ = ParserToken.ZXTokenTyp.ZX_Hash;
+				break;
 			case '>':
 				token.typ = ParserToken.ZXTokenTyp.ZX_Bigger;
 				break;
@@ -131,8 +163,26 @@ public class ZXTokenizer {
 			case ',':
 				token.typ = ParserToken.ZXTokenTyp.ZX_Comma;
 				break;
+			case ';':
+				token.typ = ParserToken.ZXTokenTyp.ZX_Semicolon;
+				break;
 			case 13:
 				token.typ = ParserToken.ZXTokenTyp.ZX_EndOfLine;
+				break;
+			case 34: // String
+				token.typ = ParserToken.ZXTokenTyp.ZX_String;
+				token.literal = "";
+				while (true) {
+					b = bytes[mPos++];
+					if (b == 34) 
+						break;
+					if (b > 0) {
+						token.literal += (char)b;
+					} else {
+						int c = b+256;
+						token.literal += String.format("\\%02x", c);
+					}
+				}
 				break;
 
 			case ZXToken.ZXB_UNEQUAL:
@@ -143,7 +193,9 @@ public class ZXTokenizer {
 					token.typ = ParserToken.ZXTokenTyp.ZX_Integer;
 					token.literal = String.format("%c", b);
 					while (true) {
-						b = bytes[mPos++]; if (b < 0) b+=256;
+						b = bytes[mPos++]; 
+						if (b == 13) break;
+						if (b < 0) b+=256;
 						if (b == 0x0e) {
 							mPos+=5;
 							break;
@@ -157,7 +209,11 @@ public class ZXTokenizer {
 					token.literal = String.format("%c", b);
 					while (true) {
 						b = bytes[mPos]; if (b < 0) b+=256;
-						if (!((b >= 'a' && b <= 'z') || (b >= 'A' && b <= 'Z'))) break;
+						if (!(
+								(b >= 'a' && b <= 'z') || 
+								(b >= 'A' && b <= 'Z') || 
+								b == '$' || 
+								(b >= '0' && b <= '9'))) break;
 						mPos++;
 						token.literal += String.format("%c", b);
 					}

@@ -101,6 +101,19 @@ public class ZXToken {
 	public static final int ZXB_SMALLERTHAN = 0xc7;
 	public static final int ZXB_BIGGERTHAN = 0xc8;
 	public static final int ZXB_UNEQUAL = 0xc9;
+	
+	public String tokenToStr(int token) {
+		String s = mMapTokens.get(token);
+		if (s != null) return s;
+		return "";
+	}
+	
+	static ZXToken gzxtoken = null;
+	public static ZXToken instance() {
+		if (gzxtoken != null) return gzxtoken;
+		gzxtoken = new ZXToken();
+		return gzxtoken;
+	}
 
 	ZXToken() {
 		mMapTokens.put(ZXB_GOTO, "GOTO");

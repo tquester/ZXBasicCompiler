@@ -41,6 +41,7 @@ public class ZXTape {
 	
 	private void readEntries(byte[] data) {
 		int pos=0;
+		try {
 		mTapeEntries = new ArrayList<ZXTape.TapeEntry>();
 		while (pos < data.length) {
 			TapeEntry e = new TapeEntry();
@@ -71,19 +72,23 @@ public class ZXTape {
 			else 
 				pos += headerLen+2;
 			}
+		} catch(Exception e) {
+		e.printStackTrace();
 		}
+	}
 	
 	TapeEntry get(String name) {
 		TapeEntry result=null;
-		for (TapeEntry e: mTapeEntries) {
+		name=name.trim();
+		for (int i=mTapeEntries.size()-1;i>=0;i--) {
+			TapeEntry e = mTapeEntries.get(i);
 			if (e.name == null) continue;
-			if (e.name.compareTo(name) == 0) {
+			if (e.name.trim().compareTo(name) == 0) {
 				result = e;
 				break;
 			}
 		}
 		return result;
-		
 	}
 }
 
