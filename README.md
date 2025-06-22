@@ -6,7 +6,9 @@ Wenn die Optimierung eingeschaltet ist, wird eine gut lesbare Assemblerdatei erz
 
 # Demo Tapes
 BASIC: https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel2/compilerdemo.tap
+
 Kompiliert: https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel2/Assembler/compiled.tap
+
 Assembler-code: https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel2/Assembler/compiledBasic.asm
 
 # ZXBasic Compiler
