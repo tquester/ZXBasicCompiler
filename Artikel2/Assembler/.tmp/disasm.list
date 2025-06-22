@@ -6,20 +6,6 @@
 0010.R1 RST_10:
 0010.R1 C3 F2 15     jp SUB_15EF.L1
 
-0018.R1 RST_18:
-0018.R1 2A 5D 5C     ld hl,(5C5Dh)
-001B.R1 7E           ld a,(hl)
-
-001C.R1 .LOOP:
-001C.R1 CD 7D 00     call SUB_007D
-
-001F.R1 D0           ret nc
-
-0020.R1 RST_20:
-0020.R1 CD 74 00     call SUB_0074
-
-0023.R1 18 F7        jr RST_18.LOOP
-
 ; Note: The address 335Bh is in a different bank.
 0028.R1 C3 5B 33     jp 335Bh
 
@@ -56,39 +42,7 @@
 0055.R1 .L1:
 0055.R1 FD 75 00     ld (iy+0),l
 0058.R1 ED 7B 3D 5C  ld sp,(5C3Dh)
-005C.R1 C3 C5 16     jp SUB_16BF.L1
-
-0074.R1 SUB_0074:
-0074.R1 2A 5D 5C     ld hl,(5C5Dh)
-0077.R1 23           inc hl
-0078.R1 22 5D 5C     ld (5C5Dh),hl
-007B.R1 7E           ld a,(hl)
-007C.R1 C9           ret
-
-007D.R1 SUB_007D:
-007D.R1 FE 21        cp 21h
-007F.R1 D0           ret nc
-
-0080.R1 FE 0D        cp 0Dh
-0082.R1 C8           ret z
-
-0083.R1 FE 10        cp 10h
-0085.R1 D8           ret c
-
-0086.R1 FE 18        cp 18h
-0088.R1 3F           ccf
-0089.R1 D8           ret c
-
-008A.R1 23           inc hl
-008B.R1 FE 16        cp 16h
-008D.R1 38 01        jr c,.L1
-
-008F.R1 23           inc hl
-
-0090.R1 .L1:
-0090.R1 37           scf
-0091.R1 22 5D 5C     ld (5C5Dh),hl
-0094.R1 C9           ret
+005C.R1 C3 C5 16     jp LBL_16C5
 
 028E.R1 SUB_028E:
 028E.R1 2E 2F        ld l,2Fh
@@ -409,6 +363,8 @@
 03F6.R1 FB           ei
 03F7.R1 C9           ret
 
+0420.R1 25 04 E2...  DEFB 25 04 E2 6C 04 06 FA 04 ; ASCII: %??l????
+
 09F4.R1 SUB_09F4:
 09F4.R1 CD 03 0B     call SUB_0B03
 
@@ -430,9 +386,46 @@
 0A0D.R1 E5           push hl
 0A0E.R1 C3 03 0B     jp SUB_0B03
 
+0A4F.R1 FD CB 01 4E  bit 1,(iy+1)
+0A53.R1 C2 CD 0E     jp nz,SUB_0ECD
+
+0A56.R1 0E 21        ld c,21h
+0A58.R1 CD 55 0C     call SUB_0C55
+
+0A5B.R1 05           dec b
+0A5C.R1 C3 D9 0D     jp SUB_0DD9
+
+0A5F.R1 CD 03 0B     call SUB_0B03
+
+0A62.R1 79           ld a,c
+0A63.R1 3D           dec a
+0A64.R1 3D           dec a
+0A65.R1 E6 10        and 10h
+0A67.R1 18 5A        jr SUB_0AC3
+
 0A69.R1 SUB_0A69:
 0A69.R1 3E 3F        ld a,3Fh
 0A6B.R1 18 6C        jr SUB_0AD9
+
+0AC3.R1 SUB_0AC3:
+0AC3.R1 CD 03 0B     call SUB_0B03
+
+0AC6.R1 81           add a,c
+0AC7.R1 3D           dec a
+0AC8.R1 E6 1F        and 1Fh
+0ACA.R1 C8           ret z
+
+0ACB.R1 57           ld d,a
+0ACC.R1 FD CB 01 C6  set 0,(iy+1)
+
+0AD0.R1 .LOOP:
+0AD0.R1 3E 20        ld a,20h
+0AD2.R1 CD 3B 0C     call SUB_0C3B
+
+0AD5.R1 15           dec d
+0AD6.R1 20 F8        jr nz,.LOOP
+
+0AD8.R1 C9           ret
 
 0AD9.R1 SUB_0AD9:
 0AD9.R1 CD 24 0B     call SUB_0B24
@@ -937,7 +930,6 @@
 0D69.R1 77           ld (hl),a
 0D6A.R1 C9           ret
 
-0D6B.R1 SUB_0D6B:
 0D6B.R1 CD AF 0D     call SUB_0DAF
 
 0D6E.R1 SUB_0D6E:
@@ -1273,7 +1265,6 @@
 
 0F2B.R1 C9           ret
 
-0F2C.R1 SUB_0F2C:
 0F2C.R1 2A 3D 5C     ld hl,(5C3Dh)
 0F2F.R1 E5           push hl
 0F30.R1 21 7F 10     ld hl,107Fh.R1
@@ -1291,18 +1282,18 @@
 0F48.R1 21 38 0F     ld hl,0F38h.R1
 0F4B.R1 E5           push hl
 0F4C.R1 FE 18        cp 18h
-0F4E.R1 30 31        jr nc,.L2
+0F4E.R1 30 31        jr nc,LBL_0F81
 
 0F50.R1 FE 07        cp 07h
-0F52.R1 38 2D        jr c,.L2
+0F52.R1 38 2D        jr c,LBL_0F81
 
 0F54.R1 FE 10        cp 10h
-0F56.R1 38 3A        jr c,.L4
+0F56.R1 38 3A        jr c,LBL_0F92
 
 0F58.R1 01 02 00     ld bc,0002h
 0F5B.R1 57           ld d,a
 0F5C.R1 FE 16        cp 16h
-0F5E.R1 38 0C        jr c,.L1
+0F5E.R1 38 0C        jr c,LBL_0F6C
 
 0F60.R1 03           inc bc
 0F61.R1 FD CB 37 7E  bit 7,(iy+55)
@@ -1312,7 +1303,7 @@
 
 0F6B.R1 5F           ld e,a
 
-0F6C.R1 .L1:
+0F6C.R1 LBL_0F6C:
 0F6C.R1 CD D4 15     call SUB_15D4
 
 0F6F.R1 D5           push de
@@ -1325,20 +1316,20 @@
 0F7C.R1 70           ld (hl),b
 0F7D.R1 23           inc hl
 0F7E.R1 71           ld (hl),c
-0F7F.R1 18 0A        jr .L3
+0F7F.R1 18 0A        jr LBL_0F8B
 
-0F81.R1 .L2:
+0F81.R1 LBL_0F81:
 0F81.R1 FD CB 07 86  res 0,(iy+7)
 0F85.R1 2A 5B 5C     ld hl,(5C5Bh)
 0F88.R1 CD 52 16     call SUB_1652
 
-0F8B.R1 .L3:
+0F8B.R1 LBL_0F8B:
 0F8B.R1 12           ld (de),a
 0F8C.R1 13           inc de
 0F8D.R1 ED 53 5B 5C  ld (5C5Bh),de
 0F91.R1 C9           ret
 
-0F92.R1 .L4:
+0F92.R1 LBL_0F92:
 0F92.R1 5F           ld e,a
 0F93.R1 16 00        ld d,00h
 0F95.R1 21 99 0F     ld hl,0F99h.R1
@@ -1348,6 +1339,8 @@
 0F9B.R1 E5           push hl
 0F9C.R1 2A 5B 5C     ld hl,(5C5Bh)
 0F9F.R1 C9           ret
+
+0FA2.R1 6A 50 B5...  DEFB 6A 50 B5 70 7E CF D4 2A ; ASCII: jP?p~??*
 
 101E.R1 SUB_101E:
 101E.R1 CD D4 15     call SUB_15D4
@@ -1363,18 +1356,6 @@
 
 102F.R1 F9           ld sp,hl
 1030.R1 C9           ret
-
-1097.R1 SUB_1097:
-1097.R1 E5           push hl
-1098.R1 CD 90 11     call SUB_1190
-
-109B.R1 2B           dec hl
-109C.R1 CD E5 19     call SUB_19E5
-
-109F.R1 22 5B 5C     ld (5C5Bh),hl
-10A2.R1 FD 36 07 00  ld (iy+7),00h
-10A6.R1 E1           pop hl
-10A7.R1 C9           ret
 
 10A8.R1 FD CB 02 5E  bit 3,(iy+2)
 10AC.R1 C4 1D 11     call nz,SUB_111D
@@ -1521,11 +1502,6 @@
 118B.R1 FD 36 26 00  ld (iy+38),00h
 118F.R1 C9           ret
 
-1190.R1 SUB_1190:
-1190.R1 2A 61 5C     ld hl,(5C61h)
-1193.R1 2B           dec hl
-1194.R1 A7           and a
-
 1195.R1 SUB_1195:
 1195.R1 ED 5B 59 5C  ld de,(5C59h)
 1199.R1 FD CB 37 6E  bit 5,(iy+55)
@@ -1536,217 +1512,6 @@
 
 11A3.R1 2A 63 5C     ld hl,(5C63h)
 11A6.R1 C9           ret
-
-11A7.R1 SUB_11A7:
-11A7.R1 7E           ld a,(hl)
-11A8.R1 FE 0E        cp 0Eh
-11AA.R1 01 06 00     ld bc,0006h
-11AD.R1 CC E8 19     call z,SUB_19E8
-
-11B0.R1 7E           ld a,(hl)
-11B1.R1 23           inc hl
-11B2.R1 FE 0D        cp 0Dh
-11B4.R1 20 F1        jr nz,SUB_11A7
-
-11B6.R1 C9           ret
-
-12A2.R1 LBL_12A2:
-12A2.R1 FD 36 31 02  ld (iy+49),02h
-12A6.R1 CD 95 17     call SUB_1795
-
-12A9.R1 CD B0 16     call SUB_16B0
-
-12AC.R1 .LOOP:
-12AC.R1 3E 00        ld a,00h
-12AE.R1 CD 01 16     call SUB_1601
-
-12B1.R1 CD 2C 0F     call SUB_0F2C
-
-12B4.R1 CD 17 1B     call SUB_1B17
-
-12B7.R1 FD CB 00 7E  bit 7,(iy+0)
-12BB.R1 20 12        jr nz,.L1
-
-12BD.R1 FD CB 30 66  bit 4,(iy+48)
-12C1.R1 28 40        jr z,.L2
-
-12C3.R1 2A 59 5C     ld hl,(5C59h)
-12C6.R1 CD A7 11     call SUB_11A7
-
-12C9.R1 FD 36 00 FF  ld (iy+0),0FFh
-12CD.R1 18 DD        jr .LOOP
-
-12CF.R1 .L1:
-12CF.R1 2A 59 5C     ld hl,(5C59h)
-12D2.R1 22 5D 5C     ld (5C5Dh),hl
-12D5.R1 CD FB 19     call SUB_19FB
-
-12D8.R1 78           ld a,b
-12D9.R1 B1           or c
-12DA.R1 C2 5D 15     jp nz,LBL_155D
-
-12DD.R1 DF           rst RST_18
-
-12DE.R1 FE 0D        cp 0Dh
-12E0.R1 28 C0        jr z,LBL_12A2
-
-12E2.R1 FD CB 30 46  bit 0,(iy+48)
-12E6.R1 C4 AF 0D     call nz,SUB_0DAF
-
-12E9.R1 CD 6E 0D     call SUB_0D6E
-
-12EC.R1 3E 19        ld a,19h
-12EE.R1 FD 96 4F     sub (iy+79)
-12F1.R1 32 8C 5C     ld (5C8Ch),a
-12F4.R1 FD CB 01 FE  set 7,(iy+1)
-12F8.R1 FD 36 00 FF  ld (iy+0),0FFh
-12FC.R1 FD 36 0A 01  ld (iy+10),01h
-1300.R1 CD 8A 1B     call SUB_1B8A
-
-1303.R1 .L2:
-1303.R1 76           halt
-1304.R1 FD CB 01 AE  res 5,(iy+1)
-1308.R1 FD CB 30 4E  bit 1,(iy+48)
-130C.R1 C4 CD 0E     call nz,SUB_0ECD
-
-130F.R1 3A 3A 5C     ld a,(5C3Ah)
-1312.R1 3C           inc a
-1313.R1 F5           push af
-1314.R1 21 00 00     ld hl,0000h
-1317.R1 FD 74 37     ld (iy+55),h
-131A.R1 FD 74 26     ld (iy+38),h
-131D.R1 22 0B 5C     ld (5C0Bh),hl
-1320.R1 21 01 00     ld hl,0001h
-1323.R1 22 16 5C     ld (5C16h),hl
-1326.R1 CD B0 16     call SUB_16B0
-
-1329.R1 FD CB 37 AE  res 5,(iy+55)
-132D.R1 CD 6E 0D     call SUB_0D6E
-
-1330.R1 FD CB 02 EE  set 5,(iy+2)
-1334.R1 F1           pop af
-1335.R1 47           ld b,a
-1336.R1 FE 0A        cp 0Ah
-1338.R1 38 02        jr c,.L3
-
-133A.R1 C6 07        add a,07h
-
-133C.R1 .L3:
-133C.R1 CD EF 15     call SUB_15EF
-
-133F.R1 3E 20        ld a,20h
-1341.R1 D7           rst RST_10
-
-1342.R1 78           ld a,b
-1343.R1 11 91 13     ld de,1391h.R1
-1346.R1 CD 0A 0C     call SUB_0C0A
-
-1349.R1 AF           xor a
-134A.R1 11 36 15     ld de,1536h.R1
-134D.R1 CD 0A 0C     call SUB_0C0A
-
-1350.R1 ED 4B 45 5C  ld bc,(5C45h)
-1354.R1 CD 1B 1A     call SUB_1A1B
-
-1357.R1 3E 3A        ld a,3Ah
-1359.R1 D7           rst RST_10
-
-135A.R1 FD 4E 0D     ld c,(iy+13)
-135D.R1 06 00        ld b,00h
-135F.R1 CD 1B 1A     call SUB_1A1B
-
-1362.R1 CD 97 10     call SUB_1097
-
-1365.R1 3A 3A 5C     ld a,(5C3Ah)
-1368.R1 3C           inc a
-1369.R1 28 1B        jr z,.L7
-
-136B.R1 FE 09        cp 09h
-136D.R1 28 04        jr z,.L4
-
-136F.R1 FE 15        cp 15h
-1371.R1 20 03        jr nz,.L5
-
-1373.R1 .L4:
-1373.R1 FD 34 0D     inc (iy+13)
-
-1376.R1 .L5:
-1376.R1 01 03 00     ld bc,0003h
-1379.R1 11 70 5C     ld de,5C70h
-137C.R1 21 44 5C     ld hl,5C44h
-137F.R1 CB 7E        bit 7,(hl)
-1381.R1 28 01        jr z,.L6
-
-1383.R1 09           add hl,bc
-
-1384.R1 .L6:
-1384.R1 ED B8        lddr
-
-1386.R1 .L7:
-1386.R1 FD 36 0A FF  ld (iy+10),0FFh
-138A.R1 FD CB 01 9E  res 3,(iy+1)
-138E.R1 C3 AC 12     jp .LOOP
-
-155D.R1 LBL_155D:
-155D.R1 ED 43 49 5C  ld (5C49h),bc
-1561.R1 2A 5D 5C     ld hl,(5C5Dh)
-1564.R1 EB           ex de,hl
-1565.R1 21 55 15     ld hl,1555h.R1
-1568.R1 E5           push hl
-1569.R1 2A 61 5C     ld hl,(5C61h)
-156C.R1 37           scf
-156D.R1 ED 52        sbc hl,de
-156F.R1 E5           push hl
-1570.R1 60           ld h,b
-1571.R1 69           ld l,c
-1572.R1 CD 6E 19     call SUB_196E
-
-1575.R1 20 06        jr nz,.L1
-
-1577.R1 CD B8 19     call SUB_19B8
-
-157A.R1 CD E8 19     call SUB_19E8
-
-157D.R1 .L1:
-157D.R1 C1           pop bc
-157E.R1 79           ld a,c
-157F.R1 3D           dec a
-1580.R1 B0           or b
-1581.R1 28 28        jr z,.L2
-
-1583.R1 C5           push bc
-1584.R1 03           inc bc
-1585.R1 03           inc bc
-1586.R1 03           inc bc
-1587.R1 03           inc bc
-1588.R1 2B           dec hl
-1589.R1 ED 5B 53 5C  ld de,(5C53h)
-158D.R1 D5           push de
-158E.R1 CD 55 16     call SUB_1655
-
-1591.R1 E1           pop hl
-1592.R1 22 53 5C     ld (5C53h),hl
-1595.R1 C1           pop bc
-1596.R1 C5           push bc
-1597.R1 13           inc de
-1598.R1 2A 61 5C     ld hl,(5C61h)
-159B.R1 2B           dec hl
-159C.R1 2B           dec hl
-159D.R1 ED B8        lddr
-159F.R1 2A 49 5C     ld hl,(5C49h)
-15A2.R1 EB           ex de,hl
-15A3.R1 C1           pop bc
-15A4.R1 70           ld (hl),b
-15A5.R1 2B           dec hl
-15A6.R1 71           ld (hl),c
-15A7.R1 2B           dec hl
-15A8.R1 73           ld (hl),e
-15A9.R1 2B           dec hl
-15AA.R1 72           ld (hl),d
-
-15AB.R1 .L2:
-15AB.R1 F1           pop af
-15AC.R1 C3 A2 12     jp LBL_12A2
 
 15D4.R1 SUB_15D4:
 15D4.R1 FD CB 02 6E  bit 5,(iy+2)
@@ -1916,7 +1681,6 @@
 169C.R1 5E           ld e,(hl)
 169D.R1 C9           ret
 
-16B0.R1 SUB_16B0:
 16B0.R1 2A 59 5C     ld hl,(5C59h)
 16B3.R1 36 0D        ld (hl),0Dh
 16B5.R1 22 5B 5C     ld (5C5Bh),hl
@@ -1924,12 +1688,10 @@
 16B9.R1 36 80        ld (hl),80h
 16BB.R1 23           inc hl
 16BC.R1 22 61 5C     ld (5C61h),hl
-
-16BF.R1 SUB_16BF:
 16BF.R1 2A 61 5C     ld hl,(5C61h)
 16C2.R1 22 63 5C     ld (5C63h),hl
 
-16C5.R1 .L1:
+16C5.R1 LBL_16C5:
 16C5.R1 2A 63 5C     ld hl,(5C63h)
 16C8.R1 22 65 5C     ld (5C65h),hl
 16CB.R1 E5           push hl
@@ -1953,7 +1715,8 @@
 16E3.R1 37           scf
 16E4.R1 C9           ret
 
-1795.R1 SUB_1795:
+1772.R1 30 F1 4E...  DEFB 30 F1 4E 06 00 09 C1 E9 ; ASCII: 0?N?????
+
 1795.R1 ED 73 3F 5C  ld (5C3Fh),sp
 1799.R1 FD 36 02 10  ld (iy+2),10h
 179D.R1 CD AF 0D     call SUB_0DAF
@@ -1969,7 +1732,7 @@
 17B9.R1 A7           and a
 17BA.R1 ED 52        sbc hl,de
 17BC.R1 19           add hl,de
-17BD.R1 38 22        jr c,.L1
+17BD.R1 38 22        jr c,LBL_17E1
 
 17BF.R1 D5           push de
 17C0.R1 CD 6E 19     call SUB_196E
@@ -1982,13 +1745,13 @@
 
 17CD.R1 C1           pop bc
 
-17CE.R1 .LOOP:
+17CE.R1 LBL_17CE:
 17CE.R1 C5           push bc
 17CF.R1 CD B8 19     call SUB_19B8
 
 17D2.R1 C1           pop bc
 17D3.R1 09           add hl,bc
-17D4.R1 38 0E        jr c,.L2
+17D4.R1 38 0E        jr c,LBL_17E4
 
 17D6.R1 EB           ex de,hl
 17D7.R1 56           ld d,(hl)
@@ -1996,20 +1759,20 @@
 17D9.R1 5E           ld e,(hl)
 17DA.R1 2B           dec hl
 17DB.R1 ED 53 6C 5C  ld (5C6Ch),de
-17DF.R1 18 ED        jr .LOOP
+17DF.R1 18 ED        jr LBL_17CE
 
-17E1.R1 .L1:
+17E1.R1 LBL_17E1:
 17E1.R1 22 6C 5C     ld (5C6Ch),hl
 
-17E4.R1 .L2:
+17E4.R1 LBL_17E4:
 17E4.R1 2A 6C 5C     ld hl,(5C6Ch)
 17E7.R1 CD 6E 19     call SUB_196E
 
-17EA.R1 28 01        jr z,.L3
+17EA.R1 28 01        jr z,LBL_17ED
 
 17EC.R1 EB           ex de,hl
 
-17ED.R1 .L3:
+17ED.R1 LBL_17ED:
 17ED.R1 CD 33 18     call SUB_1833
 
 17F0.R1 FD CB 02 A6  res 4,(iy+2)
@@ -2295,54 +2058,6 @@
 1986.R1 B9           cp c
 1987.R1 C9           ret
 
-198B.R1 SUB_198B:
-198B.R1 22 5D 5C     ld (5C5Dh),hl
-198E.R1 0E 00        ld c,00h
-
-1990.R1 .LOOP1:
-1990.R1 15           dec d
-1991.R1 C8           ret z
-
-1992.R1 E7           rst RST_20
-
-1993.R1 BB           cp e
-1994.R1 20 04        jr nz,.L1
-
-1996.R1 A7           and a
-1997.R1 C9           ret
-
-1998.R1 .LOOP2:
-1998.R1 23           inc hl
-1999.R1 7E           ld a,(hl)
-
-199A.R1 .L1:
-199A.R1 CD B6 18     call SUB_18B6
-
-199D.R1 22 5D 5C     ld (5C5Dh),hl
-19A0.R1 FE 22        cp 22h
-19A2.R1 20 01        jr nz,.L2
-
-19A4.R1 0D           dec c
-
-19A5.R1 .L2:
-19A5.R1 FE 3A        cp 3Ah
-19A7.R1 28 04        jr z,.L3
-
-19A9.R1 FE CB        cp 0CBh
-19AB.R1 20 04        jr nz,.L4
-
-19AD.R1 .L3:
-19AD.R1 CB 41        bit 0,c
-19AF.R1 28 DF        jr z,.LOOP1
-
-19B1.R1 .L4:
-19B1.R1 FE 0D        cp 0Dh
-19B3.R1 20 E3        jr nz,.LOOP2
-
-19B5.R1 15           dec d
-19B6.R1 37           scf
-19B7.R1 C9           ret
-
 19B8.R1 SUB_19B8:
 19B8.R1 E5           push hl
 19B9.R1 7E           ld a,(hl)
@@ -2384,8 +2099,6 @@
 19DB.R1 .L4:
 19DB.R1 09           add hl,bc
 19DC.R1 D1           pop de
-
-19DD.R1 SUB_19DD:
 19DD.R1 A7           and a
 19DE.R1 ED 52        sbc hl,de
 19E0.R1 44           ld b,h
@@ -2393,65 +2106,6 @@
 19E2.R1 19           add hl,de
 19E3.R1 EB           ex de,hl
 19E4.R1 C9           ret
-
-19E5.R1 SUB_19E5:
-19E5.R1 CD DD 19     call SUB_19DD
-
-19E8.R1 SUB_19E8:
-19E8.R1 C5           push bc
-19E9.R1 78           ld a,b
-19EA.R1 2F           cpl
-19EB.R1 47           ld b,a
-19EC.R1 79           ld a,c
-19ED.R1 2F           cpl
-19EE.R1 4F           ld c,a
-19EF.R1 03           inc bc
-19F0.R1 CD 64 16     call SUB_1664
-
-19F3.R1 EB           ex de,hl
-19F4.R1 E1           pop hl
-19F5.R1 19           add hl,de
-19F6.R1 D5           push de
-19F7.R1 ED B0        ldir
-19F9.R1 E1           pop hl
-19FA.R1 C9           ret
-
-19FB.R1 SUB_19FB:
-19FB.R1 2A 59 5C     ld hl,(5C59h)
-19FE.R1 2B           dec hl
-19FF.R1 22 5D 5C     ld (5C5Dh),hl
-1A02.R1 E7           rst RST_20
-
-1A03.R1 21 92 5C     ld hl,5C92h
-1A06.R1 22 65 5C     ld (5C65h),hl
-
-; Note: The address 2D3Bh is in a different bank.
-1A09.R1 CD 3B 2D     call 2D3Bh
-
-; Note: The address 2DA2h is in a different bank.
-1A0C.R1 CD A2 2D     call 2DA2h
-
-1A0F.R1 38 04        jr c,.L1
-
-1A11.R1 21 F0 D8     ld hl,0D8F0h
-1A14.R1 09           add hl,bc
-
-1A15.R1 .L1:
-1A15.R1 DA 8A 1C     jp c,SUB_1C8A
-
-1A18.R1 C3 C5 16     jp SUB_16BF.L1
-
-1A1B.R1 SUB_1A1B:
-1A1B.R1 D5           push de
-1A1C.R1 E5           push hl
-1A1D.R1 AF           xor a
-1A1E.R1 CB 78        bit 7,b
-1A20.R1 20 20        jr nz,SUB_1A28.L2
-
-1A22.R1 60           ld h,b
-1A23.R1 69           ld l,c
-1A24.R1 1E FF        ld e,0FFh
-1A26.R1 18 08        jr SUB_1A28.L1
 
 1A28.R1 SUB_1A28:
 1A28.R1 D5           push de
@@ -2461,8 +2115,6 @@
 1A2C.R1 E5           push hl
 1A2D.R1 EB           ex de,hl
 1A2E.R1 1E 20        ld e,20h
-
-1A30.R1 .L1:
 1A30.R1 01 18 FC     ld bc,0FC18h
 1A33.R1 CD 2A 19     call SUB_192A
 
@@ -2473,283 +2125,11 @@
 1A3E.R1 CD 2A 19     call SUB_192A
 
 1A41.R1 7D           ld a,l
-
-1A42.R1 .L2:
 1A42.R1 CD EF 15     call SUB_15EF
 
 1A45.R1 E1           pop hl
 1A46.R1 D1           pop de
 1A47.R1 C9           ret
-
-1B17.R1 SUB_1B17:
-1B17.R1 FD CB 01 BE  res 7,(iy+1)
-1B1B.R1 CD FB 19     call SUB_19FB
-
-1B1E.R1 AF           xor a
-1B1F.R1 32 47 5C     ld (5C47h),a
-1B22.R1 3D           dec a
-1B23.R1 32 3A 5C     ld (5C3Ah),a
-1B26.R1 18 01        jr .L1
-
-1B28.R1 .LOOP:
-1B28.R1 E7           rst RST_20
-
-1B29.R1 .L1:
-1B29.R1 CD BF 16     call SUB_16BF
-
-1B2C.R1 FD 34 0D     inc (iy+13)
-1B2F.R1 FA 8A 1C     jp m,SUB_1C8A
-
-1B32.R1 DF           rst RST_18
-
-1B33.R1 06 00        ld b,00h
-1B35.R1 FE 0D        cp 0Dh
-1B37.R1 28 7A        jr z,SUB_1BB3
-
-1B39.R1 FE 3A        cp 3Ah
-1B3B.R1 28 EB        jr z,.LOOP
-
-1B3D.R1 21 76 1B     ld hl,1B76h.R1
-1B40.R1 E5           push hl
-1B41.R1 4F           ld c,a
-1B42.R1 E7           rst RST_20
-
-1B43.R1 79           ld a,c
-1B44.R1 D6 CE        sub 0CEh
-1B46.R1 DA 8A 1C     jp c,SUB_1C8A
-
-1B49.R1 4F           ld c,a
-1B4A.R1 21 48 1A     ld hl,1A48h.R1
-1B4D.R1 09           add hl,bc
-1B4E.R1 4E           ld c,(hl)
-1B4F.R1 09           add hl,bc
-1B50.R1 18 03        jr SUB_1B55
-
-1B55.R1 SUB_1B55:
-1B55.R1 7E           ld a,(hl)
-1B56.R1 23           inc hl
-1B57.R1 22 74 5C     ld (5C74h),hl
-1B5A.R1 01 52 1B     ld bc,1B52h.R1
-1B5D.R1 C5           push bc
-1B5E.R1 4F           ld c,a
-1B5F.R1 FE 20        cp 20h
-1B61.R1 30 0C        jr nc,.L1
-
-1B63.R1 21 01 1C     ld hl,1C01h.R1
-1B66.R1 06 00        ld b,00h
-1B68.R1 09           add hl,bc
-1B69.R1 4E           ld c,(hl)
-1B6A.R1 09           add hl,bc
-1B6B.R1 E5           push hl
-1B6C.R1 DF           rst RST_18
-
-1B6D.R1 05           dec b
-1B6E.R1 C9           ret
-
-1B6F.R1 .L1:
-1B6F.R1 DF           rst RST_18
-
-1B70.R1 B9           cp c
-1B71.R1 C2 8A 1C     jp nz,SUB_1C8A
-
-1B74.R1 E7           rst RST_20
-
-1B75.R1 C9           ret
-
-1B8A.R1 SUB_1B8A:
-1B8A.R1 21 FE FF     ld hl,0FFFEh
-1B8D.R1 22 45 5C     ld (5C45h),hl
-1B90.R1 2A 61 5C     ld hl,(5C61h)
-1B93.R1 2B           dec hl
-1B94.R1 ED 5B 59 5C  ld de,(5C59h)
-1B98.R1 1B           dec de
-1B99.R1 3A 44 5C     ld a,(5C44h)
-1B9C.R1 18 33        jr SUB_1BB3.L1
-
-1BB3.R1 SUB_1BB3:
-
-; Note: The address 2530h is in a different bank.
-1BB3.R1 CD 30 25     call 2530h
-
-1BB6.R1 C8           ret z
-
-1BB7.R1 2A 55 5C     ld hl,(5C55h)
-1BBA.R1 3E C0        ld a,0C0h
-1BBC.R1 A6           and (hl)
-1BBD.R1 C0           ret nz
-
-1BBE.R1 AF           xor a
-1BBF.R1 FE 01        cp 01h
-1BC1.R1 CE 00        adc a,00h
-1BC3.R1 56           ld d,(hl)
-1BC4.R1 23           inc hl
-1BC5.R1 5E           ld e,(hl)
-1BC6.R1 ED 53 45 5C  ld (5C45h),de
-1BCA.R1 23           inc hl
-1BCB.R1 5E           ld e,(hl)
-1BCC.R1 23           inc hl
-1BCD.R1 56           ld d,(hl)
-1BCE.R1 EB           ex de,hl
-1BCF.R1 19           add hl,de
-1BD0.R1 23           inc hl
-
-1BD1.R1 .L1:
-1BD1.R1 22 55 5C     ld (5C55h),hl
-1BD4.R1 EB           ex de,hl
-1BD5.R1 22 5D 5C     ld (5C5Dh),hl
-1BD8.R1 57           ld d,a
-1BD9.R1 1E 00        ld e,00h
-1BDB.R1 FD 36 0A FF  ld (iy+10),0FFh
-1BDF.R1 15           dec d
-1BE0.R1 FD 72 0D     ld (iy+13),d
-1BE3.R1 CA 28 1B     jp z,SUB_1B17.LOOP
-
-1BE6.R1 14           inc d
-1BE7.R1 CD 8B 19     call SUB_198B
-
-1BEA.R1 28 08        jr z,.L2
-
-1BEC.R1 CF           rst RST_08
-
-; Note: The disassembly is ambiguous at 1BEEh.
-; Note: The disassembly is ambiguous at 1BEEh.
-; Note: The disassembly is ambiguous at 1BEEh.
-1BED.R1 16 CD        ld d,0CDh
-1BEF.R1 30 25        jr nc,LBL_1C16
-
-1BF1.R1 C0           ret nz
-
-1BF2.R1 C1           pop bc
-1BF3.R1 C1           pop bc
-
-1BF4.R1 .L2:
-1BF4.R1 DF           rst RST_18
-
-1BF5.R1 FE 0D        cp 0Dh
-1BF7.R1 28 BA        jr z,SUB_1BB3
-
-1BF9.R1 FE 3A        cp 3Ah
-1BFB.R1 CA 28 1B     jp z,SUB_1B17.LOOP
-
-1BFE.R1 C3 8A 1C     jp SUB_1C8A
-
-1C11.R1 C1           pop bc
-
-; Note: The disassembly is ambiguous at 1BEEh.
-1C12.R1 CC EE 1B     call z,1BEDh.R1+1
-
-1C15.R1 EB           ex de,hl
-
-1C16.R1 LBL_1C16:
-1C16.R1 2A 74 5C     ld hl,(5C74h)
-1C19.R1 4E           ld c,(hl)
-1C1A.R1 23           inc hl
-1C1B.R1 46           ld b,(hl)
-1C1C.R1 EB           ex de,hl
-1C1D.R1 C5           push bc
-1C1E.R1 C9           ret
-
-1C8A.R1 SUB_1C8A:
-1C8A.R1 CF           rst RST_08
-
-1C8B.R1 0B           dec bc
-
-; Note: The address 24FBh is in a different bank.
-1C8C.R1 CD FB 24     call 24FBh
-
-1C8F.R1 FD CB 01 76  bit 6,(iy+1)
-1C93.R1 C8           ret z
-
-1C94.R1 18 F4        jr SUB_1C8A
-
-1E45.R1 SUB_1E45:
-1E45.R1 60           ld h,b
-1E46.R1 69           ld l,c
-1E47.R1 CD 6E 19     call SUB_196E
-
-1E4A.R1 2B           dec hl
-1E4B.R1 22 57 5C     ld (5C57h),hl
-1E4E.R1 C9           ret
-
-1E67.R1 SUB_1E67:
-1E67.R1 CD 99 1E     call SUB_1E99
-
-1E6A.R1 60           ld h,b
-1E6B.R1 69           ld l,c
-1E6C.R1 16 00        ld d,00h
-1E6E.R1 7C           ld a,h
-1E6F.R1 FE F0        cp 0F0h
-1E71.R1 30 2C        jr nc,SUB_1E99.L1
-
-1E73.R1 22 42 5C     ld (5C42h),hl
-1E76.R1 FD 72 0A     ld (iy+10),d
-1E79.R1 C9           ret
-
-1E99.R1 SUB_1E99:
-
-; Note: The address 2DA2h is in a different bank.
-1E99.R1 CD A2 2D     call 2DA2h
-
-1E9C.R1 38 01        jr c,.L1
-
-1E9E.R1 C8           ret z
-
-1E9F.R1 .L1:
-1E9F.R1 CF           rst RST_08
-
-1EA0.R1 0A           ld a,(bc)
-1EA1.R1 CD 67 1E     call SUB_1E67
-
-1EA4.R1 01 00 00     ld bc,0000h
-1EA7.R1 CD 45 1E     call SUB_1E45
-
-1EAA.R1 18 03        jr LBL_1EAF
-
-1EAF.R1 LBL_1EAF:
-1EAF.R1 78           ld a,b
-1EB0.R1 B1           or c
-1EB1.R1 20 04        jr nz,.L1
-
-1EB3.R1 ED 4B B2 5C  ld bc,(5CB2h)
-
-1EB7.R1 .L1:
-1EB7.R1 C5           push bc
-1EB8.R1 ED 5B 4B 5C  ld de,(5C4Bh)
-1EBC.R1 2A 59 5C     ld hl,(5C59h)
-1EBF.R1 2B           dec hl
-1EC0.R1 CD E5 19     call SUB_19E5
-
-1EC3.R1 CD 6B 0D     call SUB_0D6B
-
-1EC6.R1 2A 65 5C     ld hl,(5C65h)
-1EC9.R1 11 32 00     ld de,0032h
-1ECC.R1 19           add hl,de
-1ECD.R1 D1           pop de
-1ECE.R1 ED 52        sbc hl,de
-1ED0.R1 30 08        jr nc,.L2
-
-1ED2.R1 2A B4 5C     ld hl,(5CB4h)
-1ED5.R1 A7           and a
-1ED6.R1 ED 52        sbc hl,de
-1ED8.R1 30 02        jr nc,.L3
-
-1EDA.R1 .L2:
-1EDA.R1 CF           rst RST_08
-
-1EDB.R1 15           dec d
-
-1EDC.R1 .L3:
-1EDC.R1 EB           ex de,hl
-1EDD.R1 22 B2 5C     ld (5CB2h),hl
-1EE0.R1 D1           pop de
-1EE1.R1 C1           pop bc
-1EE2.R1 36 3E        ld (hl),3Eh
-1EE4.R1 2B           dec hl
-1EE5.R1 F9           ld sp,hl
-1EE6.R1 C5           push bc
-1EE7.R1 ED 73 3D 5C  ld (5C3Dh),sp
-1EEB.R1 EB           ex de,hl
-1EEC.R1 E9           jp (hl)
 
 1F05.R1 SUB_1F05:
 1F05.R1 2A 65 5C     ld hl,(5C65h)
@@ -2778,139 +2158,6 @@
 1F5C.R1 DB FE        in a,(00FEh)
 1F5E.R1 1F           rra
 1F5F.R1 C9           ret
-
-1FC3.R1 SUB_1FC3:
-
-; Note: The address 2530h is in a different bank.
-1FC3.R1 CD 30 25     call 2530h
-
-1FC6.R1 E1           pop hl
-1FC7.R1 C8           ret z
-
-1FC8.R1 E9           jp (hl)
-
-1FCD.R1 3E 02        ld a,02h
-
-; Note: The address 2530h is in a different bank.
-1FCF.R1 CD 30 25     call 2530h
-
-1FD2.R1 C4 01 16     call nz,SUB_1601
-
-1FD5.R1 CD 4D 0D     call SUB_0D4D
-
-1FD8.R1 CD DF 1F     call SUB_1FDF
-
-; Note: The disassembly is ambiguous at 1BEEh.
-1FDB.R1 CD EE 1B     call 1BEDh.R1+1
-
-1FDE.R1 C9           ret
-
-1FDF.R1 SUB_1FDF:
-1FDF.R1 DF           rst RST_18
-
-; Note: The address 2045h is in a different bank.
-1FE0.R1 CD 45 20     call 2045h
-
-1FE3.R1 28 0D        jr z,.L1
-
-1FE5.R1 .LOOP:
-
-; Note: The address 204Eh is in a different bank.
-1FE5.R1 CD 4E 20     call 204Eh
-
-1FE8.R1 28 FB        jr z,.LOOP
-
-1FEA.R1 CD FC 1F     call SUB_1FFC
-
-; Note: The address 204Eh is in a different bank.
-1FED.R1 CD 4E 20     call 204Eh
-
-1FF0.R1 28 F3        jr z,.LOOP
-
-1FF2.R1 .L1:
-1FF2.R1 FE 29        cp 29h
-1FF4.R1 C8           ret z
-
-1FF5.R1 CD C3 1F     call SUB_1FC3
-
-1FF8.R1 3E 0D        ld a,0Dh
-1FFA.R1 D7           rst RST_10
-
-1FFB.R1 C9           ret
-
-1FFC.R1 SUB_1FFC:
-1FFC.R1 DF           rst RST_18
-
-1FFD.R1 FE AC        cp 0ACh
-
-; Note: The address 2001h is in a different bank.
-; Note: The address 200Eh is in a different bank.
-1FFF.R1 20 0D        jr nz,200Eh
-
-200E.R1 FE AD        cp 0ADh
-2010.R1 20 12        jr nz,LBL_2024
-
-; Note: The address 0020h is in a different bank.
-2012.R1 E7           rst 0020h
-
-; Note: The address 1C82h is in a different bank.
-2013.R1 CD 82 1C     call 1C82h
-
-; Note: The address 1FC3h is in a different bank.
-2016.R1 CD C3 1F     call 1FC3h
-
-; Note: The address 1E99h is in a different bank.
-2019.R1 CD 99 1E     call 1E99h
-
-201C.R1 3E 17        ld a,17h
-
-; Note: The address 0010h is in a different bank.
-201E.R1 D7           rst 0010h
-
-201F.R1 79           ld a,c
-
-; Note: The address 0010h is in a different bank.
-2020.R1 D7           rst 0010h
-
-2021.R1 78           ld a,b
-
-; Note: The address 0010h is in a different bank.
-2022.R1 D7           rst 0010h
-
-2023.R1 C9           ret
-
-2024.R1 LBL_2024:
-2024.R1 CD F2 21     call SUB_21F2
-
-2027.R1 D0           ret nc
-
-2028.R1 CD 70 20     call SUB_2070
-
-202B.R1 D0           ret nc
-
-202C.R1 CD FB 24     call SUB_24FB
-
-; Note: The address 1FC3h is in a different bank.
-202F.R1 CD C3 1F     call 1FC3h
-
-2032.R1 FD CB 01 76  bit 6,(iy+1)
-2036.R1 CC F1 2B     call z,SUB_2BF1
-
-2039.R1 C2 E3 2D     jp nz,SUB_2DE3
-
-203C.R1 LBL_203C:
-203C.R1 78           ld a,b
-203D.R1 B1           or c
-203E.R1 0B           dec bc
-203F.R1 C8           ret z
-
-2040.R1 1A           ld a,(de)
-2041.R1 13           inc de
-
-; Note: The address 0010h is in a different bank.
-2042.R1 D7           rst 0010h
-
-2043.R1 18 F7        jr LBL_203C
 
 2045.R1 SUB_2045:
 2045.R1 FE 29        cp 29h
@@ -2965,36 +2212,6 @@
 206E.R1 .L3:
 206E.R1 BF           cp a
 206F.R1 C9           ret
-
-2070.R1 SUB_2070:
-2070.R1 FE 23        cp 23h
-2072.R1 37           scf
-2073.R1 C0           ret nz
-
-; Note: The address 0020h is in a different bank.
-2074.R1 E7           rst 0020h
-
-; Note: The address 1C82h is in a different bank.
-2075.R1 CD 82 1C     call 1C82h
-
-2078.R1 A7           and a
-
-; Note: The address 1FC3h is in a different bank.
-2079.R1 CD C3 1F     call 1FC3h
-
-; Note: The address 1E94h is in a different bank.
-207C.R1 CD 94 1E     call 1E94h
-
-207F.R1 FE 10        cp 10h
-
-; Note: The address 160Eh is in a different bank.
-2081.R1 D2 0E 16     jp nc,160Eh
-
-; Note: The address 1601h is in a different bank.
-2084.R1 CD 01 16     call 1601h
-
-2087.R1 A7           and a
-2088.R1 C9           ret
 
 20C1.R1 SUB_20C1:
 20C1.R1 CD 4E 20     call SUB_204E
@@ -3226,7 +2443,7 @@
 ; Note: The disassembly is ambiguous at 21D6h.
 ; Note: The disassembly is ambiguous at 21D7h.
 ; Note: The disassembly is ambiguous at 2201h.
-21D5.R1 10 2A        djnz 21FFh.R1+2
+21D5.R1 10 2A        djnz 2201h.R1
 
 21D6.R1 SUB_21D6:
 21D6.R1 2A 51 5C     ld hl,(5C51h)
@@ -3238,873 +2455,9 @@
 21DE.R1 FE 4B        cp 4Bh
 21E0.R1 C9           ret
 
-21F2.R1 SUB_21F2:
-21F2.R1 FE D9        cp 0D9h
-21F4.R1 D8           ret c
-
-21F5.R1 FE DF        cp 0DFh
-21F7.R1 3F           ccf
-21F8.R1 D8           ret c
-
-21F9.R1 F5           push af
-
-; Note: The address 0020h is in a different bank.
-21FA.R1 E7           rst 0020h
-
-21FB.R1 F1           pop af
-21FC.R1 D6 C9        sub 0C9h
-21FE.R1 F5           push af
-
-; Note: The address 1C82h is in a different bank.
-21FF.R1 CD 82 1C     call 1C82h
-
-2202.R1 F1           pop af
-2203.R1 A7           and a
-
-; Note: The address 1FC3h is in a different bank.
-2204.R1 CD C3 1F     call 1FC3h
-
-2207.R1 F5           push af
-
-; Note: The address 1E94h is in a different bank.
-2208.R1 CD 94 1E     call 1E94h
-
-220B.R1 57           ld d,a
-220C.R1 F1           pop af
-
-; Note: The address 0010h is in a different bank.
-220D.R1 D7           rst 0010h
-
-220E.R1 7A           ld a,d
-
-; Note: The address 0010h is in a different bank.
-220F.R1 D7           rst 0010h
-
-2210.R1 C9           ret
-
-24FB.R1 SUB_24FB:
-
-; Note: The address 0018h is in a different bank.
-24FB.R1 DF           rst 0018h
-
-24FC.R1 06 00        ld b,00h
-24FE.R1 C5           push bc
-
-24FF.R1 .LOOP:
-24FF.R1 4F           ld c,a
-2500.R1 21 96 25     ld hl,2596h.R1
-
-; Note: The address 16DCh is in a different bank.
-2503.R1 CD DC 16     call 16DCh
-
-2506.R1 79           ld a,c
-2507.R1 D2 84 26     jp nc,LBL_2684
-
-250A.R1 06 00        ld b,00h
-250C.R1 4E           ld c,(hl)
-250D.R1 09           add hl,bc
-250E.R1 E9           jp (hl)
-
 2530.R1 SUB_2530:
 2530.R1 FD CB 01 7E  bit 7,(iy+1)
 2534.R1 C9           ret
-
-2684.R1 LBL_2684:
-2684.R1 CD 88 2C     call SUB_2C88
-
-2687.R1 30 56        jr nc,.L5
-
-2689.R1 FE 41        cp 41h
-268B.R1 30 3C        jr nc,.L3
-
-268D.R1 CD 30 25     call SUB_2530
-
-2690.R1 20 23        jr nz,.L1
-
-2692.R1 CD 9B 2C     call SUB_2C9B
-
-; Note: The address 0018h is in a different bank.
-2695.R1 DF           rst 0018h
-
-2696.R1 01 06 00     ld bc,0006h
-
-; Note: The address 1655h is in a different bank.
-2699.R1 CD 55 16     call 1655h
-
-269C.R1 23           inc hl
-269D.R1 36 0E        ld (hl),0Eh
-269F.R1 23           inc hl
-26A0.R1 EB           ex de,hl
-26A1.R1 2A 65 5C     ld hl,(5C65h)
-26A4.R1 0E 05        ld c,05h
-26A6.R1 A7           and a
-26A7.R1 ED 42        sbc hl,bc
-26A9.R1 22 65 5C     ld (5C65h),hl
-26AC.R1 ED B0        ldir
-26AE.R1 EB           ex de,hl
-26AF.R1 2B           dec hl
-
-; Note: The address 0077h is in a different bank.
-26B0.R1 CD 77 00     call 0077h
-
-26B3.R1 18 0E        jr .L2
-
-26B5.R1 .L1:
-
-; Note: The address 0018h is in a different bank.
-26B5.R1 DF           rst 0018h
-
-26B6.R1 .LOOP1:
-26B6.R1 23           inc hl
-26B7.R1 7E           ld a,(hl)
-26B8.R1 FE 0E        cp 0Eh
-26BA.R1 20 FA        jr nz,.LOOP1
-
-26BC.R1 23           inc hl
-26BD.R1 CD B4 33     call SUB_33B4
-
-26C0.R1 22 5D 5C     ld (5C5Dh),hl
-
-26C3.R1 .L2:
-26C3.R1 FD CB 01 F6  set 6,(iy+1)
-26C7.R1 18 14        jr .L4
-
-26C9.R1 .L3:
-26C9.R1 CD B2 28     call SUB_28B2
-
-; Note: The address 1C2Eh is in a different bank.
-26CC.R1 DA 2E 1C     jp c,1C2Eh
-
-26CF.R1 CC 96 29     call z,SUB_2996
-
-26D2.R1 3A 3B 5C     ld a,(5C3Bh)
-26D5.R1 FE C0        cp 0C0h
-26D7.R1 38 04        jr c,.L4
-
-26D9.R1 23           inc hl
-26DA.R1 CD B4 33     call SUB_33B4
-
-26DD.R1 .L4:
-26DD.R1 18 33        jr .L8
-
-26DF.R1 .L5:
-26DF.R1 01 DB 09     ld bc,09DBh
-26E2.R1 FE 2D        cp 2Dh
-26E4.R1 28 27        jr z,.L7
-
-26E6.R1 01 18 10     ld bc,1018h
-26E9.R1 FE AE        cp 0AEh
-26EB.R1 28 20        jr z,.L7
-
-26ED.R1 D6 AF        sub 0AFh
-
-; Note: The address 1C8Ah is in a different bank.
-26EF.R1 DA 8A 1C     jp c,1C8Ah
-
-26F2.R1 01 F0 04     ld bc,04F0h
-26F5.R1 FE 14        cp 14h
-26F7.R1 28 14        jr z,.L7
-
-; Note: The address 1C8Ah is in a different bank.
-26F9.R1 D2 8A 1C     jp nc,1C8Ah
-
-26FC.R1 06 10        ld b,10h
-26FE.R1 C6 DC        add a,0DCh
-2700.R1 4F           ld c,a
-2701.R1 FE DF        cp 0DFh
-2703.R1 30 02        jr nc,.L6
-
-2705.R1 CB B1        res 6,c
-
-2707.R1 .L6:
-2707.R1 FE EE        cp 0EEh
-2709.R1 38 02        jr c,.L7
-
-270B.R1 CB B9        res 7,c
-
-270D.R1 .L7:
-270D.R1 C5           push bc
-
-; Note: The address 0020h is in a different bank.
-270E.R1 E7           rst 0020h
-
-270F.R1 C3 FF 24     jp SUB_24FB.LOOP
-
-2712.R1 .L8:
-
-; Note: The address 0018h is in a different bank.
-2712.R1 DF           rst 0018h
-
-2713.R1 .LOOP2:
-2713.R1 FE 28        cp 28h
-2715.R1 20 0C        jr nz,.L9
-
-2717.R1 FD CB 01 76  bit 6,(iy+1)
-271B.R1 20 17        jr nz,.LOOP3
-
-271D.R1 CD 52 2A     call SUB_2A52
-
-; Note: The address 0020h is in a different bank.
-2720.R1 E7           rst 0020h
-
-2721.R1 18 F0        jr .LOOP2
-
-2723.R1 .L9:
-2723.R1 06 00        ld b,00h
-2725.R1 4F           ld c,a
-2726.R1 21 95 27     ld hl,2795h.R1
-
-; Note: The address 16DCh is in a different bank.
-2729.R1 CD DC 16     call 16DCh
-
-272C.R1 30 06        jr nc,.LOOP3
-
-272E.R1 4E           ld c,(hl)
-272F.R1 21 ED 26     ld hl,26EDh.R1
-2732.R1 09           add hl,bc
-2733.R1 46           ld b,(hl)
-
-2734.R1 .LOOP3:
-2734.R1 D1           pop de
-2735.R1 7A           ld a,d
-2736.R1 B8           cp b
-2737.R1 38 3A        jr c,.L14
-
-2739.R1 A7           and a
-
-; Note: The address 0018h is in a different bank.
-273A.R1 CA 18 00     jp z,0018h
-
-273D.R1 C5           push bc
-273E.R1 21 3B 5C     ld hl,5C3Bh
-2741.R1 7B           ld a,e
-2742.R1 FE ED        cp 0EDh
-2744.R1 20 06        jr nz,.L10
-
-2746.R1 CB 76        bit 6,(hl)
-2748.R1 20 02        jr nz,.L10
-
-274A.R1 1E 99        ld e,99h
-
-274C.R1 .L10:
-274C.R1 D5           push de
-274D.R1 CD 30 25     call SUB_2530
-
-2750.R1 28 09        jr z,.L11
-
-2752.R1 7B           ld a,e
-2753.R1 E6 3F        and 3Fh
-2755.R1 47           ld b,a
-
-; Note: The address 0028h is in a different bank.
-2756.R1 EF           rst 0028h
-
-2757.R1 3B           dec sp
-
-; Note: The disassembly is ambiguous at 2772h.
-2758.R1 38 18        jr c,2771h.R1+1
-
-275A.R1 09           add hl,bc
-
-275B.R1 .L11:
-275B.R1 7B           ld a,e
-275C.R1 FD AE 01     xor (iy+1)
-275F.R1 E6 40        and 40h
-
-2761.R1 .L12:
-
-; Note: The address 1C8Ah is in a different bank.
-2761.R1 C2 8A 1C     jp nz,1C8Ah
-
-2764.R1 D1           pop de
-2765.R1 21 3B 5C     ld hl,5C3Bh
-2768.R1 CB F6        set 6,(hl)
-276A.R1 CB 7B        bit 7,e
-276C.R1 20 02        jr nz,.L13
-
-276E.R1 CB B6        res 6,(hl)
-
-2770.R1 .L13:
-2770.R1 C1           pop bc
-
-; Note: The disassembly is ambiguous at 2772h.
-2771.R1 18 C1        jr .LOOP3
-
-2773.R1 .L14:
-2773.R1 D5           push de
-2774.R1 79           ld a,c
-2775.R1 FD CB 01 76  bit 6,(iy+1)
-2779.R1 20 15        jr nz,.L16
-
-277B.R1 E6 3F        and 3Fh
-277D.R1 C6 08        add a,08h
-277F.R1 4F           ld c,a
-2780.R1 FE 10        cp 10h
-2782.R1 20 04        jr nz,.L15
-
-2784.R1 CB F1        set 6,c
-2786.R1 18 08        jr .L16
-
-2788.R1 .L15:
-2788.R1 38 D7        jr c,.L12
-
-278A.R1 FE 17        cp 17h
-278C.R1 28 02        jr z,.L16
-
-278E.R1 CB F9        set 7,c
-
-2790.R1 .L16:
-2790.R1 C5           push bc
-
-; Note: The address 0020h is in a different bank.
-2791.R1 E7           rst 0020h
-
-2792.R1 C3 FF 24     jp SUB_24FB.LOOP
-
-28AB.R1 SUB_28AB:
-28AB.R1 23           inc hl
-28AC.R1 7E           ld a,(hl)
-28AD.R1 FE 21        cp 21h
-28AF.R1 38 FA        jr c,SUB_28AB
-
-28B1.R1 C9           ret
-
-28B2.R1 SUB_28B2:
-28B2.R1 FD CB 01 F6  set 6,(iy+1)
-
-; Note: The address 0018h is in a different bank.
-28B6.R1 DF           rst 0018h
-
-28B7.R1 CD 8D 2C     call SUB_2C8D
-
-; Note: The address 1C8Ah is in a different bank.
-28BA.R1 D2 8A 1C     jp nc,1C8Ah
-
-28BD.R1 E5           push hl
-28BE.R1 E6 1F        and 1Fh
-28C0.R1 4F           ld c,a
-
-; Note: The address 0020h is in a different bank.
-28C1.R1 E7           rst 0020h
-
-28C2.R1 E5           push hl
-28C3.R1 FE 28        cp 28h
-28C5.R1 28 28        jr z,.L3
-
-28C7.R1 CB F1        set 6,c
-28C9.R1 FE 24        cp 24h
-28CB.R1 28 11        jr z,.L1
-
-28CD.R1 CB E9        set 5,c
-28CF.R1 CD 88 2C     call SUB_2C88
-
-28D2.R1 30 0F        jr nc,.L2
-
-28D4.R1 .LOOP1:
-28D4.R1 CD 88 2C     call SUB_2C88
-
-28D7.R1 30 16        jr nc,.L3
-
-28D9.R1 CB B1        res 6,c
-
-; Note: The address 0020h is in a different bank.
-28DB.R1 E7           rst 0020h
-
-28DC.R1 18 F6        jr .LOOP1
-
-28DE.R1 .L1:
-
-; Note: The address 0020h is in a different bank.
-28DE.R1 E7           rst 0020h
-
-28DF.R1 FD CB 01 B6  res 6,(iy+1)
-
-28E3.R1 .L2:
-28E3.R1 3A 0C 5C     ld a,(5C0Ch)
-28E6.R1 A7           and a
-28E7.R1 28 06        jr z,.L3
-
-28E9.R1 CD 30 25     call SUB_2530
-
-28EC.R1 C2 51 29     jp nz,.L12
-
-28EF.R1 .L3:
-28EF.R1 41           ld b,c
-28F0.R1 CD 30 25     call SUB_2530
-
-28F3.R1 20 08        jr nz,.L4
-
-28F5.R1 79           ld a,c
-28F6.R1 E6 E0        and 0E0h
-28F8.R1 CB FF        set 7,a
-28FA.R1 4F           ld c,a
-28FB.R1 18 37        jr .L8
-
-28FD.R1 .L4:
-28FD.R1 2A 4B 5C     ld hl,(5C4Bh)
-
-2900.R1 .LOOP2:
-2900.R1 7E           ld a,(hl)
-2901.R1 E6 7F        and 7Fh
-2903.R1 28 2D        jr z,.L7
-
-2905.R1 B9           cp c
-2906.R1 20 22        jr nz,.L6
-
-2908.R1 17           rla
-2909.R1 87           add a,a
-290A.R1 F2 3F 29     jp p,.L10
-
-290D.R1 38 30        jr c,.L10
-
-290F.R1 D1           pop de
-2910.R1 D5           push de
-2911.R1 E5           push hl
-
-2912.R1 .LOOP3:
-2912.R1 23           inc hl
-
-2913.R1 .LOOP4:
-2913.R1 1A           ld a,(de)
-2914.R1 13           inc de
-2915.R1 FE 20        cp 20h
-2917.R1 28 FA        jr z,.LOOP4
-
-2919.R1 F6 20        or 20h
-291B.R1 BE           cp (hl)
-291C.R1 28 F4        jr z,.LOOP3
-
-291E.R1 F6 80        or 80h
-2920.R1 BE           cp (hl)
-2921.R1 20 06        jr nz,.L5
-
-2923.R1 1A           ld a,(de)
-2924.R1 CD 88 2C     call SUB_2C88
-
-2927.R1 30 15        jr nc,.L9
-
-2929.R1 .L5:
-2929.R1 E1           pop hl
-
-292A.R1 .L6:
-292A.R1 C5           push bc
-
-; Note: The address 19B8h is in a different bank.
-292B.R1 CD B8 19     call 19B8h
-
-292E.R1 EB           ex de,hl
-292F.R1 C1           pop bc
-2930.R1 18 CE        jr .LOOP2
-
-2932.R1 .L7:
-2932.R1 CB F8        set 7,b
-
-2934.R1 .L8:
-2934.R1 D1           pop de
-
-; Note: The address 0018h is in a different bank.
-2935.R1 DF           rst 0018h
-
-2936.R1 FE 28        cp 28h
-2938.R1 28 09        jr z,.LOOP5
-
-293A.R1 CB E8        set 5,b
-293C.R1 18 0D        jr .L11
-
-293E.R1 .L9:
-293E.R1 D1           pop de
-
-293F.R1 .L10:
-293F.R1 D1           pop de
-2940.R1 D1           pop de
-2941.R1 E5           push hl
-
-; Note: The address 0018h is in a different bank.
-2942.R1 DF           rst 0018h
-
-2943.R1 .LOOP5:
-2943.R1 CD 88 2C     call SUB_2C88
-
-2946.R1 30 03        jr nc,.L11
-
-; Note: The address 0020h is in a different bank.
-2948.R1 E7           rst 0020h
-
-2949.R1 18 F8        jr .LOOP5
-
-294B.R1 .L11:
-294B.R1 E1           pop hl
-294C.R1 CB 10        rl b
-294E.R1 CB 70        bit 6,b
-2950.R1 C9           ret
-
-2951.R1 .L12:
-2951.R1 2A 0B 5C     ld hl,(5C0Bh)
-2954.R1 7E           ld a,(hl)
-2955.R1 FE 29        cp 29h
-2957.R1 CA EF 28     jp z,.L3
-
-295A.R1 .LOOP6:
-295A.R1 7E           ld a,(hl)
-295B.R1 F6 60        or 60h
-295D.R1 47           ld b,a
-295E.R1 23           inc hl
-295F.R1 7E           ld a,(hl)
-2960.R1 FE 0E        cp 0Eh
-2962.R1 28 07        jr z,.L13
-
-2964.R1 2B           dec hl
-2965.R1 CD AB 28     call SUB_28AB
-
-2968.R1 23           inc hl
-2969.R1 CB A8        res 5,b
-
-296B.R1 .L13:
-296B.R1 78           ld a,b
-296C.R1 B9           cp c
-296D.R1 28 12        jr z,.L14
-
-296F.R1 23           inc hl
-2970.R1 23           inc hl
-2971.R1 23           inc hl
-2972.R1 23           inc hl
-2973.R1 23           inc hl
-2974.R1 CD AB 28     call SUB_28AB
-
-2977.R1 FE 29        cp 29h
-2979.R1 CA EF 28     jp z,.L3
-
-297C.R1 CD AB 28     call SUB_28AB
-
-297F.R1 18 D9        jr .LOOP6
-
-2981.R1 .L14:
-2981.R1 CB 69        bit 5,c
-2983.R1 20 0C        jr nz,.L15
-
-2985.R1 23           inc hl
-2986.R1 ED 5B 65 5C  ld de,(5C65h)
-298A.R1 CD C0 33     call SUB_33C0
-
-298D.R1 EB           ex de,hl
-298E.R1 22 65 5C     ld (5C65h),hl
-
-2991.R1 .L15:
-2991.R1 D1           pop de
-2992.R1 D1           pop de
-2993.R1 AF           xor a
-2994.R1 3C           inc a
-2995.R1 C9           ret
-
-2996.R1 SUB_2996:
-2996.R1 AF           xor a
-2997.R1 47           ld b,a
-2998.R1 CB 79        bit 7,c
-299A.R1 20 4B        jr nz,.L6
-
-299C.R1 CB 7E        bit 7,(hl)
-299E.R1 20 0E        jr nz,.L2
-
-29A0.R1 3C           inc a
-
-29A1.R1 .L1:
-29A1.R1 23           inc hl
-29A2.R1 4E           ld c,(hl)
-29A3.R1 23           inc hl
-29A4.R1 46           ld b,(hl)
-29A5.R1 23           inc hl
-29A6.R1 EB           ex de,hl
-29A7.R1 CD B2 2A     call SUB_2AB2
-
-; Note: The address 0018h is in a different bank.
-29AA.R1 DF           rst 0018h
-
-29AB.R1 C3 49 2A     jp .L14
-
-29AE.R1 .L2:
-29AE.R1 23           inc hl
-29AF.R1 23           inc hl
-29B0.R1 23           inc hl
-29B1.R1 46           ld b,(hl)
-29B2.R1 CB 71        bit 6,c
-29B4.R1 28 0A        jr z,.L3
-
-29B6.R1 05           dec b
-29B7.R1 28 E8        jr z,.L1
-
-29B9.R1 EB           ex de,hl
-
-; Note: The address 0018h is in a different bank.
-29BA.R1 DF           rst 0018h
-
-29BB.R1 FE 28        cp 28h
-29BD.R1 20 61        jr nz,.L10
-
-29BF.R1 EB           ex de,hl
-
-29C0.R1 .L3:
-29C0.R1 EB           ex de,hl
-29C1.R1 18 24        jr .L6
-
-29C3.R1 .LOOP1:
-29C3.R1 E5           push hl
-
-; Note: The address 0018h is in a different bank.
-29C4.R1 DF           rst 0018h
-
-29C5.R1 E1           pop hl
-29C6.R1 FE 2C        cp 2Ch
-29C8.R1 28 20        jr z,.L7
-
-29CA.R1 CB 79        bit 7,c
-29CC.R1 28 52        jr z,.L10
-
-29CE.R1 CB 71        bit 6,c
-29D0.R1 20 06        jr nz,.L4
-
-29D2.R1 FE 29        cp 29h
-29D4.R1 20 3C        jr nz,.L9
-
-; Note: The address 0020h is in a different bank.
-29D6.R1 E7           rst 0020h
-
-29D7.R1 C9           ret
-
-29D8.R1 .L4:
-29D8.R1 FE 29        cp 29h
-29DA.R1 28 6C        jr z,.L13
-
-29DC.R1 FE CC        cp 0CCh
-29DE.R1 20 32        jr nz,.L9
-
-29E0.R1 .L5:
-
-; Note: The address 0018h is in a different bank.
-29E0.R1 DF           rst 0018h
-
-29E1.R1 2B           dec hl
-29E2.R1 22 5D 5C     ld (5C5Dh),hl
-29E5.R1 18 5E        jr .LOOP2
-
-29E7.R1 .L6:
-29E7.R1 21 00 00     ld hl,0000h
-
-29EA.R1 .L7:
-29EA.R1 E5           push hl
-
-; Note: The address 0020h is in a different bank.
-29EB.R1 E7           rst 0020h
-
-29EC.R1 E1           pop hl
-29ED.R1 79           ld a,c
-29EE.R1 FE C0        cp 0C0h
-29F0.R1 20 09        jr nz,.L8
-
-; Note: The address 0018h is in a different bank.
-29F2.R1 DF           rst 0018h
-
-29F3.R1 FE 29        cp 29h
-29F5.R1 28 51        jr z,.L13
-
-29F7.R1 FE CC        cp 0CCh
-29F9.R1 28 E5        jr z,.L5
-
-29FB.R1 .L8:
-29FB.R1 C5           push bc
-29FC.R1 E5           push hl
-29FD.R1 CD EE 2A     call SUB_2AEE
-
-2A00.R1 E3           ex (sp),hl
-2A01.R1 EB           ex de,hl
-2A02.R1 CD CC 2A     call SUB_2ACC
-
-2A05.R1 38 19        jr c,.L10
-
-2A07.R1 0B           dec bc
-2A08.R1 CD F4 2A     call SUB_2AF4
-
-2A0B.R1 09           add hl,bc
-2A0C.R1 D1           pop de
-2A0D.R1 C1           pop bc
-2A0E.R1 10 B3        djnz .LOOP1
-
-2A10.R1 CB 79        bit 7,c
-
-2A12.R1 .L9:
-2A12.R1 20 66        jr nz,SUB_2A52.L1
-
-2A14.R1 E5           push hl
-2A15.R1 CB 71        bit 6,c
-2A17.R1 20 13        jr nz,.L12
-
-2A19.R1 42           ld b,d
-2A1A.R1 4B           ld c,e
-
-; Note: The address 0018h is in a different bank.
-2A1B.R1 DF           rst 0018h
-
-2A1C.R1 FE 29        cp 29h
-2A1E.R1 28 02        jr z,.L11
-
-2A20.R1 .L10:
-
-; Note: The address 0008h is in a different bank.
-2A20.R1 CF           rst 0008h
-
-2A21.R1 02           ld (bc),a
-
-2A22.R1 .L11:
-
-; Note: The address 0020h is in a different bank.
-2A22.R1 E7           rst 0020h
-
-2A23.R1 E1           pop hl
-2A24.R1 11 05 00     ld de,0005h
-2A27.R1 CD F4 2A     call SUB_2AF4
-
-2A2A.R1 09           add hl,bc
-2A2B.R1 C9           ret
-
-2A2C.R1 .L12:
-2A2C.R1 CD EE 2A     call SUB_2AEE
-
-2A2F.R1 E3           ex (sp),hl
-2A30.R1 CD F4 2A     call SUB_2AF4
-
-2A33.R1 C1           pop bc
-2A34.R1 09           add hl,bc
-2A35.R1 23           inc hl
-2A36.R1 42           ld b,d
-2A37.R1 4B           ld c,e
-2A38.R1 EB           ex de,hl
-2A39.R1 CD B1 2A     call SUB_2AB1
-
-; Note: The address 0018h is in a different bank.
-2A3C.R1 DF           rst 0018h
-
-2A3D.R1 FE 29        cp 29h
-2A3F.R1 28 07        jr z,.L13
-
-2A41.R1 FE 2C        cp 2Ch
-2A43.R1 20 DB        jr nz,.L10
-
-2A45.R1 .LOOP2:
-2A45.R1 CD 52 2A     call SUB_2A52
-
-2A48.R1 .L13:
-
-; Note: The address 0020h is in a different bank.
-2A48.R1 E7           rst 0020h
-
-2A49.R1 .L14:
-2A49.R1 FE 28        cp 28h
-2A4B.R1 28 F8        jr z,.LOOP2
-
-2A4D.R1 FD CB 01 B6  res 6,(iy+1)
-2A51.R1 C9           ret
-
-2A52.R1 SUB_2A52:
-2A52.R1 CD 30 25     call SUB_2530
-
-2A55.R1 C4 F1 2B     call nz,SUB_2BF1
-
-; Note: The address 0020h is in a different bank.
-2A58.R1 E7           rst 0020h
-
-2A59.R1 FE 29        cp 29h
-2A5B.R1 28 50        jr z,.L5
-
-2A5D.R1 D5           push de
-2A5E.R1 AF           xor a
-2A5F.R1 F5           push af
-2A60.R1 C5           push bc
-2A61.R1 11 01 00     ld de,0001h
-
-; Note: The address 0018h is in a different bank.
-2A64.R1 DF           rst 0018h
-
-2A65.R1 E1           pop hl
-2A66.R1 FE CC        cp 0CCh
-2A68.R1 28 17        jr z,.L2
-
-2A6A.R1 F1           pop af
-2A6B.R1 CD CD 2A     call SUB_2ACD
-
-2A6E.R1 F5           push af
-2A6F.R1 50           ld d,b
-2A70.R1 59           ld e,c
-2A71.R1 E5           push hl
-
-; Note: The address 0018h is in a different bank.
-2A72.R1 DF           rst 0018h
-
-2A73.R1 E1           pop hl
-2A74.R1 FE CC        cp 0CCh
-2A76.R1 28 09        jr z,.L2
-
-2A78.R1 FE 29        cp 29h
-
-2A7A.R1 .L1:
-
-; Note: The address 1C8Ah is in a different bank.
-2A7A.R1 C2 8A 1C     jp nz,1C8Ah
-
-2A7D.R1 62           ld h,d
-2A7E.R1 6B           ld l,e
-2A7F.R1 18 13        jr .L3
-
-2A81.R1 .L2:
-2A81.R1 E5           push hl
-
-; Note: The address 0020h is in a different bank.
-2A82.R1 E7           rst 0020h
-
-2A83.R1 E1           pop hl
-2A84.R1 FE 29        cp 29h
-2A86.R1 28 0C        jr z,.L3
-
-2A88.R1 F1           pop af
-2A89.R1 CD CD 2A     call SUB_2ACD
-
-2A8C.R1 F5           push af
-
-; Note: The address 0018h is in a different bank.
-2A8D.R1 DF           rst 0018h
-
-2A8E.R1 60           ld h,b
-2A8F.R1 69           ld l,c
-2A90.R1 FE 29        cp 29h
-2A92.R1 20 E6        jr nz,.L1
-
-2A94.R1 .L3:
-2A94.R1 F1           pop af
-2A95.R1 E3           ex (sp),hl
-2A96.R1 19           add hl,de
-2A97.R1 2B           dec hl
-2A98.R1 E3           ex (sp),hl
-2A99.R1 A7           and a
-2A9A.R1 ED 52        sbc hl,de
-2A9C.R1 01 00 00     ld bc,0000h
-2A9F.R1 38 07        jr c,.L4
-
-2AA1.R1 23           inc hl
-2AA2.R1 A7           and a
-2AA3.R1 FA 20 2A     jp m,SUB_2996.L10
-
-2AA6.R1 44           ld b,h
-2AA7.R1 4D           ld c,l
-
-2AA8.R1 .L4:
-2AA8.R1 D1           pop de
-2AA9.R1 FD CB 01 B6  res 6,(iy+1)
-
-2AAD.R1 .L5:
-2AAD.R1 CD 30 25     call SUB_2530
-
-2AB0.R1 C8           ret z
-
-2AB1.R1 SUB_2AB1:
-2AB1.R1 AF           xor a
 
 2AB2.R1 SUB_2AB2:
 2AB2.R1 FD CB 01 B6  res 6,(iy+1)
@@ -4127,67 +2480,6 @@
 2AC7.R1 23           inc hl
 2AC8.R1 22 65 5C     ld (5C65h),hl
 2ACB.R1 C9           ret
-
-2ACC.R1 SUB_2ACC:
-2ACC.R1 AF           xor a
-
-2ACD.R1 SUB_2ACD:
-2ACD.R1 D5           push de
-2ACE.R1 E5           push hl
-2ACF.R1 F5           push af
-
-; Note: The address 1C82h is in a different bank.
-2AD0.R1 CD 82 1C     call 1C82h
-
-2AD3.R1 F1           pop af
-2AD4.R1 CD 30 25     call SUB_2530
-
-2AD7.R1 28 12        jr z,.L2
-
-2AD9.R1 F5           push af
-
-; Note: The address 1E99h is in a different bank.
-2ADA.R1 CD 99 1E     call 1E99h
-
-2ADD.R1 D1           pop de
-2ADE.R1 78           ld a,b
-2ADF.R1 B1           or c
-2AE0.R1 37           scf
-2AE1.R1 28 05        jr z,.L1
-
-2AE3.R1 E1           pop hl
-2AE4.R1 E5           push hl
-2AE5.R1 A7           and a
-2AE6.R1 ED 42        sbc hl,bc
-
-2AE8.R1 .L1:
-2AE8.R1 7A           ld a,d
-2AE9.R1 DE 00        sbc a,00h
-
-2AEB.R1 .L2:
-2AEB.R1 E1           pop hl
-2AEC.R1 D1           pop de
-2AED.R1 C9           ret
-
-2AEE.R1 SUB_2AEE:
-2AEE.R1 EB           ex de,hl
-2AEF.R1 23           inc hl
-2AF0.R1 5E           ld e,(hl)
-2AF1.R1 23           inc hl
-2AF2.R1 56           ld d,(hl)
-2AF3.R1 C9           ret
-
-2AF4.R1 SUB_2AF4:
-2AF4.R1 CD 30 25     call SUB_2530
-
-2AF7.R1 C8           ret z
-
-2AF8.R1 CD A9 30     call SUB_30A9
-
-; Note: The address 1F15h is in a different bank.
-2AFB.R1 DA 15 1F     jp c,1F15h
-
-2AFE.R1 C9           ret
 
 2AFF.R1 SUB_2AFF:
 2AFF.R1 2A 4D 5C     ld hl,(5C4Dh)
@@ -4445,77 +2737,32 @@
 2C98.R1 FE 7B        cp 7Bh
 2C9A.R1 C9           ret
 
-2C9B.R1 SUB_2C9B:
-2C9B.R1 FE C4        cp 0C4h
-2C9D.R1 20 19        jr nz,.L2
-
-2C9F.R1 11 00 00     ld de,0000h
-
-2CA2.R1 .LOOP1:
-
-; Note: The address 0020h is in a different bank.
-2CA2.R1 E7           rst 0020h
-
-2CA3.R1 D6 31        sub 31h
-2CA5.R1 CE 00        adc a,00h
-2CA7.R1 20 0A        jr nz,.L1
-
-2CA9.R1 EB           ex de,hl
-2CAA.R1 3F           ccf
-2CAB.R1 ED 6A        adc hl,hl
-2CAD.R1 DA AD 31     jp c,LBL_31AD
-
-2CB0.R1 EB           ex de,hl
-2CB1.R1 18 EF        jr .LOOP1
-
-2CB3.R1 .L1:
-2CB3.R1 42           ld b,d
-2CB4.R1 4B           ld c,e
-2CB5.R1 C3 2B 2D     jp SUB_2D22.L1
-
-2CB8.R1 .L2:
-2CB8.R1 FE 2E        cp 2Eh
-
-2CBA.R1 .LOOP2:
-2CBA.R1 28 0F        jr z,.L3
-
-2CBC.R1 CD 3B 2D     call SUB_2D3B
-
-2CBF.R1 FE 2E        cp 2Eh
-2CC1.R1 20 28        jr nz,.L5
-
-; Note: The address 0020h is in a different bank.
-2CC3.R1 E7           rst 0020h
-
-; Note: The disassembly is ambiguous at 2CC5h.
-2CC4.R1 CD 1B 2D     call SUB_2D1B
-
-2CC7.R1 38 22        jr c,.L5
+2CC5.R1 SUB_2CC5:
+2CC5.R1 1B           dec de
+2CC6.R1 2D           dec l
+2CC7.R1 38 22        jr c,SUB_2CDA.L3
 
 ; Note: The disassembly is ambiguous at 2CD5h.
 2CC9.R1 18 0A        jr 2CD4h.R1+1
 
-2CCB.R1 .L3:
+2CCF.R1 LBL_2CCF:
 
-; Note: The address 0020h is in a different bank.
-2CCB.R1 E7           rst 0020h
-
-2CCC.R1 CD 1B 2D     call SUB_2D1B
-
-2CCF.R1 .LOOP3:
-
-; Note: The address 1C8Ah is in a different bank.
 ; Note: The disassembly is ambiguous at 2CD0h.
+; Note: The disassembly is ambiguous at 2CD2h.
+; Note: The address 1C8Ah is in a different bank.
 2CCF.R1 DA 8A 1C     jp c,1C8Ah
+
+2CD0.R1 SUB_2CD0:
+2CD0.R1 8A           adc a,d
+2CD1.R1 1C           inc e
 
 ; Note: The address 0028h is in a different bank.
 2CD2.R1 EF           rst 0028h
 
 2CD3.R1 A0           and b
 
-; Note: The disassembly is ambiguous at 2CC5h.
 ; Note: The disassembly is ambiguous at 2CD5h.
-2CD4.R1 38 EF        jr c,2CC4h.R1+1
+2CD4.R1 38 EF        jr c,SUB_2CC5
 
 2CD6.R1 A1           and c
 2CD7.R1 C0           ret nz
@@ -4523,16 +2770,24 @@
 2CD8.R1 02           ld (bc),a
 
 ; Note: The disassembly is ambiguous at 2CDAh.
-2CD9.R1 38 DF        jr c,.LOOP2
+; Note: The disassembly is ambiguous at 2CBAh.
+; Note: The address 0018h is in a different bank.
+2CD9.R1 38 DF        jr c,2CBAh.R1
 
+2CDA.R1 SUB_2CDA:
+
+; Note: The address 0018h is in a different bank.
+2CDA.R1 DF           rst 0018h
+
+2CDB.R1 .L1:
 2CDB.R1 CD 22 2D     call SUB_2D22
 
-2CDE.R1 38 0B        jr c,.L5
+2CDE.R1 38 0B        jr c,.L3
 
 ; Note: The address 0028h is in a different bank.
 2CE0.R1 EF           rst 0028h
 
-2CE1.R1 .L4:
+2CE1.R1 .L2:
 2CE1.R1 E0           ret po
 
 2CE2.R1 A4           and h
@@ -4541,49 +2796,45 @@
 
 2CE5.R1 04           inc b
 2CE6.R1 0F           rrca
+2CE7.R1 38 E7        jr c,SUB_2CD0
 
-; Note: The disassembly is ambiguous at 2CD0h.
-2CE7.R1 38 E7        jr c,.LOOP3+1
+2CE9.R1 18 EF        jr SUB_2CDA
 
-; Note: The disassembly is ambiguous at 2CDAh.
-2CE9.R1 18 EF        jr 2CD9h.R1+1
-
-2CEB.R1 .L5:
+2CEB.R1 .L3:
 2CEB.R1 FE 45        cp 45h
-2CED.R1 28 03        jr z,.L6
+2CED.R1 28 03        jr z,.L4
 
 2CEF.R1 FE 65        cp 65h
 2CF1.R1 C0           ret nz
 
-2CF2.R1 .L6:
+2CF2.R1 .L4:
 2CF2.R1 06 FF        ld b,0FFh
 
 ; Note: The address 0020h is in a different bank.
 2CF4.R1 E7           rst 0020h
 
 2CF5.R1 FE 2B        cp 2Bh
-2CF7.R1 28 05        jr z,.L7
+2CF7.R1 28 05        jr z,.L5
 
 2CF9.R1 FE 2D        cp 2Dh
-2CFB.R1 20 02        jr nz,.L8
+2CFB.R1 20 02        jr nz,.L6
 
 2CFD.R1 04           inc b
 
-2CFE.R1 .L7:
+2CFE.R1 .L5:
 
 ; Note: The address 0020h is in a different bank.
 2CFE.R1 E7           rst 0020h
 
-2CFF.R1 .L8:
+2CFF.R1 .L6:
 2CFF.R1 CD 1B 2D     call SUB_2D1B
 
-2D02.R1 38 CB        jr c,.LOOP3
+2D02.R1 38 CB        jr c,LBL_2CCF
 
 2D04.R1 C5           push bc
 2D05.R1 CD 3B 2D     call SUB_2D3B
 
-; Note: The disassembly is ambiguous at 2DD5h.
-2D08.R1 CD D5 2D     call 2DD4h.R1+1
+2D08.R1 CD D5 2D     call SUB_2DD5
 
 2D0B.R1 C1           pop bc
 2D0C.R1 DA AD 31     jp c,LBL_31AD
@@ -4592,11 +2843,11 @@
 2D10.R1 FA AD 31     jp m,LBL_31AD
 
 2D13.R1 04           inc b
-2D14.R1 28 02        jr z,.LOOP4
+2D14.R1 28 02        jr z,.LOOP
 
 2D16.R1 ED 44        neg
 
-2D18.R1 .LOOP4:
+2D18.R1 .LOOP:
 2D18.R1 C3 4F 2D     jp SUB_2D4F
 
 2D1B.R1 SUB_2D1B:
@@ -4613,6 +2864,8 @@
 2D25.R1 D8           ret c
 
 2D26.R1 D6 30        sub 30h
+
+2D28.R1 SUB_2D28:
 2D28.R1 4F           ld c,a
 2D29.R1 06 00        ld b,00h
 
@@ -4631,7 +2884,7 @@
 2D37.R1 EF           rst 0028h
 
 ; Note: The disassembly is ambiguous at 2D39h.
-2D38.R1 38 A7        jr c,SUB_2C9B.L4
+2D38.R1 38 A7        jr c,SUB_2CDA.L2
 
 2D3A.R1 C9           ret
 
@@ -4642,9 +2895,7 @@
 2D3C.R1 EF           rst 0028h
 
 2D3D.R1 A0           and b
-
-; Note: The disassembly is ambiguous at 2D3Fh.
-2D3E.R1 38 F1        jr c,SUB_2D22.L2
+2D3E.R1 38 F1        jr c,SUB_2D28.L2
 
 2D40.R1 .LOOP:
 2D40.R1 CD 22 2D     call SUB_2D22
@@ -4658,9 +2909,7 @@
 
 2D48.R1 .L1:
 2D48.R1 0F           rrca
-
-; Note: The disassembly is ambiguous at 2D4Ah.
-2D49.R1 38 CD        jr c,SUB_2C9B.LOOP4
+2D49.R1 38 CD        jr c,SUB_2CDA.LOOP
 
 2D4B.R1 74           ld (hl),h
 2D4C.R1 00           nop
@@ -4685,6 +2934,8 @@
 2D5C.R1 EF           rst 0028h
 
 2D5D.R1 A4           and h
+
+; Note: The disassembly is ambiguous at 2D5Fh.
 2D5E.R1 38 F1        jr c,.LOOP1
 
 2D60.R1 .LOOP2:
@@ -4730,6 +2981,8 @@
 2D7B.R1 EF           rst 0028h
 
 2D7C.R1 02           ld (bc),a
+
+; Note: The disassembly is ambiguous at 2D7Eh.
 2D7D.R1 38 C9        jr c,SUB_2D3B.L1
 
 2D7F.R1 SUB_2D7F:
@@ -4769,14 +3022,15 @@
 2DA0.R1 E1           pop hl
 2DA1.R1 C9           ret
 
+2DA2.R1 SUB_2DA2:
+
 ; Note: The address 0028h is in a different bank.
 2DA2.R1 EF           rst 0028h
 
-2DA3.R1 LBL_2DA3:
+2DA3.R1 .L1:
 
-; Note: The disassembly is ambiguous at 2E23h.
 ; Note: The disassembly is ambiguous at 2DA4h.
-2DA3.R1 38 7E        jr c,2E22h.R1+1
+2DA3.R1 38 7E        jr c,LBL_2E23
 
 2DA5.R1 A7           and a
 2DA6.R1 28 05        jr z,SUB_2DAD
@@ -4847,26 +3101,26 @@
 2DD3.R1 27           daa
 
 ; Note: The disassembly is ambiguous at 2DD5h.
-2DD4.R1 38 CD        jr c,LBL_2DA3
+; Note: The disassembly is ambiguous at 2DD6h.
+2DD4.R1 38 CD        jr c,SUB_2DA2.L1
 
-2DD6.R1 A2           and d
-2DD7.R1 2D           dec l
+2DD5.R1 SUB_2DD5:
+2DD5.R1 CD A2 2D     call SUB_2DA2
+
 2DD8.R1 D8           ret c
 
 2DD9.R1 F5           push af
 2DDA.R1 05           dec b
 2DDB.R1 04           inc b
-2DDC.R1 28 03        jr z,.L2
+2DDC.R1 28 03        jr z,.L1
 
 2DDE.R1 F1           pop af
 2DDF.R1 37           scf
 2DE0.R1 C9           ret
 
-2DE1.R1 .L2:
+2DE1.R1 .L1:
 2DE1.R1 F1           pop af
 2DE2.R1 C9           ret
-
-2DE3.R1 SUB_2DE3:
 
 ; Note: The address 0028h is in a different bank.
 2DE3.R1 EF           rst 0028h
@@ -4876,11 +3130,36 @@
 2DE8.R1 31 37 00     ld sp,0037h
 2DEB.R1 0D           dec c
 2DEC.R1 02           ld (bc),a
-2DED.R1 38 3E        jr c,LBL_2E0E.L3
+2DED.R1 38 3E        jr c,LBL_2E23.L2
 
 2DEF.R1 30 D7        jr nc,SUB_2DC1.L1
 
 2DF1.R1 C9           ret
+
+2DFE.R1 D9           exx
+2DFF.R1 E5           push hl
+2E00.R1 D9           exx
+
+; Note: The address 0028h is in a different bank.
+2E01.R1 EF           rst 0028h
+
+2E02.R1 31 27 C2     ld sp,0C227h
+2E05.R1 03           inc bc
+
+; Note: The address 0C201h is in a different bank.
+2E06.R1 E2 01 C2     jp po,0C201h
+
+2E09.R1 02           ld (bc),a
+
+; Note: The disassembly is ambiguous at 2E0Bh.
+2E0A.R1 38 7E        jr c,LBL_2E7B.LOOP1
+
+2E0C.R1 A7           and a
+
+; Note: The disassembly is ambiguous at 2E0Eh.
+; Note: The disassembly is ambiguous at 2E0Fh.
+; Note: The disassembly is ambiguous at 2E56h.
+2E0D.R1 20 47        jr nz,2E56h.R1
 
 2E0E.R1 LBL_2E0E:
 2E0E.R1 47           ld b,a
@@ -4892,7 +3171,7 @@
 2E16.R1 20 06        jr nz,.L1
 
 2E18.R1 B3           or e
-2E19.R1 28 09        jr z,.L2
+2E19.R1 28 09        jr z,LBL_2E23.L1
 
 2E1B.R1 53           ld d,e
 2E1C.R1 06 08        ld b,08h
@@ -4906,18 +3185,22 @@
 ; Note: The disassembly is ambiguous at 2E23h.
 2E22.R1 18 57        jr LBL_2E7B
 
-2E24.R1 .L2:
+2E23.R1 LBL_2E23:
+2E23.R1 57           ld d,a
+
+2E24.R1 .L1:
 
 ; Note: The address 0028h is in a different bank.
 2E24.R1 EF           rst 0028h
 
 ; Note: The address 7E38h is in a different bank.
+; Note: The disassembly is ambiguous at 2E27h.
 2E25.R1 E2 38 7E     jp po,7E38h
 
 2E28.R1 D6 7E        sub 7Eh
 2E2A.R1 CD C1 2D     call SUB_2DC1
 
-2E2D.R1 .L3:
+2E2D.R1 .L2:
 2E2D.R1 57           ld d,a
 2E2E.R1 3A AC 5C     ld a,(5CACh)
 2E31.R1 92           sub d
@@ -4931,6 +3214,8 @@
 2E3A.R1 31 27 C1     ld sp,0C127h
 2E3D.R1 03           inc bc
 2E3E.R1 E1           pop hl
+
+; Note: The disassembly is ambiguous at 2E40h.
 2E3F.R1 38 CD        jr c,LBL_2E0E
 
 2E41.R1 D5           push de
@@ -5106,6 +3391,8 @@
 2F30.R1 EF           rst 0028h
 
 2F31.R1 02           ld (bc),a
+
+; Note: The disassembly is ambiguous at 2F33h.
 2F32.R1 38 D9        jr c,.LOOP3
 
 2F34.R1 E1           pop hl
@@ -5343,6 +3630,10 @@
 300D.R1 D9           exx
 300E.R1 C9           ret
 
+300F.R1 EB           ex de,hl
+3010.R1 CD 6E 34     call SUB_346E
+
+3013.R1 EB           ex de,hl
 3014.R1 1A           ld a,(de)
 3015.R1 B6           or (hl)
 3016.R1 20 26        jr nz,LBL_303E
@@ -5591,6 +3882,7 @@
 310B.R1 D9           exx
 310C.R1 E5           push hl
 310D.R1 ED 62        sbc hl,hl
+310F.R1 CODE_310F:
 310F.R1 D9           exx
 3110.R1 06 21        ld b,21h
 3112.R1 18 11        jr LBL_3125
@@ -5849,6 +4141,134 @@
 3210.R1 91           sub c
 3211.R1 C3 3D 31     jp LBL_313D
 
+3214.R1 7E           ld a,(hl)
+3215.R1 A7           and a
+3216.R1 C8           ret z
+
+3217.R1 FE 81        cp 81h
+3219.R1 30 06        jr nc,LBL_3221
+
+321B.R1 36 00        ld (hl),00h
+321D.R1 3E 20        ld a,20h
+321F.R1 18 51        jr LBL_3272
+
+3221.R1 LBL_3221:
+3221.R1 FE 91        cp 91h
+3223.R1 20 1A        jr nz,LBL_323F
+
+3225.R1 23           inc hl
+3226.R1 23           inc hl
+3227.R1 23           inc hl
+3228.R1 3E 80        ld a,80h
+322A.R1 A6           and (hl)
+322B.R1 2B           dec hl
+322C.R1 B6           or (hl)
+322D.R1 2B           dec hl
+322E.R1 20 03        jr nz,LBL_3233
+
+3230.R1 3E 80        ld a,80h
+3232.R1 AE           xor (hl)
+
+3233.R1 LBL_3233:
+3233.R1 2B           dec hl
+3234.R1 CODE_3234:
+3234.R1 20 36        jr nz,LBL_326C
+
+3236.R1 77           ld (hl),a
+3237.R1 23           inc hl
+3238.R1 36 FF        ld (hl),0FFh
+323A.R1 2B           dec hl
+323B.R1 3E 18        ld a,18h
+323D.R1 18 33        jr LBL_3272
+
+323F.R1 LBL_323F:
+323F.R1 30 2C        jr nc,LBL_326D
+
+3241.R1 D5           push de
+3242.R1 2F           cpl
+3243.R1 C6 91        add a,91h
+3245.R1 23           inc hl
+3246.R1 56           ld d,(hl)
+3247.R1 23           inc hl
+3248.R1 5E           ld e,(hl)
+3249.R1 2B           dec hl
+324A.R1 2B           dec hl
+324B.R1 0E 00        ld c,00h
+324D.R1 CB 7A        bit 7,d
+324F.R1 28 01        jr z,LBL_3252
+
+3251.R1 0D           dec c
+
+3252.R1 LBL_3252:
+3252.R1 CB FA        set 7,d
+3254.R1 06 08        ld b,08h
+3256.R1 90           sub b
+3257.R1 80           add a,b
+3258.R1 38 04        jr c,LBL_325E
+
+325A.R1 5A           ld e,d
+325B.R1 16 00        ld d,00h
+325D.R1 90           sub b
+
+325E.R1 LBL_325E:
+325E.R1 28 07        jr z,LBL_3267
+
+3260.R1 47           ld b,a
+
+3261.R1 LBL_3261:
+3261.R1 CB 3A        srl d
+3263.R1 CB 1B        rr e
+3265.R1 10 FA        djnz LBL_3261
+
+3267.R1 LBL_3267:
+3267.R1 CD 8E 2D     call SUB_2D8E
+
+326A.R1 D1           pop de
+326B.R1 C9           ret
+
+326C.R1 LBL_326C:
+326C.R1 7E           ld a,(hl)
+
+326D.R1 LBL_326D:
+326D.R1 D6 A0        sub 0A0h
+326F.R1 F0           ret p
+
+3270.R1 ED 44        neg
+
+3272.R1 LBL_3272:
+3272.R1 D5           push de
+3273.R1 EB           ex de,hl
+3274.R1 2B           dec hl
+3275.R1 47           ld b,a
+3276.R1 CB 38        srl b
+3278.R1 CB 38        srl b
+327A.R1 CB 38        srl b
+327C.R1 28 05        jr z,LBL_3283
+
+327E.R1 LBL_327E:
+327E.R1 36 00        ld (hl),00h
+3280.R1 2B           dec hl
+3281.R1 10 FB        djnz LBL_327E
+
+3283.R1 LBL_3283:
+3283.R1 E6 07        and 07h
+3285.R1 28 09        jr z,LBL_3290
+
+3287.R1 47           ld b,a
+3288.R1 3E FF        ld a,0FFh
+
+328A.R1 LBL_328A:
+328A.R1 CB 27        sla a
+328C.R1 10 FC        djnz LBL_328A
+
+328E.R1 A6           and (hl)
+328F.R1 77           ld (hl),a
+
+3290.R1 LBL_3290:
+3290.R1 EB           ex de,hl
+3291.R1 D1           pop de
+3292.R1 C9           ret
+
 3293.R1 SUB_3293:
 3293.R1 CD 96 32     call SUB_3296
 
@@ -5902,6 +4322,8 @@
 32C3.R1 D1           pop de
 32C4.R1 C9           ret
 
+3332.R1 34 1F 36...  DEFB 34 1F 36 C9 35 01 35 C0 ; ASCII: 4?6?5?5?
+
 335B.R1 CD BF 35     call SUB_35BF
 
 335E.R1 78           ld a,b
@@ -5913,8 +4335,6 @@
 3369.R1 D9           exx
 336A.R1 7E           ld a,(hl)
 336B.R1 23           inc hl
-
-336C.R1 LBL_336C:
 336C.R1 E5           push hl
 336D.R1 A7           and a
 336E.R1 F2 80 33     jp p,LBL_3380
@@ -5960,11 +4380,6 @@
 339D.R1 ED 4B 66 5C  ld bc,(5C66h)
 33A1.R1 C9           ret
 
-33A2.R1 F1           pop af
-33A3.R1 3A 67 5C     ld a,(5C67h)
-33A6.R1 D9           exx
-33A7.R1 18 C3        jr LBL_336C
-
 33A9.R1 SUB_33A9:
 33A9.R1 D5           push de
 33AA.R1 E5           push hl
@@ -5977,18 +4392,14 @@
 33B2.R1 D1           pop de
 33B3.R1 C9           ret
 
-33B4.R1 SUB_33B4:
-33B4.R1 ED 5B 65 5C  ld de,(5C65h)
-33B8.R1 CD C0 33     call SUB_33C0
-
-33BB.R1 ED 53 65 5C  ld (5C65h),de
-33BF.R1 C9           ret
-
 33C0.R1 SUB_33C0:
 33C0.R1 CD A9 33     call SUB_33A9
 
 33C3.R1 ED B0        ldir
 33C5.R1 C9           ret
+
+33C6.R1 62           ld h,d
+33C7.R1 6B           ld l,e
 
 33C8.R1 SUB_33C8:
 33C8.R1 CD A9 33     call SUB_33A9
@@ -6052,6 +4463,25 @@
 3403.R1 3D           dec a
 3404.R1 18 F2        jr .LOOP
 
+3406.R1 SUB_3406:
+3406.R1 4F           ld c,a
+3407.R1 07           rlca
+3408.R1 07           rlca
+3409.R1 81           add a,c
+340A.R1 4F           ld c,a
+340B.R1 06 00        ld b,00h
+340D.R1 09           add hl,bc
+340E.R1 C9           ret
+
+340F.R1 D5           push de
+3410.R1 2A 68 5C     ld hl,(5C68h)
+3413.R1 CD 06 34     call SUB_3406
+
+3416.R1 CD C0 33     call SUB_33C0
+
+3419.R1 E1           pop hl
+341A.R1 C9           ret
+
 341B.R1 62           ld h,d
 341C.R1 6B           ld l,e
 341D.R1 D9           exx
@@ -6066,6 +4496,18 @@
 342A.R1 E1           pop hl
 342B.R1 D9           exx
 342C.R1 C9           ret
+
+342D.R1 E5           push hl
+342E.R1 EB           ex de,hl
+342F.R1 2A 68 5C     ld hl,(5C68h)
+3432.R1 CD 06 34     call SUB_3406
+
+3435.R1 EB           ex de,hl
+3436.R1 CD C0 33     call SUB_33C0
+
+3439.R1 EB           ex de,hl
+343A.R1 E1           pop hl
+343B.R1 C9           ret
 
 343C.R1 06 05        ld b,05h
 
@@ -6082,13 +4524,41 @@
 3447.R1 EB           ex de,hl
 3448.R1 C9           ret
 
-; Note: The address 1E99h is in a different bank.
-34B3.R1 CD 99 1E     call 1E99h
+346E.R1 SUB_346E:
+346E.R1 CD E9 34     call SUB_34E9
 
-34B6.R1 21 2B 2D     ld hl,SUB_2D22.L1
-34B9.R1 E5           push hl
-34BA.R1 C5           push bc
-34BB.R1 C9           ret
+3471.R1 D8           ret c
+
+3472.R1 06 00        ld b,00h
+3474.R1 7E           ld a,(hl)
+3475.R1 A7           and a
+3476.R1 28 0B        jr z,.L1
+
+3478.R1 23           inc hl
+3479.R1 78           ld a,b
+347A.R1 E6 80        and 80h
+347C.R1 B6           or (hl)
+347D.R1 17           rla
+347E.R1 3F           ccf
+347F.R1 1F           rra
+3480.R1 77           ld (hl),a
+3481.R1 2B           dec hl
+3482.R1 C9           ret
+
+3483.R1 .L1:
+3483.R1 D5           push de
+3484.R1 E5           push hl
+3485.R1 CD 7F 2D     call SUB_2D7F
+
+3488.R1 E1           pop hl
+3489.R1 78           ld a,b
+348A.R1 B1           or c
+348B.R1 2F           cpl
+348C.R1 4F           ld c,a
+348D.R1 CD 8E 2D     call SUB_2D8E
+
+3490.R1 D1           pop de
+3491.R1 C9           ret
 
 34E9.R1 SUB_34E9:
 34E9.R1 E5           push hl
@@ -6108,6 +4578,21 @@
 
 34F7.R1 37           scf
 34F8.R1 C9           ret
+
+34F9.R1 CD E9 34     call SUB_34E9
+
+34FC.R1 D8           ret c
+
+34FD.R1 3E FF        ld a,0FFh
+34FF.R1 18 06        jr LBL_3507
+
+3506.R1 AF           xor a
+
+3507.R1 LBL_3507:
+3507.R1 23           inc hl
+3508.R1 AE           xor (hl)
+3509.R1 2B           dec hl
+350A.R1 07           rlca
 
 350B.R1 SUB_350B:
 350B.R1 E5           push hl
@@ -6134,45 +4619,356 @@
 35C7.R1 D1           pop de
 35C8.R1 C9           ret
 
+3674.R1 SUB_3674:
+3674.R1 CD F1 2B     call SUB_2BF1
+
+3677.R1 C3 2B 2D     jp SUB_2D28.L1
+
+3686.R1 SUB_3686:
+3686.R1 D9           exx
+3687.R1 5E           ld e,(hl)
+3688.R1 7B           ld a,e
+3689.R1 17           rla
+368A.R1 9F           sbc a,a
+368B.R1 57           ld d,a
+368C.R1 19           add hl,de
+
+368D.R1 .L1:
+368D.R1 D9           exx
+368E.R1 C9           ret
+
+368F.R1 13           inc de
+3690.R1 13           inc de
+3691.R1 1A           ld a,(de)
+3692.R1 1B           dec de
+3693.R1 1B           dec de
+3694.R1 A7           and a
+3695.R1 20 EF        jr nz,SUB_3686
+
+3697.R1 D9           exx
+3698.R1 23           inc hl
+3699.R1 D9           exx
+369A.R1 C9           ret
+
 369B.R1 F1           pop af
 369C.R1 D9           exx
 369D.R1 E3           ex (sp),hl
 369E.R1 D9           exx
 369F.R1 C9           ret
 
-3804.R1 DATA_3804:
-3804.R1 B2 13 0E...  DEFB B2 13 0E 55 E4 8D 58 39 ; ASCII: ???U??X9
+; Note: The address 0028h is in a different bank.
+36AF.R1 EF           rst 0028h
+
+36B0.R1 31 36 00     ld sp,0036h
+36B3.R1 04           inc b
+
+; Note: The disassembly is ambiguous at 36B6h.
+36B4.R1 3A 38 C9     ld a,(0C938h)
+36B7.R1 31 3A C0     ld sp,0C03Ah
+36BA.R1 03           inc bc
+36BB.R1 E0           ret po
+
+36BC.R1 01 30 00     ld bc,0030h
+36BF.R1 03           inc bc
+36C0.R1 A1           and c
+36C1.R1 03           inc bc
+36C2.R1 38 C9        jr c,SUB_3686.L1
+
+; Note: The address 0028h is in a different bank.
+36C4.R1 EF           rst 0028h
+
+36C5.R1 3D           dec a
+36C6.R1 34           inc (hl)
+
+36C7.R1 LBL_36C7:
+36C7.R1 F1           pop af
+36C8.R1 38 AA        jr c,SUB_3674
+
+36CA.R1 3B           dec sp
+36CB.R1 29           add hl,hl
+36CC.R1 04           inc b
+36CD.R1 31 27 C3     ld sp,0C327h
+36D0.R1 03           inc bc
+36D1.R1 31 0F A1     ld sp,0A10Fh
+36D4.R1 03           inc bc
+36D5.R1 88           adc a,b
+36D6.R1 13           inc de
+36D7.R1 36 58        ld (hl),58h
+36D9.R1 65           ld h,l
+36DA.R1 66           ld h,(hl)
+36DB.R1 9D           sbc a,l
+
+36DC.R1 LBL_36DC:
+36DC.R1 78           ld a,b
+36DD.R1 65           ld h,l
+36DE.R1 40           ld b,b
+36DF.R1 A2           and d
+36E0.R1 60           ld h,b
+36E1.R1 32 C9 E7     ld (0E7C9h),a
+36E4.R1 21 F7 AF     ld hl,0AFF7h
+36E7.R1 24           inc h
+36E8.R1 EB           ex de,hl
+36E9.R1 2F           cpl
+
+36EA.R1 LBL_36EA:
+36EA.R1 B0           or b
+36EB.R1 B0           or b
+36EC.R1 14           inc d
+36ED.R1 EE 7E        xor 7Eh
+36EF.R1 BB           cp e
+36F0.R1 94           sub h
+36F1.R1 58           ld e,b
+36F2.R1 F1           pop af
+36F3.R1 3A 7E F8     ld a,(0F87Eh)
+
+; Note: The address 0008h is in a different bank.
+36F6.R1 CF           rst 0008h
+
+36F7.R1 E3           ex (sp),hl
+36F8.R1 38 CD        jr c,LBL_36C7
+
+36FA.R1 D5           push de
+36FB.R1 2D           dec l
+36FC.R1 20 07        jr nz,LBL_3705
+
+36FE.R1 38 03        jr c,LBL_3703
+
+3700.R1 86           add a,(hl)
+3701.R1 30 09        jr nc,LBL_370C
+
+3703.R1 LBL_3703:
+
+; Note: The address 0008h is in a different bank.
+3703.R1 CF           rst 0008h
+
+3704.R1 05           dec b
+
+3705.R1 LBL_3705:
+3705.R1 38 07        jr c,LBL_370E
+
+3707.R1 96           sub (hl)
+3708.R1 30 04        jr nc,LBL_370E
+
+370A.R1 ED 44        neg
+
+370C.R1 LBL_370C:
+370C.R1 77           ld (hl),a
+370D.R1 C9           ret
+
+370E.R1 LBL_370E:
+
+; Note: The address 0028h is in a different bank.
+370E.R1 EF           rst 0028h
+
+370F.R1 02           ld (bc),a
+3710.R1 A0           and b
+3711.R1 38 C9        jr c,LBL_36DC
+
+; Note: The address 0028h is in a different bank.
+3713.R1 EF           rst 0028h
+
+3714.R1 3D           dec a
+3715.R1 31 37 00     ld sp,0037h
+3718.R1 04           inc b
+3719.R1 38 CF        jr c,LBL_36EA
+
+371B.R1 09           add hl,bc
+371C.R1 A0           and b
+371D.R1 02           ld (bc),a
+371E.R1 38 7E        jr c,SUB_376A.L1
+
+; Note: The disassembly is ambiguous at 3721h.
+3720.R1 36 80        ld (hl),80h
+3722.R1 CD 28 2D     call SUB_2D28
+
+; Note: The address 0028h is in a different bank.
+3725.R1 EF           rst 0028h
+
+3726.R1 34           inc (hl)
+3727.R1 38 00        jr c,LBL_3729
+
+3729.R1 LBL_3729:
+3729.R1 03           inc bc
+372A.R1 01 31 34     ld bc,342Fh.R1+2
+372D.R1 F0           ret p
+
+372E.R1 4C           ld c,h
+
+; Note: The address 0CDCCh is in a different bank.
+372F.R1 CC CC CD     call z,0CDCCh
+
+3732.R1 03           inc bc
+3733.R1 37           scf
+3734.R1 00           nop
+3735.R1 08           ex af,af'
+3736.R1 01 A1 03     ld bc,03A1h
+3739.R1 01 38 34     ld bc,3436h.R1+2
+
+; Note: The address 0028h is in a different bank.
+373C.R1 EF           rst 0028h
+
+373D.R1 01 34 F0     ld bc,0F034h
+3740.R1 31 72 17     ld sp,1772h
+3743.R1 F8           ret m
+
+3744.R1 04           inc b
+3745.R1 01 A2 03     ld bc,03A2h
+3748.R1 A2           and d
+3749.R1 03           inc bc
+
+; Note: The disassembly is ambiguous at 374Ch.
+374A.R1 31 34 32     ld sp,CODE_3234
+
+374C.R1 LBL_374C:
+374C.R1 32 20 04     ld (0420h),a
+374F.R1 A2           and d
+3750.R1 03           inc bc
+3751.R1 8C           adc a,h
+3752.R1 11 AC 14     ld de,14ACh
+3755.R1 09           add hl,bc
+3756.R1 56           ld d,(hl)
+
+; Note: The address 59A5h is in a different bank.
+3757.R1 DA A5 59     jp c,59A5h
+
+; Note: The disassembly is ambiguous at 3721h.
+375A.R1 30 C5        jr nc,3720h.R1+1
+
+375C.R1 5C           ld e,h
+375D.R1 90           sub b
+375E.R1 AA           xor d
+375F.R1 9E           sbc a,(hl)
+3760.R1 70           ld (hl),b
+3761.R1 6F           ld l,a
+3762.R1 61           ld h,c
+3763.R1 A1           and c
+3764.R1 CB DA        set 3,d
+3766.R1 96           sub (hl)
+3767.R1 A4           and h
+
+; Note: The disassembly is ambiguous at 376Ah.
+3768.R1 31 9F B4     ld sp,0B49Fh
+
+376A.R1 SUB_376A:
+376A.R1 B4           or h
+
+; Note: The address 0020h is in a different bank.
+376B.R1 E7           rst 0020h
+
+376C.R1 A0           and b
+376D.R1 FE 5C        cp 5Ch
+
+; Note: The address 1BEAh is in a different bank.
+376F.R1 FC EA 1B     call m,1BEAh
+
+3772.R1 43           ld b,e
+
+3773.R1 .LOOP1:
+
+; Note: The address 0ED36h is in a different bank.
+3773.R1 CA 36 ED     jp z,0ED36h
+
+3776.R1 A7           and a
+3777.R1 9C           sbc a,h
+3778.R1 7E           ld a,(hl)
+3779.R1 5E           ld e,(hl)
+377A.R1 F0           ret p
+
+377B.R1 6E           ld l,(hl)
+377C.R1 23           inc hl
+377D.R1 80           add a,b
+377E.R1 93           sub e
+377F.R1 04           inc b
+3780.R1 0F           rrca
+3781.R1 38 C9        jr c,LBL_374C
+
+; Note: The address 0028h is in a different bank.
+3783.R1 EF           rst 0028h
+
+3784.R1 3D           dec a
+3785.R1 34           inc (hl)
+3786.R1 EE 22        xor 22h
+3788.R1 F9           ld sp,hl
+3789.R1 83           add a,e
+378A.R1 6E           ld l,(hl)
+378B.R1 04           inc b
+378C.R1 31 A2 0F     ld sp,0FA2h
+378F.R1 27           daa
+3790.R1 03           inc bc
+3791.R1 31 0F 31     ld sp,CODE_310F
+3794.R1 0F           rrca
+3795.R1 31 2A A1     ld sp,0A12Ah
+3798.R1 03           inc bc
+3799.R1 31 37 C0     ld sp,0C037h
+379C.R1 00           nop
+379D.R1 04           inc b
+
+379E.R1 .L1:
+379E.R1 02           ld (bc),a
+379F.R1 38 C9        jr c,SUB_376A
+
+37A1.R1 A1           and c
+37A2.R1 03           inc bc
+37A3.R1 01 36 00     ld bc,0036h
+37A6.R1 02           ld (bc),a
+37A7.R1 1B           dec de
+37A8.R1 38 C9        jr c,.LOOP1
+
+; Note: The address 0028h is in a different bank.
+37AA.R1 EF           rst 0028h
+
+37AB.R1 39           add hl,sp
+37AC.R1 2A A1 03     ld hl,(03A1h)
+37AF.R1 E0           ret po
+
+37B0.R1 00           nop
+37B1.R1 06 1B        ld b,1Bh
+37B3.R1 33           inc sp
+37B4.R1 03           inc bc
+
+; Note: The address 0028h is in a different bank.
+37B5.R1 EF           rst 0028h
+
+37B6.R1 .LOOP2:
+37B6.R1 39           add hl,sp
+37B7.R1 31 31 04     ld sp,0431h
+37BA.R1 31 0F A1     ld sp,0A10Fh
+37BD.R1 03           inc bc
+37BE.R1 86           add a,(hl)
+37BF.R1 14           inc d
+37C0.R1 E6 5C        and 5Ch
+37C2.R1 1F           rra
+37C3.R1 0B           dec bc
+37C4.R1 A3           and e
+37C5.R1 8F           adc a,a
+37C6.R1 38 EE        jr c,.LOOP2
+
+37C8.R1 E9           jp (hl)
+
 5C08.10 32           DEFB 32 ; ASCII: 2
 5C09.10 37           DEFB 37 ; ASCII: 7
-5C0A.10 36           DEFB 36 ; ASCII: 6
-5C0B.10 38           DEFB 38 ; ASCII: 8
-5C0C.10 22 3A F1...  DEFB 22 3A F1 63 6F 64 65 62 ; ASCII: ":?codeb
-5C16.10 65 3D B0...  DEFB 65 3D B0 22 33 32 37 36 ; ASCII: e=?"3276
-5C36.10 00 F5 22 53  DEFB 00 F5 22 53 ; ASCII: ??"S
-5C3A.10 74           DEFB 74 ; ASCII: t
+5C0A.10 36 38 22...  DEFB 36 38 22 3A F1 63 6F 64 ; ASCII: 68":?cod
+5C36.10 00 F5        DEFB 00 F5 ; ASCII: ??
+5C38.10 22 53 74     DEFB 22 53 74 ; ASCII: "St
 5C3B.10 61 72        DEFB 61 72 ; ASCII: ar
 5C3D.10 74 20        DEFB 74 20 ; ASCII: t 
 5C3F.10 6D 69        DEFB 6D 69 ; ASCII: mi
-5C41.10 74           DEFB 74 ; ASCII: t
-5C42.10 20 54        DEFB 20 54 ; ASCII:  T
-5C44.10 61           DEFB 61 ; ASCII: a
-5C45.10 73 74        DEFB 73 74 ; ASCII: st
-5C47.10 65           DEFB 65 ; ASCII: e
+5C41.10 74 20 54...  DEFB 74 20 54 61 73 74 65 ; ASCII: t Taste
 5C48.10 6E           DEFB 6E ; ASCII: n
 5C49.10 64 72        DEFB 64 72 ; ASCII: dr
 5C4B.10 75 63        DEFB 75 63 ; ASCII: uc
 5C4D.10 6B 22        DEFB 6B 22 ; ASCII: k"
 5C4F.10 3A F2        DEFB 3A F2 ; ASCII: :?
 5C51.10 B0 22        DEFB B0 22 ; ASCII: ?"
-5C53.10 30 22        DEFB 30 22 ; ASCII: 0"
-5C55.10 0D 00        DEFB 0D 00 ; ASCII: ??
+5C53.10 30 22 0D 00  DEFB 30 22 0D 00 ; ASCII: 0"??
 5C57.10 32 0B        DEFB 32 0B ; ASCII: 2?
 5C59.10 00 F5        DEFB 00 F5 ; ASCII: ??
 5C5B.10 C0 63        DEFB C0 63 ; ASCII: ?c
 5C5D.10 6F 64        DEFB 6F 64 ; ASCII: od
 5C5F.10 65 62        DEFB 65 62 ; ASCII: eb
 5C61.10 61 73        DEFB 61 73 ; ASCII: as
-5C63.10 65 0D        DEFB 65 0D ; ASCII: e?
+5C63.10 65           DEFB 65 ; ASCII: e
+5C64.10 0D           DEFB 0D ; ASCII: ?
 5C65.10 00           DEFB 00 ; ASCII: ?
 5C66.10 00           DEFB 00 ; ASCII: ?
 5C67.10 00           DEFB 00 ; ASCII: ?
@@ -6181,8 +4977,7 @@
 5C6B.10 00           DEFB 00 ; ASCII: ?
 5C6C.10 00 00 00...  DEFB 00 00 00 00 00 ; ASCII: ?????
 5C71.10 00           DEFB 00 ; ASCII: ?
-5C72.10 00 00        DEFB 00 00 ; ASCII: ??
-5C74.10 00 00 00 00  DEFB 00 00 00 00 ; ASCII: ????
+5C72.10 00 00 00...  DEFB 00 00 00 00 00 00 ; ASCII: ??????
 5C78.10 00 00 00     DEFB 00 00 00 ; ASCII: ???
 5C7B.10 00 00        DEFB 00 00 ; ASCII: ??
 5C7D.10 00 00 00     DEFB 00 00 00 ; ASCII: ???
@@ -6199,8 +4994,175 @@
 5C91.10 00 00 00...  DEFB 00 00 00 00 00 00 00 00 ; ASCII: ????????
 5CA1.10 00 00 00...  DEFB 00 00 00 00 00 00 00 00 ; ASCII: ????????
 5CAB.10 00           DEFB 00 ; ASCII: ?
-5CAC.10 00 00 00...  DEFB 00 00 00 00 00 00 ; ASCII: ??????
+5CAC.10 00 00 00 00  DEFB 00 00 00 00 ; ASCII: ????
+5CB0.10 00 00        DEFB 00 00 ; ASCII: ??
 5CB2.10 00 00        DEFB 00 00 ; ASCII: ??
 5CB4.10 00 00 00...  DEFB 00 00 00 00 00 00 00 00 ; ASCII: ????????
 
+830C.4 HEAPSTART:
+830C.4 00 F0        DEFB 00 F0 ; ASCII: ??
+830E.4 ZXHeapTop:
+830E.4 00 F0        DEFB 00 F0 ; ASCII: ??
+8310.4 ZXHeapEnd:
+8310.4 F0 FF 00...  DEFB F0 FF 00 00 00 00 ; ASCII: ??????
+8316.4 ZXHeapTempNumOfByts:
+8316.4 00 00        DEFB 00 00 ; ASCII: ??
+8318.4 ZXHeapResult:
+8318.4 00 00        DEFB 00 00 ; ASCII: ??
+831A.4 ZXHeapNewType:
+831A.4 01 00        DEFB 01 00 ; ASCII: ??
+
+8AD4.4 00           nop
+8AD5.4 00           nop
+8AD6.4 00           nop
+8AD7.4 00           nop
+8AD8.4 00           nop
+8AD9.4 00           nop
+8ADA.4 00           nop
+8ADB.4 00           nop
+8ADC.4 00           nop
+8ADD.4 00           nop
+8ADE.4 00           nop
+8ADF.4 00           nop
+8AE0.4 00           nop
+8AE1.4 00           nop
+8AE2.4 00           nop
+8AE3.4 00           nop
+8AE4.4 00           nop
+8AE5.4 00           nop
+8AE6.4 00           nop
+8AE7.4 00           nop
+8AE8.4 00           nop
+8AE9.4 00           nop
+8AEA.4 00           nop
+8AEB.4 00           nop
+8AEC.4 00           nop
+8AED.4 00           nop
+8AEE.4 00           nop
+8AEF.4 00           nop
+8AF0.4 00           nop
+8AF1.4 00           nop
+8AF2.4 00           nop
+8AF3.4 00           nop
+
+8AF4.4 runtimeDivFloat.L1:
+8AF4.4 00           nop
+8AF5.4 00           nop
+8AF6.4 00           nop
+8AF7.4 00           nop
+8AF8.4 00           nop
+8AF9.4 00           nop
+
+8AFA.4 rtInkeyString:
+8AFA.4 00           nop
+8AFB.4 00           nop
+
+8AFC.4 rtInkeyChar:
+8AFC.4 00           nop
+
+8AFD.4 rtKeyboard_Map:
+8AFD.4 FE 01        cp 01h
+8AFF.4 5A           ld e,d
+8B00.4 58           ld e,b
+8B01.4 43           ld b,e
+8B02.4 56           ld d,(hl)
+8B03.4 FD 41        invalid instruction	; mostly equivalent to nop.
+8B05.4 53           ld d,e
+8B06.4 44           ld b,h
+8B07.4 46           ld b,(hl)
+8B08.4 47           ld b,a
+8B09.4 FB           ei
+8B0A.4 51           ld d,c
+8B0B.4 57           ld d,a
+8B0C.4 45           ld b,l
+8B0D.4 52           ld d,d
+8B0E.4 54           ld d,h
+
+; Note: The address 0030h is in a different bank.
+8B0F.4 F7           rst 0030h
+
+8B10.4 31 32 33     ld sp,3332h
+8B13.4 34           inc (hl)
+8B14.4 35           dec (hl)
+
+; Note: The address 0028h is in a different bank.
+8B15.4 EF           rst 0028h
+
+; Note: The disassembly is ambiguous at 8B51h.
+8B16.4 30 39        jr nc,8B50h.4+1
+
+; Note: The disassembly is ambiguous at 8B51h.
+8B18.4 38 37        jr c,8B50h.4+1
+
+8B1A.4 36 DF        ld (hl),0DFh
+8B1C.4 50           ld d,b
+8B1D.4 4F           ld c,a
+8B1E.4 49           ld c,c
+8B1F.4 55           ld d,l
+8B20.4 59           ld e,c
+8B21.4 BF           cp a
+8B22.4 0D           dec c
+8B23.4 4C           ld c,h
+8B24.4 4B           ld c,e
+8B25.4 4A           ld c,d
+8B26.4 48           ld c,b
+8B27.4 7F           ld a,a
+8B28.4 20 02        jr nz,.L2
+
+8B2A.4 4D           ld c,l
+8B2B.4 4E           ld c,(hl)
+
+8B2C.4 runtimeDivFloat.L2:
+8B2C.4 42           ld b,d
+
+8B2D.4 runtimeSaveSP:
+8B2D.4 00           nop
+8B2E.4 00           nop
+
+9700.4 ZXBASIC_VAR_a_string:
+9700.4 00 00        DEFB 00 00 ; ASCII: ??
+9702.4 ZXBASIC_VAR_adr:
+9702.4 00 00        DEFB 00 00 ; ASCII: ??
+9704.4 ZXBASIC_VAR_adrl:
+9704.4 00 00 00...  DEFB 00 00 00 00 00 00 00 00 ; ASCII: ????????
+971C.4 ZXBASIC_VAR_dx:
+971C.4 00 00        DEFB 00 00 ; ASCII: ??
+971E.4 ZXBASIC_VAR_dy:
+971E.4 00 00 00...  DEFB 00 00 00 00 00 00 00 00 ; ASCII: ????????
+972F.4 ZXBASIC_VAR_i:
+972F.4 00 00        DEFB 00 00 ; ASCII: ??
+9731.4 ZXBASIC_VAR_i1:
+9731.4 00 00        DEFB 00 00 ; ASCII: ??
+9733.4 ZXBASIC_VAR_i2:
+9733.4 00 00        DEFB 00 00 ; ASCII: ??
+9735.4 ZXBASIC_VAR_j:
+9735.4 00 00        DEFB 00 00 ; ASCII: ??
+9737.4 ZXBASIC_VAR_k:
+9737.4 00 00        DEFB 00 00 ; ASCII: ??
+9739.4 ZXBASIC_VAR_l:
+9739.4 00 00        DEFB 00 00 ; ASCII: ??
+973B.4 ZXBASIC_VAR_p:
+973B.4 00 00 00...  DEFB 00 00 00 00 00 00 00 ; ASCII: ???????
+9742.4 ZXBASIC_VAR_pos:
+9742.4 00 00        DEFB 00 00 ; ASCII: ??
+9744.4 ZXBASIC_VAR_x:
+9744.4 00 00        DEFB 00 00 ; ASCII: ??
+9746.4 ZXBASIC_VAR_x_string:
+9746.4 00 00        DEFB 00 00 ; ASCII: ??
+9748.4 ZXBASIC_VAR_y:
+9748.4 00 00        DEFB 00 00 ; ASCII: ??
+974A.4 ZXBASIC_VAR_z:
+974A.4 00 00 04...  DEFB 00 00 04 00 31 32 33 34 ; ASCII: ????1234
+98EC.4 DATAPTR:
+98EC.4 00 00 18...  DEFB 00 00 18 00 3C 00 7E 00 ; ASCII: ????<?~?
+A10F.5 00 00 00...  DEFB 00 00 00 00 00 00 00 00 ; ASCII: ????????
+A12A.5 00 00 00...  DEFB 00 00 00 00 00 00 00 00 ; ASCII: ????????
+B49F.5 00 00 00...  DEFB 00 00 00 00 00 00 00 00 ; ASCII: ????????
+C037.0 00 00 00     DEFB 00 00 00 ; ASCII: ???
+C03A.0 00 00 00...  DEFB 00 00 00 00 00 00 00 00 ; ASCII: ????????
 C127.0 00 00 00...  DEFB 00 00 00 00 00 00 00 00 ; ASCII: ????????
+C227.0 00 00 00...  DEFB 00 00 00 00 00 00 00 00 ; ASCII: ????????
+C327.0 00 00 00...  DEFB 00 00 00 00 00 00 00 00 ; ASCII: ????????
+C938.0 00 00 00...  DEFB 00 00 00 00 00 00 00 00 ; ASCII: ????????
+E7C9.1 00 00 00...  DEFB 00 00 00 00 00 00 00 00 ; ASCII: ????????
+F87E.1 00 00 00...  DEFB 00 00 00 00 00 00 00 00 ; ASCII: ????????

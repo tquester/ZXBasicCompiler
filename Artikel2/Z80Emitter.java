@@ -8,7 +8,7 @@ import java.util.TreeSet;
 // writes Z80 code
 public class Z80Emitter {
 	static final boolean BlockComments=false;
-	public boolean mSettingOptimize=true;
+	public int mSettingOptimize=0;
 	public boolean mSettingVerbose=true;
 	Z80Optimizer mOptimizer = new Z80Optimizer();
 	boolean mLog=true;
@@ -63,7 +63,7 @@ public class Z80Emitter {
 	ArrayList<Z80Command> mCommands = new ArrayList<Z80Command>();
 	private StringBuilder mSBData = new StringBuilder();
 	private boolean mUsesData;
-	public boolean mOptimize=true;
+	public int mOptimize=1;
 	
 	void emitStart() {
 		sbCode.append("\r\n"
@@ -92,7 +92,7 @@ public class Z80Emitter {
 		emitCommand(command,param1,param2,null);
 	}
 	void emitCommand(String command, String param1, String param2, String comment) {
-		if (mOptimize) {
+		if (mOptimize > 0) {
 			mCommands.add(new Z80Command(command, param1, param2, comment));
 			String str = command;
 			if (param1 != null) str += " "+param1;
@@ -125,7 +125,10 @@ public class Z80Emitter {
 	
 	
 	public void writeVariables() {
-		mOptimizer.optimize(mCommands);
+		mOptimizer.COMMENTOUT = false;
+		if (mOptimize == 2) mOptimizer.COMMENTOUT = true;
+		if (mOptimize > 0)
+			mOptimizer.optimize(mCommands);
 		
 		sbCode = new StringBuffer();
 		System.out.println("Writing optimized code");

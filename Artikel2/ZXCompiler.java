@@ -27,10 +27,10 @@ public class ZXCompiler {
 	static public final int TYPE_STRING = 1;
 	static public final int TYPE_FLOAT = 2;
 	
-	public boolean mSettingList=true;
-	public boolean mSettingOptimize=true;
-	public boolean mSettingVerbose=true;
-	public boolean mSettingStop=false;
+	public boolean mSettingList=false;
+	public int mSettingOptimize=1;
+	public boolean mSettingVerbose=false;
+	public int mSettingStop=0;
 
 	Stack<Integer> mTypeStack = new Stack<Integer>();
 
@@ -85,7 +85,7 @@ public class ZXCompiler {
 		if (lookahead.typ != ZXTokenizer.ParserToken.ZXTokenTyp.ZX_Token) {
 			print("SyntaxError");
 		}
-		if (mSettingStop)
+		if (mSettingStop == 1)
 			mEmitter.emitCheckBreak();
 		switch (lookahead.zxToken) {
 		case ZXToken.ZXB_REM:
@@ -177,20 +177,26 @@ public class ZXCompiler {
 			compileCIRCLE();
 			break;
 		case ZXToken.ZXB_GOTO:
+			if (mSettingStop == 2) mEmitter.emitCheckBreak();
+
 			lexan(lookahead);
 			mEmitter.emitJumpToLine(lookahead.literal);
 			break;
 		case ZXToken.ZXB_GOSUB:
+			if (mSettingStop == 2) mEmitter.emitCheckBreak();
 			lexan(lookahead);
 			mEmitter.emitCallToLine(lookahead.literal);
 			break;
 		case ZXToken.ZXB_RETURN:
+			if (mSettingStop == 2) mEmitter.emitCheckBreak();
 			mEmitter.emitReturn();
 			break;
 		case ZXToken.ZXB_FOR:
+			if (mSettingStop == 2) mEmitter.emitCheckBreak();
 			compileFor();
 			break;
 		case ZXToken.ZXB_NEXT:
+			if (mSettingStop == 2) mEmitter.emitCheckBreak();
 			compileNext();
 			break;
 		}
@@ -633,7 +639,7 @@ public class ZXCompiler {
 		expr();
 		mEmitter.emitIntVar(varname);
 		mEmitter.emitStoreIntegerVar(varname, false);
-		mEmitter.mOptimize=false;
+		mEmitter.mOptimize=mSettingOptimize;
 		match(ParserToken.ZXTokenTyp.ZX_Token);
 		if (lookahead.zxToken != ZXToken.ZXB_TO)
 		{
@@ -650,7 +656,7 @@ public class ZXCompiler {
 			mEmitter.emitPush1();
 			mBasicLine.unget(lookahead);
 		}
-		mEmitter.mOptimize = mEmitter.mSettingOptimize;
+		mEmitter.mOptimize = mSettingOptimize;
 		mEmitter.emitForLabel();
 		
 		
@@ -776,7 +782,7 @@ public class ZXCompiler {
 				} else if (typ1 == TYPE_FLOAT && typ2 == TYPE_FLOAT) {
 				    mEmitter.emitPushSubFloat();
 				    pushType(TYPE_FLOAT);
-				}else if (cvToFloat(typ1, typ2)) {
+				}else if (cvToFloatSwap(typ1, typ2)) {
 					mEmitter.emitMinusFloat();
 					pushType(TYPE_FLOAT);
 				}
@@ -939,7 +945,7 @@ public class ZXCompiler {
 			case ZXTokenizer.ParserToken.ZXTokenTyp.ZX_BiggerEqual:
 				t.copyFrom(lookahead);
 				match(lookahead);
-				factor();
+				factor(); 
 				typ1 = popType();
 				typ2 = popType();
 				if (typ1 == TYPE_INT && typ2 == TYPE_INT) {
@@ -1314,7 +1320,7 @@ public class ZXCompiler {
 		if (variable.typ == TYPE_FLOAT)
 			mEmitter.emitMultiPlyTopOfStack(5);
 		if (push) {
-			mEmitter.mOptimize = false;
+			mEmitter.mOptimize = 0;
 			mEmitter.emitPushHL();
 			mEmitter.mOptimize = mEmitter.mSettingOptimize;
 		}

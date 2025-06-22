@@ -797,6 +797,13 @@ runtimePrintFloat:
     call $2DE3;    2DE3: THE 'PRINT A FLOATING-POINT NUMBER' SUBROUTINE 
     ret
 
+runtimeSwapFloat:
+    ; Swap the top two floats on the calculator stack
+    RST $28
+    db $01 ; zxcalc_exchange
+    db $38 ; zxcalc_end_calc
+    ret
+
 ; input HL
 ; Output HL, A
 ;   if HL is a negative number, a positive number is returned and A is 255 (-1)
@@ -848,13 +855,24 @@ runtimeStoreFloat:
 
 ; Store the variable (hl) on the calculator stack
 runtimePushFloatVar:
-    ex hl,de                    ; Save Pointer to Var to DE
-    LD HL,($5C65)	            ; Fetch the 'old' STKEND.
-	LD BC,$05	                ; There are 5 bytes to move.
-    sub HL,BC	                ; The 'new' STKEND='old' STKEND minus 5.
-    ldir                        ; Copy varable to stack
-    LD ($5C65),HL               ; Save STKEND
-    ret
+; 2AB1: THE 'STK-STORE' SUBROUTINE
+; A	First byte (when entering at STK_STO or STK_STORE)
+; E	Second byte
+; D	Third byte
+; C	Fourth byte
+; B	Fifth byte
+; 
+    ld A,(HL)
+    inc hl
+    ld E,(HL)
+    inc hl
+    ld D,(hl)
+    inc hl
+    ld c,(hl)
+    inc hl
+    ld b,(hl)
+    call $2AB6 ; 2AB6: THE 'STK-STORE' SUBROUTINE
+    RET
 
 runtimePushPi:
 		RST $28	                ; Now use the calculator.
@@ -885,6 +903,21 @@ runtimeDivFloat:
     db  $05                     ; DIV
     db  $38                     ; end calc
     ret
+
+    if DEBUG=1
+printFloat:
+    ld  b,5
+printFloat1:
+    ld   a,(hl)
+    inc  hl
+    call printHex2  
+    ld   a,' '
+    call printA  
+    djnz printFloat1
+    call newline
+    ret
+    endif    
+
 
 
 

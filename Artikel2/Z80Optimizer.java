@@ -33,7 +33,12 @@ public class Z80Optimizer {
 				int cmd6 = next(cmd5);
 				
 				
-				
+				if (check(cmd1,"CALL","runtimeCheckBreak") &&
+						check(cmd2,"CALL","runtimeCheckBreak")) {
+							remove(cmd2);
+							count++;
+							continue;
+						} 
 				
 				if (check(cmd1,"PUSH","HL") &&
 					check(cmd2,"POP","HL")) {

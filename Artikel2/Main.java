@@ -32,14 +32,23 @@ public class Main {
 					compiler.mSettingVerbose = true;
 					break;
 				case "-no":
-					compiler.mSettingOptimize = false;
+					compiler.mSettingOptimize = 0;
+					break;
+				case "-o":
+					compiler.mSettingOptimize = 1;
+					break;
+				case "-o1":
+					compiler.mSettingOptimize = 2;
 					break;
 				case "-l":
 					compiler.mSettingList = true;
 					break;
 				case "-stop":
 				case "-s":
-					compiler.mSettingStop = true;
+					compiler.mSettingStop = 1;
+					break;
+				case "-s1":
+					compiler.mSettingStop = 2;
 					break;
 				}
 				continue;

@@ -213,7 +213,18 @@ RAM_SET	LD ($5CB2),HL	; Set RAMTOP.
 	LD  HL,32000
 	ld  (23651),HL
 	LD  (23653),HL
-	;call compiledBasic
+
+	LD (IY+$31),$02 ;	The lower part of the screen is to be two lines in size (see DF-SZ).
+	CALL $1795	; AUTO_LIST ;	Produce an automatic listing.
+	CALL $16B0	; SET_MIN	All the areas from E-LINE onwards are given their minimum configurations.
+
+	LD A,$00	; Channel 'K' is opened before calling the EDITOR.
+	CALL $1601	; CHAN_OPEN
+	CALL $0F2C	; EDITOR	
+	ld   A,(IY+$02)	; TV Flag
+	and $fe	; Clear bit 0 of TV-FLAG.
+	ld   (IY+$02),A	; Clear the TV-FLAG.
+	call compiledBasic
 
  	jp  $12a2
 	RET        
