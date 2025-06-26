@@ -3,7 +3,7 @@
 ; main.asm
 ;===========================================================================
 DEBUG                       equ 0			; Enables debug mode. Used to test so new functions. Compiled BASIC runs with custom PRINT command
-DEBUGBASIC                  equ 1			; Initializes the ZX Spectrum using a copy of the startup, then starts the compiled BASIC program.
+DEBUGBASIC                  equ 0			; Initializes the ZX Spectrum using a copy of the startup, then starts the compiled BASIC program.
 											; Rom routines are allowed
 DEBUGSAVESCREEN				equ 0			; Heep Walk saves and restores the screen (costs 6144+768 Bytes )
 DEBUGMATH                   equ 0			; Calls the Math Debug code on run	

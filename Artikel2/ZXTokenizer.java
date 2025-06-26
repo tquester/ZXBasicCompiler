@@ -197,6 +197,10 @@ public class ZXTokenizer {
 						if (b == 13) break;
 						if (b < 0) b+=256;
 						if (b == 0x0e) {
+							token.floatLiteral = new int[5];
+							for (int i=0;i<5;i++) {
+								token.floatLiteral[i] = bytes[mPos+i];
+							}
 							mPos+=5;
 							break;
 						}
@@ -227,6 +231,13 @@ public class ZXTokenizer {
 			}
 
 			return true;
+		}
+
+		public String restOfLine() {
+			String result="";
+			while (mPos < bytes.length)
+				result += (char)bytes[mPos++];
+			return result;
 		}
 	}
 

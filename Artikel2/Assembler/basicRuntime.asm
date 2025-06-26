@@ -73,6 +73,13 @@ zxcalc_st_mem_0:		equ $40
 zxcalc_cos:		        equ $20 
 zxcalc_get_mem_0:		equ $41 
 
+zxcalc_stack_zero       equ $A0
+zxcalc_stack_one        equ $A1
+zxclc_stack_half        equ $A2
+zxclc_stack_pi_half     equ $A3
+zxclc_stack_ten         equ $A4
+
+
 xorb1:          ld a,1
                 xor b
                 ld b,a
@@ -134,7 +141,9 @@ PRINTA:                 macro
                         POP HL                    ;   rst $10
 ;                        endif
                         endm
-runtimeCls:             ld      e,0
+runtimeCls:             xor a,a
+                        ld (ZX_TV_FLAG),a
+                         ld      e,0
                         ld      l,0
                         call    runtimePrintAt
                         LD		HL,$4000
@@ -355,6 +364,8 @@ runtimePrntString1:
     ret
 
 runtimePrintAt:
+    ld a,0
+    ld (iy+2),a
 ;    if DEBUG=1
 ;    ld a,l
 ;    ld (charX),a
@@ -501,13 +512,16 @@ runtimeCode1:
 
 runtimePause:
     call rtReadKeyboard
-    ret z
+    jr z, runtimePause1
     dec hl
     ld a,h
     or l
     ret z
     jr runtimePause
-
+runtimePause1:
+    call rtReadKeyboard
+    ret nz 
+    jr runtimePause1    
 
 
          
@@ -770,6 +784,7 @@ runtimeCharAt:
     push hl
     push bc
     ld   bc, 3      ; 1 Byte String + 2 Byte Len
+    LD   a,ZXHeapTypeTemp
     call ZXAlloc
     dec  bc
     dec  bc
@@ -794,7 +809,14 @@ runtimeVal:
 
     ret
 runtimePrintFloat:
+ 
+    ld hl,(ZX_STKEND) ; Fetch the 'old' STKEND.
+    push hl
     call $2DE3;    2DE3: THE 'PRINT A FLOATING-POINT NUMBER' SUBROUTINE 
+    pop hl
+    ld bc,5
+    sub hl,bc
+    ld (ZX_STKEND),hl ; Store the new STKEND.
     ret
 
 runtimeSwapFloat:
@@ -803,6 +825,72 @@ runtimeSwapFloat:
     db $01 ; zxcalc_exchange
     db $38 ; zxcalc_end_calc
     ret
+
+runtimeSin:
+    ; Swap the top two floats on the calculator stack
+    RST $28
+    db zxcalc_sin
+    db zxcalc_end_calc
+    ret
+
+runtimeCos:
+    ; Swap the top two floats on the calculator stack
+    RST $28
+    db zxcalc_cos
+    db zxcalc_end_calc
+    ret
+
+runtimeTan:
+    ; Swap the top two floats on the calculator stack
+    RST $28
+    db zxcalc_tan
+    db zxcalc_end_calc
+    ret
+
+runtimeSqr:
+    ; Swap the top two floats on the calculator stack
+    RST $28
+    db zxcalc_sqr
+    db zxcalc_end_calc
+    ret
+
+runtimeStr:
+    LD BC,$0001	            ; One space is made in the work space and its address is copied to K-CUR, the address of the cursor.
+	RST $30
+	LD ($5C5B),HL
+	PUSH HL	                ; This address is saved on the stack too.
+	LD HL,($5C51)	        ; The current channel address (CURCHL) is saved on the machine stack.
+	PUSH HL
+	LD A,$FF	            ; Channel 'R' is opened, allowing the string to be 'printed' out into the work space.
+	CALL $1601; CHAN_OPEN
+	CALL $2DE3; PRINT_FP	; The 'last value', X, is now printed out in the work space and the work space is expanded with each character.
+	POP HL	                ; Restore CURCHL to HL and restore the flags that are appropriate to it.
+	CALL $1615; CHAN_FLAG
+	POP DE	                ; Restore the start address of the string.
+	LD HL,($5C5B)	        ; Now the cursor address is one past the end of the string and hence the difference is the length.
+	AND A
+	SBC HL,DE
+	LD B,H	                ; Transfer the length to BC.
+	LD C,L
+    LD  A,ZXHeapTypeTemp    ; The string is stored in the temporary heap.
+    inc  bc
+    inc  bc
+    CALL ZXAlloc            ; Allocate memory for the string. Return to BASIC if no memory available
+    dec  bc
+    dec bc
+    PUSH HL                 ; Save the address
+    LD  (HL),BC             ; Store length of String
+    INC HL                  ; Increment HL to point to the first character of the string.
+    INC HL
+    ex hl,de
+    LDIR                    ; Copy the string 
+    POP HL
+	RET
+
+runtimeStr1:
+    db 0
+
+
 
 ; input HL
 ; Output HL, A
@@ -848,9 +936,11 @@ runtimeStoreFloat:
     ex hl,de                    ; Save Pointer to Var to DE
     LD HL,($5C65)	            ; Fetch the 'old' STKEND.
 	LD BC,$05	
-    sub hl,bc                ; There are 5 bytes to move.
+    sub HL,BC
+    LD ($5C65),HL          ; Fetch the 'old' STKEND.
+
     ldir                        ; Copy varable to stack
-    LD ($5C65),HL               ; Save STKEND
+    
     ret
 
 ; Store the variable (hl) on the calculator stack
@@ -881,11 +971,51 @@ runtimePushPi:
 	    INC (HL)	            ; The exponent is incremented thereby doubling the 'last value' giving π.
         ret
 
-runtimeAddFloat:
+runtimePlusFloat:
     RST $28
     db  $0F                     ; ADD
     db  $38                     ; end calc
+    ret    
 
+runtimeBiggerFloat:
+    RST $28
+    db  zxcalc_subtract
+    db  zxcalc_greater_0
+    db  zxcalc_jump_true
+    db  runtimeBiggerFloatTrue-$
+;   db  zxcalc_delete
+    db  zxcalc_stack_zero
+    db  zxcalc_end_calc
+    jp runtimeFloatToInt
+runtimeBiggerFloatTrue:
+;   db  zxcalc_delete
+    db  zxcalc_stack_one   
+
+    db  zxcalc_end_calc
+    jp  runtimeFloatToInt
+
+runtimeSmallerFloat:
+
+    RST $28
+    db  zxcalc_subtract
+    db  zxcalc_greater_0
+    db  zxcalc_jump_true
+    db  runtimeSmallerFloatTrue-$
+    db  zxcalc_stack_one
+    db  zxcalc_end_calc
+    call runtimeFloatToInt
+    ret
+runtimeSmallerFloatTrue:
+    db  zxcalc_stack_zero
+    db  zxcalc_end_calc
+    call runtimeFloatToInt
+    ret
+
+runtimeOrFloat:
+    RST $28
+    db  zxcalc_or
+    db  zxcalc_end_calc
+    call runtimeFloatToInt
     ret    
 runtimeMinusFloat:
     RST $28
@@ -903,6 +1033,12 @@ runtimeDivFloat:
     db  $05                     ; DIV
     db  $38                     ; end calc
     ret
+
+runtimeLen:
+    ld bc,(hl)
+    ld hl,bc
+    ret     
+
 
     if DEBUG=1
 printFloat:

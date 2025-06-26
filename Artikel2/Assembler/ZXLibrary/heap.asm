@@ -99,6 +99,7 @@ ZXFreeTempLoop1:
                         ret     z
                         jr       ZXFreeTempLoop
 
+ZXFreeTempCompact:      call ZXFreeTemp                        
 ZXHeapCompactFree:      ; Compact the heap by combining empty blocks to bigger blocks
                         LD IX, (ZXHeapStart)
                         LD BC, (ZXHeapEnd)
@@ -154,8 +155,8 @@ ZXHeapWalk:         if DEBUG=1
                     call GetKey
                     call restoreScreen
                     endif 
-                    endif
                     POPA
+                    endif
                     ret
 
 ZXHeapWalkPrint:
