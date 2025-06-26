@@ -4,6 +4,16 @@ Diese BASIC-Compiler lädt das BASIC aus einer .TAP-Datei, d.h. man benutzt den 
 Der Compiler erzeugt daraufhin eine Textdatei welche mit einem Assembler kompiliert werden muss (sjasmplus). 
 Wenn die Optimierung eingeschaltet ist, wird eine gut lesbare Assemblerdatei erzeugt welche bei Bedarf weiter bearbeitet werden kann.
 
+# Ziele
+- Fast volle Unterstützung des Sinclair ZX Basic. Vorhandene Programme sollen mit wenigen Änderungen Änderungen kompilierbar sein
+- Berechnung können in Floats oder in Integer gemacht werden. Integer ist ca. 20-30 mal schneller als Floats.
+- In REM-Befehlen können Anweisungen für den Compiler gesendet werden, z.B. ob eine Variable als Float oder Integer zu interpretieren ist.
+- Die Ausgabe erfolgt als lesbare Assembler-Datei. Programmierer können den Code lesen und ggf. optimieren
+- Einbindung optimierte Programmteile über REM asm. z.B. REM asm include "code.asm" und REM asm call
+- Die ursprüngliche Routine kann übersprungen werden. REM stop und REM continue wird ein Teil des Codes vom Kompilieren ausgeschlossen
+
+Später werden die Funktionen der BASIC-Erweiterung hinzugefügt und es soll einen eigenen Editor geben
+
 # Demo Tapes
 BASIC: https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel2/compilerdemo.tap
 
