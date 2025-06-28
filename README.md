@@ -3,6 +3,8 @@
 Diese BASIC-Compiler lädt das BASIC aus einer .TAP-Datei, d.h. man benutzt den ZX Spectrum Emulator zum Editieren und Testen.
 Der Compiler erzeugt daraufhin eine Textdatei welche mit einem Assembler kompiliert werden muss (sjasmplus). 
 Wenn die Optimierung eingeschaltet ist, wird eine gut lesbare Assemblerdatei erzeugt welche bei Bedarf weiter bearbeitet werden kann.
+# Status
+In Entiwcklung
 
 # Ziele
 - Fast volle Unterstützung des Sinclair ZX Basic. Vorhandene Programme sollen mit wenigen Änderungen Änderungen kompilierbar sein
@@ -20,6 +22,55 @@ BASIC: https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel2/compilerde
 Kompiliert: https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel2/Assembler/compiled.tap
 
 Assembler-code: https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel2/Assembler/compiledBasic.asm
+
+# Beispiel
+
+Die Zeile LET a2=b*b+c*c wird in Assembler so umgesetzt, standardmäßig werden Variablen als Integer behandelt
+ZX_LINE_50:
+; 50  LET a2=b*b+c*c
+	LD DE,(ZXBASIC_VAR_b)
+	LD HL,(ZXBASIC_VAR_b)
+	call runtimeMult16bit
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_c)
+	LD HL,(ZXBASIC_VAR_c)
+	call runtimeMult16bit
+	POP DE
+	ADD HL,DE
+	LD (ZXBASIC_VAR_a2),HL
+
+Möchte man FLoats verwenden muss man es per REM definieren
+ZX_LINE_60:
+; 60  REM float af bf cf
+ZX_LINE_65:
+; 65  LET af=bf*bf+cf*cf
+	LD HL,ZXBASIC_VAR_bf
+	CALL runtimePushFloatVar
+	LD HL,ZXBASIC_VAR_bf
+	CALL runtimePushFloatVar
+	RST $28
+	DB $04	;MULT
+	DB $38	;END CALC
+	LD HL,ZXBASIC_VAR_cf
+	CALL runtimePushFloatVar
+	LD HL,ZXBASIC_VAR_cf
+	CALL runtimePushFloatVar
+	RST $28
+	DB $04	;MULT
+	DB $0f	;ADD
+	DB $38	;END CALC
+	LD HL,ZXBASIC_VAR_af
+	CALL runtimeStoreFloat
+
+Da der Compiler den Quellcode ausgibt, kann man diesen von Hand optimieren und später aus BASIC aufrufen:
+  REM asm call myfunction
+  REM stop
+  LET a2=a*a+b*b
+  REM continue
+
+Und an einer Stelle am besten hinter einem Return
+  REM asm include "mycode.asm"
+
 
 # ZXBasic Compiler
 Dieser Compiler ist ein Artikel für die Spectrum User Group.
