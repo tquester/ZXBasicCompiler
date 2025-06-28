@@ -26,6 +26,7 @@ Assembler-code: https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel2/A
 # Beispiel
 
 Die Zeile LET a2=b*b+c*c wird in Assembler so umgesetzt, standardmäßig werden Variablen als Integer behandelt
+```
 ZX_LINE_50:
 ; 50  LET a2=b*b+c*c
 	LD DE,(ZXBASIC_VAR_b)
@@ -38,8 +39,10 @@ ZX_LINE_50:
 	POP DE
 	ADD HL,DE
 	LD (ZXBASIC_VAR_a2),HL
-
+```
 Möchte man FLoats verwenden muss man es per REM definieren
+
+```
 ZX_LINE_60:
 ; 60  REM float af bf cf
 ZX_LINE_65:
@@ -61,6 +64,7 @@ ZX_LINE_65:
 	DB $38	;END CALC
 	LD HL,ZXBASIC_VAR_af
 	CALL runtimeStoreFloat
+```
 
 Da der Compiler den Quellcode ausgibt, kann man diesen von Hand optimieren und später aus BASIC aufrufen:
   REM asm call myfunction
