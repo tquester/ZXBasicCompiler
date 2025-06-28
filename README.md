@@ -13,6 +13,7 @@ In Entiwcklung
 - Die Ausgabe erfolgt als lesbare Assembler-Datei. Programmierer können den Code lesen und ggf. optimieren
 - Einbindung optimierte Programmteile über REM asm. z.B. REM asm include "code.asm" und REM asm call
 - Die ursprüngliche Routine kann übersprungen werden. REM stop und REM continue wird ein Teil des Codes vom Kompilieren ausgeschlossen
+- Eigener Heap für die Stringverarbeitung
 
 Später werden die Funktionen der BASIC-Erweiterung hinzugefügt und es soll einen eigenen Editor geben
 
@@ -24,6 +25,11 @@ Kompiliert: https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel2/Assem
 Assembler-code: https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel2/Assembler/compiledBasic.asm
 
 # Beispiel
+Da der Compiler eine Textdatei (.asm) erzeugt muss man diese noch mit einem Assembler assemblieren, dies kann aber automatisch mit einer Batchdatei erfolgen, so dass man mit wenigen Klicks den Code von einem Emulator in einen weiteren als kompiliertes Programm transferieren kann.
+
+Es ist sogar möglich, den kompilierten Code dirket in DeZog (Visual Studio Code + DeZog) zu debuggen.
+
+Ein Beispiel:
 
 Die Zeile LET a2=b*b+c*c wird in Assembler so umgesetzt, standardmäßig werden Variablen als Integer behandelt
 ```
@@ -76,6 +82,21 @@ Da der Compiler den Quellcode ausgibt, kann man diesen von Hand optimieren und s
 Und an einer Stelle am besten hinter einem Return
 ```
   REM asm include "mycode.asm"
+```
+
+```
+myfunction:
+	LD DE,(ZXBASIC_VAR_b)
+	LD HL,DE
+	call runtimeMult16bit
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_c)
+	LD HL,DE
+	call runtimeMult16bit
+	POP DE
+	ADD HL,DE
+	LD (ZXBASIC_VAR_a2),HL
+	RET
 ```
 
 # ZXBasic Compiler
