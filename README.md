@@ -40,7 +40,7 @@ ZX_LINE_50:
 	ADD HL,DE
 	LD (ZXBASIC_VAR_a2),HL
 ```
-Möchte man FLoats verwenden muss man es per REM definieren
+Möchte man Floats verwenden muss man es per REM definieren
 
 ```
 ZX_LINE_60:
