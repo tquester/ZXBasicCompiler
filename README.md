@@ -84,6 +84,7 @@ Und an einer Stelle am besten hinter einem Return
   REM asm include "mycode.asm"
 ```
 
+In der Datei mycode.asm befindet sich die optimierte Version
 ```
 myfunction:
 	LD DE,(ZXBASIC_VAR_b)
@@ -98,6 +99,8 @@ myfunction:
 	LD (ZXBASIC_VAR_a2),HL
 	RET
 ```
+
+Dadurch sollte es möglich sein, Spiele zu entwickeln, die eine ähnliche Performance haben wie in Assembler.
 
 # ZXBasic Compiler
 Dieser Compiler ist ein Artikel für die Spectrum User Group.
