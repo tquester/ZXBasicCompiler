@@ -67,14 +67,16 @@ ZX_LINE_65:
 ```
 
 Da der Compiler den Quellcode ausgibt, kann man diesen von Hand optimieren und später aus BASIC aufrufen:
+```
   REM asm call myfunction
   REM stop
   LET a2=a*a+b*b
   REM continue
-
+```
 Und an einer Stelle am besten hinter einem Return
+```
   REM asm include "mycode.asm"
-
+```
 
 # ZXBasic Compiler
 Dieser Compiler ist ein Artikel für die Spectrum User Group.
