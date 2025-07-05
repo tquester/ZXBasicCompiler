@@ -1,4 +1,4 @@
-Deutsch: [a link](https://github.com/tquester/ZXBasicCompiler/blob/main/ReadmeGer.md)
+Deutsch: [Hier klicken](https://github.com/tquester/ZXBasicCompiler/blob/main/ReadmeGer.md)
 # ZXBasicCompiler
 
 Diese BASIC-Compiler lädt das BASIC aus einer .TAP-Datei, d.h. man benutzt den ZX Spectrum Emulator zum Editieren und Testen.
