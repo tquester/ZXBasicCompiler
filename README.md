@@ -23,6 +23,28 @@ BASIC: https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel2/compilerde
 Kompiliert: https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel2/Assembler/compiled.tap
 
 Assembler-code: https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel2/Assembler/compiledBasic.asm
+#Geschwindigkeit
+Der Plot-Test verwendet ausschließlich den Befehl PLOT und verwendet zur Berechnung der Koordinaten Variablen, Zuweisungen, Addition und Vergleiche.
+Diese Art von Programmen profitiert am meisten vom Compiler, wenn die Variablen als Integer definiert werden. Entweder durch eine REM-Anweisung (REM int16 x y z) oder indem das Programm mit der Option Integer kompiliert wird.
+
+<img src="https://github.com/user-attachments/assets/4b37c1e7-10b1-4d3e-91f2-897d95c73290"  with="100" height="50"/>
+
+Basic:
+![plot_basic](https://github.com/user-attachments/assets/4b37c1e7-10b1-4d3e-91f2-897d95c73290=150x66)
+
+
+
+![plot_compiled_fp](https://github.com/user-attachments/assets/9f0514d7-b88c-4473-a784-3408b5c0c54f)
+
+Kompiliert mit Gleitkommazahlen
+
+![plot_compiled_it](https://github.com/user-attachments/assets/6b9085e1-4c57-4f30-b053-36e6cbda1c50)
+
+Kompiliert mit Integer
+
+
+                
+
 
 # Beispiel
 Da der Compiler eine Textdatei (.asm) erzeugt muss man diese noch mit einem Assembler assemblieren, dies kann aber automatisch mit einer Batchdatei erfolgen, so dass man mit wenigen Klicks den Code von einem Emulator in einen weiteren als kompiliertes Programm transferieren kann.
