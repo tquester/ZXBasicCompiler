@@ -62,7 +62,9 @@ SIN/COS-Demo
 |BASIC   |       |* 1.45 |    *1.53|
 |FLOAT   |       |       |    *1.05|
 
+Ein Teil der Geschwindigkeit stammt daher, dass die Zeilen nicht mehr interpretiert werden müssen. In BASIC muss jede Programmzeile Byte für Byte zerlegt werden um diese auszuführen. Nach einem GOTO wird das gesamte Programm nach der Zeilennummer durchsucht und beim Zugriff auf Variablen der ganze Variablenspeicher nach der Variablen. Zwar haben Variablen und Zeilen eine Längenangabe, so dass man von Variable zu Variable und Zeile zu Zeile springen kann aber auch dies kostet ein wenig Rechenzeit. Nach dem Kompilieren hat jede Zeile und jede Variable eine fest Adresse, welche sich nicht ändert und ohne eine Such bekannt ist. BASIC überprüft außedem bei jeder Zeile ob die Break-Taste gedrückt ist, dies kann im Compiler mit der Option -s oder -s1 simuliert werden. -s baut nach jedem Befehl die Prüfung ein, -s1 nur vor Sprüngen und in For-Schleifen. Beides kostet ein wenig Rechenzeit und Speicher. Bei mathematischen Ausdrücken entfällt ebenfalls das Zerlegen und umwandeln in umgekehrte polnische Notation, dies übernimmt der Compiler.
 
+Der Großteil der Geschwindigkeit stammt aus der Optimierung mit Integer-Zahlen, diese werden direkt vom Prozessor verarbeitet statt über Routinen im ZX-Spectrum-ROM, außerdem kann der Optimierer des Compilers noch viele Anweisungen aus dem Code entfernen oder umstellen. Bei Gleitkomma-Operationen ist dies nur bedingt möglich, unter anderem werden die Aufrufe für mathematische Operationen im Calculator (RST $28) direkt in den Code geschrieben danach werden zusammenhängende Blöcke in einen größeren Block kombiniert.
 
 ## Original in Basic:
 ![plot_basic](https://github.com/user-attachments/assets/345013ba-d3f8-418b-8e68-745ea46f87f1)
