@@ -3,16 +3,31 @@
 Diese BASIC-Compiler lädt das BASIC aus einer .TAP-Datei, d.h. man benutzt den ZX Spectrum Emulator zum Editieren und Testen.
 Der Compiler erzeugt daraufhin eine Textdatei welche mit einem Assembler kompiliert werden muss (sjasmplus). 
 Wenn die Optimierung eingeschaltet ist, wird eine gut lesbare Assemblerdatei erzeugt welche bei Bedarf weiter bearbeitet werden kann.
+Da der Compiler nicht auf dem ZX Spectrum läuft, kann der gesamte nutzbare Speicher verwendet werden.
+
+
 # Status
-In Entiwcklung
+
+  | Schritt               |         Status |
+  |-----------------------|----------------|
+  | Erster Basic-Compiler |             OK
+  | Strings               |             OK |
+  | Floats                | In Bearbeitung |
+  | Alle BASIC-Befehle laufen | In Bearbeitung |
+  | Tests für jeden Befehl | In Bearbeitung | 
+  | QBasic-Befehle laufen     | In Planung     |
+  | Doku                      | In Beabeitung  |
+  | English                   | In Planung     |
+  
+<b>7.5.2025: Heute erfolgt ein Update</b>
 
 # Ziele
 - Fast volle Unterstützung des Sinclair ZX Basic. Vorhandene Programme sollen mit wenigen Änderungen Änderungen kompilierbar sein
 - Berechnung können in Floats oder in Integer gemacht werden. Integer ist ca. 20-30 mal schneller als Floats.
 - In REM-Befehlen können Anweisungen für den Compiler gesendet werden, z.B. ob eine Variable als Float oder Integer zu interpretieren ist.
-- Die Ausgabe erfolgt als lesbare Assembler-Datei. Programmierer können den Code lesen und ggf. optimieren
+- Die Ausgabe erfolgt als lesbare Assembler-Datei. Es ist einfach einen Teil des BASIC-Programms in Assembler zu optimieren und dann diesen optimierten Teil im Kompilat statt dem kompilierten BASIC zu verwenden.
 - Einbindung optimierte Programmteile über REM asm. z.B. REM asm include "code.asm" und REM asm call
-- Die ursprüngliche Routine kann übersprungen werden. REM stop und REM continue wird ein Teil des Codes vom Kompilieren ausgeschlossen
+- Die ursprüngliche Routine kann übersprungen werden. REM stop und REM continue wird ein Teil des Codes vom Kompilieren ausgeschlossen damit man stattdessen eine Assembler-Version nutzen kann.
 - Eigener Heap für die Stringverarbeitung
 
 Später werden die Funktionen der BASIC-Erweiterung hinzugefügt und es soll einen eigenen Editor geben
@@ -27,14 +42,25 @@ Assembler-code: https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel2/A
 
 # Geschwindigkeit
 
-Der Plot-Test verwendet ausschließlich den Befehl PLOT und verwendet zur Berechnung der Koordinaten Variablen, Zuweisungen, Addition und Vergleiche.
+Doe Plot-Demo verwendet ausschließlich den Befehl PLOT und verwendet zur Berechnung der Koordinaten Variablen, Zuweisungen, Addition und Vergleiche.
 Diese Art von Programmen profitiert am meisten vom Compiler, wenn die Variablen als Integer definiert werden. Entweder durch eine REM-Anweisung (REM int16 x y z) oder indem das Programm mit der Option Integer kompiliert wird.
 
+Plot-Demo
 |Frames  | BASIC | FLOAT | INTEGER |
 |--------|-------|-------|---------|
 |        | 10928 | 2798  |      121|
 |BASIC   |       | * 3,9 |      *90|
 |FLOAT   |       |       |      *23|
+
+Die SIN/COS-Demo verwendet Gleitkommazahlen für die Berechnung von x, Sinus und Cosinus für die Werte. Gleitkomma-Multiplikation und Typumwandlung für das Anzeigen der Koordinaten. Außerdem STR, Stringfunktionen und zwei FOR-Schleifen.
+Die FLOAT-Variante ist mit der Option /f kompiliert, d.h. jede Variable, auch die FOR-Schleife, der Index für die Stringoperationen usw. werden mit Gleitkomma berechnet. Die INT-Variante verwendet lediglich für X, SIN/COS und Y Gleitkommazahlen und Integer für alles andere.
+
+SIN/COS-Demo
+|Frames  | BASIC | FLOAT | INTEGER |
+|--------|-------|-------|---------|
+|        | 2108  | 1444  |     1370|
+|BASIC   |       |* 1.45 |    *1.53|
+|FLOAT   |       |       |    *1.05|
 
 
 
