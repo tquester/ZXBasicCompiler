@@ -1,96 +1,73 @@
 Deutsch: [Hier klicken](https://github.com/tquester/ZXBasicCompiler/blob/main/ReadmeGer.md)
 # ZXBasicCompiler
 
-Diese BASIC-Compiler lädt das BASIC aus einer .TAP-Datei, d.h. man benutzt den ZX Spectrum Emulator zum Editieren und Testen.
-Der Compiler erzeugt daraufhin eine Textdatei welche mit einem Assembler kompiliert werden muss (sjasmplus). 
-Wenn die Optimierung eingeschaltet ist, wird eine gut lesbare Assemblerdatei erzeugt welche bei Bedarf weiter bearbeitet werden kann.
-Da der Compiler nicht auf dem ZX Spectrum läuft, kann der gesamte nutzbare Speicher verwendet werden.
+This BASIC compiler loads the BASIC from a .TAP file, i.e. you use the ZX Spectrum Emulator for editing and testing.
+The compiler then generates a text file which must be compiled with an assembler (sjasmplus). 
+If the optimization is switched on, an easily readable assembler file is generated which can be edited further if required.
+Since the compiler does not run on the ZX Spectrum, the entire usable memory can be used.
 
 
 # Status
 
-  | Schritt               |         Status |
-  |-----------------------|----------------|
-  | Erster Basic-Compiler |             OK
-  | Strings               |             OK |
-  | Floats                | In Bearbeitung |
-  | Alle BASIC-Befehle laufen | In Bearbeitung |
-  | Tests für jeden Befehl | In Bearbeitung | 
-  | QBasic-Befehle laufen     | In Planung     |
-  | Doku                      | In Beabeitung  |
-  | English                   | In Planung     |
+  | Step | Status |
+ |-----------------------|----------------|
+ | First Basic compiler | OK
+ | Strings | OK |
+ | Floats | In progress |
+ | All BASIC commands running | In progress |
+ | Tests for each command | In progress | 
+ | QBasic commands running | In planning |
+ | Documentation | In progress |
+ | English | In planning |
   
-<b>7.5.2025: Heute erfolgt ein Update</b>
+<b>7.5.2025: An update will be made today</b>
 
-# Ziele
-- Fast volle Unterstützung des Sinclair ZX Basic. Vorhandene Programme sollen mit wenigen Änderungen Änderungen kompilierbar sein
-- Berechnung können in Floats oder in Integer gemacht werden. Integer ist ca. 20-30 mal schneller als Floats.
-- In REM-Befehlen können Anweisungen für den Compiler gesendet werden, z.B. ob eine Variable als Float oder Integer zu interpretieren ist.
-- Die Ausgabe erfolgt als lesbare Assembler-Datei. Es ist einfach einen Teil des BASIC-Programms in Assembler zu optimieren und dann diesen optimierten Teil im Kompilat statt dem kompilierten BASIC zu verwenden.
-- Einbindung optimierte Programmteile über REM asm. z.B. REM asm include "code.asm" und REM asm call
-- Die ursprüngliche Routine kann übersprungen werden. REM stop und REM continue wird ein Teil des Codes vom Kompilieren ausgeschlossen damit man stattdessen eine Assembler-Version nutzen kann.
-- Eigener Heap für die Stringverarbeitung
+Translated with DeepL.com (free version)
+# Targets
+- Almost full support of Sinclair ZX Basic. Existing programs should be compilable with few changes
+- Calculations can be made in floats or integers. Integer is approx. 20-30 times faster than floats.
+- Instructions for the compiler can be sent in REM commands, e.g. whether a variable is to be interpreted as a float or an integer.
+- The output is a readable assembler file. It is easy to optimize a part of the BASIC program in assembler and then use this optimized part in the compilation instead of the compiled BASIC.
+- Inclusion of optimized program parts via REM asm. e.g. REM asm include "code.asm" and REM asm call
+- The original routine can be skipped. REM stop and REM continue a part of the code is excluded from compilation so that an assembler version can be used instead.
+- Separate heap for string processing
 
-Später werden die Funktionen der BASIC-Erweiterung hinzugefügt und es soll einen eigenen Editor geben
+Later, the functions of the BASIC extension will be added and there will be a separate editor
 
 # Demo Tapes
 BASIC: https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel2/compilerdemo.tap
 
-Kompiliert: https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel2/Assembler/compiled.tap
+Compiled: https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel2/Assembler/compiled.tap
 
-Assembler-code: https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel2/Assembler/compiledBasic.asm
-#Geschwindigkeit
+Assembler code: https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel2/Assembler/compiledBasic.asm
+#Speed
 
-# Geschwindigkeit
+# Speed
 
-Doe Plot-Demo verwendet ausschließlich den Befehl PLOT und verwendet zur Berechnung der Koordinaten Variablen, Zuweisungen, Addition und Vergleiche.
-Diese Art von Programmen profitiert am meisten vom Compiler, wenn die Variablen als Integer definiert werden. Entweder durch eine REM-Anweisung (REM int16 x y z) oder indem das Programm mit der Option Integer kompiliert wird.
+The plot demo uses only the PLOT command and uses variables to calculate the coordinates, assignment
 
-Plot-Demo
-|Frames  | BASIC | FLOAT | INTEGER |
-|--------|-------|-------|---------|
-|        | 10928 | 2798  |      121|
-|BASIC   |       | * 3,9 |      *90|
-|FLOAT   |       |       |      *23|
+Part of the speed comes from the fact that the lines no longer need to be interpreted. In BASIC, each program line must be broken down byte by byte in order to execute it. After a GOTO, the entire program is searched for the line number, and when accessing variables, the entire variable memory is searched for the variable. Although variables and lines have a length specification so that you can jump from variable to variable and line to line, this also takes a little computing time. After compilation, each line and each variable has a fixed address that does not change and is known without a search. BASIC also checks each line to see if the break key has been pressed; this can be simulated in the compiler with the -s or -s1 option. -s performs the check after each command, -s1 only before jumps and in for loops. Both take a little computing time and memory. Mathematical expressions also do not need to be broken down and converted into reverse Polish notation; this is done by the compiler.
 
-Die SIN/COS-Demo verwendet Gleitkommazahlen für die Berechnung von x, Sinus und Cosinus für die Werte. Gleitkomma-Multiplikation und Typumwandlung für das Anzeigen der Koordinaten. Außerdem STR, Stringfunktionen und zwei FOR-Schleifen.
-Die FLOAT-Variante ist mit der Option /f kompiliert, d.h. jede Variable, auch die FOR-Schleife, der Index für die Stringoperationen usw. werden mit Gleitkomma berechnet. Die INT-Variante verwendet lediglich für X, SIN/COS und Y Gleitkommazahlen und Integer für alles andere.
-
-SIN/COS-Demo
-|Frames  | BASIC | FLOAT | INTEGER |
-|--------|-------|-------|---------|
-|        | 2108  | 1444  |     1370|
-|BASIC   |       |* 1.45 |    *1.53|
-|FLOAT   |       |       |    *1.05|
-
-Ein Teil der Geschwindigkeit stammt daher, dass die Zeilen nicht mehr interpretiert werden müssen. In BASIC muss jede Programmzeile Byte für Byte zerlegt werden um diese auszuführen. Nach einem GOTO wird das gesamte Programm nach der Zeilennummer durchsucht und beim Zugriff auf Variablen der ganze Variablenspeicher nach der Variablen. Zwar haben Variablen und Zeilen eine Längenangabe, so dass man von Variable zu Variable und Zeile zu Zeile springen kann aber auch dies kostet ein wenig Rechenzeit. Nach dem Kompilieren hat jede Zeile und jede Variable eine fest Adresse, welche sich nicht ändert und ohne eine Such bekannt ist. BASIC überprüft außedem bei jeder Zeile ob die Break-Taste gedrückt ist, dies kann im Compiler mit der Option -s oder -s1 simuliert werden. -s baut nach jedem Befehl die Prüfung ein, -s1 nur vor Sprüngen und in For-Schleifen. Beides kostet ein wenig Rechenzeit und Speicher. Bei mathematischen Ausdrücken entfällt ebenfalls das Zerlegen und umwandeln in umgekehrte polnische Notation, dies übernimmt der Compiler.
-
-Der Großteil der Geschwindigkeit stammt aus der Optimierung mit Integer-Zahlen, diese werden direkt vom Prozessor verarbeitet statt über Routinen im ZX-Spectrum-ROM, außerdem kann der Optimierer des Compilers noch viele Anweisungen aus dem Code entfernen oder umstellen. Bei Gleitkomma-Operationen ist dies nur bedingt möglich, unter anderem werden die Aufrufe für mathematische Operationen im Calculator (RST $28) direkt in den Code geschrieben danach werden zusammenhängende Blöcke in einen größeren Block kombiniert.
+Most of the speed comes from optimization with integer numbers, which are processed directly by the processor instead of via routines in the ZX Spectrum ROM. In addition, the compiler's optimizer can remove or rearrange many instructions from the code. This is only possible to a limited extent with floating point operations. Among other things, the calls for mathematical operations in the calculator (RST $28) are written directly into the code, after which contiguous blocks are combined into a larger block.
 
 ## Original in Basic:
 ![plot_basic](https://github.com/user-attachments/assets/345013ba-d3f8-418b-8e68-745ea46f87f1)
 
-## Kompiliert mit Option Gleitkomma (Die Farbänderungen sind nur im GIF zu sehen)
+## Compiled with floating point option (the color changes are only visible in the GIF)
 ![plot_compiled_fp](https://github.com/user-attachments/assets/9f0514d7-b88c-4473-a784-3408b5c0c54f)
 
-## Kompiliert mit Option Integer  (Die Farbänderungen sind nur im GIF zu sehen)
+## Compiled with integer option  (The color changes are only visible in the GIF)
 ![plot_compiled_it](https://github.com/user-attachments/assets/6b9085e1-4c57-4f30-b053-36e6cbda1c50)
 
-Kompiliert mit Integer
 
+# Example
+Since the compiler generates a text file (.asm), you still need to assemble it with an assembler, but this can be done automatically with a batch file, allowing you to transfer the code from one emulator to another as a compiled program with just a few clicks.
 
-                
+It is even possible to debug the compiled code directly in DeZog (Visual Studio Code + DeZog).
 
+An example:
 
-# Beispiel
-Da der Compiler eine Textdatei (.asm) erzeugt muss man diese noch mit einem Assembler assemblieren, dies kann aber automatisch mit einer Batchdatei erfolgen, so dass man mit wenigen Klicks den Code von einem Emulator in einen weiteren als kompiliertes Programm transferieren kann.
-
-Es ist sogar möglich, den kompilierten Code dirket in DeZog (Visual Studio Code + DeZog) zu debuggen.
-
-Ein Beispiel:
-
-Die Zeile LET a2=b*b+c*c wird in Assembler so umgesetzt, standardmäßig werden Variablen als Integer behandelt
-```
+The line LET a2=b*b+c*c is implemented in assembler as follows; by default, variables are treated as integers```
 ZX_LINE_50:
 ; 50  LET a2=b*b+c*c
 	LD DE,(ZXBASIC_VAR_b)
@@ -104,7 +81,7 @@ ZX_LINE_50:
 	ADD HL,DE
 	LD (ZXBASIC_VAR_a2),HL
 ```
-Möchte man Floats verwenden muss man es per REM definieren
+If you want to use floats, you have to define them using REM.
 
 ```
 ZX_LINE_60:
@@ -130,19 +107,19 @@ ZX_LINE_65:
 	CALL runtimeStoreFloat
 ```
 
-Da der Compiler den Quellcode ausgibt, kann man diesen von Hand optimieren und später aus BASIC aufrufen:
+Since the compiler outputs the source code, you can optimize it manually and call it later from BASIC:
 ```
   REM asm call myfunction
   REM stop
   LET a2=a*a+b*b
   REM continue
 ```
-Und an einer Stelle am besten hinter einem Return
+And in one place, preferably behind a return
 ```
   REM asm include "mycode.asm"
 ```
 
-In der Datei mycode.asm befindet sich die optimierte Version
+The optimized version is located in the file mycode.asm.
 ```
 myfunction:
 	LD DE,(ZXBASIC_VAR_b)
@@ -158,14 +135,16 @@ myfunction:
 	RET
 ```
 
-Dadurch sollte es möglich sein, Spiele zu entwickeln, die eine ähnliche Performance haben wie in Assembler.
+This should make it possible to develop games that perform similarly to those written in assembler.
 
 # ZXBasic Compiler
-Dieser Compiler ist ein Artikel für die Spectrum User Group.
-Im Ordner Artikel1 befindet sich ein rudimentärer Compiler welcher im Artikel erläutert wird.
-Im Ordner Artikel2 befindet sich die aktuell in Entwicklung befindliche Version.
+This compiler is an article for the Spectrum User Group.
+The Artikel1 folder contains a rudimentary compiler, which is explained in the article.
+The Artikel2 folder contains the version currently under development.
 
-Sie können der Benutzergruppe beitreten unter
-https://www.speccy-scene.de 
+You can join the user group at
+https://www.speccy-scene.de
+
+(Übersetzt mit Deepl.Translator)
 
 
