@@ -67,10 +67,10 @@ SIN/COS-Demo
 ## Original in Basic:
 ![plot_basic](https://github.com/user-attachments/assets/345013ba-d3f8-418b-8e68-745ea46f87f1)
 
-## Kompiliert mit Option Gleitkomma
+## Kompiliert mit Option Gleitkomma (Die Farbänderungen sind nur im GIF zu sehen)
 ![plot_compiled_fp](https://github.com/user-attachments/assets/9f0514d7-b88c-4473-a784-3408b5c0c54f)
 
-## Kompiliert mit Option Integer
+## Kompiliert mit Option Integer  (Die Farbänderungen sind nur im GIF zu sehen)
 ![plot_compiled_it](https://github.com/user-attachments/assets/6b9085e1-4c57-4f30-b053-36e6cbda1c50)
 
 Kompiliert mit Integer
