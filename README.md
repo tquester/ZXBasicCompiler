@@ -55,8 +55,14 @@ BASIC: https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel2/compilerde
 
 Compiled: https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel2/Assembler/compiled.tap
 
+Compiled with Floating Point: https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel2/Assembler/compiledFp.tap
+
 Assembler code: https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel2/Assembler/compiledBasic.asm
+
+BASIC Source of Demo: https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel2/Assembler/compiledBasic.bas
+
 #Speed
+
 
 # Speed
 
