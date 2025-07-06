@@ -6,6 +6,9 @@ The compiler then generates a text file which must be compiled with an assembler
 If the optimization is switched on, an easily readable assembler file is generated which can be edited further if required.
 Since the compiler does not run on the ZX Spectrum, the entire usable memory can be used.
 
+# Download
+
+https://github.com/tquester/ZXBasicCompiler/blob/main/downloadGer.md
 
 # Status
 
