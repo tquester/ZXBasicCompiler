@@ -1977,6 +1977,12 @@ FOR_17:
 	CALL runtimePrintString
 	CALL runtimePrintNewline
 	CALL ZXFreeTempCompact
+ZX_LINE_4498:
+; 4498  LET x$=""
+; 		4498.1  LET x$=""
+	LD DE,STRING_47	;
+	LD HL,ZXBASIC_VAR_x_string
+	CALL runtimeStoreString
 ZX_LINE_4499:
 ; 4499  GOSUB 3600{00 00 10 0e 00 }: RETURN 
 ; 		4499.1  GOSUB 3600{00 00 10 0e 00 }
@@ -2448,6 +2454,12 @@ ZX_LINE_4940:
 	EX HL,DE
 	SUB HL,DE
 	JP NC,FOR_19
+ZX_LINE_4945:
+; 4945  LET x$=""
+; 		4945.1  LET x$=""
+	LD DE,STRING_47	;
+	LD HL,ZXBASIC_VAR_x_string
+	CALL runtimeStoreString
 ZX_LINE_4950:
 ; 4950  RETURN 
 ; 		4950.1  RETURN 
