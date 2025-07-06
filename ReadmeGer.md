@@ -1,6 +1,10 @@
 # ZXBasicCompiler
 
 Diese BASIC-Compiler lädt das BASIC aus einer .TAP-Datei, d.h. man benutzt den ZX Spectrum Emulator zum Editieren und Testen.
+Das Kompilieren und Optimieren vorhandener Programme soll mit diesem Compiler leicht möglich sein. Alle Programme bleiben im Interpreter lauffähig. 
+Um Programme zu optimieren fügt man mit REM Anweisungen für den Compiler ein, z.B. welche Variablen als Integer und welche als Gleitkomma behandelt werden sollen.
+
+
 Der Compiler erzeugt daraufhin eine Textdatei welche mit einem Assembler kompiliert werden muss (sjasmplus). 
 Wenn die Optimierung eingeschaltet ist, wird eine gut lesbare Assemblerdatei erzeugt welche bei Bedarf weiter bearbeitet werden kann.
 Da der Compiler nicht auf dem ZX Spectrum läuft, kann der gesamte nutzbare Speicher verwendet werden.
