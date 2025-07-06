@@ -8,7 +8,7 @@ Since the compiler does not run on the ZX Spectrum, the entire usable memory can
 
 # Download
 
-https://github.com/tquester/ZXBasicCompiler/blob/main/downloadGer.md
+https://github.com/tquester/ZXBasicCompiler/blob/main/download.md
 
 # Status
 
