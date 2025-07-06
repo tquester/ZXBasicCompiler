@@ -11,7 +11,7 @@ Since the compiler does not run on the ZX Spectrum, the entire usable memory can
 https://github.com/tquester/ZXBasicCompiler/blob/main/Download.md 
 
 ## Unterschiede zu ZX Basic
-https://github.com/tquester/ZXBasicCompiler/tree/main
+https://github.com/tquester/ZXBasicCompiler/blob/main/DifferencesGer.md
 
 # Status
 
