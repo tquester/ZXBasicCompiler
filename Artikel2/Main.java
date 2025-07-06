@@ -27,12 +27,17 @@ public class Main {
 		String outfile = "a.asm";
 		String tapefile = "";
 		String file = "";
+		String basicFile = null;
 		while (i < args.length) {
 			String s = args[i++];
 			if (s.startsWith("-")) {
 				switch(s) {
 				case "-out":
-					outfile = args[i++];
+					String fname = args[i++];
+					if (fname.toLowerCase().endsWith(".asm"))
+						outfile = fname;
+					if (fname.toLowerCase().endsWith(".bas"))
+						basicFile = fname;
 					break;
 				case "-v":
 					compiler.mSettingVerbose = true;
@@ -84,6 +89,8 @@ public class Main {
 		compiler.start(entry.data);
 		compiler.compile();
 		compiler.writeCode(outfile);
+		if (basicFile != null) compiler.writeBasicFile(basicFile);
+			
 		
 
 

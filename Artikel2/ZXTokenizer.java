@@ -67,7 +67,11 @@ public class ZXTokenizer {
 		public String toString() {
 			return toString(false);
 		}
+		
 		public String toString(boolean oneStatement) {
+			return toString(oneStatement, false);
+		}
+		public String toString(boolean oneStatement, boolean skipBinary) {
 			ZXToken token = new ZXToken();
 			String strLine = String.format("%d ", line);
 			int pos = 0;
@@ -84,15 +88,18 @@ public class ZXTokenizer {
 				if (b < 0)
 					b += 256;
 				if (b == 0x0e) { // a number
-
-					strLine += "{";
-					for (int i = 0; i < 5; i++) {
-						int hex = bytes[pos++];
-						if (hex < 0)
-							hex += 256;
-						strLine += String.format("%02x ", hex);
+					if (skipBinary) {
+						pos+=5;
+					} else {
+						strLine += "{";
+						for (int i = 0; i < 5; i++) {
+							int hex = bytes[pos++];
+							if (hex < 0)
+								hex += 256;
+							strLine += String.format("%02x ", hex);
+						}
+						strLine += "}";
 					}
-					strLine += "}";
 				} else {
 					String strToken = token.mMapTokens.get(b);
 					if (strToken == null)

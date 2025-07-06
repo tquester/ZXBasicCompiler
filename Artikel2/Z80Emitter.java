@@ -896,11 +896,6 @@ public class Z80Emitter {
 		
 	}
 
-	public void emitBiggerString() {
-		emitCommand("CALL","runtimeBiggerString");
-		emitCommand("PUSH","HL");
-		
-	}
 
 	public void emitBiggerFloat() {
 		emitCommand("CALL","runtimeBiggerFloat");
@@ -908,11 +903,6 @@ public class Z80Emitter {
 		
 	}
 
-	public void emitSmallerString() {
-		emitCommand("CALL","runtimeSmallerString");
-		emitCommand("PUSH","HL");
-		
-	}
 
 	public void emitSmallerFloat() {
 		emitCommand("CALL","runtimeSmallerFloat");
@@ -920,11 +910,6 @@ public class Z80Emitter {
 		
 	}
 
-	public void emitSmallerEqualString() {
-		emitCommand("CALL","runtimeSmallerEqualString");
-		emitCommand("PUSH","HL");
-		
-	}
 
 	public void emitSmallerEqualFloat() {
 		emitCommand("CALL","runtimeSmallerEqualFloat");
@@ -932,11 +917,6 @@ public class Z80Emitter {
 		
 	}
 
-	public void emitBiggerEqualString() {
-		emitCommand("CALL","runtimeBiggerEqualFloat");
-		emitCommand("PUSH","HL");
-		
-	}
 
 	public void emitBiggerEqualFloat() {
 		emitCommand("CALL","runtimeBiggerEqualFloat");
@@ -944,11 +924,54 @@ public class Z80Emitter {
 		
 	}
 
-	public void emitUnequalString() {
-		emitCommand("CALL","runtimeUnequalString");
+
+	public void emitEqualString() {
+		emitCommand("POP","HL");
+		emitCommand("POP","DE");		
+		emitCommand("CALL","runtimeEqualString");
 		emitCommand("PUSH","HL");
 		
 	}
+
+	public void emitUnequalString() {
+		emitCommand("POP","HL");
+		emitCommand("POP","DE");		
+		emitCommand("CALL","runtimeUnequalString");
+		emitCommand("PUSH","HL");		
+	}
+	
+	public void emitBiggerString() {
+		emitCommand("POP","HL");
+		emitCommand("POP","DE");		
+		emitCommand("CALL","runtimeBiggerString");
+		emitCommand("PUSH","HL");
+		
+	}
+
+	public void emitBiggerEqualString() {
+		emitCommand("POP","HL");
+		emitCommand("POP","DE");		
+		emitCommand("CALL","runtimeBiggerEqualString");
+		emitCommand("PUSH","HL");
+	}
+	
+	public void emitSmallerEqualString() {
+		emitCommand("POP","HL");
+		emitCommand("POP","DE");		
+		emitCommand("CALL","runtimeSmallerEqualString");
+		emitCommand("PUSH","HL");
+		
+	}
+	
+	public void emitSmallerString() {
+		emitCommand("POP","HL");
+		emitCommand("POP","DE");		
+		emitCommand("CALL","runtimeSmallerString");
+		emitCommand("PUSH","HL");
+		
+	}
+
+
 
 	public void emitUnequalFloat() {
 		emitCommand("CALL","runtimeUnequalFloat");
@@ -1126,11 +1149,6 @@ public class Z80Emitter {
 		
 	}
 
-	public void emitEqualString() {
-		emitCommand("CALL","runtimeEqualString");
-		emitCommand("PUSH","HL");
-		
-	}
 
 	public void emitEqualFloat() {
 		emitCommand("CALL","runtimeEqualFloat");

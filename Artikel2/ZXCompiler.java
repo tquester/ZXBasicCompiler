@@ -25,6 +25,7 @@ public class ZXCompiler {
 	ZXTokenizer mTokenizer = new ZXTokenizer();
 	ZXBasicLine mBasicLine = new ZXBasicLine();
 	Z80Emitter mEmitter = new Z80Emitter();
+	StringBuilder mBASICSource = new StringBuilder();
 	boolean mStringUsed=false;
 
 	static public final int TYPE_INT = 0;
@@ -36,6 +37,7 @@ public class ZXCompiler {
 	public boolean mSettingVerbose=false;
 	public int mSettingStop=0;
 	public boolean mSettingLineNr=false;
+	public String mSettingBasicOutput = null;
 	public int mDefaultType=TYPE_INT;
 
 	Stack<Integer> mTypeStack = new Stack<Integer>();
@@ -55,6 +57,7 @@ public class ZXCompiler {
 		mTokenizer.getLine(mBasicLine);
 		mEmitter.emitStart();
 		mEmitter.emitLine(mBasicLine.line);
+		
 		print(mBasicLine.toString());
 	}
 
@@ -65,6 +68,7 @@ public class ZXCompiler {
 			r = mTokenizer.getLine(mBasicLine);
 			mEmitter.emitLine(mBasicLine.line);
 			mEmitter.emitComment(mBasicLine.toString());
+			mBASICSource.append(mBasicLine.toString(false, true));
 			if (mSettingLineNr) mEmitter.emitLineNr(mBasicLine.line);
 			if (r == false)
 				return false;
@@ -1135,7 +1139,6 @@ public class ZXCompiler {
 					pushType(TYPE_INT);
 				} else if (typ1 == TYPE_STRING && typ2 == TYPE_STRING) {
 					mEmitter.emitBiggerString();
-					mEmitter.emitPushHL();
 					pushType(TYPE_INT);
 				} else if (cvToFloatSwap(typ1, typ2)) {
 					mEmitter.emitBiggerFloat();
@@ -1154,7 +1157,6 @@ public class ZXCompiler {
 					pushType(TYPE_INT);
 				} else if (typ1 == TYPE_STRING && typ2 == TYPE_STRING) {
 					mEmitter.emitSmallerString();
-					mEmitter.emitPushHL();
 					pushType(TYPE_INT);
 				} else if (cvToFloatSwap(typ1, typ2)) {
 					mEmitter.emitSmallerFloat();
@@ -1173,7 +1175,6 @@ public class ZXCompiler {
 					pushType(TYPE_INT);
 				}  else if (typ1 == TYPE_STRING && typ2 == TYPE_STRING) {
 					mEmitter.emitSmallerEqualString();
-					mEmitter.emitPushHL();
 					pushType(TYPE_INT);
 				} else if (cvToFloatSwap(typ1, typ2)) {
 					mEmitter.emitSmallerEqualFloat();
@@ -1192,7 +1193,6 @@ public class ZXCompiler {
 					pushType(TYPE_INT);
 				}  else if (typ1 == TYPE_STRING && typ2 == TYPE_STRING) {
 					mEmitter.emitBiggerEqualString();
-					mEmitter.emitPushHL();
 					pushType(TYPE_INT);
 				} else if (cvToFloatSwap(typ1, typ2)) {
 					mEmitter.emitBiggerEqualFloat();
@@ -1211,7 +1211,6 @@ public class ZXCompiler {
 					pushType(TYPE_INT);
 				}  else if (typ1 == TYPE_STRING && typ2 == TYPE_STRING) {
 					mEmitter.emitUnequalString();
-					mEmitter.emitPushHL();
 					pushType(TYPE_INT);
 				} else if (cvToFloat(typ1, typ2)) {
 					mEmitter.emitUnequalFloat();
@@ -1657,6 +1656,19 @@ public class ZXCompiler {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	public void writeBasicFile(String filename) {
+		PrintWriter writer;
+		try {
+			writer = new PrintWriter(filename, "UTF-8");
+			writer.println(mBASICSource.toString());
+			writer.close();	
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 }

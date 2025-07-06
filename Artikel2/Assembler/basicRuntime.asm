@@ -1083,6 +1083,118 @@ runtimeSmallerEqualFloat:
     db  zxcalc_end_calc
     jp  runtimeFloatToInt
 
+; -------- String compare -----
+
+; DE = fist String
+; HL = second String
+runtimeEqualString:
+    call runtimeStringCompare
+    cp 0
+    jr z, runtimeReturn1
+    jr runtimeReturn0
+
+runtimeUnequalString:
+    call runtimeStringCompare
+    cp 0
+    jr z, runtimeReturn0
+    jr runtimeReturn1
+
+runtimeSmallerString:
+    call runtimeStringCompare
+    cp -1
+    jr z, runtimeReturn1
+    jr runtimeReturn0
+
+runtimeSmallerEqualString:
+    call runtimeStringCompare
+    cp 0
+    jr z, runtimeReturn1
+    cp 1
+    jr z,runtimeReturn1
+    jr runtimeReturn0
+
+runtimeBiggerString:
+    call runtimeStringCompare
+    cp 1
+    jr z, runtimeReturn1
+    jr runtimeReturn0
+
+runtimeBiggerEqualString:
+    call runtimeStringCompare
+    cp 1
+    jr z, runtimeReturn1
+    cp 0
+    jr z, runtimeReturn1
+    jr runtimeReturn0
+
+runtimeStringResult: db 0
+runtimeStringCompare:
+    push hl
+    ex  hl,de
+    ld   bc,(hl)
+    ex hl,de
+    ld   de,(hl)
+    ld   hl,de          ; hl = String 1
+    sub  hl,bc          ; bc = string 2
+    ld   a,h
+    or   l
+    jr   z, runtimeStringCompareEqualSize
+    ld   a,h
+    and  $80
+    jr   z, runtimeStringCompareLenDE
+    pop  hl
+    ld   a,1
+    ld   (runtimeStringResult),a
+    ld   bc,(hl)
+    jr   runtimeStringCompareLoop
+runtimeStringCompareEqualSize:
+    pop hl
+    ld a,0
+    ld (runtimeStringResult),a
+    ld bc,(hl)
+    jr runtimeStringCompareLoop
+
+runtimeStringCompareLenDE:
+    pop hl
+    ld a,-1
+    ld (runtimeStringResult),a
+    ex hl,de
+    ld bc,(hl)
+    ex hl,de
+runtimeStringCompareLoop:
+    ld a,(hl)
+    inc hl
+    ld e,a
+    ld a,(de)
+    inc de
+    cp e
+    jr z, runtimeStringCompareLoop2
+    jr c, runtimeStringHlSmaller
+    jr nc, runtimeStringHlBigger
+runtimeStringHlSmaller:
+    ld a,1
+    ld (runtimeStringResult),a
+    ret
+runtimeStringHlBigger:
+    ld a,-1
+    ld (runtimeStringResult),a
+    ret
+runtimeStringCompareLoop2:
+    dec bc
+    ld a,b
+    or c
+    jr nz, runtimeStringCompareLoop
+    ld a,0
+    ld (runtimeStringResult),a
+    ret
+
+
+
+
+
+
+
+
 runtimeNextFloat:	
 ; calculator stack:
 ; 1: to-(step+f)

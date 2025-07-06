@@ -226,8 +226,8 @@ NUM   MACRO	value
                 ORG     #5C00
 .bas_start    
 				LINE	
-         				DB      ZXB_CLEAR, ZXB_VAL, '"32768":'
-                DB      ZXB_LET,"codebase=",ZXB_VAL, '"32768":'
+         				DB      ZXB_CLEAR, ZXB_VAL, '"27000":'
+                DB      ZXB_LET,"codebase=",ZXB_VAL, '"27000":'
 				
 				LEND
 				LINE	
@@ -237,10 +237,10 @@ NUM   MACRO	value
                 DB      '"',ZXB_CODE,'codebase'                       ; " CODE a:
 				LEND
 
-				LINE	
-                DB      zxb_print, '"Start mit Tastendruck":'                           ; LOAD "
-                DB      zxb_zxb_pause, ZXB_VAL, '"0"'                       ; " CODE a:
-				LEND
+;				LINE	
+;                DB      zxb_print, '"Start mit Tastendruck":'                           ; LOAD "
+;                DB      zxb_zxb_pause, ZXB_VAL, '"0"'                       ; " CODE a:;
+;				LEND
 
 				LINE	
                 DB      zxb_print, ZXB_USR,'codebase'                           ; LOAD "

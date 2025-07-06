@@ -3,7 +3,7 @@
 ; main.asm
 ;===========================================================================
 DEBUG                       equ 1			; Enables debug mode. Used to test so new functions. Compiled BASIC runs with custom PRINT command
-DEBUGBASIC                  equ 1			; Initializes the ZX Spectrum using a copy of the startup, then starts the compiled BASIC program.
+DEBUGBASIC                  equ 0			; Initializes the ZX Spectrum using a copy of the startup, then starts the compiled BASIC program.
 											; Rom routines are allowed
 DEBUGSAVESCREEN				equ 0			; Heep Walk saves and restores the screen (costs 6144+768 Bytes )
 DEBUGMATH                   equ 0			; Calls the Math Debug code on run	
@@ -21,7 +21,7 @@ SLOW_SPRITE_COUNT           equ 5
 
 
     include "macros.asm"
-    ORG 0x8000
+    ORG 27000
 PROGSTART:
 
     SLDOPT COMMENT WPMEM, LOGPOINT, ASSERTION
@@ -317,7 +317,7 @@ relocator_table:
 
 code_size   EQU     $ - main
     DISPLAY "Code size = ", /D, code_size,  " bytes"
-	MakeTape "compiled.tap", "compled", START, code_size
+	MakeTape "compiled.tap", "compiled", START, code_size
         RELOCATE_END
 relocate_count equ (code_size-relocator_table)/2
     IF NEX == 0

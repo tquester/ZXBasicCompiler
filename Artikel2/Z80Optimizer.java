@@ -226,7 +226,74 @@ public class Z80Optimizer {
 			}		
 		}
 		System.out.println(String.format("Total %d optimizations found",total));
+		optimizeRegisterBC();
 
+		
+	}
+
+	private void optimizeRegisterBC() {
+		int count=0;
+		int icmd=0;
+		// wir suchen:
+		// push hl
+		// ... code  code ..
+		// pop de
+		// und optimieren
+		// ld bc,hl
+		// .. code code .. 
+		// ld de,bc
+		// wenn zwischen push und pop kein label, kein bc, kein b, kein c und kein call vorkomme
+		while (icmd < mCommands.size()-3) {
+			if (mCommands.get(icmd).command == null) {
+				icmd++;
+				continue;
+			}
+			Z80Command z80 = mCommands.get(icmd);
+			if (z80.command == null) {
+				icmd++;
+				continue;
+			}
+			if (check(icmd,"PUSH","HL")) {
+				int icmd2 = icmd+1;
+				while (icmd2 < mCommands.size()-3) {
+					z80 = mCommands.get(icmd2);
+					if (z80.command == null) { icmd2++; continue; }
+					if (z80.label != null) {
+						icmd = icmd2;
+						break;
+					}
+					String cmd = z80.command.toLowerCase();
+					String par1 = z80.par1;
+					if (par1 == null) par1 = "";
+					par1 = par1.toLowerCase();
+					String par2 = z80.par1;
+					if (par2 == null) par1 = "";
+					par2 = par2.toLowerCase();
+					if (cmd.compareTo("call") == 0 ||
+					    par1.compareTo("bc") == 0 ||
+					    par1.compareTo("b") == 0 ||
+					    par1.compareTo("c") == 0 ||
+					    par2.compareTo("bc") == 0 ||
+					    par2.compareTo("b") == 0 ||
+					    par2.compareTo("c") == 0) 
+					{
+						icmd = icmd2;
+						break;
+					}
+					if (cmd.compareTo("pop") == 0) {
+						System.out.println(String.format("Optimize line %d", icmd));
+						set(icmd,"LD","BC","HL");
+						set(icmd2,"LD",par1(icmd2),"BC");
+						count++;
+						icmd = icmd2;
+					}
+					icmd2++;
+				}
+			}
+			icmd++;
+		}
+		if (count > 0)
+			System.out.println(String.format("%d PUSH/POP optimiert", count));
 		
 	}
 
