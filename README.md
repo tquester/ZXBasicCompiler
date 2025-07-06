@@ -22,6 +22,16 @@ https://github.com/tquester/ZXBasicCompiler/blob/main/Download.md
  | QBasic commands running | In planning |
  | Documentation | In progress |
  | English | In planning |
+
+Stil Missing: 
+* String compare
+* Unary operator. You can not write LET a = -5, you must write LET a = 0-5 or LET a = 0.0-5.0 for float
+* Test
+* QBasic-Functions
+
+Planned:
+* BASIC Editor with labels and optional line numbers. It will create a BASIC program with line numbers which run in the BASIC interpreter
+* 
   
 <b>7.5.2025: An update will be made today</b>
 
