@@ -5,6 +5,10 @@ Der Compiler erzeugt daraufhin eine Textdatei welche mit einem Assembler kompili
 Wenn die Optimierung eingeschaltet ist, wird eine gut lesbare Assemblerdatei erzeugt welche bei Bedarf weiter bearbeitet werden kann.
 Da der Compiler nicht auf dem ZX Spectrum läuft, kann der gesamte nutzbare Speicher verwendet werden.
 
+# Download und starten
+https://github.com/tquester/ZXBasicCompiler/blob/main/downloadGer.md
+
+
 
 # Status
 
