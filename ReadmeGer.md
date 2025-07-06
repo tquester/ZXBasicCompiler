@@ -49,6 +49,12 @@ BASIC: https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel2/compilerde
 Kompiliert: https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel2/Assembler/compiled.tap
 
 Assembler-code: https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel2/Assembler/compiledBasic.asm
+
+Assembler code: https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel2/Assembler/compiledBasic.asm
+
+BASIC Source of Demo: https://github.com/tquester/ZXBasicCompiler/blob/main/Artikel2/Assembler/compiledBasic.bas
+
+
 #Geschwindigkeit
 
 # Geschwindigkeit
