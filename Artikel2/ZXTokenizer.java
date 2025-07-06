@@ -65,11 +65,22 @@ public class ZXTokenizer {
 		private ParserToken mPrevToken=new ParserToken();
 
 		public String toString() {
+			return toString(false);
+		}
+		public String toString(boolean oneStatement) {
 			ZXToken token = new ZXToken();
 			String strLine = String.format("%d ", line);
 			int pos = 0;
+			if (oneStatement) { 
+				pos = mPos-1;
+				if (pos < 0) pos=0;
+				strLine = "";
+			}
 			while (pos < bytes.length) {
 				int b = bytes[pos++];
+				if (oneStatement) {
+					if (b == ':') break;
+				}
 				if (b < 0)
 					b += 256;
 				if (b == 0x0e) { // a number
@@ -100,6 +111,11 @@ public class ZXTokenizer {
 			token.copyFrom(mPrevToken);
 		}
 
+		public void ungetLastToken() {
+			mUngetToken = new ParserToken();
+			mUngetToken.copyFrom(mPrevToken);
+		}
+
 		public boolean getNextToken(ParserToken token) {
 			mPrevToken.copyFrom(token);
 			if (mUngetToken != null)
@@ -114,6 +130,10 @@ public class ZXTokenizer {
 			int b = bytes[mPos++];
 			if (b < 0)
 				b += 256;
+			if (b == 14) {
+				mPos += 5;
+				b = bytes[mPos++];
+			}
 			switch (b) {
 			case '+':
 				token.typ = ParserToken.ZXTokenTyp.ZX_Plus;
@@ -238,6 +258,10 @@ public class ZXTokenizer {
 			while (mPos < bytes.length)
 				result += (char)bytes[mPos++];
 			return result;
+		}
+
+		public Object getStmt() {
+			return toString(true);
 		}
 	}
 

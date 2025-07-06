@@ -4,7 +4,9 @@ zxromCl         equ $0D6B
 zxromPlot:      equ $22DC+3
 zxromClSet:     equ $0DD9 ; b = B	Line number C	Column number
 zxromAlpha:     equ $2C8D
-zxMult16bit: equ $30A9
+zxMult16bit:    equ $30A9
+zxromStackA     equ $2D28
+zxromStackBC    equ $2D2B
 
 zxcalc_jump_true:		equ $00 
 zxcalc_tan:		        equ $21 
@@ -78,6 +80,19 @@ zxcalc_stack_one        equ $A1
 zxclc_stack_half        equ $A2
 zxclc_stack_pi_half     equ $A3
 zxclc_stack_ten         equ $A4
+
+zxcalc_store_mem0       equ $C0
+zxcalc_store_mem1       equ $C1
+zxcalc_store_mem2       equ $C2
+zxcalc_store_mem3       equ $C3
+zxcalc_store_mem4       equ $C4
+zxcalc_store_mem5       equ $C5
+zxcalc_get_mem0         equ $E0
+zxcalc_get_mem1         equ $E1
+zxcalc_get_mem2         equ $E2
+zxcalc_get_mem3         equ $E3
+zxcalc_get_mem4         equ $E4
+zxcalc_get_mem5         equ $E5
 
 
 xorb1:          ld a,1
@@ -169,6 +184,8 @@ rt_cls2:
 
                         RET
     ret
+
+
 runtimeLocalInk:
     ld a, (ZX_ATTR_T)
     and 0b11111000
@@ -555,9 +572,9 @@ rtGetKeyOrJoystick3:	call    rtReadKeyboard
                         pop     af
                         ret				
 
-rtGetKey:               call    rtReadKeyboard
+rtGetKeyx:               call    rtReadKeyboard
                         cp      0
-                        jr      z,rtGetKey
+                        jr      z,rtGetKeyx
 
 rtWaitKeyRelease:       push af
 rtWaitKeyRelease1:      call    rtReadKeyboard
@@ -805,9 +822,13 @@ runtimeCharAt:
     dec  hl
     dec  hl
     ret
-runtimeVal:
 
+runtimeHeapwalk:
+    if DEBUG=1
+    call ZXHeapWalk
+    endif
     ret
+
 runtimePrintFloat:
  
     ld hl,(ZX_STKEND) ; Fetch the 'old' STKEND.
@@ -883,7 +904,11 @@ runtimeStr:
     INC HL                  ; Increment HL to point to the first character of the string.
     INC HL
     ex hl,de
+    ld a,b
+    or c
+    jr z, runtimeStrExit
     LDIR                    ; Copy the string 
+runtimeStrExit:    
     POP HL
 	RET
 
@@ -977,39 +1002,123 @@ runtimePlusFloat:
     db  $38                     ; end calc
     ret    
 
+; 09 = <=
+; 0a = gleich
+; 0b = >= 
+; 0c = =
+; 0d = =
 runtimeBiggerFloat:
     RST $28
     db  zxcalc_subtract
     db  zxcalc_greater_0
-    db  zxcalc_jump_true
-    db  runtimeBiggerFloatTrue-$
-;   db  zxcalc_delete
-    db  zxcalc_stack_zero
-    db  zxcalc_end_calc
-    jp runtimeFloatToInt
+    db zxcalc_jump_true
+    db runtimeBiggerFloatTrue-$
+    db zxcalc_end_calc
+    ld hl,0
+    ret
 runtimeBiggerFloatTrue:
-;   db  zxcalc_delete
-    db  zxcalc_stack_one   
+    db zxcalc_end_calc
+    ld hl,1
+    ret
 
+
+
+runtimeSmallerFloat:
+    RST $28
+    db  zxcalc_subtract
+    db  zxcalc_less_0
+    db zxcalc_jump_true
+    db runtimeSmallerFloatTrue-$
+    db zxcalc_end_calc
+    ld hl,0
+    ret
+runtimeSmallerFloatTrue:    
+    db zxcalc_end_calc
+    ld hl,1
+    ret
+
+
+
+runtimeBiggerEqualFloat:
+    call runtimeSmallerFloat
+    jr   runtimeCalcFloatNegative2
+
+runtimeEqualFloat:
+    RST $28
+    db  zxcalc_subtract
+    db  zxcalc_end_calc
+    call runtimeFloatToInt
+    ld a,l
+    or h
+    jr z, runtimeReturn1
+    ld hl,0
+    ret
+
+runtimeUnequalFloat:
+    RST $28
+    db  zxcalc_subtract
+    db  zxcalc_end_calc
+    call runtimeFloatToInt
+    ld a,l
+    or h
+    jr nz, runtimeReturn1
+runtimeReturn0:
+    ld hl,0
+    ret
+runtimeReturn1:
+    ld hl,1
+    ret
+runtimeCalcFloatNegative:    
+    call runtimeFloatToInt
+runtimeCalcFloatNegative2:    
+    ld  a,l
+    ld  b,1
+    xor b
+    ld  l,a
+    ret
+
+runtimeSmallerEqualFloat:
+    RST $28
+    db  zxcalc_no_l_eql
     db  zxcalc_end_calc
     jp  runtimeFloatToInt
 
-runtimeSmallerFloat:
+runtimeNextFloat:	
+; calculator stack:
+; 1: to-(step+f)
+; 2: step				
+; returns: hl = 1 - for continues
+;          hl = 0 - for ends			
+	rst $28
+	db  zxcalc_less_0				; check if step is negative
+	db  zxcalc_jump_true			; jump to step -x 
+	db  runtimeNextNeg-$
+	db  zxcalc_less_0
+	db  zxcalc_jump_true
+	db  runtimeNext1-$
+	db  zxcalc_stack_zero
+	db  zxcalc_end_calc
+	call runtimeFloatToInt
+	ld  a,l
+	ret
+runtimeNextNeg:	
+	db  zxcalc_greater_0
+	db  zxcalc_jump_true
+	db  runtimeNext1-$
+	db  zxcalc_stack_zero
+	db  zxcalc_end_calc
+	call runtimeFloatToInt
+	ld  a,l
 
-    RST $28
-    db  zxcalc_subtract
-    db  zxcalc_greater_0
-    db  zxcalc_jump_true
-    db  runtimeSmallerFloatTrue-$
-    db  zxcalc_stack_one
-    db  zxcalc_end_calc
-    call runtimeFloatToInt
-    ret
-runtimeSmallerFloatTrue:
-    db  zxcalc_stack_zero
-    db  zxcalc_end_calc
-    call runtimeFloatToInt
-    ret
+	ret
+runtimeNext1:
+	db  zxcalc_stack_one
+	db  zxcalc_end_calc
+	call runtimeFloatToInt
+	ld  a,l
+	ret
+
+
 
 runtimeOrFloat:
     RST $28
@@ -1054,10 +1163,429 @@ printFloat1:
     ret
     endif    
 
+runtimeStrInt:
+    ld hl,0
+    ld  a,(de)
+    inc de
+    cp  '-'
+    jr  z, runtimeStrIntNeg
+runtimeStrIntLoop
+    cp  '0'-1
+    ret  c
+    cp  '9'+1
+    ret  nc
+    sub '0'
+    ld   c,a
+    ld   b,0
+    push bc
+    add  hl, hl ; * 2
+    ld   bc, hl
+    add  hl, hl ; * 4
+    add  hl, hl ; * 8
+    add  hl, bc ; * 10
+    pop  bc
+    add  hl,bc
+    ld   a,(de)
+    inc  de
+    jr   runtimeStrIntLoop
+runtimeStrIntNeg:
+    ld  a,(de)
+    inc de
+    call runtimeStrIntLoop
+    ld   de,0
+    sub  hl,de
+    ex   hl,de
+    ret  
+runtimeInputInt:
+    ld   a,1
+    ld   (rtInputFlags),a
+    call rtInput
+    ld   de,rtInputBuffer
+    call runtimeStrInt
+    ret 
+runtimeInputString:
+    ld   a,0
+    ld   (rtInputFlags),a
+    call rtInput
+    ld  hl,rtInputBuffer
+    ld  bc,2
+runtimeInputString1:
+    ld a,(hl)
+    cp 13
+    jr z, runtimeInputString2
+    inc hl 
+    inc bc
+    jr runtimeInputString1
+runtimeInputString2:
+    push bc
+    call ZXAlloc
+    pop bc
+    dec bc	
+    dec bc
+    ld (hl),bc
+    push hl
+    inc hl
+
+    ld  de,rtInputBuffer
+runtimeInputString3:
+    ld a,(de)
+    cp 13
+    jr z, runtimeInputString4
+    inc de
+    inc hl
+    ld (hl),a
+    jr runtimeInputString3
+runtimeInputString4:
+    pop hl
+    ret
+runtimeInputFloat:
+   ld   a,2
+   ld   (rtInputFlags),a 
+   call rtInput
+   call rtCountInputBuf
+   ld   hl,rtInputBufferSize
+   call rtAscciToUFloat
+    ret
+
+runtimeRND:
+	LD BC,($5C76)	; Fetch the current value of SEED.
+	CALL $2D2B	; Put it on the calculator stack.
+	RST $28		; Now use the calculator.
+	DEFB $A1	; stk_one
+	DEFB $0F	; addition: The 'last value' is now SEED+1.
+	DEFB $34	; stk_data: Put the number 75 on the calculator stack.
+	DEFB $37,$16
+	DEFB $04	; multiply: 'last value' (SEED+1)*75.
+	DEFB $34	; stk_data: Put the number 65537 on the calculator stack.
+	DEFB $80,$41,$00,$00,$80
+	DEFB $32	; n_mod_m: Divide (SEED+1)*75 by 65537 to give a 'remainder' and an 'answer'.
+	DEFB $02	; delete: Discard the 'answer'.
+	DEFB $A1	; stk_one
+	DEFB $03	; subtract: The 'last value' is now 'remainder' - 1.
+	DEFB $31	; duplicate: Make a copy of the 'last value'.
+	DEFB $38	; end_calc: The calculation is finished.
+	CALL $2DA2	; Use the 'last value' to give the new value for SEED.
+	LD ($5C76),BC
+	LD A,(HL)	; Fetch the exponent of 'last value'.
+	AND A	; Jump forward if the exponent is zero.
+	ret z
+	SUB $10	; Reduce the exponent, i.e. divide 'last value' by 65536 to give the required 'last value'.
+	LD (HL),A
+
+	ret    
+; Input something.
+ZX_PRINT_FLASHING_CHAR: equ $18C1
+ZX_KTEST: equ $031E
+ZX_SCANKEY: equ $028E
+ZX_K_DECODE: equ $0333
+
+rtGetKey:
+                LD HL,$5C3B	;This is FLAGS.
+            	RES 6,(HL)	;Reset bit 6 for a string result.
+                call ZX_SCANKEY
+                ld  c,0
+                push de
+;jr  z,rtGetNoKey; too many keys pressed
+                call ZX_KTEST
+                pop de
+                jr  nc,rtGetNoKey; no key pressed
+                ;dec d
+                ld e,a
+            	CALL ZX_K_DECODE
+                ret
+rtGetNoKey:    ld  a,0
+                ret
+
+rtWaitKey:      call rtGetKey
+                cp  0
+                jr  z,rtWaitKey
+                push af  
+rtWaitKey1:     call ZX_SCANKEY
+                ld  a,e
+                cp $ff
+                jr nz,rtWaitKey1
+                pop af
+                ret
+rtInputEnd:     
+                ret
+rtInputCheckFloat:
+                ld a,b
+                cp '.'
+                jr  z,rtInputAcceptKey
+rtInputCheckNumber:
+                ld a,b
+                cp '-'
+                jr  z,rtInputAcceptKey
+                cp '0'-1
+                jr  c,rtInputEdit
+                cp '9'+1
+                jr  c,rtInputAcceptKey
+                jr  rtInputEdit
+                
+rtInput:        ld a,0
+                ld (rtInputCursor),a
+                ld a,13
+                ld (rtInputBuffer),a
+
+rtInputEdit:    call rtInputPrint
+rtInputWaitKey: call rtWaitKey
+                ld  (rtInputKey),a
+                cp  8
+                jr  z,rtInputLeft
+                cp  9
+                jr  z,rtInputRight
+                cp  12
+                jr  z,rtInputBackspace
+                cp  13
+                jp  z,rtInputEnd
+                ld  b,a
+                ld  a,(rtInputFlags)
+                cp  0
+                jr  z,rtInputAcceptKey
+                cp  1
+                jr  z,rtInputCheckNumber
+                cp  2
+                jr  z,rtInputCheckFloat
+
+rtInputAcceptKey:
+                ld  hl,rtInputBuffer
+                ld  a,(rtInputCursor)
+                ld  b,a
+                ld  a,rtInputBufferLen
+                sub b
+                cp 0
+                jr z,rtInputInsert1
+                ld b,a
+                ld  de,rtInputBufferEnd-1
+                ld  hl,rtInputBufferEnd
+rtInputInsert:  ld  a,(de)
+                ld  (hl),a
+                dec  hl
+                dec  de
+                djnz rtInputInsert                
+rtInputInsert1:                
+                ld  hl,rtInputBuffer
+                ld  a,(rtInputCursor)
+                ld  c,a
+                ld  b,0
+                add hl,bc
+                inc a
+                ld (rtInputCursor),a
+                ld a,(rtInputKey)
+                ld  (hl),a      ; insert character
+rtInputFull:    jr  rtInputEdit       
+rtInputLeft:    ld a,(rtInputCursor)
+                cp  0
+                jr  z,rtInputEdit 
+                dec a
+                ld (rtInputCursor),a
+                jr rtInputEdit
+rtInputRight:   ld a,(rtInputCursor)    
+                ld hl,rtInputBuffer
+                ld c,a
+                ld b,0
+                add hl,bc
+                ld  a,(hl)
+                ld  b,a
+                cp 13
+                jr  z,rtInputEdit 
+                inc hl
+                ld  a,(hl)
+                cp 13
+                jr  z,rtInputEdit
+                ld  a,b
+                ld  a,(rtInputCursor)
+                inc a
+                ld (rtInputCursor),a
+                jp rtInputEdit 
+rtInputBackspace:
+                ld a,(rtInputCursor)
+                cp  0
+                jp  z,rtInputEdit    
+                dec a
+                ld (rtInputCursor),a
+                ld hl,rtInputBuffer
+                ld c,a
+                ld b,0
+                add hl,bc
+                ld  de,hl
+                inc hl
+rtInputBackspaceLoop:
+                ld  a,(de)
+                cp  13
+                jp  z,rtInputEdit
+                ld  a,(hl)
+                ld (de),a
+                inc hl
+                inc de
+                jr rtInputBackspaceLoop
+
+                
+
+rtInputReturn:  
+                ret           
+
+rtInputPrint:   ld hl,(ZX_DFCCL)
+                push hl
+                ld HL,(ZX_SPOSNL)
+                push hl
+                ld   hl,rtInputBuffer
+                ld   a,(rtInputCursor)
+                ld   b,a
+                ld   c,0
+rtInputPrintLoop:      
+                ld a,b      ; is this the cursor position?
+                cp c            
+                jr nz, rtInputPrintLoop2
+                ld A,'C'
+                call ZX_PRINT_FLASHING_CHAR
+rtInputPrintLoop2:
+                ld a,(hl)   ; get the character
+                inc hl
+                cp 13       ; end of string?
+                jr z, rtInputPrintEnd
+                RST $10
+                inc c      ; increment cursor position
+                jr rtInputPrintLoop
+rtInputPrintEnd:   
+                ld  a,' '
+                RST $10
+
+                pop hl
+                ld (ZX_SPOSNL),hl ; restore cursor position
+                pop hl
+                ld (ZX_DFCCL),hl
+                ret
+
+rtCountInputBuf: ld bc,0
+                 ld hl,rtInputBuffer
+rtCountInputBuf1:   ld a,(hl)
+                    cp 13
+                    jr z,rtCountInputBuf2
+                    inc hl
+                    inc bc
+                    jr rtCountInputBuf1
+rtCountInputBuf2:   ld (rtInputBufferSize),bc
+                    ret
 
 
 
-rtReadKeyboardPressedKeys:defs 5*8+1,0						
+; HL points to a string, first two bytes is len
+; let result=0
+; before the "." we calc 
+; let result = result*10 + digit
+; after the . we calc
+; let frac = 0.1
+; let result = result + frac*digit
+; let frac = frac / 10
+runtimeVal:
+
+rtAscciToUFloat:    ld  bc,(hl)
+                    inc hl
+                    inc hl
+                    push hl
+                    push bc
+                    rst $28
+                    db zxcalc_stack_zero
+                    db zxcalc_end_calc
+                    ld   hl,rtConstant1div10
+                    ld   de,rtVarFrac
+                    ld   bc,5
+                    ldir
+                    pop bc
+                    pop hl
+rtAscciiToFloatLoop:
+                    ld  a,b
+                    or  c
+                    jr  z,rtAscciiToFloatEnd
+                    ld  a,(hl)          ; get the next character
+                    inc hl
+                    dec bc
+                    cp  '.'
+                    jr  z,rtAscciToFloatFrac
+                    cp  '0'-1
+                    jr  c,rtAscciiToFloatEnd
+                    cp  '9'+1
+                    jr  nc,rtAscciiToFloatEnd
+                    sub '0'
+                    push bc
+                    push hl
+                    push af
+                    ld   hl,10
+                    call runtimeIntToFloat ; (result) (10)
+                    rst $28
+                    db zxcalc_multiply                  ; (result*10)
+                    db zxcalc_end_calc
+                    pop af
+                    call zxromStackA                    ; (result*10) (digit)
+                    rst $28
+                    db zxcalc_addition                  ; (result*10+digit)
+                    db zxcalc_end_calc
+
+                    pop hl
+                    pop bc
+                    jr rtAscciiToFloatLoop
+rtAscciToFloatFrac:
+rtAsciiToFloatFracLoop:
+                    ld  a,b
+                    or  c
+                    jr  z,rtAscciiToFloatEnd
+                    ld  a,(hl)          ; get the next character
+                    inc hl
+                    dec bc
+                    cp  '0'-1
+                    jr  c,rtAscciiToFloatEnd
+                    cp  '9'+1
+                    jr  nc,rtAscciiToFloatEnd
+                    sub '0'
+                    push hl
+                    push bc
+
+                    call zxromStackA                    ; (result) (digit)
+                    ld   hl,rtVarFrac
+                    call runtimePushFloatVar ; store the fraction in mem1
+                    rst $28
+                    db zxcalc_multiply                  ; (result) (digit*faction)
+                    db zxcalc_addition                  ; (result + digit*faction)
+                    db zxcalc_end_calc
+                    ld   hl, rtVarFrac
+                    call runtimePushFloatVar ; store the fraction in mem1
+                    ld  hl,  10
+                    call runtimeIntToFloat ; (result) (fraction) (10)
+                    rst $28
+                    db zxcalc_division                  ; (result) (fraction/10)
+                    db zxcalc_end_calc
+                    ld  hl,rtVarFrac
+                    call runtimeStoreFloat
+
+                    pop bc
+                    pop hl
+                    jr  rtAsciiToFloatFracLoop
+rtAscciiToFloatEnd: ret 
+
+
+
+
+
+
+
+rtConstant1div10:	    db $7d, $4c, $cc, $cc, $cc  ; 0.1
+rtVarFrac:	            db $7d, $4c, $cc, $cc, $cc  ; 0.1
+
+
+
+
+
+rtReadKeyboardPressedKeys:defs 5*8+1,0	
+rtInputFlags:           db 0
+                        ; 1 = numeric
+                        ; 0 = string
+rtInputCursor:          db 0
+rtInputKey:             db 0
+rtInputBufferSize:       dw 0            ; in order to make it look like a compiled string
+rtInputBuffer:          defs 64,0
+rtInputBufferEnd:       equ $
+rtInputBufferLen:       equ rtInputBufferEnd-rtInputBuffer
 
 rtInkeyString:          dw 0
 rtInkeyChar             db 0

@@ -13,6 +13,12 @@ public class Main {
 			System.out.println("ZXCompiler tape file");
 			System.out.println("Liest das Tape (.tap) ein und lädt die letzte Version der Datei im Tape");
 			System.out.println("Wenn -out nicht angegeben wird, wird die Datei a.asm erzeugt, ansonsten die angegebene Datei");
+			System.out.println("-o Optimierung, -o1 Optimierung (original sichtbar)");
+			System.out.println("-s Stop. Programm kann mit Shift-Space unterbrochen werden)");
+			System.out.println("-s1 Stop. Befehl wird nur bei FOR, NEXT, GOTO, GOSUB, RETURN eingefügt (schneller)");
+			System.out.println("-f Floatingpoint. Alle Variablen werden per default als Gleitkomma definiert");
+			System.out.println("-l Fügt Zeilennummern ein, Wenn ein Fehler auftritt zeigt der BASIC-Editor die Zeilennummer im Quellcode an");
+			
 			return;
 		}
 		
@@ -40,8 +46,14 @@ public class Main {
 				case "-o1":
 					compiler.mSettingOptimize = 2;
 					break;
+				case "-bl":
+					compiler.mSettingLineNr = true;
+					break;
 				case "-l":
-					compiler.mSettingList = true;
+					compiler.mSettingLineNr = true;
+					break;
+				case "-f":
+					compiler.mDefaultType = ZXCompiler.TYPE_FLOAT;
 					break;
 				case "-stop":
 				case "-s":

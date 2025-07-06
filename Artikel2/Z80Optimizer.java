@@ -13,11 +13,14 @@ public class Z80Optimizer {
 		int icmd=0;
 		int count=1;
 		int runs=0;
+		int total=0;
 		while (count != 0) {
+			
 			if (runs > 0) {
 				System.out.println(String.format("Optimize run %d, %d optimizations found",runs,count));
 			}
 			runs++;
+			total+=count;
 			count = 0;
 			icmd=0;
 			while (icmd < mCommands.size()-3) {
@@ -175,13 +178,54 @@ public class Z80Optimizer {
 			     		remove(cmd4);
 			     		count++;
 					}
-						
-					
-					
-					
+			
+				if (check(cmd1,"DB","$38") &&
+					check(cmd2,"RST","$28")) {
+						remove(cmd1);
+						remove(cmd2);
+						count++;
+					}
+/*
+ *  		LET zz=0.0{00 00 00 00 00 }
+					LD HL,FLOAT_4	;0.0
+					CALL runtimePushFloatVar
+					LD HL,ZXBASIC_VAR_zz
+					CALL runtimeStoreFloat			
+ */
+				if (check(cmd1,"LD","HL") &&
+					check(cmd2,"CALL","runtimePushFloatVar") &&
+					check(cmd3,"LD","HL") &&
+					check(cmd4,"CALL","runtimeStoreFloat")) {
+					set(cmd2,"LD","DE",par2(cmd3));
+					set(cmd3,"LD","BC","5");
+					set(cmd4,"LDIR",null,null);
+					count++;
+				}
+				
+				if (check(cmd1,"PUSH","HL") &&
+						check(cmd2,"POP","DE"))  {
+					set(cmd1,"LD",par1(cmd2),par1(cmd1));
+					remove(cmd2);
+					count++;
+				}
+				if (check(cmd1,"LD","HL") &&
+						check(cmd2,"LD","DE","HL"))  {
+					set(cmd1,"LD",par1(cmd2),par2(cmd1));
+					remove(cmd2);
+					count++;
+				}
+				
+				if (check(cmd1,"LD","HL") &&
+					check(cmd2,"LD",null,"HL") &&
+					check(cmd3,"LD","HL",par2(cmd1))) {
+					remove(cmd3);
+					count++;
+				}
+				
 				icmd++;
 			}		
 		}
+		System.out.println(String.format("Total %d optimizations found",total));
 
 		
 	}
@@ -240,8 +284,13 @@ private void remove(int cmd) {
 	private boolean check(int icmd, String cmd, String par1, String par2) {
 		Z80Command z80 = mCommands.get(icmd);
 		if (z80.command == null) return false;
-		return (z80.command.compareToIgnoreCase(cmd) == 0) &&
-			   (z80.par1.compareToIgnoreCase(par1) == 0) &&
-			   (z80.par2.compareToIgnoreCase(par2) == 0);
+		if (par1 != null)
+			return (z80.command.compareToIgnoreCase(cmd) == 0) &&
+				   (z80.par1.compareToIgnoreCase(par1) == 0) &&
+				   (z80.par2.compareToIgnoreCase(par2) == 0);
+		else
+			return (z80.command.compareToIgnoreCase(cmd) == 0) &&
+					   (z80.par2.compareToIgnoreCase(par2) == 0);
+			
 	}
 }

@@ -2,8 +2,8 @@
 ;===========================================================================
 ; main.asm
 ;===========================================================================
-DEBUG                       equ 0			; Enables debug mode. Used to test so new functions. Compiled BASIC runs with custom PRINT command
-DEBUGBASIC                  equ 0			; Initializes the ZX Spectrum using a copy of the startup, then starts the compiled BASIC program.
+DEBUG                       equ 1			; Enables debug mode. Used to test so new functions. Compiled BASIC runs with custom PRINT command
+DEBUGBASIC                  equ 1			; Initializes the ZX Spectrum using a copy of the startup, then starts the compiled BASIC program.
 											; Rom routines are allowed
 DEBUGSAVESCREEN				equ 0			; Heep Walk saves and restores the screen (costs 6144+768 Bytes )
 DEBUGMATH                   equ 0			; Calls the Math Debug code on run	
@@ -40,15 +40,14 @@ NEX:    equ 1   ;  1=Create nex file, 0=create sna file
     ENDIF
 
 
-START:
-        RELOCATE_START 
+START:RELOCATE_START 
 main:   if DEBUGBASIC=1
          call InitSpectrum
-        endif
+        endif 
         if DEBUGHEAP=1
         call ZXHeapTest
         endif
-      call compiledBasic
+        call compiledBasic
         ret
         jp debugDemo
 ;        jp relocator_code
@@ -224,6 +223,7 @@ RAM_SET	LD ($5CB2),HL	; Set RAMTOP.
 	ld   A,(IY+$02)	; TV Flag
 	and $fe	; Clear bit 0 of TV-FLAG.
 	ld   (IY+$02),A	; Clear the TV-FLAG.
+
 	call compiledBasic
 
  	jp  $12a2
@@ -247,6 +247,7 @@ RAM_SET	LD ($5CB2),HL	; Set RAMTOP.
     include "ZXLibrary/zxspectrum.asm"
     include "ZXLibrary/heap.asm"
     if DEBUG=1
+	include "unittest.asm"
     include "ZXLibrary/print.asm"
     include "ZXLibrary/graphics.asm"
     endif

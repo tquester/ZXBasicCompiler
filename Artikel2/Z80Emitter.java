@@ -22,6 +22,7 @@ public class Z80Emitter {
 		public String name;
 		public int    typ;
 		public int[]  dimen = null;
+		public boolean step=false;
 		public String declare() {
 			int size=0;
 			int dims=1;
@@ -51,6 +52,13 @@ public class Z80Emitter {
 			return count;
 		}
 	}
+	
+	public static class CDefFN {
+		public String name;
+		public ArrayList<Variable> mListVariables = new ArrayList<Variable>();
+		public TreeMap<String, Variable> mVariables = new TreeMap<String, Z80Emitter.Variable>();
+		public int typ;
+	}
 
 
 	public StringBuffer sbCode = new StringBuffer();	
@@ -59,10 +67,13 @@ public class Z80Emitter {
 	int    mLastString=0;
 	int    mLastFor=0;
 	Stack<Integer> mForStack = new Stack<Integer>();
-	TreeMap<String, Variable> mMapVariables = new TreeMap<String, Z80Emitter.Variable>();
+	private TreeMap<String, CDefFN> mMapDefFn = new TreeMap<String, Z80Emitter.CDefFN>();
+	private TreeMap<String, Variable> mMapVariables = new TreeMap<String, Z80Emitter.Variable>();
+	private CDefFN mCurDefFN = null;
 	TreeMap<String, String>   mMapStrings = new TreeMap<String, String>();
 	TreeMap<String, String>   mMapRStrings = new TreeMap<String, String>();
 	TreeMap<String, String>   mMapFloatConsts = new TreeMap<String, String>();
+	TreeMap<String, String>   mMapFloatValues = new TreeMap<String, String>();
 	TreeMap<String, String>   mMapRFloatConsts = new TreeMap<String, String>();
 	ArrayList<Z80Command> mCommands = new ArrayList<Z80Command>();
 	private StringBuilder mSBData = new StringBuilder();
@@ -70,6 +81,18 @@ public class Z80Emitter {
 	public int mOptimize=1;
 	private int mFloatNr=1;
 	
+	Variable getVariable(String name) {
+		if (name.endsWith("$"))
+				name = name.substring(0,name.length()-1)+"_string";
+			
+		Variable r = null;
+		if (mCurDefFN != null) { 
+			r = mCurDefFN.mVariables.get(name);
+			if (r != null) return r;
+		}
+		return mMapVariables.get(name);
+	}
+		
 	void emitStart() {
 		sbCode.append("\r\n"
 				+ "CBASIC_START\r\n"
@@ -154,14 +177,18 @@ public class Z80Emitter {
 		}
 		for (String key: mMapFloatConsts.keySet()) {
 			String val = mMapFloatConsts.get(key);
-			emitString(String.format("%s:\tdb %s", key,val));
+			String comment= mMapFloatValues.get(val);
+			if (comment == null)
+				emitString(String.format("%s:\tdb %s", key,val));
+			else
+				emitString(String.format("%s:\tdb %s\t;%s", key,val,comment));
 		}
 		for (String name: mMapStrings.keySet()) {
 			String value = mMapStrings.get(name);
 			int len = value.length();
 			int low = len % 256;
 			int high = len / 256;
-			emitString(String.format("%s:\tdw %d", name,len));
+			emitString(String.format("%s:\tdw %d", name,stringToAsmDBLen(value)));
 			String str = stringToAsmDB(value);
 			if (str.length() > 0)
 				emitString(String.format("\tdb\t%s", str));
@@ -196,6 +223,24 @@ public class Z80Emitter {
 			}
 		}
 		if (inString) r += "\"";
+		return r;
+	}
+
+	private int stringToAsmDBLen(String value) {
+		int r = 0;
+	
+		boolean inString=false;
+		int i=0;
+		while (i<value.length()) {
+			char c = value.charAt(i);
+			if (c == '\\') {
+				r++;
+				i+=3;
+			} else {
+				r++;
+				i++;
+			}
+		}
 		return r;
 	}
 
@@ -263,9 +308,10 @@ public class Z80Emitter {
 		if (label == null) {
 			label = String.format("FLOAT_%d", mFloatNr++);
 			mMapFloatConsts.put(label, strBytes);
+			mMapFloatValues.put(strBytes, lookahead.literal);
 			mMapRFloatConsts.put(strBytes, label);
 		}
-		emitCommand("LD","HL",label);
+		emitCommand("LD","HL",label,lookahead.literal);
 		emitCommand("CALL","runtimePushFloatVar");
 		
 	}
@@ -288,10 +334,19 @@ public class Z80Emitter {
 	}
 	
 	public void emitStoreFloatVar(String varname, boolean isIndexed) {
-		emitBlockComment("Store float"+varname);
-		emitCommand("LD","HL",String.format("ZXBASIC_VAR_%s", varname));
-		emitCommand("CALL", "runtimeStoreFloat");
-		emitBlockCommentEnd();
+		if (isIndexed) {
+			emitCommand("POP","HL");
+			emitCommand("LD","BC",String.format("ZXBASIC_VAR_%s", varname));
+			emitCommand("ADD","HL","BC");
+			emitCommand("CALL", "runtimeStoreFloat");
+			emitBlockCommentEnd();
+			
+		} else {
+			emitBlockComment("Store float"+varname);
+			emitCommand("LD","HL",String.format("ZXBASIC_VAR_%s", varname));
+			emitCommand("CALL", "runtimeStoreFloat");
+			emitBlockCommentEnd();
+		}
 		
 	}
 
@@ -518,6 +573,12 @@ public class Z80Emitter {
 		emitCommand("CALL","runtimeDraw");
 	}
 	
+	public void emitDrawArc() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	
 	public void emitCircle() {
 		emitCommand("POP","HL");
 		emitCommand("POP","DE");
@@ -652,26 +713,32 @@ public class Z80Emitter {
 	}
 
 	public void emitIntToFloat() {
+		emitCommand("POP","HL");
 		emitCommand("CALL","runtimeIntToFloat");
 		
 	}
 
 
 
-	public void emitInputInt() {
+	public void emitInputInt(String literal) {
 		emitCommand("CALL","runtimeInputInt");
 		emitCommand("PUSH","HL");
+		emitStoreIntegerVar(literal, false);
 		
 	}
 
-	public void emitInputString() {
+	public void emitInputString(String literal, boolean bLine) {
+		if (literal.endsWith("$"))
+			literal = literal.substring(0,literal.length()-1)+"_string";
 		emitCommand("CALL","runtimeInputString");
 		emitCommand("PUSH","HL");
+		emitStoreStringVar(literal, false);
 		
 	}
 
-	public void emitInputFloat() {
+	public void emitInputFloat(String literal) {
 		emitCommand("CALL","runtimeInputFloat");
+		emitStoreFloatVar(literal, false);
 		
 	}
 
@@ -735,12 +802,16 @@ public class Z80Emitter {
 	}
 
 	public void emitSin() {
-		emitCommand("CALL","runtimeSin");
+		emitCommand("RST","$28");
+		emitCommand("db","zxcalc_sin");
+		emitCommand("db","$38",null,"end calc");
 		
 	}
 
 	public void emitCos() {
-		emitCommand("CALL","runtimeCos");
+		emitCommand("RST","$28");
+		emitCommand("db","zxcalc_cos");
+		emitCommand("db","$38",null,"end calc");
 		
 	}
 
@@ -813,11 +884,15 @@ public class Z80Emitter {
 	}
 
 	public void emitMultFloat() {
-		emitCommand("CALL","runtimeMultFloat");
+		emitCommand("RST","$28");
+		emitCommand("DB","$04",null,"MULT");
+		emitCommand("DB","$38",null,"END CALC");
 	}
 
 	public void emitDivFloat() {
-		emitCommand("CALL","runtimeDivFloat");
+		emitCommand("RST","$28");
+		emitCommand("DB","$05",null,"DIV");
+		emitCommand("DB","$38",null,"END CALC");
 		
 	}
 
@@ -864,7 +939,7 @@ public class Z80Emitter {
 	}
 
 	public void emitBiggerEqualFloat() {
-		emitCommand("CALL","runtimeBiggerEqualString");
+		emitCommand("CALL","runtimeBiggerEqualFloat");
 		emitCommand("PUSH","HL");
 		
 	}
@@ -943,20 +1018,91 @@ public class Z80Emitter {
 
 	public void emitNext(String literal) {
 		String forlabel = String.format("for_%s", literal);
+		Variable var = mMapVariables.get(forlabel);
 		String lbl = String.format("FOR_%d", mForStack.pop().intValue());
-		emitCommand("LD","HL",String.format("(ZXBASIC_VAR_%s)", literal));
-		emitCommand("LD","BC",String.format("(ZXBASIC_VAR_%s_step)",forlabel));
-		emitCommand("ADD","HL","BC");
-		emitCommand("LD",String.format("(ZXBASIC_VAR_%s)", literal),"HL");
-		emitCommand("LD","DE",String.format("(ZXBASIC_VAR_%s)",forlabel));
-		emitCommand("EX","HL","DE");
-		emitCommand("SUB","HL","DE");
-		emitCommand("JP","NC",lbl);
+		
+		if (var.step == false) {
+			if (var.typ == ZXCompiler.TYPE_INT) {
+				emitCommand("LD","HL",String.format("(ZXBASIC_VAR_%s)", literal));
+				emitCommand("INC","HL");
+				emitCommand("LD",String.format("(ZXBASIC_VAR_%s)", literal),"HL");
+				emitCommand("LD","DE",String.format("(ZXBASIC_VAR_%s)",forlabel));
+				emitCommand("EX","HL","DE");
+				emitCommand("SUB","HL","DE");
+				emitCommand("JP","NC",lbl);
+			} else if (var.typ == ZXCompiler.TYPE_FLOAT) {
+				emitCommand("LD","HL",String.format("ZXBASIC_VAR_%s", literal));
+				emitCommand("CALL","runtimePushFloatVar");
+				emitCommand("RST","$28");
+				emitCommand("DB","zxcalc_stack_one",null,"STACK ONE");
+				emitCommand("DB","zxcalc_addition",null,"ADD");
+				//emitCommand("DB","$31",null,"DUPLICATE");
+				emitCommand("DB","zxcalc_end_calc",null,"END CALC");
+				emitCommand("LD","HL",String.format("ZXBASIC_VAR_%s", literal));
+				emitCommand("CALL","runtimeStoreFloat");
+				emitCommand("LD","HL",String.format("ZXBASIC_VAR_%s", forlabel));
+				emitCommand("CALL","runtimePushFloatVar");
+				emitCommand("LD","HL",String.format("ZXBASIC_VAR_%s", literal));
+				emitCommand("CALL","runtimePushFloatVar");
+				emitCommand("CALL","runtimeBiggerFloat");
+				emitCommand("LD","A","L");
+				emitCommand("CP","0");
+				emitCommand("JP","Z",lbl);
+			}
+		} else {
+			if (var.typ == ZXCompiler.TYPE_INT) { 
+				emitCommand("LD","HL",String.format("(ZXBASIC_VAR_%s)", literal));
+				emitCommand("LD","BC",String.format("(ZXBASIC_VAR_%s_step)",forlabel));
+				emitCommand("LD","A","B");
+				emitCommand("ADD","HL","BC");
+				emitCommand("LD",String.format("(ZXBASIC_VAR_%s)", literal),"HL");
+				emitCommand("LD","DE",String.format("(ZXBASIC_VAR_%s)",forlabel));
+				emitCommand("AND","$80");
+				emitCommand("JR","Z",lbl+"_1");
+				emitCommand("SUB","HL","DE");
+				emitCommand("JP","NC",lbl);		
+				emitCommand("JR",lbl+"_2");
+				emitCommandLabel(lbl+"_1");
+				emitCommand("EX","HL","DE");
+				emitCommand("SUB","HL","DE");
+				emitCommand("JP","NC",lbl);		
+				emitCommandLabel(lbl+"_2");
+			} else if (var.typ == ZXCompiler.TYPE_FLOAT) {
+				emitCommand("LD","HL",String.format("ZXBASIC_VAR_%s", forlabel));
+				emitCommand("CALL","runtimePushFloatVar");
+				emitCommand("LD","HL",String.format("ZXBASIC_VAR_%s", literal));
+				emitCommand("CALL","runtimePushFloatVar");
+				emitCommand("LD","HL",String.format("ZXBASIC_VAR_%s_step", forlabel));
+				emitCommand("CALL","runtimePushFloatVar");
+				emitCommand("RST","$28");
+				emitCommand("DB","zxcalc_addition",null,"ADD");
+				emitCommand("DB","zxcalc_duplicate",null,"DUPLICATE");
+				emitCommand("DB","$38",null,"END CALC");
+				emitCommand("LD","HL",String.format("ZXBASIC_VAR_%s", literal));
+				emitCommand("CALL","runtimeStoreFloat");
+				emitCommand("RST","$28");
+				emitCommand("db", "zxcalc_subtract");
+				emitCommand("db", "zxcalc_end_calc");
+				emitCommand("LD","HL",String.format("ZXBASIC_VAR_%s_step", forlabel));
+				emitCommand("CALL","runtimePushFloatVar");
+				emitCommand("CALL","runtimeNextFloat");
+				emitCommand("CP","0");
+				emitCommand("JP","Z",lbl);
+			}
+		}
+		
 
 		// TODO Auto-generated method stub
 		
 	}
 
+	private void emitCommandLabel(String string) {
+		Z80Command cmd = new Z80Command(null, null, null, null);
+		cmd.label = string;
+		mCommands.add(cmd);
+		emitString(string+":");
+		
+	}
 	public void emitMultiPlyTopOfStack(int faktor) {
 		emitCommand("POP","HL");
 		if (faktor == 2) {
@@ -970,7 +1116,7 @@ public class Z80Emitter {
 			emitCommand("ADD","HL","HL");
 		} else {
 			emitCommand("LD","DE",String.format("%d",faktor));
-			emitCommand("CALL","runtimeHlTimesDe");
+			emitCommand("CALL","runtimeMult16bit");
 		}
 	}
 
@@ -981,12 +1127,14 @@ public class Z80Emitter {
 	}
 
 	public void emitEqualString() {
-		// TODO Auto-generated method stub
+		emitCommand("CALL","runtimeEqualString");
+		emitCommand("PUSH","HL");
 		
 	}
 
 	public void emitEqualFloat() {
-		// TODO Auto-generated method stub
+		emitCommand("CALL","runtimeEqualFloat");
+		emitCommand("PUSH","HL");
 		
 	}
 	public void emitCheckBreak() {
@@ -995,7 +1143,7 @@ public class Z80Emitter {
 	public void emitStartInput() {
 		emitCommand("LD","A","$01");//	Open channel 'K'.
 		emitCommand("CALL","$1601");
-		emitCommand("CALL","0D6E");
+		emitCommand("CALL","$0D6E");
 		emitCommand("LD","A","1");
 		emitCommand("LD","($5C3A)","A");
 		
@@ -1014,7 +1162,7 @@ public class Z80Emitter {
 		emitCommand("PUSH","HL");
 	}
 	
-	public void emitIntVar(String name) {
+	public Variable emitIntVar(String name) {
 		Variable var = mMapVariables.get(name);
 		if (var == null) {
 			var = new Variable();
@@ -1022,9 +1170,10 @@ public class Z80Emitter {
 			var.typ = ZXCompiler.TYPE_INT;
 			mMapVariables.put(name, var);
 		}
+		return var;
 	}
 
-	public void emitFloatVar(String name) {
+	public Variable emitFloatVar(String name) {
 		Variable var = mMapVariables.get(name);
 		if (var == null) {
 			var = new Variable();
@@ -1032,9 +1181,10 @@ public class Z80Emitter {
 			var.typ = ZXCompiler.TYPE_FLOAT;
 			mMapVariables.put(name, var);
 		}
+		return var;
 		
 	}
-	public void emitStringVar(String name) {
+	public Variable emitStringVar(String name) {
 		Variable var = mMapVariables.get(name);
 		if (var == null) {
 			var = new Variable();
@@ -1042,16 +1192,22 @@ public class Z80Emitter {
 			var.typ = ZXCompiler.TYPE_STRING;
 			mMapVariables.put(name, var);
 		}
+		return var;
 		
 	}
 	public void emitClearTemp() {
 		emitCommand("CALL", "ZXFreeTempCompact");
 	}
 	public void emitPushAddFloat() {
-		emitCommand("CALL","runtimePlusFloat");
+		emitCommand("RST","$28");
+		emitCommand("DB","$0f",null,"ADD");
+		emitCommand("DB","$38",null,"END CALC");
+		//emitCommand("CALL","runtimePlusFloat");
 	}
 	public void emitPushSubFloat() {
-		emitCommand("CALL","runtimeMinusFloat");
+		emitCommand("RST","$28");
+		emitCommand("DB","$03",null,"SUB");
+		emitCommand("DB","$38",null,"END CALC");
 		
 	}
 	
@@ -1072,7 +1228,113 @@ public class Z80Emitter {
 		emitCommand("LD","A",String.format("%d", stmt));
 		emitCommand("LD","(23623)","a");
 	}
+	public void emitStoreVariable(int targetType, String name, boolean block) {
+		switch(targetType) {
+			case ZXCompiler.TYPE_INT:
+				 emitStoreIntegerVar(name, block);
+				 break;
+			case ZXCompiler.TYPE_FLOAT:
+				 emitStoreFloatVar(name, block);
+				 break;
+			case ZXCompiler.TYPE_STRING:
+				 emitStoreStringVar(name, block);
+				 break;
+		}
+		// TODO Auto-generated method stub
+		
+	}
+	public Variable emitVar(String name, int targetType) {
+		switch(targetType) {
+		case ZXCompiler.TYPE_INT:
+			 return emitIntVar(name);
+		case ZXCompiler.TYPE_FLOAT:
+			return emitFloatVar(name);
+		case ZXCompiler.TYPE_STRING:
+			return emitStringVar(name);
+	}
+		return null;
+		
+	}
+	public void emitUpperScreen() {
+		emitCommand("XOR","A","A");
+		emitCommand("LD","(ZX_TV_FLAG)","A");
+		
+	}
 
+	public void emitLowerScreen() {
+		emitCommand("LD","A","1");
+		emitCommand("LD","(ZX_TV_FLAG)","A");
+		
+	}
+	public Variable createVar(String literal) {
+		var typ = ZXCompiler.TYPE_INT;
+		if (literal.endsWith("$")) {
+			literal = literal.substring(0,literal.length()-1)+"_string";
+			typ = ZXCompiler.TYPE_STRING;
+		}
+		return emitVar(literal, typ);
+	}
+	public void emitEndInput() {
+		emitCommand("CALL","$0D6E",null,"Clear lower screen");
+		
+	}
+	public void emitBeep() {
+		emitCommand("CALL", "$03F8");
+	}
+	public void emitBorder() {
+		emitCommand("LD","A","L");
+		emitCommand("call","$2297");
+	}
+	public void emitOut() {
+		emitCommand("LD","A","L");
+		emitCommand("POP","HL");
+		emitCommand("OUT","(HL)","A");
+	}
+
+	public void emitIn() {
+		emitCommand("POP","HL");
+		emitCommand("IN","A","(L)");
+		emitCommand("LD","L","A");
+		emitCommand("LD","H","0");
+	}
+
+	public void addVariable(String varname, Variable variable) {
+		mMapVariables.put(varname, variable);
+		
+	}
+
+	public void setCurDefFn(CDefFN deffn) {
+		mCurDefFN = deffn;
+		
+	}
+
+	public void emitPopHL() {
+		emitCommand("POP","HL");
+		
+	}
+
+	public CDefFN getCurDefFN() {
+		return mCurDefFN;
+	}
+
+	public void addDefFN(CDefFN deffn) {
+		mMapDefFn.put(deffn.name,deffn);
+		
+	}
+
+	public CDefFN getDefFn(String literal) {
+	    
+		return mMapDefFn.get(literal);
+	}
+
+	public void emitCallFN(CDefFN fn) {
+		emitCommand("CALL",String.format("ZX_FN_%s",fn.name));
+		
+	}
+
+	public void emitJump(String string) {
+		emitCommand("JP",string);
+	}
 
 
 
