@@ -8,6 +8,9 @@ Da der Compiler nicht auf dem ZX Spectrum läuft, kann der gesamte nutzbare Spei
 # Download und starten
 https://github.com/tquester/ZXBasicCompiler/blob/main/downloadGer.md
 
+## Unterschiede zu ZX Basic
+https://github.com/tquester/ZXBasicCompiler/blob/main/DifferencesGer.md
+
 
 
 # Status
