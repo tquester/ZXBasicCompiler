@@ -38,6 +38,52 @@ Beim Lesen müssen Sie aufpassen, den richtigen Typ zu erwischen
 1140 read a$: read b$: read c$
 ```
 
+Beispiel:
+```
+51  DATA  BIN 00011000
+52  DATA  BIN 00111100
+53  DATA  BIN 01100110
+54  DATA  BIN 01000010
+55  DATA  BIN 01100110
+56  DATA  BIN 00111100
+57  DATA  BIN 00011000
+58  DATA  BIN 00000000
+59  DATA 1.2, 3.4, 3.14
+60  DATA  INT 1, INT 2, INT 3
+```
+
+Wird kompiliert als
+
+```
+DATA_50:
+	dw 1
+	db "H"
+DATA_51:
+	dw %00011000
+DATA_52:
+	dw %00111100
+DATA_53:
+	dw %01100110
+DATA_54:
+	dw %01000010
+DATA_55:
+	dw %01100110
+DATA_56:
+	dw %00111100
+DATA_57:
+	dw %00011000
+DATA_58:
+	dw %00000000
+DATA_59:
+	db $81,$19,$99,$99,$9a
+	db $82,$59,$99,$99,$9a
+	db $82,$48,$f5,$c2,$8f
+DATA_60:
+	dw 1
+	dw 2
+	dw 3
+```
+
 Der Compiler fügt die Daten in den Datenbereich des Programms ohne Angabe des Typs an. Wenn Sie zum Beispiel den String "hallo" mit einer Integer-Variablen lesen, erhalten Sie beim ersten Mal 4 (die Länge des Strings) danach CODE "h" + 256 * CODE "a" usw.
 Wenn Sie mehr Daten einlesen als es gibt, wird einfach über den Bereich hinausgelesen und sie erhalten die Bytes die dort zufällig im Speicher stehen.
 
