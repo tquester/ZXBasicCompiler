@@ -40,6 +40,7 @@ Beim Lesen müssen Sie aufpassen, den richtigen Typ zu erwischen
 
 Beispiel:
 ```
+50  DATA "H"
 51  DATA  BIN 00011000
 52  DATA  BIN 00111100
 53  DATA  BIN 01100110
