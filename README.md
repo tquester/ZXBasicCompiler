@@ -152,8 +152,7 @@ myfunction:
 	LD DE,(ZXBASIC_VAR_c)
 	LD HL,DE
 	call runtimeMult16bit
-	LD DE,BC
-	ADD HL,DE
+	ADD HL,BC                       ; Optimization
 	LD (ZXBASIC_VAR_a2),HL
 	RET
 ```
