@@ -133,8 +133,9 @@ Die Zeile 1010 definiert das Sprite 1 mit den folgenden 32 Werte (4 * 8 Bytes f�
 Der Unterschied ist, dass bei * DATA die Daten als Byte abgelegt werden. Die USGs werden beim Programmstart automatisch initialisiert, die Sprite-Daten liegen liegen direkt im Sprite-Buffer der Sprite-Library und müssen nicht umkopiert werden
 
 ## RESTORE, GOTO und GOSUB
-Man kann hier nur eine Zahl angeben, keine Variablen. Das kompilierte Programm kennt keine Zeilennummern.
-Für RESTORE sind nur Zeilennummern zulässig bei denen es eine DATA-Anweisung gibt.
+Wenn hier nur eine Zahl steht, wird der Code direkt umgesetzt, z.B. JP ZX_LINE_100 oder LD HL,DATA_100, LD (DATAPTR),HL.
+
+Es ist auch möglich, eine Variable anzugeben oder eine Formel, sowohl bei Restore als auch bei GO TO und GO SUB. In diesem Fall wird im zunächst der Ausdruck ausgewertet, dann die Zeile gesucht. Zu diesem Zweck wird im Datenbereich eine Tabelle mit allen gültigen Zeilennummern bzw. allen gültigen Zeilennummern eines DATA eingefügt.
 
 ## SAVE, LOAD, MERGE
 Funktionieren nicht.
