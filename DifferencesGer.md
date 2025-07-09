@@ -20,11 +20,43 @@ VAL kann ebenfalls nur Ziffern in Zahlen umwandeln und keine Formeln auswerten.
 VAL$ ist nicht definiert und führt zu Fehlern.
 
 ## DIM
-Arrays werden beim Kompilieren gebildet, d.h. man kann keine Variablen Arrays anlegen. DIM A(x) geht nicht und führt zu Fehler
+Arrays werden beim Kompilieren gebildet, d.h. man kann keine Variablen Arrays anlegen. DIM A(x) wird zwar kompiliert, hat aber keine Auswirkung auf die Array-Größe.
+Um Arrays zu verwenden, fügen Sie die DIM-Anweisungen am Anfang mit einer festen Größe ein. 
+Jeder Aufruf von DIM löscht das Array. Numerische Arrays werden mit 0 überschrieben, bei String-Arrays werden alle Strings freigegeben.
+
+Wenn Sie ein vorhandenes BASIC-Programm haben, welches mitten im Code dynamisch Arrays definiert, stellen Sie fest, wie groß der maximale Bereich ist und fügen ein DIM am Anfang ein welchen diesen abdeckt.
+
+```
+1 REM int16 x()
+2 DIM x(50,50)
+.....
+2530 dim x(a,b)
+```
+Zeile 1 definiert das X-Array als Integer, d.h. jedes Element belegt 2 Bytes
+In Zeile 2 wird das Array physikalisch angelegt (50*50*2 = 5000 Bytes). Jedes Mal wenn die Zeile 2530 ausgeführt wird, wird das Array x gelöscht. a und b dürfen allerdings nicht größer als 50 sein ansonsten wird Speicher überschrieben.
+
 
 ## DATA
 Data wird vom Compiler bearbeitet und in eine Datenstruktur in Assembler umgewandelt. In Data dürfen nur Konstanten erscheinen, keine Variablen.
 Die Werte sind normalerweise Integer (außer -f ist gesetzt), aber man kann es steuern
+
+Über das Format der Daten (Float oder Integer) entscheidet die Compiler-Option. Wenn mit -f (Floats) kompiliert wird, werden alle numerischen Werte in DATA als Gleitkomma angelegt.
+Man kann dies mit 
+```
+REM data int16
+```
+oder 
+```
+REM data float
+```
+überschreiben, muss dann aber beim Read aufpassen, dass die Variablen den richtigen Typ haben.
+
+Einzelne Datensätze kann man mit INT als int16 definieren oder mit dem Punkt als Gleitkommazahl: Zum Beispiel: 
+```
+DATA INT 5, 5.0
+```
+Erzeugt einen Integer-Wert und einen Gleitkommawert unabhängig davon welche Optionen eingestellt sind.
+
 ```
 1000 DATA 1.0, 2.0, 3.14 : REM Gleitkommazahlen
 1010 DATA INT 1, INT 2, INT 3: REM Ganzzahlen
