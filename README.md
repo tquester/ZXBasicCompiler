@@ -90,6 +90,7 @@ It is even possible to debug the compiled code directly in DeZog (Visual Studio 
 An example:
 
 The line LET a2=b*b+c*c is implemented in assembler as follows; by default, variables are treated as integers```
+```
 ZX_LINE_50:
 ; 50  LET a2=b*b+c*c
 	LD DE,(ZXBASIC_VAR_b)
@@ -147,12 +148,11 @@ myfunction:
 	LD DE,(ZXBASIC_VAR_b)
 	LD HL,DE
 	call runtimeMult16bit
-	PUSH HL
+	LD BC,HL
 	LD DE,(ZXBASIC_VAR_c)
 	LD HL,DE
 	call runtimeMult16bit
-	POP DE
-	ADD HL,DE
+	ADD HL,BC                       ; Optimization
 	LD (ZXBASIC_VAR_a2),HL
 	RET
 ```
