@@ -1,360 +1,168 @@
-10  REM float sec f1 ff1 f2 f3
-15  REM float af bf cf df
-16  REM int16 ai bi ci di
-17  LET af=123.4: LET bf=3.14: LET cf=5.0
-18  LET ai=123: LET bi=3: LET ci=5
-19  LET df=af+bf*cf
-20  LET di=ai+bi*ci
-30  LET df=af*af+bf*bf/cf
-31  LET di=ai*ai+bi*bi/ci
-100  PAPER 6 : INK 1
-105  CLS 
-106  GOTO 3300
-110  LET a$="1234"
-120  PRINT a$(1 TO 2)
-130  DIM b$(10)
-135  LET b$(1)="Hallo"
-140  PRINT b$(1)(2 TO )(1 TO )
-1000  GOSUB 3700: LET x=1: LET y=21: LET dx=1: LET dy=1
-1005  FOR i=1 TO 5000
-1010  PLOT  OVER 1; INK 3;x,y
-1020  LET x=x+dx
-1030  LET y=y+dy
-1040  IF x <= 1 ORX x >= 250 THEN  LET dx=0-dx
-1050  IF y <= 20 ORX y >= 160 THEN  LET dy=0-dy
-1060  NEXT i
-1070  GOTO 3710
-1100  GOSUB 3700
-1120  FOR i=0 TO 255 STEP 3
-1130  PLOT  INK 1;i,0
-1140  DRAW  INK 1;255-i,170
-1150  NEXT i
-1155  RETURN 
-1160  FOR i=1 TO 170 STEP 3
-1170  PLOT  INK 2;0,i
-1180  DRAW  INK 2;255,170-i
-1190  NEXT i
-1195  RETURN 
-1200  REM Scroll left
-1210  LET adr=16384
-1220  FOR l=1 TO 192
-1225  LET adrl=adr
-1230  FOR p=0 TO 30
-1240  POKE adrl, PEEK (adrl+1)
-1241  LET adrl=adrl+1
-1250  NEXT p
-1260  POKE adr+31,0
-1270  LET adr=adr+32
-1280  NEXT l
-1290  RETURN 
-1400  CLS : PRINT "Scroll in Assembler";
-1410  GOSUB 1100
-1420  FOR i=1 TO 32
-1430  REM asm call sidescroll
-1440  NEXT i
-1450  GOSUB 3600
-1460  RETURN 
-1470  REM asm include "demo.asm"
-3000  DATA 24,60,126,219,255,36,90,165
-3010  DATA 60,66,102,153,129,90,66,60
-3020  DATA 0,0,255,153,255,129,255,36
-3100  LET pos= USR "A"
-3110  RESTORE 3000
-3120  LET pos=65368
-3130  FOR i=1 TO 3
-3140  FOR j=1 TO 8
-3150  READ a
-3160  POKE pos,a
-3170  LET pos=pos+1
-3180  NEXT j
-3190  NEXT i
-3200  PRINT  INK 1; AT 0,0;"UDG:";
-3210  RETURN 
-3300  CLS 
-3310  PRINT  AT 1,0;"Menu"
-3320  PRINT " 1 Plot"
-3330  PRINT " 2 Array Test"
-3340  PRINT " 3 Scroll in Basic"
-3345  PRINT " 4 Data+UDG"
-3350  PRINT " 5 Mult+Div"
-3360  PRINT " 6 Strings"
-3365  PRINT " 7 Float"
-3366  PRINT " 8 SIN/COS"
-3367  PRINT " 9 Mandelbrot"
-3370  PRINT " 0 FOR TO STEP"
-3375  PRINT " A Input"
-3376  PRINT " B String to Float"
-3377  PRINT " C Beep and Border"
-3378  PRINT " D RND"
-3379  PRINT " E Vergleiche"
-3380  PRINT " F DEF FN"
-3390  PRINT  AT 4,20;"H Heapwalk";
-3400  LET k= CODE  INKEY 
-3410  PRINT  AT 0,20;k;"  "
-3420  IF k=49 THEN  CLS : PRINT "Zeichne 5000 Punkte": GOSUB 1000: GOTO 3300
-3425  IF k=50 THEN  CLS : GOSUB 4000: GOSUB 3600: GOTO 3300
-3430  IF k=51 THEN  CLS : PRINT "Screen Scroll": PRINT "in Basic": GOSUB 1100: FOR i=1 TO 32: GOSUB 1200: NEXT i: GOSUB 3600: GOSUB 1400: GOTO 3300
-3440  IF k=52 THEN  CLS : GOSUB 3000: GOSUB 3600: GOTO 3300
-3450  IF k=53 THEN  GOSUB 4200: GOTO 3300
-3460  IF k=54 THEN  GOSUB 4300: GOTO 3300
-3465  IF k=55 THEN  GOSUB 4500: GOTO 3300
-3470  IF k=56 THEN  GOSUB 4800: GOTO 3300
-3480  IF k=57 THEN  GOSUB 5000: GOTO 3300
-3485  IF k=48 THEN  GOSUB 5200: GOTO 3300
-3486  IF k=104 ORX k=72 THEN  GOSUB 5300: GOTO 3300
-3487  IF k=97 ORX k=65 THEN  GOSUB 5500: GOTO 3300
-3488  IF k=98 ORX k=66 THEN  GOSUB 5600: GOTO 3300
-3489  IF k=99 ORX k=67 THEN  GOSUB 5900: GOTO 3300
-3490  IF k=100 ORX k=68 THEN  GOSUB 6000: GOTO 3300
-3491  IF k= CODE "e" ORX k= CODE "E" THEN  GOSUB 6100: GOTO 3300
-3492  IF k= CODE "f" ORX k= CODE "F" THEN  GOSUB 7000: GOTO 3300
-3499  GOTO 3400
-3600  REM Press Key to continue
-3610  PRINT  AT 21,0;"Weiter mit Tastendruck";
-3620  LET k= CODE  INKEY 
-3630  IF k=0 THEN  GOTO 3620
-3640  PAUSE 0
-3650  RETURN 
-3700  POKE 23672,0: POKE 23673,0: POKE 23674,0: RETURN 
-3710  LET ticks= PEEK 23672+ PEEK 23673*256: LET tsec= INT (ticks/50): LET min= INT (tsec/60): LET sec=tsec-min*60
-3720  PRINT  AT 21,0;ticks;" ticks ";min;":";sec;" Press a key";
-3730  PAUSE 0: RETURN 
-3740  PRINT  AT 0,0; PEEK 23672;" "; PEEK 23673;" "; PEEK 23674;" ";: GOTO 3740
-4000  DIM a(8,8)
-4010  LET x=1
-4020  FOR i=1 TO 8
-4030  FOR j=1 TO 8
-4040  LET a(i,j)=x: LET x=x+1
-4050  NEXT j
-4060  NEXT i
-4070  FOR i=1 TO 8
-4075  PRINT "Zeile ";i
-4080  FOR j=1 TO 8
-4090  PRINT " ";a(i,j);
-4100  NEXT j
-4110  PRINT 
-4120  NEXT i
-4130  RETURN 
-4200  REM Mal und Durch
-4210  CLS : PRINT  AT 0,0;"Multiplizieren, Dividieren"
-4220  FOR i=2 TO 9
-4224  IF i>2 THEN  PRINT 
-4225  PRINT "x*";i;"=";
-4230  FOR j=2 TO 9
-4240  PRINT i*j;" ";
-4250  NEXT j
-4255  NEXT i
-4256  PRINT 
-4257  PRINT "Mult/Div signed"
-4270  LET z=30000: LET x=3
-4280  FOR i=1 TO 5: PRINT z,x: LET z=z/10: LET x=x*10: NEXT i
-4285  LET z=0-30000: LET x=0-3
-4286  FOR i=1 TO 5: PRINT z,x: LET z=z/10: LET x=x*10: NEXT i
-4290  GOSUB 3600: RETURN 
-4300  REM Strings
-4301  CLS 
-4310  LET a$="1234"
-4320  PRINT "a$=";a$
-4330  PRINT "val a$="; VAL a$
-4340  PRINT "start=";a$( TO 2)
-4350  PRINT "ende=";a$(2 TO )
-4360  PRINT "mitte=";a$(1 TO 2)
-4370  PRINT "2.Byte=";a$(2)
-4380  LET x$="": FOR i=32 TO 255: LET x$=x$+ CHR i: NEXT i: PRINT x$
-4498  LET x$=""
-4499  GOSUB 3600: RETURN 
-4500  CLS : PRINT "test float und float mit int"
-4501  GOSUB 4600
-4503  PRINT "pi="; PI 
-4504  LET pi= PI 
-4505  PRINT "var pi=";pi
-4507  LET zz=10.0: PRINT "zz=";zz
-4510  LET f1=1: LET f2=7
-4515  LET i1= INT f1: LET i2= INT f2
-4516  PRINT "f1=";f1;" f2=";f2: PRINT "i1=";i1;" i2=";i2
-4520  LET f3=f1/f2
-4530  PRINT "f1/f2=";f3
-4540  PRINT "10-f3=";10-f3: PRINT "f3-10=";f3-10
-4599  GOTO 3600
-4600  PRINT "STKBOT="; PEEK (23651)+ PEEK (23652)*256,
-4620  PRINT "STKEND="; PEEK 23653+ PEEK 23654*256
-4630  RETURN 
-4800  REM graph
-4801  REM float xf yf
-4802  GOSUB 3700: CLS : PRINT  AT 0,15;"SIN und COS"
-4805  PLOT 0,80: DRAW 255,0
-4809  LET c=0
-4810  FOR x=0 TO 250
-4820  LET xf=x* PI /50
-4830  LET yf=80+(80* SIN xf)
-4835  PLOT x,yf
-4840  LET yf=80+(80* COS xf)
-4844  IF c=0 THEN  GOSUB 4900: LET c=51
-4845  PLOT x,yf
-4846  IF c=0 THEN  LET c=51: GOSUB 4900
-4847  LET c=c-1
-4850  NEXT x
-4890  GOTO 3710
-4900  LET x$= STR xf
-4910  LET ix=x/8: IF ix >= 31 THEN  LET ix=31
-4920  FOR i=1 TO  LEN x$
-4930  PRINT  AT i+5,ix;x$(i)
-4940  NEXT i
-4945  LET x$=""
-4950  RETURN 
-5000  CLS : GOSUB 5450: PRINT  AT 0,20;"Mandelbrot"
-5001  REM float xf z1 zz zf zt zi z nf
-5002  LET nf=0.0
-5005  LET my=0
-5010  LET xf=nf-2.0
-5015  LET mx=0
-5016  GOSUB 5400: PRINT  AT 21,0;"x=";xf;"    "; AT 21,20;"time=";sec
-5017  LET my=my+1
-5020  LET yf=nf-1.0
-5025  LET mx=mx+1
-5030  LET zz=0.0
-5035  LET zi=0.0
-5040  FOR i=1 TO 100
-5045  IF zz>1000.0 ORX zi>1000.0 THEN  GOTO 5100
-5050  LET zt=zz*zz-zi*zi+xf
-5060  LET zi=2.0*zz*zi+yf
-5070  LET zz=zt
-5080  NEXT i
-5090  IF zz<2.0 THEN  PLOT my,mx
-5100  LET yf=yf+0.0156: IF yf<1.0 THEN  GOTO 5025
-5110  LET xf=xf+0.0156: IF xf<2.0 THEN  GOTO 5015
-5120  GOTO 3600
-5200  CLS : PRINT "FOR .. STEP"
-5220  PRINT "Integer"
-5230  FOR i=1 TO 10: PRINT i;", ";: NEXT i: PRINT 
-5235  PRINT "for mit int": FOR i=1 TO 10 STEP 2: PRINT i;", ";: NEXT i: PRINT 
-5240   PRINT "for int step -1"
-5250  FOR i=10 TO 1 STEP 0-1: PRINT i;", ";: NEXT i: PRINT 
-5255  PRINT "for int. fp param convert to int": FOR i= PI  TO 3* PI  STEP  PI : PRINT i;" ";: NEXT i: PRINT 
-5260  PRINT "for mit fp": FOR f= PI  TO 3* PI : PRINT f;" ";: NEXT f: PRINT 
-5265  PRINT "for fp step": FOR f= PI  TO 10* PI  STEP  PI : PRINT f;" ";: NEXT f: PRINT 
-5270  PRINT "for fp step": FOR f=10* PI  TO  PI  STEP 0- PI : PRINT f;" ";: NEXT f: PRINT 
-5299  GOTO 3600
-5300  CLS 
-5310  REM asm call runtimeHeapwalk
-5320  GOTO 3600
-5400  LET time= PEEK 23672+ PEEK 23673*256
-5410  LET sec=(time-timestart)/50
-5420  RETURN 
-5450  LET timestart=0: GOSUB 5400: LET timestart=time: RETURN 
-5500  CLS : PRINT "Eingabe Integer": INPUT 1000+123;" x=";x
-5520  PRINT "Ausgabe int Eingabe int": INPUT "x=";(x);" y=";y
-5530  PRINT "Eingabe String": INPUT  INK 5;"text:";t$
-5540  PRINT "Eingabe String": INPUT (t$);" name="; LINE n$
-5550  PRINT "Eingabe Float": INPUT "pi=";zz
-5560  PRINT "x=";x,"y=";y
-5570  PRINT "t$=";t$: PRINT "n$=";n$
-5580  PRINT "zz=";zz
-5599  GOTO 3600
-5600   CLS : PRINT "string to float"
-5610  LET f1=0: LET f2=0.1
-5620  LET a$="123.456"
-5630  LET i=1
-5640  IF i> LEN a$ THEN  GOTO 5800
-5641  LET char= CODE a$(i)
-5645  IF char=46 THEN  GOTO 5700
-5650  IF char<48 ORX char>58 THEN  GOTO 5800
-5660  LET f1=f1*10+(char-48)
-5670  LET i=i+1: GOTO 5640
-5700  LET i=i+1
-5705  IF i> LEN a$ THEN  GOTO 5800
-5710  LET char= CODE a$(i)
-5720  LET f1=f1+f2*(char-48)
-5735  LET f2=f2/10
-5740  GOTO 5700
-5800  PRINT a$;" = ";f1
-5810  GOTO 3600
-5900  CLS : PRINT "beep and border"
-5910  BEEP 1,0: BEEP 1,2: BEEP 0.5,3: BEEP 0.5,2: BEEP 1,0
-5920  BEEP 1,0: BEEP 1,2: BEEP 0.5,3: BEEP 0.5,2: BEEP 1,0
-5930  BEEP 1,3: BEEP 1,5: BEEP 2,7
-5940  BEEP 1,3: BEEP 1,5: BEEP 2,7
-5950  BEEP 0.75,7: BEEP 0.25,8: BEEP 0.5,7: BEEP 0.5,5: BEEP 0.5,3: BEEP 1,0
-5960  BEEP 0.75,7: BEEP 0.25,8: BEEP 0.5,7: BEEP 0.5,5: BEEP 0.5,3: BEEP 0.5,2: BEEP 1,0
-5970  BEEP 1,0: BEEP 1,0.0-5.0: BEEP 2,0
-5980  BEEP 1,0: BEEP 1,0.0-5.0: BEEP 2,0
-5990  FOR i=1 TO 5000: FOR j=0 TO 7: BORDER j: NEXT j: NEXT i
-5995  GOTO 3600
-6000  CLS : PRINT "rnd and randomize"
-6010  FOR i=1 TO 10000
-6020  LET x= RND *255.0
-6030  LET y= RND *150.0
-6040  PLOT x,y
-6050  NEXT i
-6060  GOTO 3600
-6100  CLS : PRINT "Vergleiche: float"
-6110  LET f1=1.2: LET f2=0: GOSUB 6150
-6111  LET f1=1.2: LET f2=2.3: GOSUB 6150
-6112  LET f1=2.3: LET f2=1.2: GOSUB 6150
-6115   LET f1=10: LET f2=10: GOSUB 6150
-6120  LET f1=20: LET f2=10: GOSUB 6150
-6125  LET f1=10: LET f2=20: GOSUB 6150
-6130  PRINT : GOSUB 3600: GOTO 6300
-6140  PRINT "f1=";f1;" f2=";f2;" f3=";f3
-6150  PRINT "-------  f1-f2=";f1-f2
-6170  PRINT f1=f2;":";f1;"=";f2;" ";: IF f1=f2 THEN  PRINT "ja";
-6175  PRINT ,
-6180  PRINT f1 <> f2;":";f1;" <> ";f2;" ";: IF f1 <> f2 THEN  PRINT "ja";
-6185  PRINT 
-6190  PRINT f1 <= f2;":";f1;" <= ";f2;" ";: IF f1 <= f2 THEN  PRINT "ja";
-6195  PRINT ,
-6200  PRINT f1 >= f2;":";f1;" >= ";f2;" ";: IF f1 >= f2 THEN  PRINT "ja";
-6205  PRINT 
-6210  PRINT f1<f2;":";f1;"<";f2;" ";: IF f1<f2 THEN  PRINT "ja";
-6215  PRINT ,
-6220  PRINT f1>f2;":";f1;">";f2;" ";: IF f1>f2 THEN  PRINT "ja";
-6225  PRINT 
-6230  RETURN 
-6300  CLS : PRINT "Integer"
-6310  LET a1=1: LET a2=0: GOSUB 6400
-6320  LET a1=10: LET a2=20: GOSUB 6400
-6330  LET a1=20: LET a2=10: GOSUB 6400
-6340  LET a1=20: LET a2=20: GOSUB 6400
-6390  PRINT : GOSUB 3600: GOTO 6600
-6400  PRINT "---- ";a1;"-";a2;"=";a1-a2
-6510  PRINT a1=a2;":";a1;"=";a2;" ";: IF a1=a2 THEN  PRINT "ja";
-6515  PRINT ,
-6520  PRINT a1 <> a2;":";a1;" <> ";a2;" ";: IF a1 <> a2 THEN  PRINT "ja";
-6525  PRINT 
-6530  PRINT a1 <= a2;":";a1;" <= ";a2;" ";: IF a1 <= a2 THEN  PRINT "ja";
-6535  PRINT ,
-6540  PRINT a1 >= a2;":";a1;" >= ";a2;" ";: IF a1 >= a2 THEN  PRINT "ja";
-6545  PRINT 
-6550  PRINT a1<a2;":";a1;"<";a2;" ";: IF a1<a2 THEN  PRINT "ja";
-6555  PRINT ,
-6560  PRINT a1>a2;":";a1;">";a2;" ";: IF a1>a2 THEN  PRINT "ja";
-6570  PRINT : RETURN 
-6600  CLS : PRINT "Vergleiche Strings"
-6610  LET x$="d": LET y$="a": GOSUB 6700
-6620  LET x$="a": LET y$="d": GOSUB 6700
-6630  LET x$="a": LET y$="a": GOSUB 6700
-6650  LET x$="abc": LET y$="a": GOSUB 6700
-6660  LET x$="ab": LET y$="abc": GOSUB 6700
-6699  GOTO 3600
-6700  PRINT "--- x$=";x$;" y$=";y$
-6710  PRINT x$=y$;":";x$;"=";y$;: IF x$=y$ THEN  PRINT "ja";
-6715  PRINT ,
-6720  PRINT x$ <> y$;":";x$;" <> ";y$;: IF x$ <> y$ THEN  PRINT "ja";
-6725  PRINT 
-6730  PRINT x$ <= y$;":";x$;" <= ";y$;: IF x$ <= y$ THEN  PRINT "ja";
-6735  PRINT ,
-6740  PRINT x$ >= y$;":";x$;" >= ";y$;: IF x$ >= y$ THEN  PRINT "ja";
-6745  PRINT 
-6750  PRINT x$>y$;":";x$;">";y$;: IF x$>y$ THEN  PRINT "ja";
-6755  PRINT ,
-6760  PRINT x$<y$;":";x$;"<";y$;: IF x$<y$ THEN  PRINT "ja";
-6770  PRINT 
-6799  RETURN 
-7000  CLS : PRINT "Funktionen": PRINT 
-7005  PRINT " DEFFN t(a,b)=a+b: DEFFN u(a,b)= FN t(a,a)+ FN t(b,b)"
-7007  PRINT : PRINT 
-7010  PRINT " FN u(2,2)="; FN u(2,2): PRINT " FN u(3,3)="; FN u(3,3)
-7030  PRINT " FN t(2,3)="; FN t(2,3)
-7050  GOTO 3600
-9990  STOP 
+10  REM Sokoban
+20  REM Simon Ferre'
+30  REM 
+40  REM A- B- C- D- E- F- G-
+50  REM 
+60  BORDER 7: PAPER 7: INK 0: CLS 
+70  GOSUB 1000
+80  LET u$="k": LET d$="m": LET l$="z": LET r$="x": LET s$="q": LET q$="u": REM set keys
+90  LET l=0: GOSUB 2000: REM level
+100  PRINT  AT 19,0;"Sokoban in BASIC by Simon Ferre'"; AT 20,0;"ENTER-play, SPACE-redefine keys"
+110  PRINT  AT 21,0;"(lrud)=";l$;r$;u$;d$;", restart=";s$;", undo=";q$;"."
+120  GOSUB 630
+130  GOSUB 500: REM game loop
+140  IF k$ <>  CHR 13 AND k$ <> " " THEN  GOTO 130
+150  IF k$= CHR 13 THEN  GOTO 300
+160  LET k$= INKEY : IF k$ <> "" THEN  GOTO 160
+170  PRINT #0; AT 1,0;"key for left?"
+180  LET l$= INKEY : IF l$="" OR  CODE l$<97 THEN  GOTO 180
+190  PRINT #0; AT 1,0;"key for right?"
+200  LET r$= INKEY : IF r$="" OR r$=l$ OR  CODE r$<97 THEN  GOTO 200
+210  PRINT #0; AT 1,0;"key for up?   "
+220  LET u$= INKEY : IF u$="" OR u$=l$ OR u$=r$ OR  CODE u$<97 THEN  GOTO 220
+230  PRINT #0; AT 1,0;"key for down?"
+240  LET d$= INKEY : IF d$="" OR d$=l$ OR d$=r$ OR d$=u$ OR  CODE d$<97 THEN  GOTO 240
+250  PRINT #0; AT 1,0;"key to restart level?"
+260  LET s$= INKEY : IF s$="" OR s$=l$ OR s$=r$ OR s$=u$ OR s$=d$ THEN  GOTO 260
+262  PRINT #0; AT 1,0;"key to undo move?    "
+264  LET q$= INKEY : IF q$="" OR q$=l$ OR q$=r$ OR q$=u$ OR q$=d$ OR q$=s$ THEN  GOTO 264
+270  PRINT #0; AT 1,0,,;
+280  GOTO 110
+290  PAUSE 0
+300  REM main game
+310  FOR l=1 TO 50
+320  GOSUB 2000: IF l=0 THEN  FOR b=0 TO 7: BORDER b: NEXT b: PRINT  AT 20,1;"G A M E   O V E R ! ! ! ! ! !": PAUSE 0: GOTO 170: REM end of levels
+330  PRINT  AT 0,2;"SOKOBAN Level: ";l: PRINT  AT 19,1;"Keys (UDLR)=";u$;d$;l$;r$;", UNDO=";q$;","'"Restart=";s$
+335  GOSUB 630
+340  REM game loop
+350  GOSUB 500
+355  IF k$="<" AND l>1 THEN  LET l=l-1: GOTO 320
+356  IF k$=">" AND l<50 THEN  LET l=l+1: GOTO 320
+358  IF k$=q$ THEN  GOSUB 430
+360  IF k$ <> s$ THEN  GOTO 370: REM restart level pressed
+364  PRINT #0; AT 1,3;"Restart level. Sure? (y/n)"
+365  LET i$= INKEY : IF i$="y" THEN  GOTO 320
+366  IF i$ <> "n" THEN  GOTO 365
+367  PRINT #0; AT 1,0,,;
+370  IF cont<targets THEN  GOTO 350
+380  LET k$= INKEY : IF k$ <> "" THEN  GOTO 390
+390  FOR n=1 TO 10: FOR b=0 TO 7: BORDER b: NEXT b: NEXT n: PRINT #0; AT 1,0;"W E L L   D O N E ! ! ! ! ! ! !"
+400  LET k$= INKEY : IF k$ <> "" THEN  GOTO 400
+410  PAUSE 0
+420  NEXT l
+425  PRINT #0; AT 1,0;"WELL DONE - ALL LEVELS COMPLETED";: PAUSE 0: GOTO 90
+429  GOTO 9998
+430  REM UNDO routine
+435  IF moves=0 THEN  RETURN 
+440  LET pull=0: LET k$=h$(moves): LET h$(moves)=" ": IF  CODE k$<97 THEN  LET pull=1: LET k$= CHR ( CODE k$+32)
+441  LET o(1)=s(1): LET o(2)=s(2): LET vm=(1 AND k$=u$)+(-1 AND k$=d$): LET hm=(1 AND k$=l$)+(-1 AND k$=r$): REM reversed direction indicators
+445  IF  NOT pull THEN  GOTO 489
+446  LET pushes=pushes-1
+450  IF m$(s(1)-vm,s(2)-hm)="" THEN  LET m$(s(1)-vm,s(2)-hm)="": LET r=s(1)-vm: LET c=s(2)-hm: GOSUB 3000: GOTO 460
+451  IF m$(s(1)-vm,s(2)-hm)="" THEN  LET m$(s(1)-vm,s(2)-hm)="": LET r=s(1)-vm: LET c=s(2)-hm: GOSUB 3000: LET cont=cont-1
+460  IF m$(s(1),s(2))="" THEN  LET m$(s(1),s(2))="": LET r=s(1): LET c=s(2): GOSUB 3000: GOTO 489
+461  IF m$(s(1),s(2))="" THEN  LET m$(s(1),s(2))="": LET r=s(1): LET c=s(2): GOSUB 3000: LET cont=cont+1
+489  LET s(1)=s(1)+vm: LET s(2)=s(2)+hm: REM direction indicators
+490  LET moves=moves-1: GOTO 605
+499  RETURN 
+500  REM Game Loop
+510  LET k$= INKEY : IF k$ <> d$ AND k$ <> u$ AND k$ <> l$ AND k$ <> r$ THEN  RETURN 
+520  LET o(1)=s(1): LET o(2)=s(2): LET o(3)=pushes: REM old player position/pushes
+530  LET vm=0+(-1 AND k$=u$)+(1 AND k$=d$): LET hm=0+(-1 AND k$=l$)+(1 AND k$=r$): REM direction indicators
+540  IF m$(s(1)+vm,s(2)+hm)="" THEN  LET s(1)=s(1)+vm: LET s(2)=s(2)+hm: LET moves=moves+1: GOTO 600: REM walk into blank space
+550  IF m$(s(1)+vm,s(2)+hm)="" THEN  LET s(1)=s(1)+vm: LET s(2)=s(2)+hm: LET moves=moves+1: GOTO 600: REM walk into empty target
+560  IF m$(s(1)+vm,s(2)+hm)="" THEN  IF m$(s(1)+vm+vm,s(2)+hm+hm)="" THEN  LET m$(s(1)+vm+vm,s(2)+hm+hm)=m$(s(1)+vm,s(2)+hm): LET m$(s(1)+vm,s(2)+hm)="": LET r=s(1)+vm+vm: LET c=s(2)+hm+hm: GOSUB 3000: LET s(1)=s(1)+vm: LET s(2)=s(2)+hm: LET moves=moves+1: LET pushes=pushes+1: GOTO 600: REM push crate into blank space
+570  IF m$(s(1)+vm,s(2)+hm)="" THEN  IF m$(s(1)+vm+vm,s(2)+hm+hm)="" THEN  LET m$(s(1)+vm+vm,s(2)+hm+hm)="": LET m$(s(1)+vm,s(2)+hm)="": LET r=s(1)+vm+vm: LET c=s(2)+hm+hm: GOSUB 3000: LET s(1)=s(1)+vm: LET s(2)=s(2)+hm: LET moves=moves+1: LET pushes=pushes+1: LET cont=cont+1: GOTO 600: REM push crate into target
+580  IF m$(s(1)+vm,s(2)+hm)="" THEN  IF m$(s(1)+vm+vm,s(2)+hm+hm)="" THEN  LET m$(s(1)+vm+vm,s(2)+hm+hm)="": LET m$(s(1)+vm,s(2)+hm)="": LET r=s(1)+vm+vm: LET c=s(2)+hm+hm: GOSUB 3000: LET s(1)=s(1)+vm: LET s(2)=s(2)+hm: LET moves=moves+1: LET pushes=pushes+1: LET cont=cont-1: GOTO 600: REM targeted crate into blank space
+590  IF m$(s(1)+vm,s(2)+hm)="" THEN  IF m$(s(1)+vm+vm,s(2)+hm+hm)="" THEN  LET m$(s(1)+vm+vm,s(2)+hm+hm)="": LET m$(s(1)+vm,s(2)+hm)="": LET r=s(1)+vm+vm: LET c=s(2)+hm+hm: GOSUB 3000: LET s(1)=s(1)+vm: LET s(2)=s(2)+hm: LET moves=moves+1: LET pushes=pushes+1: GOTO 600: REM targeted crate into target
+595  RETURN 
+600  IF o(3) <> pushes THEN  LET k$= CHR ( CODE k$-32)
+601  LET h$(moves)=k$: REM store last move made
+605  IF s(1) <> o(1) OR s(2) <> o(2) THEN  LET r=o(1): LET c=o(2): GOSUB 3000: REM redraw character at old player position
+610  IF m$(s(1),s(2))="" THEN  PRINT  AT s(1),s(2); INK 2; PAPER 5;""
+620  IF m$(s(1),s(2))="" THEN  PRINT  AT s(1),s(2); INK 0; PAPER 2;""
+630  INK 0: PAPER 7: PRINT  AT 2,21;cont; AT 5,21;moves; AT 8,21;pushes
+650  RETURN 
+1000  RESTORE 1010: FOR n= USR "a" TO  USR "h"-1: READ a: POKE n,a: NEXT n: RETURN 
+1010  DATA 85,129,1,129,1,129,1,255,0,0,8,56,28,16,0,0,0,42,124,70,68,70,124,0,255,255,247,199,227,239,255,255,24,60,90,255,219,102,60,24,231,195,165,0,36,153,195,231,255,213,131,185,187,185,131,255
+2000  REM Quick draw the level
+2010  GOSUB 4000: IF s(1)=0 AND s(2)=0 THEN  LET l=0: RETURN 
+2020  LET i=1: PAPER 7: INK 0: CLS : FOR r=1 TO 17: FOR c=1 TO 19: REM fast
+2030  GOSUB 3000
+2040  NEXT c: NEXT r: LET i=0
+2050  IF m$(s(1),s(2))="" THEN  PRINT  AT s(1),s(2); INK 2; PAPER 5;""
+2060  IF m$(s(1),s(2))="" THEN  PRINT  AT s(1),s(2); INK 0; PAPER 2;""
+2070  INK 1: PAPER 7: REM slow
+2080  PRINT  AT 1,21;"Crates 'on'"; AT 4,21;"Moves: "; AT 7,21;"Pushes:"
+2090  INK 0: RETURN 
+3000  REM choose ink and paper colour
+3010  IF m$(r,c)="" THEN  PAPER 7: INK 0: IF i THEN  LET targets=targets+1
+3020  IF m$(r,c)="" THEN  PAPER 5: INK 0
+3030  IF m$(r,c)="" THEN  PAPER 5: INK 2
+3040  IF m$(r,c)="" THEN  PAPER 2: INK 0: IF i THEN  LET targets=targets+1: LET cont=cont+1
+3050  IF m$(r,c)="" THEN  PAPER 6: INK 1
+3060  PRINT  AT r,c;m$(r,c): RETURN 
+4000  REM Level data
+4010  REM fast
+4020  DIM o(3): DIM m$(17,19): DIM h$(5000): LET moves=0: LET pushes=0: LET targets=0: LET cont=0: REM cont=crates on targets
+4030  LET b$=""
+4040  IF l<0 OR l>50 THEN  STOP 
+4050  RESTORE 5000+l*10
+4060  FOR y=1 TO 17: LET m$(y)=b$: NEXT y: REM blank level
+4070  READ index: DIM s(2): IF index=-1 THEN  RETURN 
+4080  READ y,x: LET s(1)=y: LET s(2)=x: FOR n=1 TO index: READ y$: LET y= CODE y$(1)-96: LET f= CODE y$(2)-96: LET y$=y$(3 TO ): LET m$(y,f TO f+ LEN y$-1)=y$: NEXT n
+4090  REM slow
+4100  RETURN 
+5000  DATA 26,2,2,"bb","ib","pb","cb","cf","cj","cr","db","eb","ef","fb","gb","hb","hf","hj","hr","jb","jf","kb","lb","lf","ll","mb","nb","ob","of"
+5010  DATA 10,11,12,"df","ef","ff","gd","hd","ib","io","jb","kf","lf"
+5020  DATA 8,8,11,"ee","fe","ge","he","ie","jj","kg","lg"
+5030  DATA 9,5,16,"ek","fk","gk","hl","ik","jc","jk","kd","lc"
+5040  DATA 12,13,11,"cm","dm","eb","fb","gb","hb","ib","jc","kb","lb","mb","nb"
+5050  DATA 11,10,16,"dk","ek","fk","gk","hc","ic","jc","kk","lk","mm","nm"
+5060  DATA 12,5,13,"ee","em","fe","fl","ge","he","ie","ij","jh","kh","lh","mh"
+5070  DATA 15,5,9,"dl","ef","fe","ge","gm","hg","hm","ie","il","je","ke","kl","le","ll","me"
+5080  DATA 15,7,3,"be","ce","de","ee","fe","fp","gc","hc","ic","jg","ke","le","me","ne","oe"
+5090  DATA 12,12,3,"cm","dm","ei","fi","gj","hj","ih","jh","kd","lc","mh","nh"
+5100  DATA 18,2,3,"bc","bh","cb","db","eb","fd","gb","hb","hl","hp","ic","jb","kb","lb","mf","nf","np","of"
+5110  DATA 15,4,8,"cl","dg","dl","ee","fd","gc","hc","ic","je","ke","lb","lj","mb","nb","ob"
+5120  DATA 14,7,9,"dc","ec","el","fc","gc","hc","ho","ic","jc","jg","kc","lg","mk","nk"
+5130  DATA 12,7,7,"de","ed","fb","gb","hb","ib","jb","kb","lc","mc","mk","nc"
+5140  DATA 20,3,11,"bi","cc","dc","ec","eg","fc","gc","gg","hc","hj","hn","ib","jb","kb","kl","lf","mh","ml","nh","oo"
+5150  DATA 16,6,8,"bf","cf","df","ed","fd","gd","he","hj","id","jd","kd","lc","lh","mc","nc","oh"
+5160  DATA 14,7,7,"ce","de","ee","em","fe","gg","hf","if","jf","kh","lg","mg","ng","og"
+5170  DATA 14,12,5,"cg","dg","eg","fl","gf","hf","ig","ip","jd","jn","kd","ld","mg","ng"
+5180  DATA 13,5,14,"dg","eg","fg","gc","gl","hb","ib","je","ke","ld","md","nd","nq"
+5190  DATA 18,2,7,"bd","cf","db","eb","fb","fm","gc","hc","hk","ic","jc","kc","kg","lb","lk","mb","ne","ob"
+5200  DATA 21,3,15,"bf","cb","db","dj","do","eb","fb","gb","hb","hi","ib","if","jb","jo","kb","lb","me","mj","ne","no","oe"
+5210  DATA 14,6,7,"cd","dd","ee","ej","fe","gd","hd","id","jg","ke","le","me","ni","oj"
+5220  DATA 21,5,11,"bb","bm","cb","db","ec","fb","fq","gb","hb","ib","jb","kb","kk","kp","lb","lj","mb","nc","nj","nr","ob"
+5230  DATA 14,9,4,"cf","df","eb","fb","gb","hb","ib","jb","kb","lb","mb","nc","ni","np"
+5240  DATA 19,15,4,"bb","cb","dl","eb","fc","fh","gb","hb","hq","ib","ij","iq","jd","jq","kd","lc","mc","nc","oc"
+5250  DATA 22,7,17,"bb","cb","db","dm","ec","fb","fn","gb","gq","hc","hq","ib","jb","kb","kg","lb","mb","nb","ni","np","ob","op"
+5260  DATA 10,12,16,"de","ee","fd","gd","hd","id","je","ke","lj","mj"
+5270  DATA 12,14,11,"dc","ec","fb","gb","hj","id","jd","kc","kk","lc","mc","ni"
+5280  DATA 16,10,3,"cl","dh","eg","fc","gc","gk","go","hd","ic","jc","jo","kf","lg","mg","ng","ol"
+5290  DATA 14,7,12,"db","eb","fc","gc","hb","ib","ig","iq","jb","kc","lb","ln","mb","nb"
+5300  DATA 18,7,6,"ci","di","eb","ej","fb","gb","hc","hg","ic","ik","iq","jc","kb","kg","lb","mb","nf","no"
+5310  DATA 16,4,9,"bd","cd","dc","ec","fc","gb","hb","ib","jc","jh","jm","kc","lf","me","ne","oe"
+5320  DATA 13,6,5,"ck","dg","ef","fe","gh","hf","if","jf","kf","lk","mk","nk","ok"
+5330  DATA 13,12,14,"cf","df","eh","fe","ge","he","ie","je","ke","lh","me","nf","og"
+5340  DATA 15,5,14,"cf","df","ef","fe","ge","hf","hj","if","jf","kf","kk","lf","mf","nh","oh"
+5350  DATA 20,3,11,"bb","bo","cb","db","dj","ec","ej","fc","gc","he","hm","ib","jb","kb","lb","mb","nc","nj","oc","oj"
+5360  DATA 21,8,11,"bn","cb","ci","db","eb","fd","gd","gj","gp","hd","hj","ic","ij","in","jc","jn","kc","lc","mi","nf","of"
+5370  DATA 15,15,10,"cb","db","eb","eg","fb","gb","gl","hd","id","jd","kf","le","me","nf","oj"
+5380  DATA 9,5,13,"el","ff","gf","hg","ig","jg","kg","lg","mg"
+5390  DATA 19,4,12,"bo","cc","db","eb","fb","gb","hc","hi","hm","ic","jb","jg","jp","kb","lb","lo","mb","nb","og"
+5400  DATA 14,4,17,"bg","cg","dg","eg","ff","gf","hg","if","jf","kh","lc","mc","nc","oc"
+5410  DATA 16,10,18,"cm","dl","ek","fj","gi","hi","ib","il","jb","kb","kl","lb","ll","mb","no","op"
+5420  DATA 13,5,17,"dg","ed","fd","gd","hb","ib","jb","kb","kh","kl","ld","md","ni"
+5430  DATA 12,11,10,"ej","ff","gf","hc","ib","ig","jb","kb","kq","lb","lk","ml"
+5440  DATA 19,5,10,"cc","dc","ec","fc","fm","gc","gh","hc","hi","ic","ii","jb","kb","lg","ll","ml","nl","np","ol"
+5450  DATA 16,12,7,"dc","di","ec","ei","fc","gd","he","ic","jc","jm","kc","lc","mc","nc","nk","oc"
+5460  DATA 16,8,14,"bd","cd","ck","dd","ed","ff","gf","hg","ig","jg","kg","lg","ln","mf","nf","of"
+5470  DATA 10,9,8,"ek","fc","gb","hb","ib","jb","jj","kb","ld","md"
+5480  DATA 15,14,10,"bg","cg","dg","eg","fg","gi","hi","ij","je","ke","lf","mf","nf","of","om"
+5490  DATA 16,13,9,"cj","dj","ej","fj","gh","he","hn","ic","jc","kc","le","lk","lo","mh","nj","oj"
+5500  DATA 19,8,3,"bh","cg","df","ee","fe","gb","hb","hk","ib","jd","kd","ld","lm","md","mm","nd","od","nn","on"
+9998  STOP 
 

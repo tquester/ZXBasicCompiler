@@ -62,7 +62,7 @@ public class ZXTokenizer {
 		public int len;
 		public byte[] bytes;
 		private ParserToken mUngetToken=null;
-		private ParserToken mPrevToken=new ParserToken();
+		public ParserToken mPrevToken=new ParserToken();
 
 		public String toString() {
 			return toString(false);
@@ -102,8 +102,11 @@ public class ZXTokenizer {
 					}
 				} else {
 					String strToken = token.mMapTokens.get(b);
-					if (strToken == null)
-						strLine += String.format("%c", b);
+					if (strToken == null) {
+						if (b != 13)
+							strLine += String.format("%c", b);
+					}
+						
 					else
 						strLine += " " + strToken + " ";
 				}
@@ -134,7 +137,10 @@ public class ZXTokenizer {
 			}
 			if (mPos >= bytes.length)
 				return false;
-			int b = bytes[mPos++];
+			int b;
+			b= bytes[mPos++];
+			while (b == 32)
+				b= bytes[mPos++];
 			if (b < 0)
 				b += 256;
 			if (b == 14) {

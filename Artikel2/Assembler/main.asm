@@ -2,8 +2,8 @@
 ;===========================================================================
 ; main.asm
 ;===========================================================================
-DEBUG                       equ 1			; Enables debug mode. Used to test so new functions. Compiled BASIC runs with custom PRINT command
-DEBUGBASIC                  equ 0			; Initializes the ZX Spectrum using a copy of the startup, then starts the compiled BASIC program.
+DEBUG                       equ 0			; Enables debug mode. Used to test so new functions. Compiled BASIC runs with custom PRINT command
+DEBUGBASIC                  equ 1		; Initializes the ZX Spectrum using a copy of the startup, then starts the compiled BASIC program.
 											; Rom routines are allowed
 DEBUGSAVESCREEN				equ 0			; Heep Walk saves and restores the screen (costs 6144+768 Bytes )
 DEBUGMATH                   equ 0			; Calls the Math Debug code on run	
@@ -41,7 +41,10 @@ NEX:    equ 1   ;  1=Create nex file, 0=create sna file
 
 
 START:RELOCATE_START 
+
 main:   if DEBUGBASIC=1
+
+
          call InitSpectrum
         endif 
         if DEBUGHEAP=1
@@ -223,12 +226,18 @@ RAM_SET	LD ($5CB2),HL	; Set RAMTOP.
 	ld   A,(IY+$02)	; TV Flag
 	and $fe	; Clear bit 0 of TV-FLAG.
 	ld   (IY+$02),A	; Clear the TV-FLAG.
+	ld   HL,localudb
+	ld  (ZX_UDG),HL
 
 	call compiledBasic
 
  	jp  $12a2
-	RET        
+	RET     
 
+	if DEBUGBASIC=1
+localudb: defs 8*21
+	endif 
+	
 ;===========================================================================
 ; Persistent watchpoint.
 ; Change WPMEMx (remove the 'x' from WPMEMx) below to activate.
@@ -312,7 +321,7 @@ stack_top:
     endif
 main_end:
 relocator_table:
-    RELOCATE_TABLE
+;    RELOCATE_TABLE
 
 
 code_size   EQU     $ - main

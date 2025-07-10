@@ -208,6 +208,13 @@ public class Z80Optimizer {
 					remove(cmd2);
 					count++;
 				}
+				
+				if (check(cmd1,"PUSH","DE") &&
+						check(cmd2,"POP","HL"))  {
+					set(cmd1,"LD",par1(cmd2),par1(cmd1));
+					remove(cmd2);
+					count++;
+				}
 				if (check(cmd1,"LD","HL") &&
 						check(cmd2,"LD","DE","HL"))  {
 					set(cmd1,"LD",par1(cmd2),par2(cmd1));
@@ -221,12 +228,30 @@ public class Z80Optimizer {
 					remove(cmd3);
 					count++;
 				}
+				if (check(cmd1,"LD","HL") &&
+					check(cmd2,"PUSH","HL") &&
+					check(cmd2,"POP","BC")) {
+					set(cmd1,"LD","BC",par1(cmd1));
+					remove(cmd2);
+					remove(cmd3);
+					count++;
+				}
+						
+				if (	check(cmd1,"PUSH","HL") &&
+						check(cmd2,"POP","BC")) {
+						set(cmd1,"LD","BC","HL");
+						remove(cmd2);
+						count++;
+					}
+						
+					
+					
 				
 				icmd++;
 			}		
 		}
 		System.out.println(String.format("Total %d optimizations found",total));
-		optimizeRegisterBC();
+//		optimizeRegisterBC();
 
 		
 	}

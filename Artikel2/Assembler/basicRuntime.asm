@@ -381,26 +381,26 @@ runtimePrntString1:
     ret
 
 runtimePrintAt:
+
     ld a,0
     ld (iy+2),a
-;    if DEBUG=1
-;    ld a,l
-;    ld (charX),a
-
-;    ld a,e
-;    ld (charY),a
-;    else
     ld b,e
     ld c,l
     ld a,24
     sub b
+    jr  c,runtinePrintAtErr
     ld b,a
-    ld a,32
+    ld a,33
     sub c
+    jr  c,runtinePrintAtErr
     ld c,a
-;    ld (ZX_S_POSN_COL),bc
     call zxromClSet
- ;   endif
+    ret
+
+runtinePrintAtErr:
+    ld e,0
+    ld l,0
+    jp runtimePrintAt
     ret
 
 runtimePrintNewline:
@@ -479,25 +479,33 @@ runtimeUsrUDG:
     or c
     ret nz
 runtimeUsrUDG1:
+    inc hl
+    inc hl
     ld a,(hl)
     call zxromAlpha
     ret nc
-    and 0b00111111      ; Convert to upper case
+    and %01011111
+      ; Convert to upper case
     sub 65              ; subtract A
     ret c               ; out of range
     cp  20
-    ret c               ; out of range
+    ret nc               ; out of range
     add a,a
     add a,a
     add a,a             ; *8 
-    LD BC,($5C7B)       ; UDG address
+    LD BC,(ZX_UDG)      ; UDG address
     ld  l,a
     ld  h,0
     add hl,bc
     ret 
 
+runtimeAndFloat:
+    RST $28
+    db zxcalc_no_and_no
+    db zxcalc_end_calc
+    ret
 runtimeInkey:
-    call rtReadKeyboard 
+    call rtGetKey
     cp   0
     jr   z,runtimeInkeyNoKey
     ld   (rtInkeyChar),a
@@ -527,8 +535,12 @@ runtimeCode1:
     ld  h,0
     ret
 
+runtimeSetStream:
+    ret    
+
 runtimePause:
-    call rtReadKeyboard
+    call rtGetKey
+    cp 0
     jr z, runtimePause1
     dec hl
     ld a,h
@@ -536,10 +548,26 @@ runtimePause:
     ret z
     jr runtimePause
 runtimePause1:
-    call rtReadKeyboard
+    call rtGetKey
+    cp 0
     ret nz 
     jr runtimePause1    
 
+runtimeSgnInt:
+    ld a,l
+    or h
+    jr z, runtimeSgnInt0
+    ld a,h
+    and $80
+    jr z, runtimeSgnIntNeg
+    ld hl,-1
+    ret
+runtimeSgnInt0:
+    ld hl,0
+    ret
+runtimeSgnIntNeg:
+    ld hl,1    
+    ret
 
          
 
@@ -554,115 +582,47 @@ runtimeCheckBreak:      call    $1F54
                         ret     c
                         ld     sp,(runtimeSaveSP)
                         ret
-rtGetKeyOrJoystick		call	ReadKeyboard
-						cp		0
-						jr		nz, rtGetKeyOrJoystick2
-						ld 		bc,31
-						in 		a,(c)
-						and		31
-						ld		b,a
-						cp		0
-						jr		z, rtGetKeyOrJoystick
-						ld		a,$ff
-						ret
-rtGetKeyOrJoystick2:	push 	af
-rtGetKeyOrJoystick3:	call    rtReadKeyboard
-                        cp      0
-                        jr      nz,rtGetKeyOrJoystick3
-                        pop     af
-                        ret				
 
-rtGetKeyx:               call    rtReadKeyboard
-                        cp      0
-                        jr      z,rtGetKeyx
+runtimeClearArray:
+    ld (hl),0
+    inc hl
+    dec bc
+    ld a,b
+    or c
+    jr nz, runtimeClearArray
+    ret
 
-rtWaitKeyRelease:       push af
-rtWaitKeyRelease1:      call    rtReadKeyboard
-                        cp      0
-                        jr      nz,rtWaitKeyRelease1
-                        pop     af
-                        ret
-rtReadKeyboard:         PUSH    HL
-                        PUSH    DE
-                        PUSH    BC    
-                        LD HL,rtKeyboard_Map                      ; Point HL at the keyboard list
-                        LD D,8                                  ; This is the number of ports (rows) to check
-                        LD C,$FE                                ; C is always FEh for reading keyboard ports
-rtRead_Keyboard_0:      LD B,(HL)                               ; Get the keyboard port address from table
-                        INC HL                                  ; Increment to list of keys
-                        IN A,(C)                                ; Read the row of keys in
-                        AND $1F                                 ; We are only interested in the first five bits
-                        LD E,5                                  ; This is the number of keys in the row
-rtRead_Keyboard_1:      SRL A                                   ; Shift A right; bit 0 sets carry bit
-                        JR NC,rtRead_Keyboard_2                   ; If the bit is 0, we've found our key
-                        INC HL                                  ; Go to next table address
-                        DEC E                                   ; Decrement key loop counter
-                        JR NZ,rtRead_Keyboard_1                   ; Loop around until this row finished
-                        DEC D                                   ; Decrement row loop counter
-                        JR NZ,rtRead_Keyboard_0                   ; Loop around until we are done
-                        AND A                                   ; Clear A (no key found)
-                        POP     BC
-                        POP     DE
-                        POP     HL
-                        RET
-rtRead_Keyboard_2:		
-                        LD A,(HL)                               ; We've found a key at this point; fetch the character code!
-                        POP     BC
-                        POP     DE
-                        POP     HL
-                        RET
 
-rtReadMKeyboard:        PUSH    HL
-                        PUSH    DE
-                        PUSH    BC    
-						PUSH	IX
-;						ld		bc,$0112
-;						call	printSetAt  						
-;						ld      a,$12*8
-;						call    clearTextLine						
-
-						ld		ix,rtReadKeyboardPressedKeys
-						ld		(ix),0
-                        LD HL,rtKeyboard_Map                      ; Point HL at the keyboard list
-                        LD D,8                                  ; This is the number of ports (rows) to check
-                        LD C,$FE                                ; C is always FEh for reading keyboard ports
-rtReadMKeyboard_0:      LD B,(HL)                               ; Get the keyboard port address from table
-                        INC HL                                  ; Increment to list of keys
-                        IN A,(C)                                ; Read the row of keys in
-                        AND $1F                                 ; We are only interested in the first five bits
-;						call	printHex2
-;						push	af
-;						ld		a,32
-;						call	printA
-;						pop 	af
-                        LD E,5                                  ; This is the number of keys in the row
-rtReadMKeyboard_1:      SRL A                                   ; Shift A right; bit 0 sets carry bit
-                        JR C,rtReadMKeyboard_2                   ; If the bit is 0, we've found our key
-						push	af
-						ld		a,(hl)
-						ld		(ix),a
-						inc		ix
-						ld		(ix),0
-						pop		af
-rtReadMKeyboard_2:	    INC HL                                  ; Go to next table address
-                        DEC E                                   ; Decrement key loop counter
-                        JR NZ,rtReadMKeyboard_1                   ; Loop around until this row finished
-                        DEC D                                   ; Decrement row loop counter
-                        JR NZ,rtReadMKeyboard_0                   ; Loop around until we are done
-                        AND A                                   ; Clear A (no key found)
-						ld		hl,rtReadKeyboardPressedKeys
-;						ld		bc,$0014
-;						call	printSetAt
-;						call	printHL
-						POP		IX
-                        POP     BC
-                        POP     DE
-                        POP     HL
-                        RET
 
 ; -----------------------------
 ; Stringverarbeitung
 ; -----------------------------
+
+
+; HL = String Array
+; BC = Anzahl der Strings
+runtimeClearStringArray:
+    ld de,(hl)
+    ld a,d
+    or e
+    jr z, runtimeClearStringSkip
+    push hl
+    push bc
+    ld hl,de
+    call ZXFree
+    pop bc
+    pop hl
+
+
+runtimeClearStringSkip:
+    ld (hl),0
+    inc hl
+    inc hl
+    dec bc
+    ld a,b
+    or c
+    jr nz, runtimeClearStringArray
+    ret
 
 ; HL = Adress of variable
 ; DE = Adress of string to store
@@ -1128,10 +1088,28 @@ runtimeBiggerEqualString:
     jr runtimeReturn0
 
 runtimeStringResult: db 0
+runtimeCompareStringHL0:
+    ex hl,de
+    ld  bc,(hl)
+    ex hl,de
+    ld a,b
+    or c
+    jr nz,runtimeStringCompareHlContinue
+    pop de
+    pop  hl
+    ld l,0
+    ld h,0
+    ret             ; beide Strings sind leer, also gleich
+
 runtimeStringCompare:
     push hl
+    push de
     ex  hl,de
     ld   bc,(hl)
+    ld   a,b
+    or   c
+    jr   z, runtimeCompareStringHL0
+runtimeStringCompareHlContinue:
     ex hl,de
     ld   de,(hl)
     ld   hl,de          ; hl = String 1
@@ -1142,19 +1120,26 @@ runtimeStringCompare:
     ld   a,h
     and  $80
     jr   z, runtimeStringCompareLenDE
+    pop  de
     pop  hl
     ld   a,1
     ld   (runtimeStringResult),a
     ld   bc,(hl)
     jr   runtimeStringCompareLoop
 runtimeStringCompareEqualSize:
+    pop de
     pop hl
     ld a,0
     ld (runtimeStringResult),a
     ld bc,(hl)
+    inc hl
+    inc hl
+    inc de
+    inc de
     jr runtimeStringCompareLoop
 
 runtimeStringCompareLenDE:
+    pop de
     pop hl
     ld a,-1
     ld (runtimeStringResult),a
@@ -1162,15 +1147,11 @@ runtimeStringCompareLenDE:
     ld bc,(hl)
     ex hl,de
 runtimeStringCompareLoop:
-    ld a,(hl)
-    inc hl
-    ld e,a
     ld a,(de)
-    inc de
-    cp e
+    cp a,(hl)
     jr z, runtimeStringCompareLoop2
-    jr c, runtimeStringHlSmaller
-    jr nc, runtimeStringHlBigger
+    jr nc, runtimeStringHlSmaller
+    jr c, runtimeStringHlBigger
 runtimeStringHlSmaller:
     ld a,1
     ld (runtimeStringResult),a
@@ -1180,6 +1161,8 @@ runtimeStringHlBigger:
     ld (runtimeStringResult),a
     ret
 runtimeStringCompareLoop2:
+    inc de
+    inc hl
     dec bc
     ld a,b
     or c
@@ -1358,6 +1341,94 @@ runtimeInputFloat:
    ld   hl,rtInputBufferSize
    call rtAscciToUFloat
     ret
+
+runtimeOrHLDE:
+    call runtime01HL
+    call runtime01DE 
+    ld   A,E
+    or   L
+    ld   L,A
+    LD   h,0
+    ret
+runtimeAndHLDE:
+    call runtime01HL
+    call runtime01DE 
+    ld   A,E
+    and  L
+    ld   L,A
+    LD   h,0
+    ret
+
+
+runtime01HL:
+    ld  a,H
+    or  l
+    jr  z,runtime0HL
+runtime1HL;.    
+    ld  hl,1
+    ret
+
+runtimeNotHL:
+    ld  a,H
+    or  l
+    jr  z,runtime1HL
+runtime0HL:
+    ld hl,0
+    ret
+
+runtime01DE:
+    ld  a,E
+    or  D
+    jr  z,runtime0DE
+    ld  DE,1
+    ret
+runtime0DE:
+    ld DE,0
+    ret
+
+; HL points to the line table (first word = line number, second word = label)
+; DE contains the number we want
+; if the entry is 0 it is the end of the table
+runtimeFindLine:
+    ld bc,(hl)
+    inc hl
+    inc hl
+    ld a,c
+    or b
+    jr z, runtimeFindLineEnd
+    ld a,c
+    cp e
+    jr nz,runtimeFindLineNext
+    ld a,b
+    cp d 
+    jr nz,runtimeFindLineNext
+    ; found
+    ld de,(hl)
+    ex hl,de
+    ret
+runtimeFindLineNext:
+    inc hl
+    inc hl
+    jr  runtimeFindLine
+runtimeFindLineEnd:
+; return to BASIC if not found
+    push de
+    ld     hl,errLineNoFoundEnd
+    call   runtimePrintString
+    pop hl
+    call   runtimePrintInt
+
+    ld     sp,(runtimeSaveSP)
+    ret
+errLineNotFound:
+    dw errLineNoFoundEnd-$
+    db "Line not found "
+errLineNoFoundEnd:
+
+
+
+
+    
 
 runtimeRND:
 	LD BC,($5C76)	; Fetch the current value of SEED.
@@ -1676,7 +1747,8 @@ rtAsciiToFloatFracLoop:
 rtAscciiToFloatEnd: ret 
 
 
-
+runtimeNegFloat:
+                ret
 
 
 
@@ -1703,15 +1775,6 @@ rtInkeyString:          dw 0
 rtInkeyChar             db 0
 rtKEY_SHIFT:              equ     1
 rtKEY_SYMBOL_SHIFT:		equ		2	
-rtKeyboard_Map:         DB $FE, 1,"Z","X","C","V"
-                        DB $FD,"A","S","D","F","G"
-                        DB $FB,"Q","W","E","R","T"
-                        DB $F7,"1","2","3","4","5"
-                        DB $EF,"0","9","8","7","6"
-                        DB $DF,"P","O","I","U","Y"
-                        DB $BF,13,"L","K","J","H"
-                        DB $7F," ",2,"M","N","B"   
-
 runtimeSaveSP:          dw 0
 
  DISPLAY "Runtime Size =",/D, $-RUNTIME_START, " bytes"

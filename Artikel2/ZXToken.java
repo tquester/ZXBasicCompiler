@@ -101,6 +101,7 @@ public class ZXToken {
 	public static final int ZXB_SMALLERTHAN = 0xc7;
 	public static final int ZXB_BIGGERTHAN = 0xc8;
 	public static final int ZXB_UNEQUAL = 0xc9;
+	public static final int ZXB_ENDOFCODE = 0x80;
 	
 	public String tokenToStr(int token) {
 		String s = mMapTokens.get(token);
@@ -159,10 +160,10 @@ public class ZXToken {
 		mMapTokens.put(ZXB_USR, "USR");
 		mMapTokens.put(ZXB_STR, "STR");
 		mMapTokens.put(ZXB_CHR, "CHR");
-		mMapTokens.put(ZXB_NOTX, "NOTX");
+		mMapTokens.put(ZXB_NOTX, "NOT");
 		mMapTokens.put(ZXB_BIN, "BIN");
-		mMapTokens.put(ZXB_ORX, "ORX");
-		mMapTokens.put(ZXB_ANDX, "ANDX");
+		mMapTokens.put(ZXB_ORX, "OR");
+		mMapTokens.put(ZXB_ANDX, "AND");
 		mMapTokens.put(ZXB_LINE, "LINE");
 		mMapTokens.put(ZXB_THEN, "THEN");
 		mMapTokens.put(ZXB_TO, "TO");
