@@ -150,6 +150,7 @@ ZXHeapCompactFreeNext:      ld    DE,(ix+ZXBlockSize)
 ZXHeapWalk:         if DEBUG=1
                     PUSHA
                     call saveScreen 
+                    call runtimeCls
                     call ZXHeapWalkPrint
                     if DEBUGSAVESCREEN
                     call GetKey
@@ -228,7 +229,17 @@ ZXHeapPrintContents2:
                     ld   b,a
 ZXHeapPrintContents:ld     a,(hl)
                     inc    hl
+                    cp     32
+                    jr     nc, ZXHeapPrintContents4      
+                    push   af
+                    ld     a,'$'
                     call   printA
+                    pop    af
+                    call   printHex2
+                    jr  ZXHeapPrintContents5
+ZXHeapPrintContents4:                    
+                    call   printA
+ZXHeapPrintContents5:                                
                     djnz   ZXHeapPrintContents
 ZXHeapPrintContents3:                    
                     call newline

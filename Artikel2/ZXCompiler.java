@@ -21,28 +21,42 @@ import zxcompiler.ZXTokenizer.ParserToken.ZXTokenTyp;
 import zxcompiler.ZXTokenizer.ZXBasicLine;
 
 public class ZXCompiler {
+	
+	class CExprStackEntry {
+		public VARTYP typ;
+		public int size;
+		CExprStackEntry(VARTYP typ, int size) {
+			this.typ = typ;
+			this.size = size;
+		}
+		public String toString() {
+			return String.format("%s - %d", this.typ.toString(), this.size);
+		}
+	};
 
 	ZXTokenizer mTokenizer = new ZXTokenizer();
 	ZXBasicLine mBasicLine = new ZXBasicLine();
 	Z80Emitter mEmitter = new Z80Emitter();
 	StringBuilder mBASICSource = new StringBuilder();
 	boolean mStringUsed=false;
+	
 
-	static public final int TYPE_INT = 0;
-	static public final int TYPE_STRING = 1;
-	static public final int TYPE_FLOAT = 2;
+
 	
 	public boolean mSettingList=false;
 	public int mSettingOptimize=0;
 	public boolean mSettingVerbose=false;
+	public boolean mSettingCompileDebug=false;
 	public int mSettingStop=0;
 	public boolean mSettingLineNr=false;
+	public boolean mSettingsShortCircuit=false;
 	public String mSettingBasicOutput = null;
-	public int mDefaultType=TYPE_INT;
-	public int mDefaultDataType=-1;
+	public VARTYP mDefaultType=VARTYP.TYPE_INT;
+	public VARTYP mDefaultDataType=VARTYP.TYPE_UNDEF;
 
-	Stack<Integer> mTypeStack = new Stack<Integer>();
+	Stack<CExprStackEntry> mTypeStack = new Stack<CExprStackEntry>();
 
+	private String mFirstData=null;
 	private String mCode;
 	private int mPos;
 	private int mEnd;
@@ -56,14 +70,16 @@ public class ZXCompiler {
 	private String mFactorLiteral;
 	private byte[] mZXProgram;
 	private boolean mListing;
+	private int mPopSize;
 
 	public void start(byte[] zxProgram) {
+		mListing = false;
 		mZXProgram = zxProgram;
 		mTokenizer.init(zxProgram);
 		mBasicLine = new ZXBasicLine();
 		mTokenizer.getLine(mBasicLine);
 		mEmitter.emitStart();
-		mEmitter.emitLine(mBasicLine.line);
+		//mEmitter.emitLine(mBasicLine.line);
 		
 		print(mBasicLine.toString());
 	}
@@ -76,8 +92,9 @@ public class ZXCompiler {
 			if (mListing) {
 				mEmitter.emitLine(mBasicLine.line);
 				mEmitter.emitComment(mBasicLine.toString(false, true));
-				mBASICSource.append(mBasicLine.toString(false, true)+"\r\n");
+				mBASICSource.append(mBasicLine.toString(false, true, true)+"\r\n");
 				if (mSettingLineNr) mEmitter.emitLineNr(mBasicLine.line);
+				
 			}
 			if (r == false)
 				return false;
@@ -88,12 +105,14 @@ public class ZXCompiler {
 	}
 
 	void compile() {
+		mFirstData = null;
 		compileDim();
+		mFirstData = null;
 		mListing = true;
 		mEmitter.mLog = true;
 		mTokenizer.init(mZXProgram);
 		
-		while (true) {
+ 		while (true) {
 			if (lexan(lookahead) == false)
 				break;
 			if (lookahead.typ == ZXTokenizer.ParserToken.ZXTokenTyp.ZX_Token &&
@@ -103,6 +122,8 @@ public class ZXCompiler {
 				continue;
 			compileStmt();
 		}
+ 		if (mFirstData != null)
+ 			mEmitter.emitFirstRestore(mFirstData);
 		mEmitter.writeVariables();
 		mEmitter.emitEnd();
 		
@@ -114,10 +135,15 @@ public class ZXCompiler {
 		while (true) {
 			if (lexan(lookahead) == false)
 				break;
+			if (lookahead.typ == ZXTokenizer.ParserToken.ZXTokenTyp.ZX_Token &&
+					lookahead.zxToken == ZXToken.ZXB_STOP || lookahead.zxToken == ZXToken.ZXB_ENDOFCODE) break;
+				if (lookahead.typ == ZXTokenizer.ParserToken.ZXTokenTyp.ZX_EndOfLine
+						|| lookahead.typ == ZXTokenizer.ParserToken.ZXTokenTyp.ZX_Colon)
+					continue;
 			compileDimStmt();
 		}
-		mEmitter.writeVariables();
-		mEmitter.emitEnd();
+		//mEmitter.writeVariables();
+		//mEmitter.emitEnd();
 		
 	}
 
@@ -125,6 +151,8 @@ public class ZXCompiler {
 		if (lookahead.typ == ZXTokenTyp.ZX_Token) {
 			switch (lookahead.zxToken) {
 			case ZXToken.ZXB_DIM:
+				
+				mEmitter.emitComment(String.format("%d.%s %s", mBasicLine.line, mBasicStmt, mBasicLine.toString(true, true)));
 				compileDIM();
 				break;
 			default:
@@ -138,10 +166,13 @@ public class ZXCompiler {
 	}
 
 	void compileStmt() {
-		
+		if (mTypeStack.size() > 0) {
+			System.out.println("Typestack error");
+		}
 		if (!(lookahead.typ == ZXTokenTyp.ZX_Token && lookahead.zxToken == ZXToken.ZXB_REM))
 			mEmitter.emitComment(String.format("\t\t%d.%d %s",mBasicLine.line, mBasicStmt, mBasicLine.getStmt()));
 		if (mSettingLineNr) mEmitter.emitStmtNr(mBasicStmt);
+		if (mSettingCompileDebug) mEmitter.emitDebug(mBasicLine.line, mBasicStmt);
 		mBasicStmt++;
 		mStringUsed = false;
 		if (lookahead.typ != ZXTokenizer.ParserToken.ZXTokenTyp.ZX_Token) {
@@ -169,31 +200,32 @@ public class ZXCompiler {
 		case ZXToken.ZXB_PAPER:
 			lexan(lookahead);
 			expr();
-			checkType(TYPE_INT);
+			cvToType(popType(), VARTYP.TYPE_INT);
+
 			mEmitter.emitPaper();
 			break;
 		case ZXToken.ZXB_INK:
 			lexan(lookahead);
 			expr();
-			checkType(TYPE_INT);
+			cvToType(popType(), VARTYP.TYPE_INT);
 			mEmitter.emitInk();
 			break;
 		case ZXToken.ZXB_FLASH:
 			lexan(lookahead);
 			expr();
-			checkType(TYPE_INT);
+			cvToType(popType(), VARTYP.TYPE_INT);
 			mEmitter.emitFlash();
 			break;
 		case ZXToken.ZXB_BRIGHT:
 			lexan(lookahead);
 			expr();
-			checkType(TYPE_INT);
+			cvToType(popType(), VARTYP.TYPE_INT);
 			mEmitter.emitBright();
 			break;
 		case ZXToken.ZXB_OVER:
 			lexan(lookahead);
 			expr();
-			checkType(TYPE_INT);
+			cvToType(popType(), VARTYP.TYPE_INT);
 			mEmitter.emitOver();
 			break;
 		case ZXToken.ZXB_READ:
@@ -205,7 +237,7 @@ public class ZXCompiler {
 		case ZXToken.ZXB_PAUSE:
 			lexan(lookahead);
 			expr();
-			cvToType(popType(), TYPE_INT);
+			cvToType(popType(), VARTYP.TYPE_INT);
 			mEmitter.emitPause();
 			break;
 		case ZXToken.ZXB_PRINT: {
@@ -250,19 +282,26 @@ public class ZXCompiler {
 			mIsFactor = true;
 			mEmitter.startTempCode();
 			lexan(lookahead);
-			expr();
-			if (mIsFactor) {
-				mEmitter.stopTempCode();
-
-		
-				mEmitter.emitRestore(mFactorLiteral);
-			}
-			else {
-				mEmitter.writeTempCode();
-				mEmitter.stopTempCode();
-				mEmitter.emitRestoreVar();
-				mEmitter.mUsesVarData = true;
-
+			if (lookahead.typ == ZXTokenTyp.ZX_Colon || lookahead.typ == ZXTokenTyp.ZX_EndOfLine)
+			{
+				if (mFirstData != null)
+					mEmitter.emitRestore2(mFirstData);
+			} else {
+				expr();
+				cvToType(popType(), VARTYP.TYPE_INT);
+				if (mIsFactor) {
+					mEmitter.stopTempCode();
+	
+			
+					mEmitter.emitRestore(mFactorLiteral);
+				}
+				else {
+					mEmitter.writeTempCode();
+					mEmitter.stopTempCode();
+					mEmitter.emitRestoreVar();
+					mEmitter.mUsesVarData = true;
+	
+				}
 			}
 			break;
 			
@@ -272,6 +311,7 @@ public class ZXCompiler {
 			mEmitter.startTempCode();
 			lexan(lookahead);
 			expr();
+			cvToType(popType(), VARTYP.TYPE_INT);
 			if (mIsFactor) {
 				mEmitter.stopTempCode();
 				mEmitter.emitJumpToLine(mFactorLiteral);
@@ -289,6 +329,7 @@ public class ZXCompiler {
 			mEmitter.startTempCode();
 			lexan(lookahead);
 			expr();
+			cvToType(popType(), VARTYP.TYPE_INT);
 			if (mIsFactor) {
 				mEmitter.stopTempCode();
 				mEmitter.emitCallToLine(mFactorLiteral);
@@ -324,6 +365,7 @@ public class ZXCompiler {
 		// TODO Auto-generated method stub
 		
 		while (true) {
+			if (lookahead.typ == ZXTokenTyp.ZX_EndOfLine || lookahead.typ == ZXTokenTyp.ZX_Colon) break;
 			lexan(lookahead);
 			if (lookahead.typ == ZXTokenTyp.ZX_Comma) continue;
 			if (lookahead.typ == ZXTokenTyp.ZX_EndOfLine || lookahead.typ == ZXTokenTyp.ZX_Colon) break;
@@ -331,12 +373,16 @@ public class ZXCompiler {
 			if (var == null) {
 				var = mEmitter.emitVar(lookahead.literal, mDefaultType);
 			}
+			lexan(lookahead);
 			switch(var.typ) {
 			case TYPE_INT:
 				mEmitter.emitReadInt(var.name);
 				break;
 			case TYPE_STRING:
-				mEmitter.emitReadString(var.name);
+				if (var.dimen != null)
+					compileReadFixedString(var);
+				else
+					mEmitter.emitReadString(var.name);
 				break;
 			case TYPE_FLOAT:
 				mEmitter.emitReadFloat(lookahead.literal);
@@ -379,11 +425,11 @@ public class ZXCompiler {
 		lexan(lookahead);
 		match(ZXTokenTyp.ZX_Equals);
 		expr();
-		int typ = popType();
+		VARTYP typ = popType();
 		deffn.typ = typ;
 		switch(typ) {
-		case TYPE_INT:
-		case TYPE_STRING:
+		case VARTYP.TYPE_INT:
+		case VARTYP.TYPE_STRING:
 			mEmitter.emitPopHL();
 		}
 		mEmitter.emitReturn();
@@ -415,7 +461,7 @@ public class ZXCompiler {
 			mEmitter.emitStoreVariable(var.typ, var.name, false);
 		}
 		mEmitter.emitCallFN(fn);
-		if (fn.typ != TYPE_FLOAT)
+		if (fn.typ != VARTYP.TYPE_FLOAT)
 			mEmitter.emitPushHL();
 		pushType(fn.typ);
 		
@@ -424,17 +470,16 @@ public class ZXCompiler {
 	private void compileOUT() {
 		lexan(lookahead);
 		expr();
-		checkType(TYPE_INT);
-		lexan(lookahead);
+		cvToType(popType(), VARTYP.TYPE_INT);
 		match(ZXTokenizer.ParserToken.ZXTokenTyp.ZX_Comma);
 		expr();
-		checkType(TYPE_INT);
+		cvToType(popType(), VARTYP.TYPE_INT);
 		mEmitter.emitOut();
 		
 	}
 
 	private void compileRem() {
-		int typ=-1;
+		VARTYP typ=VARTYP.TYPE_UNDEF;
 		while (true) {
  			if (lookahead.typ == ZXTokenTyp.ZX_EndOfLine) break;
 			
@@ -447,16 +492,16 @@ public class ZXCompiler {
 					lexan(lookahead);
 					
 					switch(lookahead.literal.toLowerCase()) {
-						case "int16": mDefaultDataType = TYPE_INT; break;
-						case "float": mDefaultDataType = TYPE_FLOAT; break;
+						case "int16": mDefaultDataType = VARTYP.TYPE_INT; break;
+						case "float": mDefaultDataType = VARTYP.TYPE_FLOAT; break;
 					}
 				}
 				else if (lookahead.literal.compareToIgnoreCase("float") == 0) { 
-					typ = TYPE_FLOAT;
+					typ = VARTYP.TYPE_FLOAT;
 					compileRemVarsToType(typ);
 				}
 				else if (lookahead.literal.compareToIgnoreCase("int16") == 0) {
-					typ = TYPE_INT;
+					typ = VARTYP.TYPE_INT;
 					compileRemVarsToType(typ);
 				}
 			}
@@ -467,7 +512,7 @@ public class ZXCompiler {
 		
 	}
 
-	private void compileRemVarsToType(int typ) {
+	private void compileRemVarsToType(VARTYP typ) {
 		String varname;
 		while (true) {
 			lexan(lookahead);
@@ -483,11 +528,11 @@ public class ZXCompiler {
 				lookahead.copyFrom(mBasicLine.mPrevToken);
 			}
 			switch(typ) {
-				case TYPE_FLOAT:
+				case VARTYP.TYPE_FLOAT:
 					System.out.println("definie "+varname+" as float");
 					mEmitter.emitFloatVar(varname);
 					break;
-				case TYPE_INT: 
+				case VARTYP.TYPE_INT: 
 					System.out.println("definie "+varname+" as int");
 					mEmitter.emitIntVar(varname);
 					break;
@@ -512,10 +557,38 @@ public class ZXCompiler {
 		
 		
 	}
+	
+	/*
+	 * If we dim an int or float array, a number of ints or floats are created. 
+	 * DIM x(1) creates the variable x_array
+	 * 
+	 * If we dim a string, a fixed length string is created
+	 * dim a$(10) creates a_string with a fixed length of 10
+	 * dim b$(10,10) creates 10 strings with a fixed length of 10
+	 * 
+	 * We do not use the heap while assigning the string but the heap is used to push a string to
+	 * the stack on expr. In this case the fixed length string will be prefixed by its length and
+	 * a heap entry with type 1 (temp) will be created.
+	 * The assignment in let will remove the length information and store the text only also it will
+	 * cut the text to the length
+	 * dim x$(2,3)
+	 * let x$(1) = "12345"
+	 * let x$(2) = "1"
+	 * x$(1) = "123"
+	 * x$(2) = "1  "
+	 * 
+	 * also we can assign parts
+	 * x$(1, 1) = "x"
+	 * x$(1, 2 to 3) = "xy"
+	 * x$(1,  to 2) = "xy"
+	 * x$(1, 2 to) = "xy"
+	 * 
+	 */
 
 	private void compileDIM() {
 		boolean existing = false;
 		int arraySize = 0;
+		VARTYP vartype = mDefaultType;
 		ArrayList<Integer> dims = new ArrayList<Integer>();
 		lexan(lookahead);
 		if (lookahead.typ != ZXTokenTyp.ZX_literal) {
@@ -523,14 +596,18 @@ public class ZXCompiler {
 			return;
 		}
 		String name = lookahead.literal;
-		if (name.endsWith("$")) 
+		String varname = name+"_array"; 
+		if (name.endsWith("$")) {
 			name = name.substring(0, name.length() - 1) + "_string";
+			vartype = VARTYP.TYPE_STRING;
+			varname = name;
+		}
 
-		String varname = name+"_array";
+		
 		Z80Emitter.Variable variable;
 		variable = mEmitter.getVariable(varname);
 		if (variable == null) {
-			variable = new Z80Emitter.Variable();
+			variable = mEmitter.createVar(varname);
 			variable.typ = mDefaultType;
 		} else {
 			if (variable.dimen != null) {
@@ -545,9 +622,7 @@ public class ZXCompiler {
 			}
 			
 		}
-		if (lookahead.literal.endsWith("$")) {
-			variable.typ = TYPE_STRING;
-		}
+
 		lexan(lookahead);
 		match(ZXTokenTyp.ZX_OpenBracket);
 		while (true) {
@@ -568,6 +643,7 @@ public class ZXCompiler {
 		if (!existing) {
 			variable.dimen = new int[dims.size()];
 			variable.name = varname;
+			variable.typ = vartype;
 			arraySize = 0;
 			for (int i=0;i<dims.size();i++) {
 				variable.dimen[i] = dims.get(i).intValue();
@@ -598,55 +674,82 @@ public class ZXCompiler {
 	private void compilePOKE() {
 		lexan(lookahead);
 		expr();
-		checkType(TYPE_INT);
+		cvToType(popType(), VARTYP.TYPE_INT);
 		match(ZXTokenizer.ParserToken.ZXTokenTyp.ZX_Comma);
 		expr();
-		checkType(TYPE_INT);
+		cvToType(popType(), VARTYP.TYPE_INT);
 		mEmitter.emitPoke();
 	}
 
 	private void compileLET() {
-		int typ;
+		VARTYP typ;
 		boolean isIndexed=false;
 		String literal;
 		lexan(lookahead);
 		literal = lookahead.literal;
+		match(ZXTokenizer.ParserToken.ZXTokenTyp.ZX_literal);
 		if (literal.endsWith("$"))
 			literal = literal.substring(0,literal.length()-1)+"_string";
+		else  {
+			if (lookahead.typ == ZXTokenTyp.ZX_OpenBracket) {
+				literal = literal+"_array";
+			}
+		}
 		Z80Emitter.Variable variable = mEmitter.getVariable(literal);
-		match(ZXTokenizer.ParserToken.ZXTokenTyp.ZX_literal);
+		
+		if (variable != null) {
+			if (variable.typ == VARTYP.TYPE_STRING && variable.dimen != null) {
+				compileLetFixedString(variable);
+			    return;
+			}
+		} else 
+			error("Variable "+literal+" not found");
+		
+		
+		
+		
 		if (lookahead.typ == ZXTokenTyp.ZX_OpenBracket) {
-			Variable var = mEmitter.getVariable(literal+"_array");
-			if (var != null) {
-				if (var.dimen != null)  {
-					variable = var;
-					literal = var.name;
-					compileArrayAccess(var, true);
-					isIndexed = true;
-				}
+			
+			if (variable.typ != VARTYP.TYPE_STRING) {
+				Variable var = variable;
+				if (var != null) {
+					if (var.dimen != null)  {
+						variable = var;
+						literal = var.name;
+						compileArrayAccess(var, true);
+						isIndexed = true;
+					}
+				} else
+					error("Variable "+literal+"_array not found");
+			}
+			if (variable.typ == VARTYP.TYPE_STRING) {
+				compileStringSubstring();
+			//	mEmitter.emitPushVarAddress(variable);
+				lexan(lookahead);
+				isIndexed=true;
 			}
 		}
 		
 		
 		match(ZXTokenizer.ParserToken.ZXTokenTyp.ZX_Equals);
  		expr();
- 		int vartyp = mDefaultType;
+ 		VARTYP vartyp = mDefaultType;
 		typ = popType();
 		Variable v = mEmitter.getVariable(literal);
 		if (v == null) {
-			if (typ == TYPE_STRING) {
+			if (typ == VARTYP.TYPE_STRING) {
 				v = mEmitter.emitStringVar(literal);
 			} else {
-				if (mDefaultType == TYPE_INT)
+				if (mDefaultType == VARTYP.TYPE_INT)
 					v = mEmitter.emitIntVar(literal);
-				else if (mDefaultType == TYPE_FLOAT)
+				else if (mDefaultType == VARTYP.TYPE_FLOAT)
 					v = mEmitter.emitFloatVar(literal);
 			}
 		}
 		if (v != null)  {
 			vartyp = v.typ;
 		}
-		if (typ == TYPE_STRING) vartyp = typ;
+		if (typ == VARTYP.TYPE_STRING) vartyp = typ;
 		cvToType(typ, vartyp);
 		switch (vartyp) {
 		case TYPE_INT:
@@ -656,14 +759,274 @@ public class ZXCompiler {
 			mEmitter.emitStoreFloatVar(literal, isIndexed);
 			break;
 		case TYPE_STRING:
-			mEmitter.emitStoreStringVar(literal, isIndexed);
+			mEmitter.emitStoreStringVar(literal, isIndexed, typ, mPopSize);
 			mStringUsed = false;
 			break;
+		case TYPE_FIXSTRING:
+			mEmitter.emitStoreStringFix(literal, isIndexed, mPopSize);
+			mStringUsed = false;
+			break;
+		
 		}
 	}
 
+	private void CompileLiteralFixString(Variable var) {
+		int dimenSize = var.dimen.length;
+		int stringSize = var.dimen[var.dimen.length-1];
+		boolean bSetSubstring = false;
+		boolean closed=false;
+		boolean needsPlus=false;
+		lexan(lookahead);
+		if (lookahead.typ == ZXTokenTyp.ZX_OpenBracket) {
+		   if (dimenSize > 1) {
+			   for (int i=0;i<dimenSize-1;i++) {
+				   if (i >= 2) mEmitter.emitPlus();
+				   lexan(lookahead);
+				   needsPlus = true;
+				   expr();
+				   cvToType(popType(), VARTYP.TYPE_INT);
+				   int faktor =1;
+				   for (int j=i+1;j<dimenSize;j++) faktor *= var.dimen[j];
+				   mEmitter.emitPushInteger(String.format("%d", faktor));
+				   mEmitter.emitMult();
+				   if (lookahead.typ == ZXTokenTyp.ZX_Closebracket) {
+					   closed = true;
+					   break;
+				   }
+				   if (lookahead.typ != ZXTokenTyp.ZX_Comma) {
+					   System.out.printf("Expected comma");
+					   return;
+				   }
+			   }
+		   }
+		   mEmitter.emitPushVarAddress(var);
+		   if (needsPlus) mEmitter.emitPlus();
+		   if (!closed) {
+			   bSetSubstring = true;
+			   lexan(lookahead);
+			   if (lookahead.typ == ZXTokenTyp.ZX_Token && lookahead.zxToken == ZXToken.ZXB_TO) {
+				   mEmitter.emitPushInteger("1");
+				   lexan(lookahead);
+				   expr();
+				   cvToType(popType(), VARTYP.TYPE_INT);
+				   // x( TO 1) after the TO without a start there is always a number.
+			   } else {
+				   // either n or n to m
+				   expr();
+				   cvToType(popType(), VARTYP.TYPE_INT);
+				   if (lookahead.typ == ZXTokenTyp.ZX_Token && lookahead.zxToken == ZXToken.ZXB_TO) {
+					   lexan(lookahead);
+					   expr();
+					   cvToType(popType(), VARTYP.TYPE_INT);
+				   }
+				   else {
+					   mEmitter.emitDup();
+				   }
+			   }
+		   }
+		   match(ZXTokenTyp.ZX_Closebracket);
+		} else {
+			mEmitter.emitPushVarAddress(var);
+		}
+		if (!bSetSubstring) {
+			pushType(VARTYP.TYPE_FIXSTRING, stringSize);
+		} else {
+			mEmitter.emitFixedStringSubString();
+			pushType(VARTYP.TYPE_STRING);
+		}
+		
+		
+	}
+
+	private void compileLetFixedString(Variable var) {
+		int dimenSize = var.dimen.length;
+		int stringSize = var.dimen[var.dimen.length-1];
+		boolean bSetSubstring = false;
+		boolean closed=false;
+		boolean needsPlus = false;
+		if (lookahead.typ == ZXTokenTyp.ZX_OpenBracket) {
+		   if (dimenSize > 1) {
+			   for (int i=0;i<dimenSize-1;i++) {
+				   if (i >= 2) mEmitter.emitPlus();
+				   lexan(lookahead);
+				   expr();
+				   needsPlus = true;
+				   cvToType(popType(), VARTYP.TYPE_INT);
+				   int faktor =1;
+				   for (int j=i+1;j<dimenSize;j++) faktor *= var.dimen[j];
+				   mEmitter.emitPushInteger(String.format("%d", faktor));
+				   mEmitter.emitMult();
+				   if (lookahead.typ == ZXTokenTyp.ZX_Closebracket) {
+					   closed = true;
+					   break;
+				   }
+				   if (lookahead.typ != ZXTokenTyp.ZX_Comma) {
+					   System.out.printf("Expected comma");
+					   return;
+				   }
+			   }
+		   }
+		   mEmitter.emitPushVarAddress(var);
+		   if (needsPlus) mEmitter.emitPlus();
+		   if (!closed) {
+			   bSetSubstring = true;
+			   lexan(lookahead);
+			   if (lookahead.typ == ZXTokenTyp.ZX_Token && lookahead.zxToken == ZXToken.ZXB_TO) {
+				   // ( to x)
+				   mEmitter.emitPushInteger("1");
+				   lexan(lookahead);
+				   expr();
+				   cvToType(popType(), VARTYP.TYPE_INT);
+				   // x( TO 1) after the TO without a start there is always a number.
+			   } else {
+				   // either n or n to m
+				   // (a to b) or (a)
+				   expr();
+				   cvToType(popType(), VARTYP.TYPE_INT);
+				   if (lookahead.typ == ZXTokenTyp.ZX_Token && lookahead.zxToken == ZXToken.ZXB_TO) {
+					   // (a to b)
+					   lexan(lookahead);
+					   expr();
+					   cvToType(popType(), VARTYP.TYPE_INT);
+				   }
+				   else {
+					   mEmitter.emitDup();
+					   // (a) coded as (a to a)B
+				   }
+			   }
+		   } 
+		   match(ZXTokenTyp.ZX_Closebracket);
+		}
+		else 
+			mEmitter.emitPushVarAddress(var);
+		match(ZXTokenTyp.ZX_Equals);
+		expr();
+		VARTYP typ = popType();
+		if (!isStringTyp(typ)) {
+			error("Expeced String");
+			return;
+		}
+		if (bSetSubstring) {
+			if (typ == VARTYP.TYPE_STRING)
+				mEmitter.emitAssignFixedStringWithRange();
+			if (typ == VARTYP.TYPE_FIXSTRING)
+				mEmitter.emitAssignFixedStringFixStringWithRange(mPopSize);
+		} else {
+			if (typ == VARTYP.TYPE_STRING) {
+				mEmitter.emitAssignFixedString(stringSize);
+			}
+			if (typ == VARTYP.TYPE_FIXSTRING) {
+				mEmitter.emitAssignFixedFixedString(stringSize, mPopSize);
+			}
+		}
+	}
+	
+	private void compileReadFixedString(Variable var) {
+		int dimenSize = var.dimen.length;
+		int stringSize = var.dimen[var.dimen.length-1];
+		boolean bSetSubstring = false;
+		boolean closed=false;
+		boolean needsPlus = false;
+		if (lookahead.typ == ZXTokenTyp.ZX_OpenBracket) {
+		   if (dimenSize > 1) {
+			   for (int i=0;i<dimenSize-1;i++) {
+				   if (i >= 2) mEmitter.emitPlus();
+				   lexan(lookahead);
+				   expr();
+				   needsPlus = true;
+				   cvToType(popType(), VARTYP.TYPE_INT);
+				   int faktor =1;
+				   for (int j=i+1;j<dimenSize;j++) faktor *= var.dimen[j];
+				   mEmitter.emitPushInteger(String.format("%d", faktor));
+				   mEmitter.emitMult();
+				   if (lookahead.typ == ZXTokenTyp.ZX_Closebracket) {
+					   closed = true;
+					   break;
+				   }
+				   if (lookahead.typ != ZXTokenTyp.ZX_Comma) {
+					   System.out.printf("Expected comma");
+					   return;
+				   }
+			   }
+		   }
+		   mEmitter.emitPushVarAddress(var);
+		   if (needsPlus) mEmitter.emitPlus();
+		   if (!closed) {
+			   bSetSubstring = true;
+			   lexan(lookahead);
+			   if (lookahead.typ == ZXTokenTyp.ZX_Token && lookahead.zxToken == ZXToken.ZXB_TO) {
+				   mEmitter.emitPushInteger("1");
+				   lexan(lookahead);
+				   expr();
+				   // x( TO 1) after the TO without a start there is always a number.
+			   } else {
+				   // either n or n to m
+				   expr();
+				   if (lookahead.typ == ZXTokenTyp.ZX_Token && lookahead.zxToken == ZXToken.ZXB_TO) {
+					   lexan(lookahead);
+					   expr();
+				   }
+				   else {
+					   mEmitter.emitPushInteger(String.format("%d", stringSize));
+				   }
+			   }
+		   } 
+		   match(ZXTokenTyp.ZX_Closebracket);
+		} else
+			mEmitter.emitPushVarAddress(var);
+		mEmitter.emitReadString();
+
+		VARTYP typ = VARTYP.TYPE_STRING;
+		if (!isStringTyp(typ)) {
+			error("Expeced String");
+			return;
+		}
+		if (bSetSubstring) {
+			if (typ == VARTYP.TYPE_STRING)
+				mEmitter.emitAssignFixedStringWithRange();
+			if (typ == VARTYP.TYPE_FIXSTRING)
+				mEmitter.emitAssignFixedStringFixStringWithRange(mPopSize);
+		} else {
+			if (typ == VARTYP.TYPE_STRING) {
+				mEmitter.emitAssignFixedString(stringSize);
+			}
+			if (typ == VARTYP.TYPE_FIXSTRING) {
+				mEmitter.emitAssignFixedFixedString(stringSize, mPopSize);
+			}
+		}
+	}
+	
+
+	void compileStringSubstring() {
+		   lexan(lookahead);
+		   if (lookahead.typ == ZXTokenTyp.ZX_Token && lookahead.zxToken == ZXToken.ZXB_TO) {
+			   mEmitter.emitPushInteger("1");
+			   lexan(lookahead);
+			   expr();
+			   // x( TO 1) after the TO without a start there is always a number.
+		   } else {
+			   // either n or n to m
+			   expr();
+			   if (lookahead.typ == ZXTokenTyp.ZX_Token && lookahead.zxToken == ZXToken.ZXB_TO) {
+				   lexan(lookahead);
+				   if (lookahead.typ == ZXTokenTyp.ZX_Closebracket) {
+					   mEmitter.emitPushInteger("-1");
+				   } else {
+					   expr();
+				   }
+			   }
+			   else {
+				   mEmitter.emitDup();
+			   }
+		   }
+
+	}
+	private boolean isStringTyp(VARTYP typ) {
+		return typ == VARTYP.TYPE_STRING || typ == VARTYP.TYPE_FIXSTRING;
+	}
+
 	private void compileINPUT() {
-		int typ;
+		VARTYP typ;
 		boolean bLine = false;
 		ZXTokenTyp last = ZXTokenTyp.NULL;
 		boolean localAttributes = false;
@@ -693,10 +1056,10 @@ public class ZXCompiler {
 				case ZXToken.ZXB_AT:
 					lexan(lookahead);
 					expr();
-					checkType(TYPE_INT);
+					cvToType(popType(), VARTYP.TYPE_INT);
 					match(ZXTokenizer.ParserToken.ZXTokenTyp.ZX_Comma);
 					expr();
-					checkType(TYPE_INT);
+					cvToType(popType(), VARTYP.TYPE_INT);
 					mEmitter.emitPrintAt();
 					break;
 				case ZXToken.ZXB_INK:
@@ -786,6 +1149,7 @@ public class ZXCompiler {
 		localAttributes = false;
 		localStream = false;
 		mEmitter.emitUpperScreen();
+		mEmitter.savePFlags();
 		while (true) {
 			if (lookahead.typ == ZXTokenTyp.ZX_EndOfLine || lookahead.typ == ZXTokenTyp.ZX_Colon )
 				break;
@@ -799,6 +1163,7 @@ public class ZXCompiler {
 			localAttributes = false;
 			mEmitter.emitRestoreAttr();
 		}
+		mEmitter.restorePFlags();
 		if (localStream) {
 			mEmitter.emitCloseStream();
 			localStream = false;
@@ -806,13 +1171,13 @@ public class ZXCompiler {
 	}
 	
 	ZXTokenTyp printPart(ZXTokenTyp last) {
-		int typ;
+		VARTYP typ;
 		switch (lookahead.typ) {
 		case ZXTokenTyp.ZX_Hash:
 			lexan(lookahead);
 			expr();
 			localStream = true;
-			cvToType(popType(), TYPE_INT);
+			cvToType(popType(), VARTYP.TYPE_INT);
 			
 			mEmitter.emitStream();
 			
@@ -831,10 +1196,10 @@ public class ZXCompiler {
 			case ZXToken.ZXB_AT:
 				lexan(lookahead);
 				expr();
-				checkType(TYPE_INT);
+				cvToType(popType(), VARTYP.TYPE_INT);
 				match(ZXTokenizer.ParserToken.ZXTokenTyp.ZX_Comma);
 				expr();
-				checkType(TYPE_INT);
+				cvToType(popType(), VARTYP.TYPE_INT);
 				mEmitter.emitPrintAt();
 				break;
 			case ZXToken.ZXB_INK:
@@ -869,15 +1234,18 @@ public class ZXCompiler {
 		return last;
 	}
 
-	private void printStackTop(int typ) {
+	private void printStackTop(VARTYP typ) {
 		switch (typ) {
-		case TYPE_INT:
+		case VARTYP.TYPE_INT:
 			mEmitter.emitPrintInt();
 			break;
-		case TYPE_STRING:
+		case VARTYP.TYPE_STRING:
 			mEmitter.emitPrintString();
 			break;
-		case TYPE_FLOAT:
+		case VARTYP.TYPE_FIXSTRING:
+			mEmitter.emitPrintFixString(mPopSize);
+			break;
+		case VARTYP.TYPE_FLOAT:
 			mEmitter.emitPrintFloat();
 			break;
 		}
@@ -904,17 +1272,18 @@ public class ZXCompiler {
 				break;
 		}
 		expr();
-		checkType(TYPE_INT);
+		cvToType(popType(), VARTYP.TYPE_INT);
 		match(ZXTokenizer.ParserToken.ZXTokenTyp.ZX_Comma);
 		expr();
-		checkType(TYPE_INT);
+		cvToType(popType(), VARTYP.TYPE_INT);
 		expr();
-		checkType(TYPE_INT);
+		cvToType(popType(), VARTYP.TYPE_INT);
 		mEmitter.emitCircle();
 	}
 
 	private void compileDRAW() {
 		boolean localAttributes;
+		mEmitter.savePFlags();
 		while (true) {
 			lexan(lookahead);
 			if (lookahead.typ == ZXTokenTyp.ZX_Token) {
@@ -924,6 +1293,7 @@ public class ZXCompiler {
 				case ZXToken.ZXB_BRIGHT:
 				case ZXToken.ZXB_FLASH:
 				case ZXToken.ZXB_INVERSE:
+				case ZXToken.ZXB_OVER:
 					compileLocalAttr();
 					localAttributes = true;
 					break;
@@ -937,26 +1307,26 @@ public class ZXCompiler {
 			lexan(lookahead);
 		
 		expr();
-		checkType(TYPE_INT);
-		lexan(lookahead);
+		cvToType(popType(), VARTYP.TYPE_INT);
 		match(ZXTokenizer.ParserToken.ZXTokenTyp.ZX_Comma);
 		expr();
-		checkType(TYPE_INT);
+		cvToType(popType(), VARTYP.TYPE_INT);
 		if (lookahead.typ == ZXTokenTyp.ZX_Comma) {
 			expr();
 			mEmitter.emitDrawArc();
 		}
 		else 
 			mEmitter.emitDraw();
+		mEmitter.restorePFlags();
 	}
 
 	private void compileBeep() {
 		lexan(lookahead);
 		expr();
-		cvToType(popType(), TYPE_FLOAT);
+		cvToType(popType(), VARTYP.TYPE_FLOAT);
 		match(ZXTokenizer.ParserToken.ZXTokenTyp.ZX_Comma);
 		expr();
-		cvToType(popType(), TYPE_FLOAT);
+		cvToType(popType(), VARTYP.TYPE_FLOAT);
 		mEmitter.emitBeep();
 		
 	}
@@ -964,11 +1334,12 @@ public class ZXCompiler {
 	private void compileBorder() {
 		lexan(lookahead);
 		expr();
-		cvToType(popType(), TYPE_INT);
+		cvToType(popType(), VARTYP.TYPE_INT);
 		mEmitter.emitBorder();
 	}
 	private void compilePLOT() {
 		boolean localAttributes;
+		mEmitter.savePFlags();
 		while (true) {
 			lexan(lookahead);
 			if (lookahead.typ == ZXTokenTyp.ZX_Token) {
@@ -992,18 +1363,18 @@ public class ZXCompiler {
 			lexan(lookahead);
 
 		expr();
-		checkType(TYPE_INT);
-		lexan(lookahead);
+		cvToType(popType(), VARTYP.TYPE_INT);
 		match(ZXTokenizer.ParserToken.ZXTokenTyp.ZX_Comma);
 		expr();
-		checkType(TYPE_INT);
+		cvToType(popType(), VARTYP.TYPE_INT);
 		mEmitter.emitPlot();
+		mEmitter.restorePFlags();
 	}
 
 	private void compileIF() {
  		lexan(lookahead);
 		expr();
-		checkType(TYPE_INT);
+		cvToType(popType(), VARTYP.TYPE_INT);
 		String label = mEmitter.emitCheckFor0();
         lexan(lookahead);
 		while (true) {
@@ -1024,10 +1395,13 @@ public class ZXCompiler {
 	}
 
 	private void compileDATA() {
-		mEmitter.emitStartData(mBasicLine.line);
 		
-		int datatype = mDefaultDataType;
-		if (datatype == -1) datatype = mDefaultType;
+		String label = mEmitter.emitStartData(mBasicLine.line);
+		if (mFirstData == null)
+			mFirstData = label;
+		
+		VARTYP datatype = mDefaultDataType;
+		if (datatype == VARTYP.TYPE_UNDEF) datatype = mDefaultType;
 		
 		
 		while (true) {
@@ -1036,7 +1410,7 @@ public class ZXCompiler {
 				break;
 			if (lookahead.typ == ZXTokenTyp.ZX_Integer) {
 				if (lookahead.floatLiteral != null) {
-					if (lookahead.floatLiteral[0] != 0 || lookahead.literal.indexOf('.') != -1 || datatype == TYPE_FLOAT) {
+					if (lookahead.floatLiteral[0] != 0 || lookahead.literal.indexOf('.') != -1 || datatype == VARTYP.TYPE_FLOAT) {
 						mEmitter.emitDataFloat(lookahead);
 					} else 
 						mEmitter.emitDataInt(lookahead.literal);
@@ -1063,7 +1437,7 @@ public class ZXCompiler {
 	
 	private void compileFor() {
 		Variable var;
-		int     targetType = TYPE_INT;
+		VARTYP     targetType = VARTYP.TYPE_INT;
 		String varname;
 		String forlbl = mEmitter.getForLabel();
 		lexan(lookahead);				// variable
@@ -1075,19 +1449,19 @@ public class ZXCompiler {
 		lexan(lookahead);				// variable
 		match(ParserToken.ZXTokenTyp.ZX_Equals);
 		expr();
-		int typ = popType();
+		VARTYP typ = popType();
 		if (var != null) {
 			cvToType(typ, var.typ);
 			typ = var.typ;
 		}
-		if (typ == TYPE_INT) {
+		if (typ == VARTYP.TYPE_INT) {
 			
 			mEmitter.emitIntVar(varname);
 			mEmitter.emitStoreIntegerVar(varname, false);
-		} else if (typ == TYPE_FLOAT) {
+		} else if (typ == VARTYP.TYPE_FLOAT) {
 			mEmitter.emitFloatVar(varname);;
 			mEmitter.emitStoreFloatVar(varname, false);
-			targetType = TYPE_FLOAT;
+			targetType = VARTYP.TYPE_FLOAT;
 		}
 		mEmitter.mOptimize=mSettingOptimize;
 		match(ParserToken.ZXTokenTyp.ZX_Token);
@@ -1103,7 +1477,7 @@ public class ZXCompiler {
 			lexan(lookahead);
 			var.step = true;
 			expr();
-			int typ2 = popType();
+			VARTYP typ2 = popType();
 			cvToType(typ2, targetType);
 			mEmitter.emitVar(stepvarname, targetType);
 			mEmitter.emitStoreVariable(targetType, stepvarname, false);
@@ -1115,13 +1489,13 @@ public class ZXCompiler {
 		mEmitter.emitForLabel();
 	}
 	
-	private void cvToType(int type, int targetType) {
+	private void cvToType(VARTYP type, VARTYP targetType) {
 		switch(targetType) {
-			case TYPE_INT:
-				if (type == TYPE_FLOAT) mEmitter.emitFloatToInt();
+			case VARTYP.TYPE_INT:
+				if (type == VARTYP.TYPE_FLOAT) mEmitter.emitFloatToInt();
 				break;
-			case TYPE_FLOAT:
-				if (type == TYPE_INT) mEmitter.emitIntToFloat();
+			case VARTYP.TYPE_FLOAT:
+				if (type == VARTYP.TYPE_INT) mEmitter.emitIntToFloat();
 				break;
 		}
 	}
@@ -1135,8 +1509,8 @@ public class ZXCompiler {
 		int token = lookahead.zxToken;
 		lexan(lookahead);
 		expr();
-		int typ = popType();
-		cvToType(typ, TYPE_INT);
+		VARTYP typ = popType();
+		cvToType(typ, VARTYP.TYPE_INT);
 		switch (token) {
 		case ZXToken.ZXB_INK:
 			mEmitter.emitLocalInk();
@@ -1159,19 +1533,19 @@ public class ZXCompiler {
 		}
 	}
 
-	void checkType(int totype) {
-		int type = popType();
+	void checkType(VARTYP totype) {
+		VARTYP type = popType();
 		if (type == totype)
 			return;
 		switch (totype) {
-		case TYPE_INT:
-			if (type == TYPE_FLOAT) {
+		case VARTYP.TYPE_INT:
+			if (type == VARTYP.TYPE_FLOAT) {
 				mEmitter.emitFloatToInt();
 			} else
 				error("Fehler in Typumwandlung");
 			break;
-		case TYPE_FLOAT:
-			if (type == TYPE_FLOAT) {
+		case VARTYP.TYPE_FLOAT:
+			if (type == VARTYP.TYPE_FLOAT) {
 				mEmitter.emitIntToFloat();
 			} else
 				error("Fehler in Typumwandlung");
@@ -1205,8 +1579,21 @@ public class ZXCompiler {
 			factor();
 	}
 	
+	/* todo Refactor
+	 * 	expr()        → or()
+		or()          → and() {"OR" and()}*
+		and()         → rel() {"AND" rel()}*
+		rel()         → add() {("=" | "<>" | "<" | ">" | "<=" | ">=") add()}*
+		add()         → mul() {("+" | "-") mul()}*
+		mul()         → unary() {("*" | "/") unary()}*
+		unary()       → {"-" | "NOT"} pow()
+		pow()         → factor() {"^" pow()}*
+		factor()      → Zahl | Variable | "(" expr() ")"
+	 */
+	
 	private void expr() {
-		int typ1, typ2;
+		String label;
+		VARTYP typ1, typ2;
 		ParserToken t = new ParserToken();
 		expr2();
 		while (true) {
@@ -1217,38 +1604,62 @@ public class ZXCompiler {
 					mIsFactor=false;
 
 					t.copyFrom(lookahead);
+					label=null;
+					if (mSettingsShortCircuit) {
+						if (peekType() == VARTYP.TYPE_INT) {
+							label = "or_"+mEmitter.newLabel();
+							mEmitter.emitJumpOnNonZero(label);
+						}
+					}
 					match(lookahead);
 					expr2();
 					mEmitter.setComment("OR");
 					typ1 = popType();
 					typ2 = popType();
-					if (typ1 == TYPE_INT && typ2 == TYPE_INT) {
+					if (typ1 == VARTYP.TYPE_INT && typ2 == VARTYP.TYPE_INT) {
 						mEmitter.emitOr();
-						pushType(TYPE_INT);
+						pushType(VARTYP.TYPE_INT);
 					}else if (cvToFloat(typ1, typ2)) {
 						cvToFloat(typ1, typ2);
 						mEmitter.emitOrFloat();
-						pushType(TYPE_INT);
+						pushType(VARTYP.TYPE_INT);
 					}
+					if (mSettingsShortCircuit && label != null)
+						mEmitter.emitLabel(label);
 					continue;
 
 				case ZXToken.ZXB_ANDX:
 					mIsFactor=false;
-
 					t.copyFrom(lookahead);
+					label="";
+					/*
+					if (mSettingsShortCircuit) {
+						label = "and_"+mEmitter.newLabel();
+						mEmitter.emitJumpOnZero(label);
+					}
+					*/
+					
 					match(lookahead);
 					expr2();
+					//if (mSettingsShortCircuit)		mEmitter.emitLabel(label);
 					mEmitter.setComment("AND");
 					typ1 = popType();
 					typ2 = popType();
-					if (typ1 == TYPE_INT && typ2 == TYPE_INT) {
+					if (typ1 == VARTYP.TYPE_INT && typ2 == VARTYP.TYPE_INT) {
 						mEmitter.emitAnd();
-						pushType(TYPE_INT);
+						pushType(VARTYP.TYPE_INT);
 					} else if (cvToFloat(typ1, typ2)) {
-						
 						mEmitter.emitAndFloat();
-						pushType(TYPE_INT);
+						pushType(VARTYP.TYPE_INT);
+					} else if (typ1 == VARTYP.TYPE_INT && typ2 == VARTYP.TYPE_STRING) {
+						mEmitter.emitAndStringInt();
+						pushType(VARTYP.TYPE_STRING);
+					} else if(typ1 == VARTYP.TYPE_FLOAT && typ2 == VARTYP.TYPE_STRING) {
+						mEmitter.emitAndStringFloat();
+						pushType(VARTYP.TYPE_STRING);
 					}
+
+					
 					continue;
 				default:
 					return;
@@ -1261,7 +1672,8 @@ public class ZXCompiler {
 	
 	// main expression evaluation
 	private void expr2() {
-		int typ1, typ2;
+		VARTYP  typ1, typ2;
+		int size1, size2;
 		ParserToken t = new ParserToken();
 		term();
 		while (true) {
@@ -1274,20 +1686,34 @@ public class ZXCompiler {
 				term();
 				mEmitter.setComment("+");
 				typ1 = popType();
+				size1 = mPopSize;
 				typ2 = popType();
-				if (typ1 == TYPE_INT && typ2 == TYPE_INT) {
+				size2 = mPopSize;
+				if (typ1 == VARTYP.TYPE_INT && typ2 == VARTYP.TYPE_INT) {
 					mEmitter.emitPlus();
-					pushType(TYPE_INT);
-				} else if (typ1 == TYPE_FLOAT && typ2 == TYPE_FLOAT) {
+					pushType(VARTYP.TYPE_INT);
+				} else if (typ1 == VARTYP.TYPE_FLOAT && typ2 == VARTYP.TYPE_FLOAT) {
 				    mEmitter.emitPushAddFloat();
-				    pushType(TYPE_FLOAT);
+				    pushType(VARTYP.TYPE_FLOAT);
 				}				
-				else if (typ1 == TYPE_STRING && typ2 == TYPE_STRING) {
+				else if (typ1 == VARTYP.TYPE_STRING && typ2 == VARTYP.TYPE_STRING) {
 					mEmitter.emitPlusString();
-					pushType(TYPE_STRING);
-				}  else if (cvToFloat(typ1, typ2)) {
+					pushType(VARTYP.TYPE_STRING);
+				} else if (typ1 == VARTYP.TYPE_FIXSTRING && typ2 == VARTYP.TYPE_STRING) {
+					mEmitter.emitPlusFixVarString(size1);
+					pushType(VARTYP.TYPE_STRING);
+				} else if (typ1 == VARTYP.TYPE_STRING && typ2 == VARTYP.TYPE_FIXSTRING) {
+					mEmitter.emitPlusVarFixString(size2);
+					pushType(VARTYP.TYPE_STRING);
+				} else if (typ1 == VARTYP.TYPE_FIXSTRING && typ2 == VARTYP.TYPE_FIXSTRING) {
+					mEmitter.emitPlusFixFixString(size1, size2);
+					pushType(VARTYP.TYPE_STRING);
+				}
+				
+				
+				else if (cvToFloat(typ1, typ2)) {
 					mEmitter.emitPlusFloat();
-					pushType(TYPE_FLOAT);
+					pushType(VARTYP.TYPE_FLOAT);
 				}
 				continue;
 
@@ -1300,15 +1726,15 @@ public class ZXCompiler {
 				mEmitter.setComment("-");
 				typ1 = popType();
 				typ2 = popType();
-				if (typ1 == TYPE_INT && typ2 == TYPE_INT) {
+				if (typ1 == VARTYP.TYPE_INT && typ2 == VARTYP.TYPE_INT) {
 					mEmitter.emitMinus();
-					pushType(TYPE_INT);
-				} else if (typ1 == TYPE_FLOAT && typ2 == TYPE_FLOAT) {
+					pushType(VARTYP.TYPE_INT);
+				} else if (typ1 == VARTYP.TYPE_FLOAT && typ2 == VARTYP.TYPE_FLOAT) {
 				    mEmitter.emitPushSubFloat();
-				    pushType(TYPE_FLOAT);
+				    pushType(VARTYP.TYPE_FLOAT);
 				}else if (cvToFloatSwap(typ1, typ2)) {
 					mEmitter.emitMinusFloat();
-					pushType(TYPE_FLOAT);
+					pushType(VARTYP.TYPE_FLOAT);
 				}
 				continue;
 			case ZXTokenizer.ParserToken.ZXTokenTyp.ZX_Bigger:
@@ -1319,16 +1745,27 @@ public class ZXCompiler {
 				term();
 				mEmitter.setComment(">");
 				typ1 = popType();
+				size1=mPopSize;
 				typ2 = popType();
-				if (typ1 == TYPE_INT && typ2 == TYPE_INT) {
+				size2=mPopSize;
+				if (typ1 == VARTYP.TYPE_INT && typ2 == VARTYP.TYPE_INT) {
 					mEmitter.emitBigger();
-					pushType(TYPE_INT);
-				} else if (typ1 == TYPE_STRING && typ2 == TYPE_STRING) {
+					pushType(VARTYP.TYPE_INT);
+				} else if (typ1 == VARTYP.TYPE_STRING && typ2 == VARTYP.TYPE_STRING) {
 					mEmitter.emitBiggerString();
-					pushType(TYPE_INT);
+					pushType(VARTYP.TYPE_INT);
+				} else if (typ1 == VARTYP.TYPE_FIXSTRING && typ2 == VARTYP.TYPE_STRING) {
+					mEmitter.emitBiggerFixVarString(size1);
+					pushType(VARTYP.TYPE_INT);
+				} else if (typ1 == VARTYP.TYPE_STRING && typ2 == VARTYP.TYPE_FIXSTRING) {
+					mEmitter.emitBiggerVarFixString(size2);
+					pushType(VARTYP.TYPE_INT);
+				} else if (typ1 == VARTYP.TYPE_FIXSTRING && typ2 == VARTYP.TYPE_FIXSTRING) {
+					mEmitter.emitBiggerFixFixString(size1, size2);
+					pushType(VARTYP.TYPE_INT);
 				} else if (cvToFloatSwap(typ1, typ2)) {
 					mEmitter.emitBiggerFloat();
-					pushType(TYPE_INT);
+					pushType(VARTYP.TYPE_INT);
 				} else 
 					error("Wrong type");
 				continue;
@@ -1341,15 +1778,15 @@ public class ZXCompiler {
 				mEmitter.setComment("<");
 				typ1 = popType();
 				typ2 = popType();
-				if (typ1 == TYPE_INT && typ2 == TYPE_INT) {
+				if (typ1 == VARTYP.TYPE_INT && typ2 == VARTYP.TYPE_INT) {
 					mEmitter.emitSmaller();
-					pushType(TYPE_INT);
-				} else if (typ1 == TYPE_STRING && typ2 == TYPE_STRING) {
+					pushType(VARTYP.TYPE_INT);
+				} else if (typ1 == VARTYP.TYPE_STRING && typ2 == VARTYP.TYPE_STRING) {
 					mEmitter.emitSmallerString();
-					pushType(TYPE_INT);
+					pushType(VARTYP.TYPE_INT);
 				} else if (cvToFloatSwap(typ1, typ2)) {
 					mEmitter.emitSmallerFloat();
-					pushType(TYPE_INT);
+					pushType(VARTYP.TYPE_INT);
 				} else 
 					error("Wrong type");
 				continue;
@@ -1362,15 +1799,15 @@ public class ZXCompiler {
 				mEmitter.setComment("<=");
 				typ1 = popType();
 				typ2 = popType();
-				if (typ1 == TYPE_INT && typ2 == TYPE_INT) {
+				if (typ1 == VARTYP.TYPE_INT && typ2 == VARTYP.TYPE_INT) {
 					mEmitter.emitSmallerEqual();
-					pushType(TYPE_INT);
-				}  else if (typ1 == TYPE_STRING && typ2 == TYPE_STRING) {
+					pushType(VARTYP.TYPE_INT);
+				}  else if (typ1 == VARTYP.TYPE_STRING && typ2 == VARTYP.TYPE_STRING) {
 					mEmitter.emitSmallerEqualString();
-					pushType(TYPE_INT);
+					pushType(VARTYP.TYPE_INT);
 				} else if (cvToFloatSwap(typ1, typ2)) {
 					mEmitter.emitSmallerEqualFloat();
-					pushType(TYPE_INT);
+					pushType(VARTYP.TYPE_INT);
 				} else 
 					error("Wrong type");
 				continue;
@@ -1383,15 +1820,15 @@ public class ZXCompiler {
 				mEmitter.setComment(">=");
 				typ1 = popType();
 				typ2 = popType();
-				if (typ1 == TYPE_INT && typ2 == TYPE_INT) {
+				if (typ1 == VARTYP.TYPE_INT && typ2 == VARTYP.TYPE_INT) {
 					mEmitter.emitBiggerEqual();
-					pushType(TYPE_INT);
-				}  else if (typ1 == TYPE_STRING && typ2 == TYPE_STRING) {
+					pushType(VARTYP.TYPE_INT);
+				}  else if (typ1 == VARTYP.TYPE_STRING && typ2 == VARTYP.TYPE_STRING) {
 					mEmitter.emitBiggerEqualString();
-					pushType(TYPE_INT);
+					pushType(VARTYP.TYPE_INT);
 				} else if (cvToFloatSwap(typ1, typ2)) {
 					mEmitter.emitBiggerEqualFloat();
-					pushType(TYPE_INT);
+					pushType(VARTYP.TYPE_INT);
 				} else 
 					error("Wrong type");
 				continue;
@@ -1403,15 +1840,15 @@ public class ZXCompiler {
 				mEmitter.setComment("<>");
 				typ1 = popType();
 				typ2 = popType();
-				if (typ1 == TYPE_INT && typ2 == TYPE_INT) {
+				if (typ1 == VARTYP.TYPE_INT && typ2 == VARTYP.TYPE_INT) {
 					mEmitter.emitUnequal();
-					pushType(TYPE_INT);
-				}  else if (typ1 == TYPE_STRING && typ2 == TYPE_STRING) {
+					pushType(VARTYP.TYPE_INT);
+				}  else if (typ1 == VARTYP.TYPE_STRING && typ2 == VARTYP.TYPE_STRING) {
 					mEmitter.emitUnequalString();
-					pushType(TYPE_INT);
+					pushType(VARTYP.TYPE_INT);
 				} else if (cvToFloat(typ1, typ2)) {
 					mEmitter.emitUnequalFloat();
-					pushType(TYPE_INT);
+					pushType(VARTYP.TYPE_INT);
 				} else 
 					error("Wrong type");
 				continue;
@@ -1424,15 +1861,15 @@ public class ZXCompiler {
 				mEmitter.setComment("=");
 				typ1 = popType();
 				typ2 = popType();
-				if (typ1 == TYPE_INT && typ2 == TYPE_INT) {
+				if (typ1 == VARTYP.TYPE_INT && typ2 == VARTYP.TYPE_INT) {
 					mEmitter.emitEqual();
-					pushType(TYPE_INT);
-				}  else if (typ1 == TYPE_STRING && typ2 == TYPE_STRING) {
+					pushType(VARTYP.TYPE_INT);
+				}  else if (typ1 == VARTYP.TYPE_STRING && typ2 == VARTYP.TYPE_STRING) {
 					mEmitter.emitEqualString();
-					pushType(TYPE_INT);
+					pushType(VARTYP.TYPE_INT);
 				} else if (cvToFloat(typ1, typ2)) {
 					mEmitter.emitEqualFloat();
-					pushType(TYPE_INT);
+					pushType(VARTYP.TYPE_INT);
 				} else 
 					error("Wrong type");
 				continue;
@@ -1448,7 +1885,7 @@ public class ZXCompiler {
 	}
 
 	private void term() {
-		int typ1, typ2;
+		VARTYP typ1, typ2;
 		ParserToken t = new ParserToken();
 		factor();
 		while (true) {
@@ -1461,19 +1898,19 @@ public class ZXCompiler {
 				mEmitter.setComment("*");
 				typ1 = popType();
 				typ2 = popType();
-				if (typ1 == TYPE_INT && typ2 == TYPE_INT) {
+				if (typ1 == VARTYP.TYPE_INT && typ2 == VARTYP.TYPE_INT) {
 					mEmitter.emitMult();
-					pushType(TYPE_INT);
-				} else if (typ1 == TYPE_FLOAT && typ2 == TYPE_FLOAT) {
+					pushType(VARTYP.TYPE_INT);
+				} else if (typ1 == VARTYP.TYPE_FLOAT && typ2 == VARTYP.TYPE_FLOAT) {
 					mEmitter.emitMultFloat();
-					pushType(TYPE_FLOAT);
+					pushType(VARTYP.TYPE_FLOAT);
 				}
 				else if (cvToFloat(typ1, typ2)) {
 					t.copyFrom(lookahead);
 					//match(lookahead);
 					//factor();
 					mEmitter.emitMultFloat();
-					pushType(TYPE_FLOAT);
+					pushType(VARTYP.TYPE_FLOAT);
 				} else {
 					error("Error in type for mult");
 				}
@@ -1486,18 +1923,18 @@ public class ZXCompiler {
 				mEmitter.setComment("/");
 				typ1 = popType();
 				typ2 = popType();
-				if (typ1 == TYPE_INT && typ2 == TYPE_INT) {
+				if (typ1 == VARTYP.TYPE_INT && typ2 == VARTYP.TYPE_INT) {
 					mEmitter.emitDiv();
-					pushType(TYPE_INT);
-				} else if (typ1 == TYPE_FLOAT && typ2 == TYPE_FLOAT) {
+					pushType(VARTYP.TYPE_INT);
+				} else if (typ1 == VARTYP.TYPE_FLOAT && typ2 == VARTYP.TYPE_FLOAT) {
 					mEmitter.emitDivFloat();
-					pushType(TYPE_FLOAT);
+					pushType(VARTYP.TYPE_FLOAT);
 				}else if (cvToFloatSwap(typ1, typ2)) {
 					t.copyFrom(lookahead);
 					//match(lookahead);
 					//factor();
 					mEmitter.emitDivFloat();
-					pushType(TYPE_FLOAT);
+					pushType(VARTYP.TYPE_FLOAT);
 				} else {
 					error("Error in type for mult");
 				}
@@ -1514,46 +1951,52 @@ public class ZXCompiler {
 	// for + and * and = it is not important which comes first and
 	// which goes last. For -, *, >, <, <=, >= we must swap the
 	// two numbers if typ1 is INT
-	private boolean cvToFloat(int typ1, int typ2) {
-		if ((typ1 == TYPE_INT && typ2 == TYPE_FLOAT) || (typ1 == TYPE_FLOAT && typ2 == TYPE_INT)) {
+	private boolean cvToFloat(VARTYP  typ1, VARTYP typ2) {
+		if ((typ1 == VARTYP.TYPE_INT && typ2 == VARTYP.TYPE_FLOAT) || (typ1 == VARTYP.TYPE_FLOAT && typ2 == VARTYP.TYPE_INT)) {
 			mEmitter.emitCvIntToFloat();
 			return true;
 		}
-		if (typ1 == TYPE_FLOAT && typ2 == TYPE_FLOAT) return true;
+		if (typ1 == VARTYP.TYPE_FLOAT && typ2 == VARTYP.TYPE_FLOAT) return true;
 		return false;
 	}
 
-	private boolean cvToFloatSwap(int typ1, int typ2) {
-		if (typ1 == TYPE_INT && typ2 == TYPE_FLOAT) {
+	private boolean cvToFloatSwap(VARTYP typ1, VARTYP typ2) {
+		if (typ1 == VARTYP.TYPE_INT && typ2 == VARTYP.TYPE_FLOAT) {
 			mEmitter.emitCvIntToFloat();
 			return true;
-		} else if (typ1 == TYPE_FLOAT && typ2 == TYPE_INT) {
+		} else if (typ1 == VARTYP.TYPE_FLOAT && typ2 == VARTYP.TYPE_INT) {
 			mEmitter.emitCvIntToFloat();
 			mEmitter.swapFloat();
 			return true;
 
-		} else if (typ1 == TYPE_FLOAT && typ2 == TYPE_FLOAT) 
+		} else if (typ1 == VARTYP.TYPE_FLOAT && typ2 == VARTYP.TYPE_FLOAT) 
 			return true;
 		return false;
 	}
 
-	private int popType() {
-		Integer t = mTypeStack.pop();
-		return t.intValue();
+	private VARTYP popType() {
+		CExprStackEntry entry = mTypeStack.pop();
+		mPopSize = entry.size;
+		return entry.typ;
 	}
 	
-	private int peekType() {
-		Integer t = mTypeStack.peek();
-		return t.intValue();
+	private VARTYP peekType() {
+		CExprStackEntry entry = mTypeStack.peek();
+		mPopSize = entry.size;
+		return entry.typ;
 	}
 
 
-	private void pushType(int typ) {
-		mTypeStack.push(Integer.valueOf(typ));
+	private void pushType(VARTYP typ) {
+		pushType(typ,0);
+	}
+
+	private void pushType(VARTYP typ, int stringSize) {
+		mTypeStack.push(new CExprStackEntry(typ, stringSize)); 
 	}
 
 	private void factor() {
-		int typ;
+		VARTYP typ;
 		switch (lookahead.typ) {
 		case ZXTokenizer.ParserToken.ZXTokenTyp.ZX_Minus:
 			mIsFactor=false;
@@ -1585,41 +2028,45 @@ public class ZXCompiler {
 		case ZXTokenizer.ParserToken.ZXTokenTyp.ZX_Integer:
 			mFactorLiteral = lookahead.literal;
 			if (lookahead.floatLiteral != null) {
-				if (lookahead.floatLiteral[0] != 0 || lookahead.literal.indexOf('.') != -1 || mDefaultType == TYPE_FLOAT) {
+				if (lookahead.floatLiteral[0] != 0 || lookahead.literal.indexOf('.') != -1 || mDefaultType == VARTYP.TYPE_FLOAT) {
 					mEmitter.emitFloat(lookahead);
 					match(ZXTokenizer.ParserToken.ZXTokenTyp.ZX_Integer);
-					mTypeStack.push(Integer.valueOf(TYPE_FLOAT));
+					pushType(VARTYP.TYPE_FLOAT);
 					break;
 				}
 			}
 			mEmitter.emitPushInteger(lookahead.literal);
 			match(ZXTokenizer.ParserToken.ZXTokenTyp.ZX_Integer);
-			mTypeStack.push(Integer.valueOf(TYPE_INT));
+			pushType(VARTYP.TYPE_INT);
 			break;
 		case ZXTokenizer.ParserToken.ZXTokenTyp.ZX_Float:
 			mEmitter.emitPushFloat(lookahead.floatLiteral);
 			match(ZXTokenizer.ParserToken.ZXTokenTyp.ZX_Float);
-			mTypeStack.push(Integer.valueOf(TYPE_FLOAT));
+			pushType(VARTYP.TYPE_FLOAT);
 			break;
 		case ZXTokenizer.ParserToken.ZXTokenTyp.ZX_String:
 			mEmitter.emitPushString(lookahead.literal);
 			match(ZXTokenizer.ParserToken.ZXTokenTyp.ZX_String);
-			mTypeStack.push(Integer.valueOf(TYPE_STRING));
+			pushType(VARTYP.TYPE_STRING);
 			break;
 		case ZXTokenizer.ParserToken.ZXTokenTyp.ZX_literal:
 			mIsFactor=false;
 			boolean isArray=false;
 			
 			String varname = lookahead.literal;
-			int vartyp = mDefaultType;
+			VARTYP vartyp = mDefaultType;
 			if (lookahead.literal.indexOf('$') != -1) {
-				vartyp = TYPE_STRING;
+				vartyp = VARTYP.TYPE_STRING;
 				varname = varname.substring(0,varname.length()-1)+"_string";
 			}
 			Z80Emitter.Variable variable = mEmitter.getVariable(varname);
 			if (variable != null)  {
 				vartyp = variable.typ;
 				varname = variable.name;
+				if (vartyp == VARTYP.TYPE_STRING && variable.dimen != null) {
+					CompileLiteralFixString(variable);
+					break;
+				}
 			}
 			
 			lexan(lookahead);
@@ -1642,9 +2089,9 @@ public class ZXCompiler {
 			}
 		
 		//	isArray = compileArray(variable, vartyp);
-			if (vartyp == TYPE_INT) {
+			if (vartyp == VARTYP.TYPE_INT) {
 				if (lookahead.literal.indexOf('.') != -1)
-					vartyp = TYPE_FLOAT;
+					vartyp = VARTYP.TYPE_FLOAT;
 			}
 			
 			
@@ -1679,10 +2126,10 @@ public class ZXCompiler {
 					 lexan(lookahead);
 					 
 					 if (lookahead.floatLiteral != null) {
-							if (lookahead.floatLiteral[0] != 0 || lookahead.literal.indexOf('.') != -1 || mDefaultType == TYPE_FLOAT) {
+							if (lookahead.floatLiteral[0] != 0 || lookahead.literal.indexOf('.') != -1 || mDefaultType == VARTYP.TYPE_FLOAT) {
 								mEmitter.emitFloat(lookahead);
 								match(ZXTokenizer.ParserToken.ZXTokenTyp.ZX_Integer);
-								mTypeStack.push(Integer.valueOf(TYPE_FLOAT));
+								pushType(VARTYP.TYPE_FLOAT);
 								break;
 							}
 						}
@@ -1691,70 +2138,83 @@ public class ZXCompiler {
 				case ZXToken.ZXB_FN:
 					compileFN();
 					break;
+				case ZXToken.ZXB_ATTR:
+					 lexan(lookahead);					 
+					 match(ZXTokenizer.ParserToken.ZXTokenTyp.ZX_OpenBracket);
+					 expr();
+					 
+					 cvToType(popType(),VARTYP.TYPE_INT);
+					 match(ZXTokenizer.ParserToken.ZXTokenTyp.ZX_Comma);
+					 expr();
+					 cvToType(popType(),VARTYP.TYPE_INT);
+					 match(ZXTokenizer.ParserToken.ZXTokenTyp.ZX_Closebracket);
+					 mEmitter.emitAttr();
+					 pushType(VARTYP.TYPE_INT);
+					 break;
 				case ZXToken.ZXB_RND:
 					 mEmitter.emitRnd();
-					 pushType(TYPE_FLOAT);
+					 pushType(VARTYP.TYPE_FLOAT);
 					 lexan(lookahead);
 					 break;					 
 				case ZXToken.ZXB_IN:
 					 exprlexanfn();
-					 checkType(TYPE_INT);
+					 cvToType(popType(), VARTYP.TYPE_INT);
 					 mEmitter.emitIn();
-					 pushType(TYPE_INT);
+					 pushType(VARTYP.TYPE_INT);
 					 break;
 				case ZXToken.ZXB_INT:
 					 exprlexanfn();
-					 checkType(TYPE_INT);
-					 pushType(TYPE_INT);
+					 cvToType(popType(), VARTYP.TYPE_INT);
+					 pushType(VARTYP.TYPE_INT);
 					 break;
 				case ZXToken.ZXB_VAL:
 					 exprlexanfn();
-					 checkType(TYPE_STRING);
+					 checkType(VARTYP.TYPE_STRING);
 					 mEmitter.emitVal();
-					 pushType(TYPE_FLOAT);
+					 pushType(VARTYP.TYPE_FLOAT);
 					 break;
 				case ZXToken.ZXB_STR:
 					 mStringUsed = true;
 					 exprlexanfn();
 					 typ = peekType();
-					 if (typ == TYPE_FLOAT) {
-						 checkType(TYPE_FLOAT);
+					 if (typ == VARTYP.TYPE_FLOAT) {
+						 checkType(VARTYP.TYPE_FLOAT);
 						 mEmitter.emitStr();
 					 } else {
 						 mEmitter.emitStrInt();
 					 }
-					 pushType(TYPE_STRING);
+					 pushType(VARTYP.TYPE_STRING);
 					 break;
 				case ZXToken.ZXB_CODE:
 					 exprlexanfn();
-					 checkType(TYPE_STRING);
+					 checkType(VARTYP.TYPE_STRING);
 					 mEmitter.emitCode();
-					 pushType(TYPE_INT);
+					 pushType(VARTYP.TYPE_INT);
 					 break;
 				case ZXToken.ZXB_CHR:
 					 mStringUsed = true;
 					 exprlexanfn();
-					 checkType(TYPE_INT);
+					 cvToType(popType(), VARTYP.TYPE_INT);
 					 mEmitter.emitChr();
-					 pushType(TYPE_STRING);
+					 pushType(VARTYP.TYPE_STRING);
 					 break;
 				case ZXToken.ZXB_PEEK:
 					 exprlexanfn();
-					 checkType(TYPE_INT);
+					 cvToType(popType(), VARTYP.TYPE_INT);
 					 mEmitter.emitPeek();
-					 pushType(TYPE_INT);
+					 pushType(VARTYP.TYPE_INT);
 					 break;
 				case ZXToken.ZXB_SIN:
 					exprlexanfn();
-					 checkType(TYPE_FLOAT);
+					 checkType(VARTYP.TYPE_FLOAT);
 					 mEmitter.emitSin();
-					 pushType(TYPE_FLOAT);
+					 pushType(VARTYP.TYPE_FLOAT);
 					 break;
 				case ZXToken.ZXB_COS:
 					exprlexanfn();
-					 checkType(TYPE_FLOAT);
+					 checkType(VARTYP.TYPE_FLOAT);
 					 mEmitter.emitCos();
-					 pushType(TYPE_FLOAT);
+					 pushType(VARTYP.TYPE_FLOAT);
 					 break;
 				case ZXToken.ZXB_SGN:
 					exprlexanfn();
@@ -1771,67 +2231,68 @@ public class ZXCompiler {
 					 break;
 				case ZXToken.ZXB_ABSX:
 					 exprlexanfn();
-					 checkType(TYPE_FLOAT);
+					 checkType(VARTYP.TYPE_FLOAT);
 					 mEmitter.emitTan();
-					 pushType(TYPE_FLOAT);
+					 pushType(VARTYP.TYPE_FLOAT);
 					 break;
 				case ZXToken.ZXB_SQR:
 					exprlexanfn();
-					 checkType(TYPE_FLOAT);
+					 checkType(VARTYP.TYPE_FLOAT);
 					 mEmitter.emitSqr();
-					 pushType(TYPE_FLOAT);
+					 pushType(VARTYP.TYPE_FLOAT);
 					 break;
 				case ZXToken.ZXB_LEN:
 				     exprlexanfn();
-					 checkType(TYPE_STRING);
+					 checkType(VARTYP.TYPE_STRING);
 					 mEmitter.emitLen();
-					 pushType(TYPE_INT);
+					 pushType(VARTYP.TYPE_INT);
 					 break;
 				case ZXToken.ZXB_USR:
 					 exprlexanfn();
 					 typ = popType();
-					 if (typ == TYPE_INT)
+					 if (typ == VARTYP.TYPE_INT)
 						 mEmitter.emitUsr();
-					 else if (typ == TYPE_STRING) 
+					 else if (typ == VARTYP.TYPE_STRING) 
 						 mEmitter.emitUsrUDG();
 					 
-					 pushType(TYPE_INT);
+					 pushType(VARTYP.TYPE_INT);
 					 break;
 				case ZXToken.ZXB_LN:
 					exprlexanfn();
-					 checkType(TYPE_FLOAT);
+					 checkType(VARTYP.TYPE_FLOAT);
 					 mEmitter.emitLn();
-					 pushType(TYPE_FLOAT);
+					 pushType(VARTYP.TYPE_FLOAT);
 					 break;
 				case ZXToken.ZXB_EXP:
 					exprlexanfn();
-					 checkType(TYPE_FLOAT);
+					 checkType(VARTYP.TYPE_FLOAT);
 					 mEmitter.emitExp();
-					 pushType(TYPE_FLOAT);
+					 pushType(VARTYP.TYPE_FLOAT);
 					 break;
 				case ZXToken.ZXB_INKEY:
 					 mStringUsed = true;
 					 mEmitter.emitInkey();
-					 pushType(TYPE_STRING);
+					 pushType(VARTYP.TYPE_STRING);
 					 lexan(lookahead);
 					 break;
 				case ZXToken.ZXB_PI:
 					 mEmitter.emitPushPi();
-					 pushType(TYPE_FLOAT);
+					 pushType(VARTYP.TYPE_FLOAT);
 					 lexan(lookahead);
 					 break;
 				case ZXToken.ZXB_NOTX:
 					exprlexanfn();
-					 checkType(TYPE_INT);
+					 cvToType(popType(), VARTYP.TYPE_INT);
 					 mEmitter.emitNot();
-					 pushType(TYPE_INT);
+					 pushType(VARTYP.TYPE_INT);
 			}
 		}
 
 	}
 
 
-	private boolean compileArray(Variable variable, int vartyp) {
+
+	private boolean compileArray(Variable variable) {
 		
 		lexan(lookahead);
 		if (lookahead.typ != ZXTokenTyp.ZX_OpenBracket) {
@@ -1855,8 +2316,8 @@ public class ZXCompiler {
 	 *   (TO a)
 	 *   this may repeat for example A$(2 TO)(1)
 	 */
-	private void compileSubstring(int vartyp) {
-		if (vartyp != TYPE_STRING) return;
+	private void compileSubstring(VARTYP vartyp) {
+		if (vartyp != VARTYP.TYPE_STRING) return;
 		mStringUsed = true;
 		if (lookahead.typ != ZXTokenTyp.ZX_OpenBracket) return;
  		lexan(lookahead);
@@ -1865,7 +2326,7 @@ public class ZXCompiler {
 				mEmitter.emitPushInteger("1");
 			else {
 				expr();
-				cvToType(popType(), TYPE_INT);
+				cvToType(popType(), VARTYP.TYPE_INT);
 			}
 			if (lookahead.typ == ZXTokenTyp.ZX_Closebracket) {
 				mEmitter.emitCharAt();
@@ -1884,7 +2345,7 @@ public class ZXCompiler {
 					mEmitter.emitPushInteger("-1");
 				else {
 					expr();
-					cvToType(popType(),TYPE_INT);
+					cvToType(popType(),VARTYP.TYPE_INT);
 				}
 				mEmitter.emitSubstring();
 				if (lookahead.typ != ZXTokenTyp.ZX_Closebracket) {
@@ -1904,7 +2365,7 @@ public class ZXCompiler {
 		for (int i=0;i<variable.dimen.length;i++) {
 			
 			expr();
-			cvToType(popType(),TYPE_INT);
+			cvToType(popType(),VARTYP.TYPE_INT);
 			int faktor=1;
 			if (i < variable.dimen.length ) {
 				for (int j=i+1;j<variable.dimen.length;j++) {
@@ -1924,9 +2385,9 @@ public class ZXCompiler {
 			break;
 		}
 		match(ZXTokenTyp.ZX_Token.ZX_Closebracket);
-		if (variable.typ == TYPE_STRING || variable.typ == TYPE_INT)
+		if (variable.typ == VARTYP.TYPE_STRING || variable.typ == VARTYP.TYPE_INT)
 			mEmitter.emitMultiPlyTopOfStack(2);
-		if (variable.typ == TYPE_FLOAT)
+		if (variable.typ == VARTYP.TYPE_FLOAT)
 			mEmitter.emitMultiPlyTopOfStack(5);
 		if (push) {
 	//		mEmitter.mOptimize = 0;

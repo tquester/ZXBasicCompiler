@@ -42,6 +42,9 @@ public class Main {
 				case "-v":
 					compiler.mSettingVerbose = true;
 					break;
+				case "-d":
+					compiler.mSettingCompileDebug = true;
+					break;
 				case "-no":
 					compiler.mSettingOptimize = 0;
 					break;
@@ -51,6 +54,9 @@ public class Main {
 				case "-o1":
 					compiler.mSettingOptimize = 2;
 					break;
+				case "-osz":
+					compiler.mSettingsShortCircuit = true;
+					break;
 				case "-bl":
 					compiler.mSettingLineNr = true;
 					break;
@@ -58,7 +64,7 @@ public class Main {
 					compiler.mSettingLineNr = true;
 					break;
 				case "-f":
-					compiler.mDefaultType = ZXCompiler.TYPE_FLOAT;
+					compiler.mDefaultType = VARTYP.TYPE_FLOAT;
 					break;
 				case "-stop":
 				case "-s":

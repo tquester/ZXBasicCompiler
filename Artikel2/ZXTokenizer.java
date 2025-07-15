@@ -22,7 +22,6 @@ public class ZXTokenizer {
 			ZX_Unequal, // <>
 			ZX_OpenBracket, // (
 			ZX_Closebracket, // )
-			ZX_OpenArray, // [
 			ZX_CloseArray, // ]
 			ZX_Colon,
 			ZX_Hash,
@@ -69,9 +68,12 @@ public class ZXTokenizer {
 		}
 		
 		public String toString(boolean oneStatement) {
-			return toString(oneStatement, false);
+			return toString(oneStatement, false, false);
 		}
 		public String toString(boolean oneStatement, boolean skipBinary) {
+			return toString(oneStatement, skipBinary, false);
+		}
+		public String toString(boolean oneStatement, boolean skipBinary, boolean linefeed) {
 			ZXToken token = new ZXToken();
 			String strLine = String.format("%d ", line);
 			int pos = 0;
@@ -110,6 +112,10 @@ public class ZXTokenizer {
 					else
 						strLine += " " + strToken + " ";
 				}
+				if (linefeed && b == ':') {
+					strLine += "\n    ";
+				}
+
 
 			}
 			return strLine;
@@ -166,12 +172,7 @@ public class ZXTokenizer {
 			case ')':
 				token.typ = ParserToken.ZXTokenTyp.ZX_Closebracket;
 				break;
-			case '[':
-				token.typ = ParserToken.ZXTokenTyp.ZX_OpenArray;
-				break;
-			case ']':
-				token.typ = ParserToken.ZXTokenTyp.ZX_CloseArray;
-				break;
+		
 			case '#':
 				token.typ = ParserToken.ZXTokenTyp.ZX_Hash;
 				break;
@@ -222,7 +223,7 @@ public class ZXTokenizer {
 				token.typ = ParserToken.ZXTokenTyp.ZX_Unequal;
 				break;
 			default:
-				if (b >= '0' && b <= '9') {
+				if (b >= '0' && b <= '9' || b == '.') {
 					token.typ = ParserToken.ZXTokenTyp.ZX_Integer;
 					token.literal = String.format("%c", b);
 					while (true) {

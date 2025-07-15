@@ -19,7 +19,7 @@ public class Z80Emitter {
 
 	public static class Variable {
 		public String name;
-		public int typ;
+		public VARTYP typ;
 		public int[] dimen = null;
 		public boolean step = false;
 
@@ -27,12 +27,12 @@ public class Z80Emitter {
 			int size = 0;
 			int dims = 1;
 			switch (typ) {
-			case ZXCompiler.TYPE_FLOAT:
+			case VARTYP.TYPE_FLOAT:
 				size = 5 * countDimen();
 				return String.format("defs %s", size);
 
-			case ZXCompiler.TYPE_INT:
-			case ZXCompiler.TYPE_STRING:
+			case VARTYP.TYPE_INT:
+			case VARTYP.TYPE_STRING:
 				dims = countDimen();
 				size = 2 * dims;
 				if (dims == 1)
@@ -56,9 +56,9 @@ public class Z80Emitter {
 		public String toString() {
 			String strtyp="undef";
 			switch(typ) {
-			case ZXCompiler.TYPE_INT: strtyp = "int16"; break;
-			case ZXCompiler.TYPE_FLOAT: strtyp = "float"; break;
-			case ZXCompiler.TYPE_STRING: strtyp = "string"; break;
+			case VARTYP.TYPE_INT: strtyp = "int16"; break;
+			case VARTYP.TYPE_FLOAT: strtyp = "float"; break;
+			case VARTYP.TYPE_STRING: strtyp = "string"; break;
 			}
 			return String.format("%s %s", strtyp, name);
 		}
@@ -68,7 +68,7 @@ public class Z80Emitter {
 		public String name;
 		public ArrayList<Variable> mListVariables = new ArrayList<Variable>();
 		public TreeMap<String, Variable> mVariables = new TreeMap<String, Z80Emitter.Variable>();
-		public int typ;
+		public VARTYP typ;
 	}
 
 	public StringBuffer sbCode = new StringBuffer();
@@ -150,6 +150,8 @@ public class Z80Emitter {
 				str += "\t;" + comment;
 			if (str.compareTo("CALL runtimeCheckBreak") == 0 && str.compareTo(lastCommand) == 0)
 				return z80cmd;
+			emitString("\t" + str);
+			/*
 			if (lastCommand.compareTo("PUSH HL") == 0) {
 				if (str.compareTo("POP HL") == 0) {
 					lastCommand = str;
@@ -161,6 +163,7 @@ public class Z80Emitter {
 			lastCommand = str;
 			if (str.compareTo("PUSH HL") != 0)
 				emitString("\t" + str);
+			*/
 		} else {
 			z80cmd = new Z80Command(command, param1, param2, comment);
 			mCommands.add(z80cmd);
@@ -235,6 +238,7 @@ public class Z80Emitter {
 
 	private String stringToAsmDB(String value) {
 		String r = "";
+		int count=0;
 
 		boolean inString = false;
 		int i = 0;
@@ -246,19 +250,25 @@ public class Z80Emitter {
 					inString = false;
 				}
 				String d = value.substring(i + 1, i + 3);
-				if (i > 0)
+				if (count > 0)
 					r += ", ";
 				r += "$" + d;
 				i += 3;
+				count++;
+				if (count >= 100) {
+					count=0;
+					r += "\n\tdb ";
+				}
 			} else {
 				if (!inString) {
-					if (i > 0)
+					if (count > 0)
 						r += ", ";
 					r += "\"";
 					inString = true;
 				}
 				r += c;
 				i++;
+				count++;
 			}
 		}
 		if (inString)
@@ -390,22 +400,51 @@ public class Z80Emitter {
 
 	}
 
-	public void emitStoreStringVar(String varname, boolean isIndexed) {
+	public void emitStoreStringVar(String varname, boolean isSubstring, VARTYP sourceTyp, int strlen) {
 		emitBlockComment("Store string" + varname);
-		if (isIndexed) {
-			emitCommand("POP", "DE");
-			emitCommand("POP", "HL");
-			emitCommand("LD", "BC", String.format("ZXBASIC_VAR_%s", varname));
-			emitCommand("ADD", "HL", "BC");
-			emitCommand("LD", "(HL)", "DE");
+		if (isSubstring) {
+			if (sourceTyp == VARTYP.TYPE_STRING) {
+				emitCommand("POP", "HL");
+				emitCommand("POP", "DE");
+				emitCommand("POP", "BC");
+				emitCommand("LD", "IX", String.format("ZXBASIC_VAR_%s", varname));
+				emitCommand("call","runtimeStoreSubstringVarVar");
+			} else if (sourceTyp == VARTYP.TYPE_FIXSTRING) {
+				emitCommand("LD","BC",String.format("%d",strlen));
+				emitCommand("LD", "IX", String.format("ZXBASIC_VAR_%s", varname));
+				emitCommand("POP","HL");
+				emitCommand("PUSH","IX");
+				emitCommand("call","runtimeStoreSubstringVarFix");
+			}
 		} else {
 			emitCommand("POP", "DE");
 			emitCommand("LD", "HL", String.format("ZXBASIC_VAR_%s", varname));
-			emitCommand("CALL", "runtimeStoreString");
+			if (sourceTyp == VARTYP.TYPE_STRING)
+				emitCommand("CALL", "runtimeStoreString");
+			else {
+				emitCommand("LD","BC",String.format("%d",strlen));
+				emitCommand("CALL", "runtimeStoreStringVarFix");
+			}
 			emitBlockCommentEnd();
 		}
-
 	}
+	
+	public void emitStoreStringFix(String varname, boolean isSubstring, int size) {
+		if (isSubstring) {
+			// on Stack: from and to
+			emitCommand("LD","BC",String.format("%d", size));
+			emitCommand("LD", "IX", String.format("ZXBASIC_VAR_%s", varname));
+			emitCommand("call","runtimeStoreSubstringVarFix");
+		} else {
+			emitCommand("POP", "DE");
+			emitCommand("LD","BC",String.format("%d", size));
+			emitCommand("LD", "HL", String.format("ZXBASIC_VAR_%s", varname));
+			emitCommand("CALL", "runtimeStoreStringVarFix");
+			emitBlockCommentEnd();
+		}
+		
+	}
+	
 
 	public void emitPlus() {
 		emitBlockComment("+");
@@ -513,10 +552,10 @@ public class Z80Emitter {
 	}
 
 	public void emitLine(int line) {
-		String label = String.format("ZX_LINE_%d", line);
+		String label = String.format("ZXBASIC_LINE_%d", line);
 		emitString(label + ":");
 		Z80Command cmd = new Z80Command(label, null, null, null, null);
-		mMapCodeLines.put(String.format("%d", line),String.format("ZX_LINE_%d",line));
+		mMapCodeLines.put(String.format("%d", line),String.format("ZXBASIC_LINE_%d",line));
 		mCommands.add(cmd);
 	}
 
@@ -568,7 +607,7 @@ public class Z80Emitter {
 
 	}
 
-	private String newLabel() {
+	public String newLabel() {
 		lastLabel++;
 		return String.format("ZXB_LABEL_%d", lastLabel);
 	}
@@ -581,11 +620,11 @@ public class Z80Emitter {
 	}
 
 	public void emitJumpToLine(String line) {
-		emitCommand("JP", String.format("ZX_LINE_%s", line));
+		emitCommand("JP", String.format("ZXBASIC_LINE_%s", line));
 	}
 
 	public void emitCallToLine(String line) {
-		emitCommand("CALL", String.format("ZX_LINE_%s:", line));
+		emitCommand("CALL", String.format("ZXBASIC_LINE_%s:", line));
 
 	}
 
@@ -768,7 +807,7 @@ public class Z80Emitter {
 			literal = literal.substring(0, literal.length() - 1) + "_string";
 		emitCommand("CALL", "runtimeInputString");
 		emitCommand("PUSH", "HL");
-		emitStoreStringVar(literal, false);
+		emitStoreStringVar(literal, false, VARTYP.TYPE_STRING, 0);
 
 	}
 
@@ -1017,10 +1056,12 @@ public class Z80Emitter {
 		emitCommand("CALL", "runtimeSetStream");
 	}
 
-	public void emitStartData(int line) {
+	public String emitStartData(int line) {
+		String label=String.format("DATA_%d",line);
 		mSBData.append(String.format("DATA_%s:\n", line));
-		mMapDataLines.put(String.format("%d", line),String.format("DATA_%d",line));
-
+		mMapDataLines.put(String.format("%d", line),label);
+		mUsesData = true;
+		return label;
 
 	}
 
@@ -1054,8 +1095,22 @@ public class Z80Emitter {
 		emitCommand("LD", "HL", "DATA_" + literal);
 		emitCommand("LD", "(DATAPTR)", "HL");
 		mUsesData = true;
-
 	}
+	
+	public void emitRestore2(String literal) {
+		emitCommand("LD", "HL", literal);
+		emitCommand("LD", "(DATAPTR)", "HL");
+		mUsesData = true;
+	}
+	public void emitFirstRestore(String literal) {
+		Z80Command cmd;
+		cmd = new Z80Command("LD", "(DATAPTR)", "HL", null);
+		mCommands.addFirst(cmd);
+		cmd = new Z80Command("LD", "HL", literal, null);
+		mCommands.addFirst(cmd);
+		
+	}
+	
 
 	public void emitReadInt(String literal) {
 		emitCommand("LD", "HL", "(DATAPTR)");
@@ -1075,6 +1130,18 @@ public class Z80Emitter {
 		emitCommand("ADD","HL","BC");
 		emitCommand("LD", "(DATAPTR)", "HL");
 	}
+	
+	// reads (BASCIC READ) a string, pushes the BASIC String to the stack
+	public void emitReadString() {
+		emitCommand("LD", "HL", "(DATAPTR)");
+		emitCommand("PUSH","HL");
+		emitCommand("LD", "BC","(HL)");
+		emitCommand("INC", "HL");
+		emitCommand("INC", "HL");
+		emitCommand("ADD","HL","BC");
+		emitCommand("LD", "(DATAPTR)", "HL");
+	}
+	
 
 	public void emitReadFloat(String literal) {
 		emitCommand("LD", "HL", "(DATAPTR)");
@@ -1111,7 +1178,7 @@ public class Z80Emitter {
 		String lbl = String.format("FOR_%d", mForStack.pop().intValue());
 
 		if (var.step == false) {
-			if (var.typ == ZXCompiler.TYPE_INT) {
+			if (var.typ == VARTYP.TYPE_INT) {
 				emitCommand("LD", "HL", String.format("(ZXBASIC_VAR_%s)", literal));
 				emitCommand("INC", "HL");
 				emitCommand("LD", String.format("(ZXBASIC_VAR_%s)", literal), "HL");
@@ -1119,7 +1186,7 @@ public class Z80Emitter {
 				emitCommand("EX", "HL", "DE");
 				emitCommand("SUB", "HL", "DE");
 				emitCommand("JP", "NC", lbl);
-			} else if (var.typ == ZXCompiler.TYPE_FLOAT) {
+			} else if (var.typ == VARTYP.TYPE_FLOAT) {
 				emitCommand("LD", "HL", String.format("ZXBASIC_VAR_%s", literal));
 				emitCommand("CALL", "runtimePushFloatVar");
 				emitCommand("RST", "$28");
@@ -1133,13 +1200,13 @@ public class Z80Emitter {
 				emitCommand("CALL", "runtimePushFloatVar");
 				emitCommand("LD", "HL", String.format("ZXBASIC_VAR_%s", literal));
 				emitCommand("CALL", "runtimePushFloatVar");
-				emitCommand("CALL", "runtimeBiggerFloat");
+				emitCommand("CALL", "runtimeSmallerFloat");
 				emitCommand("LD", "A", "L");
 				emitCommand("CP", "0");
 				emitCommand("JP", "Z", lbl);
 			}
 		} else {
-			if (var.typ == ZXCompiler.TYPE_INT) {
+			if (var.typ == VARTYP.TYPE_INT) {
 				emitCommand("LD", "HL", String.format("(ZXBASIC_VAR_%s)", literal));
 				emitCommand("LD", "BC", String.format("(ZXBASIC_VAR_%s_step)", forlabel));
 				emitCommand("LD", "A", "B");
@@ -1156,7 +1223,7 @@ public class Z80Emitter {
 				emitCommand("SUB", "HL", "DE");
 				emitCommand("JP", "NC", lbl);
 				emitCommandLabel(lbl + "_2");
-			} else if (var.typ == ZXCompiler.TYPE_FLOAT) {
+			} else if (var.typ == VARTYP.TYPE_FLOAT) {
 				emitCommand("LD", "HL", String.format("ZXBASIC_VAR_%s", forlabel));
 				emitCommand("CALL", "runtimePushFloatVar");
 				emitCommand("LD", "HL", String.format("ZXBASIC_VAR_%s", literal));
@@ -1254,7 +1321,7 @@ public class Z80Emitter {
 		if (var == null) {
 			var = new Variable();
 			var.name = name;
-			var.typ = ZXCompiler.TYPE_INT;
+			var.typ = VARTYP.TYPE_INT;
 			mMapVariables.put(name, var);
 		}
 		return var;
@@ -1265,7 +1332,7 @@ public class Z80Emitter {
 		if (var == null) {
 			var = new Variable();
 			var.name = name;
-			var.typ = ZXCompiler.TYPE_FLOAT;
+			var.typ = VARTYP.TYPE_FLOAT;
 			mMapVariables.put(name, var);
 		}
 		return var;
@@ -1277,7 +1344,7 @@ public class Z80Emitter {
 		if (var == null) {
 			var = new Variable();
 			var.name = name;
-			var.typ = ZXCompiler.TYPE_STRING;
+			var.typ = VARTYP.TYPE_STRING;
 			mMapVariables.put(name, var);
 		}
 		return var;
@@ -1308,7 +1375,9 @@ public class Z80Emitter {
 	}
 
 	public void emitStrInt() {
+		emitCommand("POP","HL");
 		emitCommand("CALL", "runtimeStrInt");
+		emitCommand("PUSH","HL");
 
 	}
 
@@ -1322,33 +1391,33 @@ public class Z80Emitter {
 		emitCommand("LD", "(23623)", "a");
 	}
 
-	public void emitStoreVariable(int targetType, String name, boolean block) {
+	public void emitStoreVariable(VARTYP targetType, String name, boolean block) {
 		switch (targetType) {
-		case ZXCompiler.TYPE_INT:
+		case VARTYP.TYPE_INT:
 			emitStoreIntegerVar(name, block);
 			break;
-		case ZXCompiler.TYPE_FLOAT:
+		case VARTYP.TYPE_FLOAT:
 			emitStoreFloatVar(name, block);
 			break;
-		case ZXCompiler.TYPE_STRING:
-			emitStoreStringVar(name, block);
+		case VARTYP.TYPE_STRING:
+			emitStoreStringVar(name, block, VARTYP.TYPE_STRING, 0);
 			break;
 		}
 		// TODO Auto-generated method stub
 
 	}
 
-	public Variable emitVar(String name, int targetType) {
+	public Variable emitVar(String name, VARTYP targetType) {
 		if (name.endsWith("$")) {
 			name = name.substring(0, name.length() - 1) + "_string";
-			targetType = ZXCompiler.TYPE_STRING;
+			targetType = VARTYP.TYPE_STRING;
 		}
 		switch (targetType) {
-		case ZXCompiler.TYPE_INT:
+		case VARTYP.TYPE_INT:
 			return emitIntVar(name);
-		case ZXCompiler.TYPE_FLOAT:
+		case VARTYP.TYPE_FLOAT:
 			return emitFloatVar(name);
-		case ZXCompiler.TYPE_STRING:
+		case VARTYP.TYPE_STRING:
 			return emitStringVar(name);
 		}
 		return null;
@@ -1368,10 +1437,10 @@ public class Z80Emitter {
 	}
 
 	public Variable createVar(String literal) {
-		var typ = ZXCompiler.TYPE_INT;
+		VARTYP typ = VARTYP.TYPE_INT;
 		if (literal.endsWith("$")) {
 			literal = literal.substring(0, literal.length() - 1) + "_string";
-			typ = ZXCompiler.TYPE_STRING;
+			typ = VARTYP.TYPE_STRING;
 		}
 		return emitVar(literal, typ);
 	}
@@ -1386,14 +1455,16 @@ public class Z80Emitter {
 	}
 
 	public void emitBorder() {
+		emitCommand("POP","HL");
 		emitCommand("LD", "A", "L");
 		emitCommand("call", "$2297");
 	}
 
 	public void emitOut() {
-		emitCommand("LD", "A", "L");
 		emitCommand("POP", "HL");
-		emitCommand("OUT", "(HL)", "A");
+		emitCommand("POP", "BC");
+		emitCommand("LD", "A", "L");
+		emitCommand("OUT", "(C)", "A");
 	}
 
 	public void emitIn() {
@@ -1531,4 +1602,287 @@ public class Z80Emitter {
 		emitCommand("CALL","runtimeVarCall");
 	}
 
+	public void emitPushVarAddress(Variable var) {
+		emitCommand("LD","HL",String.format("ZXBASIC_VAR_%s",var.name));
+		emitCommand("PUSH","HL");
+		
+	}
+
+	public void emitAssignFixedStringWithRange() {
+		emitCommand("POP","HL");
+		emitCommand("CALL","runtimeStoreFixedStringWithRangeFromBstr");
+	}
+	
+	public void emitAssignFixedStringFixStringWithRange(int size) {
+		
+		emitCommand("POP","HL");
+		emitCommand("LD","BC", String.format("%d", size));
+		emitCommand("CALL","runtimeSetFixedStringFixedWithRange");
+		
+	}
+	
+
+	public void emitAssignFixedString(int stringSize) {
+		emitCommand("POP","HL");
+		emitCommand("POP","DE");
+		emitCommand("LD","BC",String.format("%d", stringSize));
+		emitCommand("CALL","runtimeStoreStringVarFix");
+		
+	}
+
+	public void emitAssignFixedFixedString(int size1, int size2) {
+		emitCommand("LD","BC",String.format("%d", size1));
+		emitCommand("PUSH","BC");
+		emitCommand("LD","BC",String.format("%d", size2));
+		emitCommand("PUSH","BC");
+		emitCommand("CALL","runtimeSetFixedString");
+	}
+
+	public void emitFixedStringSubString() {
+		emitCommand("POP","BC");
+		emitCommand("POP","DE");
+		emitCommand("POP","HL");
+		emitCommand("CALL","runtimePushFixedSubString");
+		emitCommand("PUSH","HL");
+		
+	}
+
+	public void emitPrintFixString(int size) {
+		emitCommand("POP","HL");
+		emitCommand("LD","BC",String.format("%d", size));
+		emitCommand("CALL","runtimePrintFixString");
+	}
+
+	public void emitPlusFixVarString(int size) {
+		emitCommand("POP","HL");
+		emitCommand("LD","BC",String.format("%d", size));
+		emitCommand("CALL","runtimeAddStringFixVar");
+		emitCommand("PUSH","HL");
+		
+	}
+
+	public void emitPlusVarFixString(int size) {
+		emitCommand("POP","HL");
+		emitCommand("LD","BC",String.format("%d", size));
+		emitCommand("CALL","runtimeAddStringFixVar");
+		emitCommand("PUSH","HL");
+		
+	}
+
+	public void emitPlusFixFixString(int size1, int size2) {
+		emitCommand("LD","BC",String.format("%d", size1));
+		emitCommand("PUSH","BC");
+		emitCommand("LD","BC",String.format("%d", size2));
+		emitCommand("PUSH","BC");
+		emitCommand("CALL","runtimeAddStringFixFix");
+		emitCommand("PUSH","HL");
+	}
+
+	public void emitBiggerFixVarString(int size) {
+		emitCommand("POP","HL");
+		emitCommand("LD","BC",String.format("%d", size));
+		emitCommand("CALL","runtimeBiggerStringFixVar");
+		emitCommand("PUSH","HL");
+		
+	}
+
+	public void emitBiggerVarFixString(int size) {
+		emitCommand("POP","HL");
+		emitCommand("LD","BC",String.format("%d", size));
+		emitCommand("CALL","runtimeBiggerStringVarFix");
+		emitCommand("PUSH","HL");
+		
+	}
+
+	public void emitBiggerFixFixString(int size1, int size2) {
+		emitCommand("LD","BC",String.format("%d", size1));
+		emitCommand("PUSH","BC");
+		emitCommand("LD","BC",String.format("%d", size2));
+		emitCommand("PUSH","BC");
+		emitCommand("CALL","runtimeBiggerStringFixFix");
+		emitCommand("PUSH","HL");
+	}
+
+	public void emitBiggerEqualFixVarString(int size) {
+		emitCommand("POP","HL");
+		emitCommand("LD","BC",String.format("%d", size));
+		emitCommand("CALL","runtimeBiggerEqualStringFixVar");
+		emitCommand("PUSH","HL");
+		
+	}
+
+	public void emitBiggerEqualVarFixString(int size) {
+		emitCommand("POP","HL");
+		emitCommand("LD","BC",String.format("%d", size));
+		emitCommand("CALL","runtimeBiggerEqualStringVarFix");
+		emitCommand("PUSH","HL");
+		
+	}
+
+	public void emitBiggerEqualFixFixString(int size1, int size2) {
+		emitCommand("LD","BC",String.format("%d", size1));
+		emitCommand("PUSH","BC");
+		emitCommand("LD","BC",String.format("%d", size2));
+		emitCommand("PUSH","BC");
+		emitCommand("CALL","runtimeBiggerEqualStringFixFix");
+		emitCommand("PUSH","HL");
+	}
+
+	public void emitSmallerFixVarString(int size) {
+		emitCommand("POP","HL");
+		emitCommand("LD","BC",String.format("%d", size));
+		emitCommand("CALL","runtimeSmallerStringFixVar");
+		emitCommand("PUSH","HL");
+		
+	}
+
+	public void emitSmallerVarFixString(int size) {
+		emitCommand("POP","HL");
+		emitCommand("LD","BC",String.format("%d", size));
+		emitCommand("CALL","runtimeSmallerStringVarFix");
+		emitCommand("PUSH","HL");
+		
+	}
+
+	public void emitSmallerFixFixString(int size1, int size2) {
+		emitCommand("LD","BC",String.format("%d", size1));
+		emitCommand("PUSH","BC");
+		emitCommand("LD","BC",String.format("%d", size2));
+		emitCommand("PUSH","BC");
+		emitCommand("CALL","runtimeSmallerStringFixFix");
+		emitCommand("PUSH","HL");
+	}
+
+	public void emitSmallerEqualFixVarString(int size) {
+		emitCommand("POP","HL");
+		emitCommand("LD","BC",String.format("%d", size));
+		emitCommand("CALL","runtimeSmallerEqualStringFixVar");
+		emitCommand("PUSH","HL");
+		
+	}
+
+	public void emitEqualVarFixString(int size) {
+		emitCommand("POP","HL");
+		emitCommand("LD","BC",String.format("%d", size));
+		emitCommand("CALL","runtimeEqualStringVarFix");
+		emitCommand("PUSH","HL");
+		
+	}
+
+	public void emitEqualFixVarString(int size) {
+		emitCommand("POP","HL");
+		emitCommand("LD","BC",String.format("%d", size));
+		emitCommand("CALL","runtimeEqualStringFixVar");
+		emitCommand("PUSH","HL");
+		
+	}
+
+	public void emitEqualFixFixString(int size1, int size2) {
+		emitCommand("LD","BC",String.format("%d", size1));
+		emitCommand("PUSH","BC");
+		emitCommand("LD","BC",String.format("%d", size2));
+		emitCommand("PUSH","BC");
+		emitCommand("CALL","runtimeEqualStringFixFix");
+		emitCommand("PUSH","HL");
+	}
+
+
+	public void emitUnEqualFixVarString(int size) {
+		emitCommand("POP","HL");
+		emitCommand("LD","BC",String.format("%d", size));
+		emitCommand("CALL","runtimeUnequalStringFixVar");
+		emitCommand("PUSH","HL");
+		
+	}
+
+	public void emitUnEqualVarFixString(int size) {
+		emitCommand("POP","HL");
+		emitCommand("LD","BC",String.format("%d", size));
+		emitCommand("CALL","runtimeUnequalStringVarFix");
+		emitCommand("PUSH","HL");
+		
+	}
+
+	public void emitUnEqualFixFixString(int size1, int size2) {
+		emitCommand("LD","BC",String.format("%d", size1));
+		emitCommand("PUSH","BC");
+		emitCommand("LD","BC",String.format("%d", size2));
+		emitCommand("PUSH","BC");
+		emitCommand("CALL","runtimeUnequalStringFixFix");
+		emitCommand("PUSH","HL");
+	}
+
+	public void emitCreatesubstring() {
+		emitCommand("POP","DE");
+		emitCommand("POP","BC");
+		emitCommand("CALL","runtimeSubstring");
+		emitCommand("PUSH","HL");
+	
+	}
+
+	public void emitDup() {
+		emitCommand("POP","HL");
+		emitCommand("PUSH","HL");
+		emitCommand("PUSH","HL");
+		
+	}
+
+	public void emitAttr() {
+		emitCommand("POP","HL");
+		emitCommand("POP","DE");
+		emitCommand("CALL","runtimeAttr");
+		emitCommand("PUSH","HL");
+		
+	}
+
+	public void emitDebug(int line, int stmt) {
+		emitCommand("LD","HL",String.format("%d", line));
+		emitCommand("LD","A",String.format("%d", stmt));
+		emitCommand("CALL","runtimeDebug");
+	}
+
+	public void emitAndStringInt() {
+		emitCommand("POP","DE");
+		emitCommand("POP","HL");
+		emitCommand("CALL","runtimeVarStrAndInt");
+		emitCommand("PUSH","HL");
+	}
+
+	public void emitAndStringFloat() {
+		emitCommand("POP","HL");
+		emitCommand("CALL","runtimeVarStrAndFloat");
+		emitCommand("PUSH","HL");
+		
+	}
+
+	public void savePFlags() {
+		emitCommand("LD","A","(ZX_P_FLAG)");
+		emitCommand("PUSH","AF");
+	}
+
+	public void restorePFlags() {
+		emitCommand("POP","AF");
+		emitCommand("LD","(ZX_P_FLAG)","A");
+	}
+
+	public void emitJumpOnZero(String label) {
+		emitCommand("POP","HL");
+		emitCommand("PUSH","HL");
+		emitCommand("LD","A","H");
+		emitCommand("OR","L");
+		emitCommand("JR","Z",label);
+	}
+
+	public void emitJumpOnNonZero(String label) {
+		emitCommand("POP","HL");
+		emitCommand("LD","A","H");
+		emitCommand("OR","L");
+		emitCommand("JR","NZ",label);
+		emitCommand("PUSH","HL");
+	}
+
+
+
+
+	
 }

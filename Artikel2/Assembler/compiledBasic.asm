@@ -3,627 +3,1126 @@ CBASIC_START
 compiledBasic:
 	call ZXHeapClear
 	LD (runtimeSaveSP),SP
-	LD HL,ZXBASIC_VAR_o_array
-	LD BC,8
-	CALL runtimeClearArray
-	LD HL,ZXBASIC_VAR_m_string_array
-	LD BC,360
-	CALL runtimeClearStringArray
-	LD HL,ZXBASIC_VAR_h_string_array
-	LD BC,5001
-	CALL runtimeClearStringArray
-	LD HL,ZXBASIC_VAR_s_array
-	LD BC,6
-	CALL runtimeClearArray
-ZX_LINE_10:
-; 10  REM Sokoban
-ZX_LINE_20:
-; 20  REM Simon Ferre'
-ZX_LINE_30:
-; 30  REM 
-ZX_LINE_40:
-; 40  REM A- B- C- D- E- F- G-
-ZX_LINE_50:
-; 50  REM 
-ZX_LINE_60:
-; 60  BORDER 7: PAPER 7: INK 0: CLS 
-; 		60.1  BORDER 7{00 00 07 00 00 }
-	LD HL,7
-	PUSH HL
-	LD A,L
-	call $2297
-; 		60.2  PAPER 7{00 00 07 00 00 }
-	LD HL,7
-	CALL runtimePaper
-; 		60.3  INK 0{00 00 00 00 00 }
-	LD HL,0
-	CALL runtimeInk
-; 		60.4  CLS 
-	CALL runtimeCls
-ZX_LINE_70:
-; 70  GOSUB 1000
-; 		70.1  GOSUB 1000{00 00 e8 03 00 }
+	LD HL,DATA_1000
+	LD (DATAPTR),HL
+ZXBASIC_LINE_2:
+; 2  RANDOMIZE 
+	LD HL,2
+	LD (23621),HL
+; 		2.1  RANDOMIZE 
+	LD A,1
+	LD (23623),a
+ZXBASIC_LINE_11:
+; 11  GOSUB 950
+	LD HL,11
+	LD (23621),HL
+; 		11.1  GOSUB 950{00 00 b6 03 00 }
+	LD A,1
+	LD (23623),a
 	CALL runtimeCheckBreak
-	CALL ZX_LINE_1000:
-ZX_LINE_80:
-; 80  LET u$="k": LET d$="m": LET l$="z": LET r$="x": LET s$="q": LET q$="u": REM set keys
-; 		80.1  LET u$="k"
-	LD DE,STRING_0	;k
-	LD HL,ZXBASIC_VAR_u_string
-	CALL runtimeStoreString
-; 		80.2  LET d$="m"
-	LD DE,STRING_1	;m
-	LD HL,ZXBASIC_VAR_d_string
-	CALL runtimeStoreString
-; 		80.3  LET l$="z"
-	LD DE,STRING_2	;z
-	LD HL,ZXBASIC_VAR_l_string
-	CALL runtimeStoreString
-; 		80.4  LET r$="x"
-	LD DE,STRING_3	;x
-	LD HL,ZXBASIC_VAR_r_string
-	CALL runtimeStoreString
-; 		80.5  LET s$="q"
-	LD DE,STRING_4	;q
-	LD HL,ZXBASIC_VAR_s_string
-	CALL runtimeStoreString
-; 		80.6  LET q$="u"
-	LD DE,STRING_5	;u
-	LD HL,ZXBASIC_VAR_q_string
-	CALL runtimeStoreString
-ZX_LINE_90:
-; 90  LET l=0: GOSUB 2000: REM level
-; 		90.1  LET l=0{00 00 00 00 00 }
-	LD HL,0
+	CALL ZXBASIC_LINE_950:
+ZXBASIC_LINE_15:
+; 15  LET sc=25: LET l=3
+	LD HL,15
+	LD (23621),HL
+; 		15.1  LET sc=25{00 00 19 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,25
+	LD (ZXBASIC_VAR_sc),HL
+; 		15.2  LET l=3{00 00 03 00 00 }
+	LD A,2
+	LD (23623),a
+	LD HL,3
 	LD (ZXBASIC_VAR_l),HL
-; 		90.2  GOSUB 2000{00 00 d0 07 00 }
+ZXBASIC_LINE_20:
+; 20  GOSUB 700
+	LD HL,20
+	LD (23621),HL
+; 		20.1  GOSUB 700{00 00 bc 02 00 }
+	LD A,1
+	LD (23623),a
 	CALL runtimeCheckBreak
-	CALL ZX_LINE_2000:
-ZX_LINE_100:
-; 100  PRINT  AT 19,0;"Sokoban in BASIC by Simon Ferre'"; AT 20,0;"ENTER-play, SPACE-redefine keys"
-; 		100.1  PRINT  AT 19{00 00 13 00 00 },0{00 00 00 00 00 };"Sokoban in BASIC by Simon Ferre'"; AT 20{00 00 14 00 00 },0{00 00 00 00 00 };"ENTER-play, SPACE-redefine keys"
-	XOR A,A
-	LD (ZX_TV_FLAG),A
-	LD DE,19
-	LD HL,0
-	CALL runtimePrintAt
-	LD HL,STRING_6	;Sokoban in BASIC by Simon Ferre'
-	CALL runtimePrintString
-	LD DE,20
-	LD HL,0
-	CALL runtimePrintAt
-	LD HL,STRING_7	;ENTER-play, SPACE-redefine keys
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-ZX_LINE_110:
-; 110  PRINT  AT 21,0;"(lrud)=";l$;r$;u$;d$;", restart=";s$;", undo=";q$;"."
-; 		110.1  PRINT  AT 21{00 00 15 00 00 },0{00 00 00 00 00 };"(lrud)=";l$;r$;u$;d$;", restart=";s$;", undo=";q$;"."
-	XOR A,A
-	LD (ZX_TV_FLAG),A
-	LD DE,21
-	LD HL,0
-	CALL runtimePrintAt
-	LD HL,STRING_8	;(lrud)=
-	CALL runtimePrintString
-	LD HL,(ZXBASIC_VAR_l_string)
-	CALL runtimePrintString
-	LD HL,(ZXBASIC_VAR_r_string)
-	CALL runtimePrintString
-	LD HL,(ZXBASIC_VAR_u_string)
-	CALL runtimePrintString
-	LD HL,(ZXBASIC_VAR_d_string)
-	CALL runtimePrintString
-	LD HL,STRING_9	;, restart=
-	CALL runtimePrintString
-	LD HL,(ZXBASIC_VAR_s_string)
-	CALL runtimePrintString
-	LD HL,STRING_10	;, undo=
-	CALL runtimePrintString
-	LD HL,(ZXBASIC_VAR_q_string)
-	CALL runtimePrintString
-	LD HL,STRING_11	;.
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	CALL ZXFreeTempCompact
-ZX_LINE_120:
-; 120  GOSUB 630
-; 		120.1  GOSUB 630{00 00 76 02 00 }
-	CALL runtimeCheckBreak
-	CALL ZX_LINE_630:
-ZX_LINE_130:
-; 130  GOSUB 500: REM game loop
-; 		130.1  GOSUB 500{00 00 f4 01 00 }
-	CALL runtimeCheckBreak
-	CALL ZX_LINE_500:
-ZX_LINE_140:
-; 140  IF k$ <>  CHR 13 AND k$ <> " " THEN  GOTO 130
-; 		140.1  IF k$ <>  CHR 13{00 00 0d 00 00 } AND k$ <> " " THEN  GOTO 130{00 00 82 00 00 }
-	LD HL,(ZXBASIC_VAR_k_string)
-	PUSH HL
-; CHR
-	LD HL,13
-	CALL runtimeChr
-; <>
-	POP DE
-	CALL runtimeUnequalString
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_k_string)
-	LD HL,STRING_12	; 
-; <>
-	CALL runtimeUnequalString
-; AND
-	POP DE
-	call runtimeAndHLDE
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_1
-; 		140.2  GOTO 130{00 00 82 00 00 }
-	CALL runtimeCheckBreak
-	JP ZX_LINE_130
-ZXB_LABEL_1:
-ZX_LINE_150:
-; 150  IF k$= CHR 13 THEN  GOTO 300
-; 		150.1  IF k$= CHR 13{00 00 0d 00 00 } THEN  GOTO 300{00 00 2c 01 00 }
-	LD HL,(ZXBASIC_VAR_k_string)
-	PUSH HL
-; CHR
-	LD HL,13
-	CALL runtimeChr
-; =
-	POP DE
-	CALL runtimeEqualString
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_2
-; 		150.2  GOTO 300{00 00 2c 01 00 }
-	CALL runtimeCheckBreak
-	JP ZX_LINE_300
-ZXB_LABEL_2:
-ZX_LINE_160:
-; 160  LET k$= INKEY : IF k$ <> "" THEN  GOTO 160
-; 		160.1  LET k$= INKEY 
+	CALL ZXBASIC_LINE_700:
+ZXBASIC_LINE_30:
+; 30  LET k$= INKEY : LET j= IN 31
+	LD HL,30
+	LD (23621),HL
+; 		30.1  LET k$= INKEY 
+	LD A,1
+	LD (23623),a
 ; INKEY
 	CALL runtimeInkey
 	LD DE,HL
 	LD HL,ZXBASIC_VAR_k_string
 	CALL runtimeStoreString
-; 		160.2  IF k$ <> "" THEN  GOTO 160{00 00 a0 00 00 }
+; 		30.2  LET j= IN 31{00 00 1f 00 00 }
+	LD A,2
+	LD (23623),a
+; IN
+	LD HL,31
+	LD BC,HL
+	IN A,(C)
+	LD L,A
+	LD H,0
+	LD (ZXBASIC_VAR_j),HL
+ZXBASIC_LINE_35:
+; 35  IF sc=0 THEN  FOR w=10 TO 50: BEEP 0.004,w: PRINT  AT 21,11; FLASH 1;"WELL DONE": PRINT  AT r,c; INK ( RND *7);""; AT r,c; CHR 128: NEXT w: PRINT  AT 1,10;"TOWERS SAVED ";l: FOR u=1 TO 120: BEEP 0.002,( RND *35): OUT 254,( RND *32): BEEP .012,( RND *25): NEXT u: GOTO 2
+	LD HL,35
+	LD (23621),HL
+; 		35.1  IF sc=0{00 00 00 00 00 } THEN  FOR w=10{00 00 0a 00 00 } TO 50{00 00 32 00 00 }
+	LD A,1
+	LD (23623),a
+	LD DE,(ZXBASIC_VAR_sc)
+	LD HL,0
+; =
+	SUB HL,DE
+	LD HL,0
+	CALL Z,HL1
+	LD A,L
+	CP 0
+	JP Z,ZXB_LABEL_1
+; 		35.2  FOR w=10{00 00 0a 00 00 } TO 50{00 00 32 00 00 }
+	LD A,2
+	LD (23623),a
+	CALL runtimeCheckBreak
+	LD HL,10
+	LD (ZXBASIC_VAR_w),HL
+	LD HL,50
+	LD (ZXBASIC_VAR_for_w),HL
+FOR_0:
+; 		35.3  BEEP 0.004{79 03 12 6e 97 },w
+	LD A,3
+	LD (23623),a
+	LD HL,FLOAT_1	;0.004
+	CALL runtimePushFloatVar
+	LD HL,(ZXBASIC_VAR_w)
+	CALL runtimeIntToFloat
+	CALL $03F8
+; 		35.4  PRINT  AT 21{00 00 15 00 00 },11{00 00 0b 00 00 }; FLASH 1{00 00 01 00 00 };"WELL DONE"
+	LD A,4
+	LD (23623),a
+	XOR A,A
+	LD (ZX_TV_FLAG),A
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,21
+	LD HL,11
+	CALL runtimePrintAt
+	LD HL,1
+	CALL runtimeLocalFlash
+	LD HL,STRING_0	;WELL DONE
+	CALL runtimePrintString
+	CALL runtimePrintNewline
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		35.5  PRINT  AT r,c; INK ( RND *7{00 00 07 00 00 });""; AT r,c; CHR 128{00 00 80 00 00 }
+	LD A,5
+	LD (23623),a
+	XOR A,A
+	LD (ZX_TV_FLAG),A
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,(ZXBASIC_VAR_r)
+	LD HL,(ZXBASIC_VAR_c)
+	CALL runtimePrintAt
+; (
+; RND
+	CALL runtimeRND
+	LD HL,7
+; *
+	CALL runtimeIntToFloat
+	RST $28
+	DB $04	;MULT
+	DB $38	;END CALC
+; )
+	CALL runtimeFloatToInt
+	CALL runtimeLocalInk
+	LD HL,STRING_1	;\92
+	CALL runtimePrintString
+	LD DE,(ZXBASIC_VAR_r)
+	LD HL,(ZXBASIC_VAR_c)
+	CALL runtimePrintAt
+; CHR
+	LD HL,128
+	CALL runtimeChr
+	CALL runtimePrintString
+	CALL runtimePrintNewline
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
+	CALL ZXFreeTempCompact
+; 		35.6  NEXT w
+	LD A,6
+	LD (23623),a
+	CALL runtimeCheckBreak
+	LD HL,(ZXBASIC_VAR_w)
+	INC HL
+	LD (ZXBASIC_VAR_w),HL
+	LD DE,(ZXBASIC_VAR_for_w)
+	EX HL,DE
+	SUB HL,DE
+	JP NC,FOR_0
+; 		35.7  PRINT  AT 1{00 00 01 00 00 },10{00 00 0a 00 00 };"TOWERS SAVED ";l
+	LD A,7
+	LD (23623),a
+	XOR A,A
+	LD (ZX_TV_FLAG),A
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,1
+	LD HL,10
+	CALL runtimePrintAt
+	LD HL,STRING_2	;TOWERS SAVED 
+	CALL runtimePrintString
+	LD HL,(ZXBASIC_VAR_l)
+	CALL runtimePrintInt
+	CALL runtimePrintNewline
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		35.8  FOR u=1{00 00 01 00 00 } TO 120{00 00 78 00 00 }
+	LD A,8
+	LD (23623),a
+	CALL runtimeCheckBreak
+	LD HL,1
+	LD (ZXBASIC_VAR_u),HL
+	LD HL,120
+	LD (ZXBASIC_VAR_for_u),HL
+FOR_1:
+; 		35.9  BEEP 0.002{78 03 12 6e 97 },( RND *35{00 00 23 00 00 })
+	LD A,9
+	LD (23623),a
+	LD HL,FLOAT_2	;0.002
+	CALL runtimePushFloatVar
+; (
+; RND
+	CALL runtimeRND
+	LD HL,35
+; *
+	CALL runtimeIntToFloat
+	RST $28
+	DB $04	;MULT
+	DB $38	;END CALC
+; )
+	CALL $03F8
+; 		35.10  OUT 254{00 00 fe 00 00 },( RND *32{00 00 20 00 00 })
+	LD A,10
+	LD (23623),a
+	LD HL,254
+	PUSH HL
+; (
+; RND
+	CALL runtimeRND
+	LD HL,32
+; *
+	CALL runtimeIntToFloat
+	RST $28
+	DB $04	;MULT
+	DB $38	;END CALC
+; )
+	CALL runtimeFloatToInt
+	POP BC
+	LD A,L
+	OUT (C),A
+; 		35.11  BEEP .012{7a 44 9b a5 e3 },( RND *25{00 00 19 00 00 })
+	LD A,11
+	LD (23623),a
+	LD HL,FLOAT_3	;.012
+	CALL runtimePushFloatVar
+; (
+; RND
+	CALL runtimeRND
+	LD HL,25
+; *
+	CALL runtimeIntToFloat
+	RST $28
+	DB $04	;MULT
+	DB $38	;END CALC
+; )
+	CALL $03F8
+; 		35.12  NEXT u
+	LD A,12
+	LD (23623),a
+	CALL runtimeCheckBreak
+	LD HL,(ZXBASIC_VAR_u)
+	INC HL
+	LD (ZXBASIC_VAR_u),HL
+	LD DE,(ZXBASIC_VAR_for_u)
+	EX HL,DE
+	SUB HL,DE
+	JP NC,FOR_1
+; 		35.13  GOTO 2{00 00 02 00 00 }
+	LD A,13
+	LD (23623),a
+	CALL runtimeCheckBreak
+	JP ZXBASIC_LINE_2
+ZXB_LABEL_1:
+ZXBASIC_LINE_40:
+; 40  LET y=y+((k$="a" OR j=4) AND y<19)-((k$="q" OR j=8) AND y>3)
+	LD HL,40
+	LD (23621),HL
+; 		40.1  LET y=y+((k$="a" OR j=4{00 00 04 00 00 }) AND y<19{00 00 13 00 00 })-((k$="q" OR j=8{00 00 08 00 00 }) AND y>3{00 00 03 00 00 })
+	LD A,1
+	LD (23623),a
+	LD HL,(ZXBASIC_VAR_y)
+	PUSH HL
+; (
+; (
 	LD DE,(ZXBASIC_VAR_k_string)
-	LD HL,STRING_13	;
+	LD HL,STRING_3	;a
+; =
+	CALL runtimeEqualString
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_j)
+	LD HL,4
+; =
+	SUB HL,DE
+	LD HL,0
+	CALL Z,HL1
+; OR
+	POP DE
+	call runtimeOrHLDE
+	PUSH HL
+; )
+	LD DE,(ZXBASIC_VAR_y)
+	LD HL,19
+; <
+	SUB HL,DE
+	LD HL,0
+	call nc,HL1
+; AND
+	POP DE
+	call runtimeAndHLDE
+; )
+; +
+	POP DE
+	ADD HL,DE
+	PUSH HL
+; (
+; (
+	LD DE,(ZXBASIC_VAR_k_string)
+	LD HL,STRING_4	;q
+; =
+	CALL runtimeEqualString
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_j)
+	LD HL,8
+; =
+	SUB HL,DE
+	LD HL,0
+	CALL Z,HL1
+; OR
+	POP DE
+	call runtimeOrHLDE
+	PUSH HL
+; )
+	LD DE,(ZXBASIC_VAR_y)
+	LD HL,3
+; >
+	SUB HL,DE
+	LD HL,0
+	call c,HL1
+; AND
+	POP DE
+	call runtimeAndHLDE
+; )
+; -
+	POP DE
+	EX HL,DE
+	SUB HL,DE
+	LD (ZXBASIC_VAR_y),HL
+	CALL ZXFreeTempCompact
+ZXBASIC_LINE_45:
+; 45  IF oy <> y OR ox <> x THEN  PRINT  AT oy,ox;" "; AT oy,ox+5;" ";
+	LD HL,45
+	LD (23621),HL
+; 		45.1  IF oy <> y OR ox <> x THEN  PRINT  AT oy,ox;" "; AT oy,ox+5{00 00 05 00 00 };" ";
+	LD A,1
+	LD (23623),a
+	LD DE,(ZXBASIC_VAR_oy)
+	LD HL,(ZXBASIC_VAR_y)
 ; <>
-	CALL runtimeUnequalString
+	SUB HL,DE
+	LD HL,0
+	CALL NZ,HL1
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_ox)
+	LD HL,(ZXBASIC_VAR_x)
+; <>
+	SUB HL,DE
+	LD HL,0
+	CALL NZ,HL1
+; OR
+	POP DE
+	call runtimeOrHLDE
+	LD A,L
+	CP 0
+	JP Z,ZXB_LABEL_2
+; 		45.2  PRINT  AT oy,ox;" "; AT oy,ox+5{00 00 05 00 00 };" ";
+	LD A,2
+	LD (23623),a
+	XOR A,A
+	LD (ZX_TV_FLAG),A
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,(ZXBASIC_VAR_oy)
+	LD HL,(ZXBASIC_VAR_ox)
+	CALL runtimePrintAt
+	LD HL,STRING_5	; 
+	CALL runtimePrintString
+	LD HL,(ZXBASIC_VAR_oy)
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_ox)
+	LD HL,5
+; +
+	ADD HL,DE
+	POP DE
+	CALL runtimePrintAt
+	LD HL,STRING_5	; 
+	CALL runtimePrintString
+	POP AF
+	LD (ZX_P_FLAG),A
+ZXB_LABEL_2:
+ZXBASIC_LINE_50:
+; 50  PRINT  AT y,x; INK 1;""; AT y,x+5;"";
+	LD HL,50
+	LD (23621),HL
+; 		50.1  PRINT  AT y,x; INK 1{00 00 01 00 00 };""; AT y,x+5{00 00 05 00 00 };"";
+	LD A,1
+	LD (23623),a
+	XOR A,A
+	LD (ZX_TV_FLAG),A
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,(ZXBASIC_VAR_y)
+	LD HL,(ZXBASIC_VAR_x)
+	CALL runtimePrintAt
+	LD HL,1
+	CALL runtimeLocalInk
+	LD HL,STRING_6	;\90
+	CALL runtimePrintString
+	LD HL,(ZXBASIC_VAR_y)
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_x)
+	LD HL,5
+; +
+	ADD HL,DE
+	POP DE
+	CALL runtimePrintAt
+	LD HL,STRING_7	;\91
+	CALL runtimePrintString
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
+ZXBASIC_LINE_55:
+; 55  LET oy=y: LET ox=x
+	LD HL,55
+	LD (23621),HL
+; 		55.1  LET oy=y
+	LD A,1
+	LD (23623),a
+	LD HL,(ZXBASIC_VAR_y)
+	LD (ZXBASIC_VAR_oy),HL
+; 		55.2  LET ox=x
+	LD A,2
+	LD (23623),a
+	LD HL,(ZXBASIC_VAR_x)
+	LD (ZXBASIC_VAR_ox),HL
+ZXBASIC_LINE_60:
+; 60  IF (k$="o" OR j=2) AND c<12 THEN  LET fl=1: GOSUB 200
+	LD HL,60
+	LD (23621),HL
+; 		60.1  IF (k$="o" OR j=2{00 00 02 00 00 }) AND c<12{00 00 0c 00 00 } THEN  LET fl=1{00 00 01 00 00 }
+	LD A,1
+	LD (23623),a
+; (
+	LD DE,(ZXBASIC_VAR_k_string)
+	LD HL,STRING_8	;o
+; =
+	CALL runtimeEqualString
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_j)
+	LD HL,2
+; =
+	SUB HL,DE
+	LD HL,0
+	CALL Z,HL1
+; OR
+	POP DE
+	call runtimeOrHLDE
+	PUSH HL
+; )
+	LD DE,(ZXBASIC_VAR_c)
+	LD HL,12
+; <
+	SUB HL,DE
+	LD HL,0
+	call nc,HL1
+; AND
+	POP DE
+	call runtimeAndHLDE
 	LD A,L
 	CP 0
 	JP Z,ZXB_LABEL_3
-; 		160.3  GOTO 160{00 00 a0 00 00 }
+; 		60.2  LET fl=1{00 00 01 00 00 }
+	LD A,2
+	LD (23623),a
+	LD HL,1
+	LD (ZXBASIC_VAR_fl),HL
+; 		60.3  GOSUB 200{00 00 c8 00 00 }
+	LD A,3
+	LD (23623),a
 	CALL runtimeCheckBreak
-	JP ZX_LINE_160
+	CALL ZXBASIC_LINE_200:
 ZXB_LABEL_3:
-ZX_LINE_170:
-; 170  PRINT #0; AT 1,0;"key for left?"
-; 		170.1  PRINT #0{00 00 00 00 00 }; AT 1{00 00 01 00 00 },0{00 00 00 00 00 };"key for left?"
-	XOR A,A
-	LD (ZX_TV_FLAG),A
-	LD HL,0
-	CALL runtimeSetStream
-	LD DE,1
-	LD HL,0
-	CALL runtimePrintAt
-	LD HL,STRING_14	;key for left?
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	LD HL,0
-	CALL runtimeSetStream
-ZX_LINE_180:
-; 180  LET l$= INKEY : IF l$="" OR  CODE l$<97 THEN  GOTO 180
-; 		180.1  LET l$= INKEY 
-; INKEY
-	CALL runtimeInkey
-	LD DE,HL
-	LD HL,ZXBASIC_VAR_l_string
-	CALL runtimeStoreString
-; 		180.2  IF l$="" OR  CODE l$<97{00 00 61 00 00 } THEN  GOTO 180{00 00 b4 00 00 }
-	LD DE,(ZXBASIC_VAR_l_string)
-	LD HL,STRING_13	;
+ZXBASIC_LINE_65:
+; 65  IF (k$="p" OR j=1) AND c>17 THEN  LET fr=1: GOSUB 200
+	LD HL,65
+	LD (23621),HL
+; 		65.1  IF (k$="p" OR j=1{00 00 01 00 00 }) AND c>17{00 00 11 00 00 } THEN  LET fr=1{00 00 01 00 00 }
+	LD A,1
+	LD (23623),a
+; (
+	LD DE,(ZXBASIC_VAR_k_string)
+	LD HL,STRING_9	;p
 ; =
 	CALL runtimeEqualString
 	PUSH HL
-; CODE
-	LD HL,(ZXBASIC_VAR_l_string)
-	CALL runtimeCode
-	LD DE,HL
-	LD HL,97
-; <
+	LD DE,(ZXBASIC_VAR_j)
+	LD HL,1
+; =
 	SUB HL,DE
 	LD HL,0
-	call nc,HL1
+	CALL Z,HL1
 ; OR
 	POP DE
 	call runtimeOrHLDE
+	PUSH HL
+; )
+	LD DE,(ZXBASIC_VAR_c)
+	LD HL,17
+; >
+	SUB HL,DE
+	LD HL,0
+	call c,HL1
+; AND
+	POP DE
+	call runtimeAndHLDE
 	LD A,L
 	CP 0
 	JP Z,ZXB_LABEL_4
-; 		180.3  GOTO 180{00 00 b4 00 00 }
+; 		65.2  LET fr=1{00 00 01 00 00 }
+	LD A,2
+	LD (23623),a
+	LD HL,1
+	LD (ZXBASIC_VAR_fr),HL
+; 		65.3  GOSUB 200{00 00 c8 00 00 }
+	LD A,3
+	LD (23623),a
 	CALL runtimeCheckBreak
-	JP ZX_LINE_180
+	CALL ZXBASIC_LINE_200:
 ZXB_LABEL_4:
-ZX_LINE_190:
-; 190  PRINT #0; AT 1,0;"key for right?"
-; 		190.1  PRINT #0{00 00 00 00 00 }; AT 1{00 00 01 00 00 },0{00 00 00 00 00 };"key for right?"
+ZXBASIC_LINE_111:
+; 111  PRINT  AT r,c;" "
+	LD HL,111
+	LD (23621),HL
+; 		111.1  PRINT  AT r,c;" "
+	LD A,1
+	LD (23623),a
 	XOR A,A
 	LD (ZX_TV_FLAG),A
-	LD HL,0
-	CALL runtimeSetStream
-	LD DE,1
-	LD HL,0
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,(ZXBASIC_VAR_r)
+	LD HL,(ZXBASIC_VAR_c)
 	CALL runtimePrintAt
-	LD HL,STRING_15	;key for right?
+	LD HL,STRING_5	; 
 	CALL runtimePrintString
 	CALL runtimePrintNewline
-	LD HL,0
-	CALL runtimeSetStream
-ZX_LINE_200:
-; 200  LET r$= INKEY : IF r$="" OR r$=l$ OR  CODE r$<97 THEN  GOTO 200
-; 		200.1  LET r$= INKEY 
-; INKEY
-	CALL runtimeInkey
-	LD DE,HL
-	LD HL,ZXBASIC_VAR_r_string
-	CALL runtimeStoreString
-; 		200.2  IF r$="" OR r$=l$ OR  CODE r$<97{00 00 61 00 00 } THEN  GOTO 200{00 00 c8 00 00 }
-	LD DE,(ZXBASIC_VAR_r_string)
-	LD HL,STRING_13	;
-; =
-	CALL runtimeEqualString
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_r_string)
-	LD HL,(ZXBASIC_VAR_l_string)
-; =
-	CALL runtimeEqualString
-; OR
-	POP DE
-	call runtimeOrHLDE
-	PUSH HL
-; CODE
-	LD HL,(ZXBASIC_VAR_r_string)
-	CALL runtimeCode
-	LD DE,HL
-	LD HL,97
+	POP AF
+	LD (ZX_P_FLAG),A
+ZXBASIC_LINE_120:
+; 120  LET r=r+v: LET c=c+h
+	LD HL,120
+	LD (23621),HL
+; 		120.1  LET r=r+v
+	LD A,1
+	LD (23623),a
+	LD DE,(ZXBASIC_VAR_r)
+	LD HL,(ZXBASIC_VAR_v)
+; +
+	ADD HL,DE
+	LD (ZXBASIC_VAR_r),HL
+; 		120.2  LET c=c+h
+	LD A,2
+	LD (23623),a
+	LD DE,(ZXBASIC_VAR_c)
+	LD HL,(ZXBASIC_VAR_h)
+; +
+	ADD HL,DE
+	LD (ZXBASIC_VAR_c),HL
+ZXBASIC_LINE_125:
+; 125  PRINT  AT r,c;" "
+	LD HL,125
+	LD (23621),HL
+; 		125.1  PRINT  AT r,c;" "
+	LD A,1
+	LD (23623),a
+	XOR A,A
+	LD (ZX_TV_FLAG),A
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,(ZXBASIC_VAR_r)
+	LD HL,(ZXBASIC_VAR_c)
+	CALL runtimePrintAt
+	LD HL,STRING_5	; 
+	CALL runtimePrintString
+	CALL runtimePrintNewline
+	POP AF
+	LD (ZX_P_FLAG),A
+ZXBASIC_LINE_126:
+; 126  BEEP 0.0015,60
+	LD HL,126
+	LD (23621),HL
+; 		126.1  BEEP 0.0015{77 44 9b a5 e3 },60{00 00 3c 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,FLOAT_4	;0.0015
+	CALL runtimePushFloatVar
+	LD HL,60
+	CALL runtimeIntToFloat
+	CALL $03F8
+ZXBASIC_LINE_135:
+; 135  IF c<1 OR c>30 THEN  LET h=-h
+	LD HL,135
+	LD (23621),HL
+; 		135.1  IF c<1{00 00 01 00 00 } OR c>30{00 00 1e 00 00 } THEN  LET h=-h
+	LD A,1
+	LD (23623),a
+	LD DE,(ZXBASIC_VAR_c)
+	LD HL,1
 ; <
 	SUB HL,DE
 	LD HL,0
 	call nc,HL1
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_c)
+	LD HL,30
+; >
+	SUB HL,DE
+	LD HL,0
+	call c,HL1
 ; OR
 	POP DE
 	call runtimeOrHLDE
 	LD A,L
 	CP 0
 	JP Z,ZXB_LABEL_5
-; 		200.3  GOTO 200{00 00 c8 00 00 }
-	CALL runtimeCheckBreak
-	JP ZX_LINE_200
+; 		135.2  LET h=-h
+	LD A,2
+	LD (23623),a
+	LD HL,(ZXBASIC_VAR_h)
+	LD BC,HL
+; -
+	LD HL,0
+	SUB HL,BC
+	LD (ZXBASIC_VAR_h),HL
 ZXB_LABEL_5:
-ZX_LINE_210:
-; 210  PRINT #0; AT 1,0;"key for up?   "
-; 		210.1  PRINT #0{00 00 00 00 00 }; AT 1{00 00 01 00 00 },0{00 00 00 00 00 };"key for up?   "
-	XOR A,A
-	LD (ZX_TV_FLAG),A
+ZXBASIC_LINE_140:
+; 140  IF r<0 OR r >= 18 THEN  LET v=-v
+	LD HL,140
+	LD (23621),HL
+; 		140.1  IF r<0{00 00 00 00 00 } OR r >= 18{00 00 12 00 00 } THEN  LET v=-v
+	LD A,1
+	LD (23623),a
+	LD DE,(ZXBASIC_VAR_r)
 	LD HL,0
-	CALL runtimeSetStream
-	LD DE,1
-	LD HL,0
-	CALL runtimePrintAt
-	LD HL,STRING_16	;key for up?   
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	LD HL,0
-	CALL runtimeSetStream
-ZX_LINE_220:
-; 220  LET u$= INKEY : IF u$="" OR u$=l$ OR u$=r$ OR  CODE u$<97 THEN  GOTO 220
-; 		220.1  LET u$= INKEY 
-; INKEY
-	CALL runtimeInkey
-	LD DE,HL
-	LD HL,ZXBASIC_VAR_u_string
-	CALL runtimeStoreString
-; 		220.2  IF u$="" OR u$=l$ OR u$=r$ OR  CODE u$<97{00 00 61 00 00 } THEN  GOTO 220{00 00 dc 00 00 }
-	LD DE,(ZXBASIC_VAR_u_string)
-	LD HL,STRING_13	;
-; =
-	CALL runtimeEqualString
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_u_string)
-	LD HL,(ZXBASIC_VAR_l_string)
-; =
-	CALL runtimeEqualString
-; OR
-	POP DE
-	call runtimeOrHLDE
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_u_string)
-	LD HL,(ZXBASIC_VAR_r_string)
-; =
-	CALL runtimeEqualString
-; OR
-	POP DE
-	call runtimeOrHLDE
-	PUSH HL
-; CODE
-	LD HL,(ZXBASIC_VAR_u_string)
-	CALL runtimeCode
-	LD DE,HL
-	LD HL,97
 ; <
 	SUB HL,DE
 	LD HL,0
 	call nc,HL1
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_r)
+	LD HL,18
+; >=
+	SUB HL,DE
+	LD HL,0
+	call c,HL1
+	call z,HL1
 ; OR
 	POP DE
 	call runtimeOrHLDE
 	LD A,L
 	CP 0
 	JP Z,ZXB_LABEL_6
-; 		220.3  GOTO 220{00 00 dc 00 00 }
-	CALL runtimeCheckBreak
-	JP ZX_LINE_220
+; 		140.2  LET v=-v
+	LD A,2
+	LD (23623),a
+	LD HL,(ZXBASIC_VAR_v)
+	LD BC,HL
+; -
+	LD HL,0
+	SUB HL,BC
+	LD (ZXBASIC_VAR_v),HL
 ZXB_LABEL_6:
-ZX_LINE_230:
-; 230  PRINT #0; AT 1,0;"key for down?"
-; 		230.1  PRINT #0{00 00 00 00 00 }; AT 1{00 00 01 00 00 },0{00 00 00 00 00 };"key for down?"
-	XOR A,A
-	LD (ZX_TV_FLAG),A
-	LD HL,0
-	CALL runtimeSetStream
-	LD DE,1
-	LD HL,0
-	CALL runtimePrintAt
-	LD HL,STRING_17	;key for down?
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	LD HL,0
-	CALL runtimeSetStream
-ZX_LINE_240:
-; 240  LET d$= INKEY : IF d$="" OR d$=l$ OR d$=r$ OR d$=u$ OR  CODE d$<97 THEN  GOTO 240
-; 		240.1  LET d$= INKEY 
-; INKEY
-	CALL runtimeInkey
-	LD DE,HL
-	LD HL,ZXBASIC_VAR_d_string
-	CALL runtimeStoreString
-; 		240.2  IF d$="" OR d$=l$ OR d$=r$ OR d$=u$ OR  CODE d$<97{00 00 61 00 00 } THEN  GOTO 240{00 00 f0 00 00 }
-	LD DE,(ZXBASIC_VAR_d_string)
-	LD HL,STRING_13	;
-; =
-	CALL runtimeEqualString
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_d_string)
-	LD HL,(ZXBASIC_VAR_l_string)
-; =
-	CALL runtimeEqualString
-; OR
-	POP DE
-	call runtimeOrHLDE
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_d_string)
-	LD HL,(ZXBASIC_VAR_r_string)
-; =
-	CALL runtimeEqualString
-; OR
-	POP DE
-	call runtimeOrHLDE
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_d_string)
-	LD HL,(ZXBASIC_VAR_u_string)
-; =
-	CALL runtimeEqualString
-; OR
-	POP DE
-	call runtimeOrHLDE
-	PUSH HL
-; CODE
-	LD HL,(ZXBASIC_VAR_d_string)
-	CALL runtimeCode
-	LD DE,HL
-	LD HL,97
-; <
+ZXBASIC_LINE_158:
+; 158  IF or>2 AND oc>13.5 AND oc<17.5 THEN  BEEP 0.015,-12.0: PRINT  AT r,c; FLASH 1; OVER 1; INK 2; PAPER 6;"*"; AT or,oc;"": LET i=i+1
+	LD HL,158
+	LD (23621),HL
+; 		158.1  IF or>2{00 00 02 00 00 } AND oc>13.5{84 58 00 00 00 } AND oc<17.5{85 0c 00 00 00 } THEN  BEEP 0.015{7a 75 c2 8f 5c },-12.0{00 00 0c 00 00 }
+	LD A,1
+	LD (23623),a
+	LD DE,(ZXBASIC_VAR_or)
+	LD HL,2
+; >
 	SUB HL,DE
 	LD HL,0
-	call nc,HL1
-; OR
+	call c,HL1
+	PUSH HL
+	LD HL,(ZXBASIC_VAR_oc)
+	PUSH HL
+	LD HL,FLOAT_5	;13.5
+	CALL runtimePushFloatVar
+; >
+	POP HL
+	CALL runtimeIntToFloat
+	CALL runtimeSwapFloat
+	CALL runtimeBiggerFloat
+; AND
 	POP DE
-	call runtimeOrHLDE
+	call runtimeAndHLDE
+	PUSH HL
+	LD HL,(ZXBASIC_VAR_oc)
+	PUSH HL
+	LD HL,FLOAT_6	;17.5
+	CALL runtimePushFloatVar
+; <
+	POP HL
+	CALL runtimeIntToFloat
+	CALL runtimeSwapFloat
+	CALL runtimeSmallerFloat
+; AND
+	POP DE
+	call runtimeAndHLDE
 	LD A,L
 	CP 0
 	JP Z,ZXB_LABEL_7
-; 		240.3  GOTO 240{00 00 f0 00 00 }
-	CALL runtimeCheckBreak
-	JP ZX_LINE_240
-ZXB_LABEL_7:
-ZX_LINE_250:
-; 250  PRINT #0; AT 1,0;"key to restart level?"
-; 		250.1  PRINT #0{00 00 00 00 00 }; AT 1{00 00 01 00 00 },0{00 00 00 00 00 };"key to restart level?"
+; 		158.2  BEEP 0.015{7a 75 c2 8f 5c },-12.0{00 00 0c 00 00 }
+	LD A,2
+	LD (23623),a
+	LD HL,FLOAT_7	;0.015
+	CALL runtimePushFloatVar
+	LD HL,FLOAT_8	;12.0
+	CALL runtimePushFloatVar
+; -
+	CALL runtimeNegFloat
+	CALL $03F8
+; 		158.3  PRINT  AT r,c; FLASH 1{00 00 01 00 00 }; OVER 1{00 00 01 00 00 }; INK 2{00 00 02 00 00 }; PAPER 6{00 00 06 00 00 };"*"; AT or,oc;""
+	LD A,3
+	LD (23623),a
 	XOR A,A
 	LD (ZX_TV_FLAG),A
-	LD HL,0
-	CALL runtimeSetStream
-	LD DE,1
-	LD HL,0
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,(ZXBASIC_VAR_r)
+	LD HL,(ZXBASIC_VAR_c)
 	CALL runtimePrintAt
-	LD HL,STRING_18	;key to restart level?
+	LD HL,1
+	CALL runtimeLocalFlash
+	LD HL,1
+	CALL runtimeLocalOver
+	LD HL,2
+	CALL runtimeLocalInk
+	LD HL,6
+	CALL runtimeLocalPaper
+	LD HL,STRING_10	;*
+	CALL runtimePrintString
+	LD DE,(ZXBASIC_VAR_or)
+	LD HL,(ZXBASIC_VAR_oc)
+	CALL runtimePrintAt
+	LD HL,STRING_11	;\89
 	CALL runtimePrintString
 	CALL runtimePrintNewline
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		158.4  LET i=i+1{00 00 01 00 00 }
+	LD A,4
+	LD (23623),a
+	LD HL,(ZXBASIC_VAR_i)
+	INC HL
+; +
+	LD (ZXBASIC_VAR_i),HL
+ZXB_LABEL_7:
+ZXBASIC_LINE_159:
+; 159  PRINT  AT r,c;""
+	LD HL,159
+	LD (23621),HL
+; 		159.1  PRINT  AT r,c;""
+	LD A,1
+	LD (23623),a
+	XOR A,A
+	LD (ZX_TV_FLAG),A
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,(ZXBASIC_VAR_r)
+	LD HL,(ZXBASIC_VAR_c)
+	CALL runtimePrintAt
+	LD HL,STRING_1	;\92
+	CALL runtimePrintString
+	CALL runtimePrintNewline
+	POP AF
+	LD (ZX_P_FLAG),A
+ZXBASIC_LINE_160:
+; 160  LET or=r: LET oc=c
+	LD HL,160
+	LD (23621),HL
+; 		160.1  LET or=r
+	LD A,1
+	LD (23623),a
+	LD HL,(ZXBASIC_VAR_r)
+	LD (ZXBASIC_VAR_or),HL
+; 		160.2  LET oc=c
+	LD A,2
+	LD (23623),a
+	LD HL,(ZXBASIC_VAR_c)
+	LD (ZXBASIC_VAR_oc),HL
+ZXBASIC_LINE_170:
+; 170  IF i >= 20 THEN  FOR k=-20 TO 10: BEEP 0.015,-10: NEXT k: LET l=l-1: PRINT  AT 21,31; PAPER 4;l;: LET i=0: GOTO 175
+	LD HL,170
+	LD (23621),HL
+; 		170.1  IF i >= 20{00 00 14 00 00 } THEN  FOR k=-20{00 00 14 00 00 } TO 10{00 00 0a 00 00 }
+	LD A,1
+	LD (23623),a
+	LD DE,(ZXBASIC_VAR_i)
+	LD HL,20
+; >=
+	SUB HL,DE
 	LD HL,0
-	CALL runtimeSetStream
-ZX_LINE_260:
-; 260  LET s$= INKEY : IF s$="" OR s$=l$ OR s$=r$ OR s$=u$ OR s$=d$ THEN  GOTO 260
-; 		260.1  LET s$= INKEY 
-; INKEY
-	CALL runtimeInkey
-	LD DE,HL
-	LD HL,ZXBASIC_VAR_s_string
-	CALL runtimeStoreString
-; 		260.2  IF s$="" OR s$=l$ OR s$=r$ OR s$=u$ OR s$=d$ THEN  GOTO 260{00 00 04 01 00 }
-	LD DE,(ZXBASIC_VAR_s_string)
-	LD HL,STRING_13	;
-; =
-	CALL runtimeEqualString
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_s_string)
-	LD HL,(ZXBASIC_VAR_l_string)
-; =
-	CALL runtimeEqualString
-; OR
-	POP DE
-	call runtimeOrHLDE
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_s_string)
-	LD HL,(ZXBASIC_VAR_r_string)
-; =
-	CALL runtimeEqualString
-; OR
-	POP DE
-	call runtimeOrHLDE
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_s_string)
-	LD HL,(ZXBASIC_VAR_u_string)
-; =
-	CALL runtimeEqualString
-; OR
-	POP DE
-	call runtimeOrHLDE
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_s_string)
-	LD HL,(ZXBASIC_VAR_d_string)
-; =
-	CALL runtimeEqualString
-; OR
-	POP DE
-	call runtimeOrHLDE
+	call c,HL1
+	call z,HL1
 	LD A,L
 	CP 0
 	JP Z,ZXB_LABEL_8
-; 		260.3  GOTO 260{00 00 04 01 00 }
+; 		170.2  FOR k=-20{00 00 14 00 00 } TO 10{00 00 0a 00 00 }
+	LD A,2
+	LD (23623),a
 	CALL runtimeCheckBreak
-	JP ZX_LINE_260
-ZXB_LABEL_8:
-ZX_LINE_262:
-; 262  PRINT #0; AT 1,0;"key to undo move?    "
-; 		262.1  PRINT #0{00 00 00 00 00 }; AT 1{00 00 01 00 00 },0{00 00 00 00 00 };"key to undo move?    "
+	LD HL,20
+	LD BC,HL
+; -
+	LD HL,0
+	SUB HL,BC
+	LD (ZXBASIC_VAR_k),HL
+	LD HL,10
+	LD (ZXBASIC_VAR_for_k),HL
+FOR_2:
+; 		170.3  BEEP 0.015{7a 75 c2 8f 5c },-10{00 00 0a 00 00 }
+	LD A,3
+	LD (23623),a
+	LD HL,FLOAT_7	;0.015
+	CALL runtimePushFloatVar
+	LD HL,10
+	LD BC,HL
+; -
+	LD HL,0
+	SUB HL,BC
+	CALL runtimeIntToFloat
+	CALL $03F8
+; 		170.4  NEXT k
+	LD A,4
+	LD (23623),a
+	CALL runtimeCheckBreak
+	LD HL,(ZXBASIC_VAR_k)
+	INC HL
+	LD (ZXBASIC_VAR_k),HL
+	LD DE,(ZXBASIC_VAR_for_k)
+	EX HL,DE
+	SUB HL,DE
+	JP NC,FOR_2
+; 		170.5  LET l=l-1{00 00 01 00 00 }
+	LD A,5
+	LD (23623),a
+	LD HL,(ZXBASIC_VAR_l)
+	DEC HL
+; -
+	LD (ZXBASIC_VAR_l),HL
+; 		170.6  PRINT  AT 21{00 00 15 00 00 },31{00 00 1f 00 00 }; PAPER 4{00 00 04 00 00 };l;
+	LD A,6
+	LD (23623),a
 	XOR A,A
 	LD (ZX_TV_FLAG),A
-	LD HL,0
-	CALL runtimeSetStream
-	LD DE,1
-	LD HL,0
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,21
+	LD HL,31
 	CALL runtimePrintAt
-	LD HL,STRING_19	;key to undo move?    
-	CALL runtimePrintString
-	CALL runtimePrintNewline
+	LD HL,4
+	CALL runtimeLocalPaper
+	LD HL,(ZXBASIC_VAR_l)
+	CALL runtimePrintInt
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		170.7  LET i=0{00 00 00 00 00 }
+	LD A,7
+	LD (23623),a
 	LD HL,0
-	CALL runtimeSetStream
-ZX_LINE_264:
-; 264  LET q$= INKEY : IF q$="" OR q$=l$ OR q$=r$ OR q$=u$ OR q$=d$ OR q$=s$ THEN  GOTO 264
-; 		264.1  LET q$= INKEY 
-; INKEY
-	CALL runtimeInkey
-	LD DE,HL
-	LD HL,ZXBASIC_VAR_q_string
-	CALL runtimeStoreString
-; 		264.2  IF q$="" OR q$=l$ OR q$=r$ OR q$=u$ OR q$=d$ OR q$=s$ THEN  GOTO 264{00 00 08 01 00 }
-	LD DE,(ZXBASIC_VAR_q_string)
-	LD HL,STRING_13	;
+	LD (ZXBASIC_VAR_i),HL
+; 		170.8  GOTO 175{00 00 af 00 00 }
+	LD A,8
+	LD (23623),a
+	CALL runtimeCheckBreak
+	JP ZXBASIC_LINE_175
+ZXB_LABEL_8:
+ZXBASIC_LINE_172:
+; 172  GOTO 30
+	LD HL,172
+	LD (23621),HL
+; 		172.1  GOTO 30{00 00 1e 00 00 }
+	LD A,1
+	LD (23623),a
+	CALL runtimeCheckBreak
+	JP ZXBASIC_LINE_30
+ZXBASIC_LINE_175:
+; 175  FOR d=3 TO 19: BEEP 0.001,-25: PRINT  AT d,14; PAPER 5; OVER 1; INK 2; PAPER 6; FLASH 1;"****"; AT d,14;"";: NEXT d: FOR s=1 TO 420: NEXT s
+	LD HL,175
+	LD (23621),HL
+; 		175.1  FOR d=3{00 00 03 00 00 } TO 19{00 00 13 00 00 }
+	LD A,1
+	LD (23623),a
+	CALL runtimeCheckBreak
+	LD HL,3
+	LD (ZXBASIC_VAR_d),HL
+	LD HL,19
+	LD (ZXBASIC_VAR_for_d),HL
+FOR_3:
+; 		175.2  BEEP 0.001{77 03 12 6e 97 },-25{00 00 19 00 00 }
+	LD A,2
+	LD (23623),a
+	LD HL,FLOAT_9	;0.001
+	CALL runtimePushFloatVar
+	LD HL,25
+	LD BC,HL
+; -
+	LD HL,0
+	SUB HL,BC
+	CALL runtimeIntToFloat
+	CALL $03F8
+; 		175.3  PRINT  AT d,14{00 00 0e 00 00 }; PAPER 5{00 00 05 00 00 }; OVER 1{00 00 01 00 00 }; INK 2{00 00 02 00 00 }; PAPER 6{00 00 06 00 00 }; FLASH 1{00 00 01 00 00 };"****"; AT d,14{00 00 0e 00 00 };"";
+	LD A,3
+	LD (23623),a
+	XOR A,A
+	LD (ZX_TV_FLAG),A
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,(ZXBASIC_VAR_d)
+	LD HL,14
+	CALL runtimePrintAt
+	LD HL,5
+	CALL runtimeLocalPaper
+	LD HL,1
+	CALL runtimeLocalOver
+	LD HL,2
+	CALL runtimeLocalInk
+	LD HL,6
+	CALL runtimeLocalPaper
+	LD HL,1
+	CALL runtimeLocalFlash
+	LD HL,STRING_12	;****
+	CALL runtimePrintString
+	LD DE,(ZXBASIC_VAR_d)
+	LD HL,14
+	CALL runtimePrintAt
+	LD HL,STRING_13	;\92\92\92\92
+	CALL runtimePrintString
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		175.4  NEXT d
+	LD A,4
+	LD (23623),a
+	CALL runtimeCheckBreak
+	LD HL,(ZXBASIC_VAR_d)
+	INC HL
+	LD (ZXBASIC_VAR_d),HL
+	LD DE,(ZXBASIC_VAR_for_d)
+	EX HL,DE
+	SUB HL,DE
+	JP NC,FOR_3
+; 		175.5  FOR s=1{00 00 01 00 00 } TO 420{00 00 a4 01 00 }
+	LD A,5
+	LD (23623),a
+	CALL runtimeCheckBreak
+	LD HL,1
+	LD (ZXBASIC_VAR_s),HL
+	LD HL,420
+	LD (ZXBASIC_VAR_for_s),HL
+FOR_4:
+; 		175.6  NEXT s
+	LD A,6
+	LD (23623),a
+	CALL runtimeCheckBreak
+	LD HL,(ZXBASIC_VAR_s)
+	INC HL
+	LD (ZXBASIC_VAR_s),HL
+	LD DE,(ZXBASIC_VAR_for_s)
+	EX HL,DE
+	SUB HL,DE
+	JP NC,FOR_4
+ZXBASIC_LINE_180:
+; 180  IF l=0 THEN  LET l=3: LET sc=20: PRINT  AT 1,8; FLASH 1; INK 0;"G A M E  O V E R": FOR a=1 TO 120: BEEP 0.015,a/35: NEXT a: CLS : GOTO 20
+	LD HL,180
+	LD (23621),HL
+; 		180.1  IF l=0{00 00 00 00 00 } THEN  LET l=3{00 00 03 00 00 }
+	LD A,1
+	LD (23623),a
+	LD DE,(ZXBASIC_VAR_l)
+	LD HL,0
 ; =
-	CALL runtimeEqualString
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_q_string)
-	LD HL,(ZXBASIC_VAR_l_string)
-; =
-	CALL runtimeEqualString
-; OR
-	POP DE
-	call runtimeOrHLDE
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_q_string)
-	LD HL,(ZXBASIC_VAR_r_string)
-; =
-	CALL runtimeEqualString
-; OR
-	POP DE
-	call runtimeOrHLDE
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_q_string)
-	LD HL,(ZXBASIC_VAR_u_string)
-; =
-	CALL runtimeEqualString
-; OR
-	POP DE
-	call runtimeOrHLDE
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_q_string)
-	LD HL,(ZXBASIC_VAR_d_string)
-; =
-	CALL runtimeEqualString
-; OR
-	POP DE
-	call runtimeOrHLDE
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_q_string)
-	LD HL,(ZXBASIC_VAR_s_string)
-; =
-	CALL runtimeEqualString
-; OR
-	POP DE
-	call runtimeOrHLDE
+	SUB HL,DE
+	LD HL,0
+	CALL Z,HL1
 	LD A,L
 	CP 0
 	JP Z,ZXB_LABEL_9
-; 		264.3  GOTO 264{00 00 08 01 00 }
-	CALL runtimeCheckBreak
-	JP ZX_LINE_264
-ZXB_LABEL_9:
-ZX_LINE_270:
-; 270  PRINT #0; AT 1,0,,;
-; 		270.1  PRINT #0{00 00 00 00 00 }; AT 1{00 00 01 00 00 },0{00 00 00 00 00 },,;
+; 		180.2  LET l=3{00 00 03 00 00 }
+	LD A,2
+	LD (23623),a
+	LD HL,3
+	LD (ZXBASIC_VAR_l),HL
+; 		180.3  LET sc=20{00 00 14 00 00 }
+	LD A,3
+	LD (23623),a
+	LD HL,20
+	LD (ZXBASIC_VAR_sc),HL
+; 		180.4  PRINT  AT 1{00 00 01 00 00 },8{00 00 08 00 00 }; FLASH 1{00 00 01 00 00 }; INK 0{00 00 00 00 00 };"G A M E  O V E R"
+	LD A,4
+	LD (23623),a
 	XOR A,A
 	LD (ZX_TV_FLAG),A
-	LD HL,0
-	CALL runtimeSetStream
+	LD A,(ZX_P_FLAG)
+	PUSH AF
 	LD DE,1
-	LD HL,0
+	LD HL,8
 	CALL runtimePrintAt
-	CALL runtimePrintTab
-	CALL runtimePrintTab
+	LD HL,1
+	CALL runtimeLocalFlash
 	LD HL,0
-	CALL runtimeSetStream
-ZX_LINE_280:
-; 280  GOTO 110
-; 		280.1  GOTO 110{00 00 6e 00 00 }
-	CALL runtimeCheckBreak
-	JP ZX_LINE_110
-ZX_LINE_290:
-; 290  PAUSE 0
-; 		290.1  PAUSE 0{00 00 00 00 00 }
-	LD HL,0
-	CALL runtimePause
-ZX_LINE_300:
-; 300  REM main game
-ZX_LINE_310:
-; 310  FOR l=1 TO 50
-; 		310.1  FOR l=1{00 00 01 00 00 } TO 50{00 00 32 00 00 }
+	CALL runtimeLocalInk
+	LD HL,STRING_14	;G A M E  O V E R
+	CALL runtimePrintString
+	CALL runtimePrintNewline
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		180.5  FOR a=1{00 00 01 00 00 } TO 120{00 00 78 00 00 }
+	LD A,5
+	LD (23623),a
 	CALL runtimeCheckBreak
 	LD HL,1
-	LD (ZXBASIC_VAR_l),HL
-	LD HL,50
-	LD (ZXBASIC_VAR_for_l),HL
-FOR_0:
-ZX_LINE_320:
-; 320  GOSUB 2000: IF l=0 THEN  FOR b=0 TO 7: BORDER b: NEXT b: PRINT  AT 20,1;"G A M E   O V E R ! ! ! ! ! !": PAUSE 0: GOTO 170: REM end of levels
-; 		320.1  GOSUB 2000{00 00 d0 07 00 }
+	LD (ZXBASIC_VAR_a),HL
+	LD HL,120
+	LD (ZXBASIC_VAR_for_a),HL
+FOR_5:
+; 		180.6  BEEP 0.015{7a 75 c2 8f 5c },a/35{00 00 23 00 00 }
+	LD A,6
+	LD (23623),a
+	LD HL,FLOAT_7	;0.015
+	CALL runtimePushFloatVar
+	LD DE,(ZXBASIC_VAR_a)
+	LD HL,35
+; /
+	call runtimeDiv16bit
+	CALL runtimeIntToFloat
+	CALL $03F8
+; 		180.7  NEXT a
+	LD A,7
+	LD (23623),a
 	CALL runtimeCheckBreak
-	CALL ZX_LINE_2000:
-; 		320.2  IF l=0{00 00 00 00 00 } THEN  FOR b=0{00 00 00 00 00 } TO 7{00 00 07 00 00 }
-	LD DE,(ZXBASIC_VAR_l)
-	LD HL,0
+	LD HL,(ZXBASIC_VAR_a)
+	INC HL
+	LD (ZXBASIC_VAR_a),HL
+	LD DE,(ZXBASIC_VAR_for_a)
+	EX HL,DE
+	SUB HL,DE
+	JP NC,FOR_5
+; 		180.8  CLS 
+	LD A,8
+	LD (23623),a
+	CALL runtimeCls
+; 		180.9  GOTO 20{00 00 14 00 00 }
+	LD A,9
+	LD (23623),a
+	CALL runtimeCheckBreak
+	JP ZXBASIC_LINE_20
+ZXB_LABEL_9:
+ZXBASIC_LINE_190:
+; 190  GOSUB 800
+	LD HL,190
+	LD (23621),HL
+; 		190.1  GOSUB 800{00 00 20 03 00 }
+	LD A,1
+	LD (23623),a
+	CALL runtimeCheckBreak
+	CALL ZXBASIC_LINE_800:
+ZXBASIC_LINE_195:
+; 195  GOTO 30
+	LD HL,195
+	LD (23621),HL
+; 		195.1  GOTO 30{00 00 1e 00 00 }
+	LD A,1
+	LD (23623),a
+	CALL runtimeCheckBreak
+	JP ZXBASIC_LINE_30
+ZXBASIC_LINE_200:
+; 200  BEEP 0.0020,15: OUT 254,( RND *32)
+	LD HL,200
+	LD (23621),HL
+; 		200.1  BEEP 0.0020{78 03 12 6e 97 },15{00 00 0f 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,FLOAT_2	;0.0020
+	CALL runtimePushFloatVar
+	LD HL,15
+	CALL runtimeIntToFloat
+	CALL $03F8
+; 		200.2  OUT 254{00 00 fe 00 00 },( RND *32{00 00 20 00 00 })
+	LD A,2
+	LD (23623),a
+	LD HL,254
+	PUSH HL
+; (
+; RND
+	CALL runtimeRND
+	LD HL,32
+; *
+	CALL runtimeIntToFloat
+	RST $28
+	DB $04	;MULT
+	DB $38	;END CALC
+; )
+	CALL runtimeFloatToInt
+	POP BC
+	LD A,L
+	OUT (C),A
+ZXBASIC_LINE_210:
+; 210  IF fl=1 THEN  PLOT  INK 5;ox*8-1,oy*8-173: DRAW  OVER 1; INK 3;-70,0: DRAW  OVER 1; INK 5;70,0: LET fl=0
+	LD HL,210
+	LD (23621),HL
+; 		210.1  IF fl=1{00 00 01 00 00 } THEN  PLOT  INK 5{00 00 05 00 00 };ox*8{00 00 08 00 00 }-1{00 00 01 00 00 },oy*8{00 00 08 00 00 }-173{00 00 ad 00 00 }
+	LD A,1
+	LD (23623),a
+	LD DE,(ZXBASIC_VAR_fl)
+	LD HL,1
 ; =
 	SUB HL,DE
 	LD HL,0
@@ -631,305 +1130,613 @@ ZX_LINE_320:
 	LD A,L
 	CP 0
 	JP Z,ZXB_LABEL_10
-; 		320.3  FOR b=0{00 00 00 00 00 } TO 7{00 00 07 00 00 }
-	CALL runtimeCheckBreak
-	LD HL,0
-	LD (ZXBASIC_VAR_b),HL
-	LD HL,7
-	LD (ZXBASIC_VAR_for_b),HL
-FOR_1:
-; 		320.4  BORDER b
-	LD HL,(ZXBASIC_VAR_b)
-	PUSH HL
-	LD A,L
-	call $2297
-; 		320.5  NEXT b
-	CALL runtimeCheckBreak
-	LD HL,(ZXBASIC_VAR_b)
-	INC HL
-	LD (ZXBASIC_VAR_b),HL
-	LD DE,(ZXBASIC_VAR_for_b)
-	EX HL,DE
+; 		210.2  PLOT  INK 5{00 00 05 00 00 };ox*8{00 00 08 00 00 }-1{00 00 01 00 00 },oy*8{00 00 08 00 00 }-173{00 00 ad 00 00 }
+	LD A,2
+	LD (23623),a
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD HL,5
+	CALL runtimeLocalInk
+	LD DE,(ZXBASIC_VAR_ox)
+	LD HL,8
+; *
+	call runtimeMult16bit
+	LD DE,1
+; -
 	SUB HL,DE
-	JP NC,FOR_1
-; 		320.6  PRINT  AT 20{00 00 14 00 00 },1{00 00 01 00 00 };"G A M E   O V E R ! ! ! ! ! !"
-	XOR A,A
-	LD (ZX_TV_FLAG),A
-	LD DE,20
-	LD HL,1
-	CALL runtimePrintAt
-	LD HL,STRING_20	;G A M E   O V E R ! ! ! ! ! !
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-; 		320.7  PAUSE 0{00 00 00 00 00 }
-	LD HL,0
-	CALL runtimePause
-; 		320.8  GOTO 170{00 00 aa 00 00 }
-	CALL runtimeCheckBreak
-	JP ZX_LINE_170
-ZXB_LABEL_10:
-ZX_LINE_330:
-; 330  PRINT  AT 0,2;"SOKOBAN Level: ";l: PRINT  AT 19,1;"Keys (UDLR)=";u$;d$;l$;r$;", UNDO=";q$;","'"Restart=";s$
-; 		330.1  PRINT  AT 0{00 00 00 00 00 },2{00 00 02 00 00 };"SOKOBAN Level
-	XOR A,A
-	LD (ZX_TV_FLAG),A
-	LD DE,0
-	LD HL,2
-	CALL runtimePrintAt
-	LD HL,STRING_21	;SOKOBAN Level: 
-	CALL runtimePrintString
-	LD HL,(ZXBASIC_VAR_l)
-	CALL runtimePrintInt
-	CALL runtimePrintNewline
-; 		330.2  PRINT  AT 19{00 00 13 00 00 },1{00 00 01 00 00 };"Keys (UDLR)=";u$;d$;l$;r$;", UNDO=";q$;","'"Restart=";s$
-	XOR A,A
-	LD (ZX_TV_FLAG),A
-	LD DE,19
-	LD HL,1
-	CALL runtimePrintAt
-	LD HL,STRING_22	;Keys (UDLR)=
-	CALL runtimePrintString
-	LD HL,(ZXBASIC_VAR_u_string)
-	CALL runtimePrintString
-	LD HL,(ZXBASIC_VAR_d_string)
-	CALL runtimePrintString
-	LD HL,(ZXBASIC_VAR_l_string)
-	CALL runtimePrintString
-	LD HL,(ZXBASIC_VAR_r_string)
-	CALL runtimePrintString
-	LD HL,STRING_23	;, UNDO=
-	CALL runtimePrintString
-	LD HL,(ZXBASIC_VAR_q_string)
-	CALL runtimePrintString
-	LD HL,STRING_24	;,
-	CALL runtimePrintString
-	LD HL,STRING_24	;,
-	CALL runtimePrintString
-	LD HL,STRING_25	;Restart=
-	CALL runtimePrintString
-	LD HL,(ZXBASIC_VAR_s_string)
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	CALL ZXFreeTempCompact
-ZX_LINE_335:
-; 335  GOSUB 630
-; 		335.1  GOSUB 630{00 00 76 02 00 }
-	CALL runtimeCheckBreak
-	CALL ZX_LINE_630:
-ZX_LINE_340:
-; 340  REM game loop
-ZX_LINE_350:
-; 350  GOSUB 500
-; 		350.1  GOSUB 500{00 00 f4 01 00 }
-	CALL runtimeCheckBreak
-	CALL ZX_LINE_500:
-ZX_LINE_355:
-; 355  IF k$="<" AND l>1 THEN  LET l=l-1: GOTO 320
-; 		355.1  IF k$="<" AND l>1{00 00 01 00 00 } THEN  LET l=l-1{00 00 01 00 00 }
-	LD DE,(ZXBASIC_VAR_k_string)
-	LD HL,STRING_26	;<
-; =
-	CALL runtimeEqualString
 	PUSH HL
-	LD DE,(ZXBASIC_VAR_l)
-	LD HL,1
-; >
+	LD DE,(ZXBASIC_VAR_oy)
+	LD HL,8
+; *
+	call runtimeMult16bit
+	LD DE,173
+; -
 	SUB HL,DE
-	LD HL,0
-	call c,HL1
-; AND
 	POP DE
-	call runtimeAndHLDE
+	CALL runtimePlot
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		210.3  DRAW  OVER 1{00 00 01 00 00 }; INK 3{00 00 03 00 00 };-70{00 00 46 00 00 },0{00 00 00 00 00 }
+	LD A,3
+	LD (23623),a
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD HL,1
+	CALL runtimeLocalOver
+	LD HL,3
+	CALL runtimeLocalInk
+	LD HL,70
+	LD BC,HL
+; -
+	LD HL,0
+	SUB HL,BC
+	LD DE,HL
+	LD HL,0
+	LD B,L
+	LD C,E
+	CALL runtimeDraw
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		210.4  DRAW  OVER 1{00 00 01 00 00 }; INK 5{00 00 05 00 00 };70{00 00 46 00 00 },0{00 00 00 00 00 }
+	LD A,4
+	LD (23623),a
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD HL,1
+	CALL runtimeLocalOver
+	LD HL,5
+	CALL runtimeLocalInk
+	LD DE,70
+	LD HL,0
+	LD B,L
+	LD C,E
+	CALL runtimeDraw
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		210.5  LET fl=0{00 00 00 00 00 }
+	LD A,5
+	LD (23623),a
+	LD HL,0
+	LD (ZXBASIC_VAR_fl),HL
+ZXB_LABEL_10:
+ZXBASIC_LINE_250:
+; 250  IF fr=1 THEN  PLOT  INK 5;ox*8+48,oy*8-173: DRAW  OVER 1; INK 3;70,0: DRAW  OVER 1; INK 5;-70,0: LET fr=0
+	LD HL,250
+	LD (23621),HL
+; 		250.1  IF fr=1{00 00 01 00 00 } THEN  PLOT  INK 5{00 00 05 00 00 };ox*8{00 00 08 00 00 }+48{00 00 30 00 00 },oy*8{00 00 08 00 00 }-173{00 00 ad 00 00 }
+	LD A,1
+	LD (23623),a
+	LD DE,(ZXBASIC_VAR_fr)
+	LD HL,1
+; =
+	SUB HL,DE
+	LD HL,0
+	CALL Z,HL1
 	LD A,L
 	CP 0
 	JP Z,ZXB_LABEL_11
-; 		355.2  LET l=l-1{00 00 01 00 00 }
-	LD HL,(ZXBASIC_VAR_l)
-	DEC HL
-; -
-	LD (ZXBASIC_VAR_l),HL
-; 		355.3  GOTO 320{00 00 40 01 00 }
-	CALL runtimeCheckBreak
-	JP ZX_LINE_320
-ZXB_LABEL_11:
-ZX_LINE_356:
-; 356  IF k$=">" AND l<50 THEN  LET l=l+1: GOTO 320
-; 		356.1  IF k$=">" AND l<50{00 00 32 00 00 } THEN  LET l=l+1{00 00 01 00 00 }
-	LD DE,(ZXBASIC_VAR_k_string)
-	LD HL,STRING_27	;>
-; =
-	CALL runtimeEqualString
+; 		250.2  PLOT  INK 5{00 00 05 00 00 };ox*8{00 00 08 00 00 }+48{00 00 30 00 00 },oy*8{00 00 08 00 00 }-173{00 00 ad 00 00 }
+	LD A,2
+	LD (23623),a
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD HL,5
+	CALL runtimeLocalInk
+	LD DE,(ZXBASIC_VAR_ox)
+	LD HL,8
+; *
+	call runtimeMult16bit
+	LD DE,HL
+	LD HL,48
+; +
+	ADD HL,DE
 	PUSH HL
-	LD DE,(ZXBASIC_VAR_l)
-	LD HL,50
-; <
+	LD DE,(ZXBASIC_VAR_oy)
+	LD HL,8
+; *
+	call runtimeMult16bit
+	LD DE,173
+; -
+	SUB HL,DE
+	POP DE
+	CALL runtimePlot
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		250.3  DRAW  OVER 1{00 00 01 00 00 }; INK 3{00 00 03 00 00 };70{00 00 46 00 00 },0{00 00 00 00 00 }
+	LD A,3
+	LD (23623),a
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD HL,1
+	CALL runtimeLocalOver
+	LD HL,3
+	CALL runtimeLocalInk
+	LD DE,70
+	LD HL,0
+	LD B,L
+	LD C,E
+	CALL runtimeDraw
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		250.4  DRAW  OVER 1{00 00 01 00 00 }; INK 5{00 00 05 00 00 };-70{00 00 46 00 00 },0{00 00 00 00 00 }
+	LD A,4
+	LD (23623),a
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD HL,1
+	CALL runtimeLocalOver
+	LD HL,5
+	CALL runtimeLocalInk
+	LD HL,70
+	LD BC,HL
+; -
+	LD HL,0
+	SUB HL,BC
+	LD DE,HL
+	LD HL,0
+	LD B,L
+	LD C,E
+	CALL runtimeDraw
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		250.5  LET fr=0{00 00 00 00 00 }
+	LD A,5
+	LD (23623),a
+	LD HL,0
+	LD (ZXBASIC_VAR_fr),HL
+ZXB_LABEL_11:
+ZXBASIC_LINE_260:
+; 260  IF  ATTR (r,c)=40 THEN  RETURN 
+	LD HL,260
+	LD (23621),HL
+; 		260.1  IF  ATTR (r,c)=40{00 00 28 00 00 } THEN  RETURN 
+	LD A,1
+	LD (23623),a
+; ATTR
+	LD DE,(ZXBASIC_VAR_r)
+	LD HL,(ZXBASIC_VAR_c)
+	CALL runtimeAttr
+	LD DE,HL
+	LD HL,40
+; =
 	SUB HL,DE
 	LD HL,0
-	call nc,HL1
-; AND
-	POP DE
-	call runtimeAndHLDE
+	CALL Z,HL1
 	LD A,L
 	CP 0
 	JP Z,ZXB_LABEL_12
-; 		356.2  LET l=l+1{00 00 01 00 00 }
-	LD HL,(ZXBASIC_VAR_l)
-	INC HL
-; +
-	LD (ZXBASIC_VAR_l),HL
-; 		356.3  GOTO 320{00 00 40 01 00 }
+; 		260.2  RETURN 
+	LD A,2
+	LD (23623),a
 	CALL runtimeCheckBreak
-	JP ZX_LINE_320
+	RET
 ZXB_LABEL_12:
-ZX_LINE_358:
-; 358  IF k$=q$ THEN  GOSUB 430
-; 		358.1  IF k$=q$ THEN  GOSUB 430{00 00 ae 01 00 }
-	LD DE,(ZXBASIC_VAR_k_string)
-	LD HL,(ZXBASIC_VAR_q_string)
+ZXBASIC_LINE_270:
+; 270  FOR g=50 TO 55: PRINT  AT r,c; INK ( RND *7);"";: BEEP 0.001,g: PRINT  AT r,c; CHR 128: NEXT g: LET sc=sc-1: LET r=1: LET c=( RND *29)+1
+	LD HL,270
+	LD (23621),HL
+; 		270.1  FOR g=50{00 00 32 00 00 } TO 55{00 00 37 00 00 }
+	LD A,1
+	LD (23623),a
+	CALL runtimeCheckBreak
+	LD HL,50
+	LD (ZXBASIC_VAR_g),HL
+	LD HL,55
+	LD (ZXBASIC_VAR_for_g),HL
+FOR_6:
+; 		270.2  PRINT  AT r,c; INK ( RND *7{00 00 07 00 00 });"";
+	LD A,2
+	LD (23623),a
+	XOR A,A
+	LD (ZX_TV_FLAG),A
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,(ZXBASIC_VAR_r)
+	LD HL,(ZXBASIC_VAR_c)
+	CALL runtimePrintAt
+; (
+; RND
+	CALL runtimeRND
+	LD HL,7
+; *
+	CALL runtimeIntToFloat
+	RST $28
+	DB $04	;MULT
+	DB $38	;END CALC
+; )
+	CALL runtimeFloatToInt
+	CALL runtimeLocalInk
+	LD HL,STRING_1	;\92
+	CALL runtimePrintString
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		270.3  BEEP 0.001{77 03 12 6e 97 },g
+	LD A,3
+	LD (23623),a
+	LD HL,FLOAT_9	;0.001
+	CALL runtimePushFloatVar
+	LD HL,(ZXBASIC_VAR_g)
+	CALL runtimeIntToFloat
+	CALL $03F8
+; 		270.4  PRINT  AT r,c; CHR 128{00 00 80 00 00 }
+	LD A,4
+	LD (23623),a
+	XOR A,A
+	LD (ZX_TV_FLAG),A
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,(ZXBASIC_VAR_r)
+	LD HL,(ZXBASIC_VAR_c)
+	CALL runtimePrintAt
+; CHR
+	LD HL,128
+	CALL runtimeChr
+	CALL runtimePrintString
+	CALL runtimePrintNewline
+	POP AF
+	LD (ZX_P_FLAG),A
+	CALL ZXFreeTempCompact
+; 		270.5  NEXT g
+	LD A,5
+	LD (23623),a
+	CALL runtimeCheckBreak
+	LD HL,(ZXBASIC_VAR_g)
+	INC HL
+	LD (ZXBASIC_VAR_g),HL
+	LD DE,(ZXBASIC_VAR_for_g)
+	EX HL,DE
+	SUB HL,DE
+	JP NC,FOR_6
+; 		270.6  LET sc=sc-1{00 00 01 00 00 }
+	LD A,6
+	LD (23623),a
+	LD HL,(ZXBASIC_VAR_sc)
+	DEC HL
+; -
+	LD (ZXBASIC_VAR_sc),HL
+; 		270.7  LET r=1{00 00 01 00 00 }
+	LD A,7
+	LD (23623),a
+	LD HL,1
+	LD (ZXBASIC_VAR_r),HL
+; 		270.8  LET c=( RND *29{00 00 1d 00 00 })+1{00 00 01 00 00 }
+	LD A,8
+	LD (23623),a
+; (
+; RND
+	CALL runtimeRND
+	LD HL,29
+; *
+	CALL runtimeIntToFloat
+	RST $28
+	DB $04	;MULT
+	DB $38	;END CALC
+; )
+	LD HL,1
+; +
+	CALL runtimeIntToFloat
+	CALL runtimePlusFloat
+	CALL runtimeFloatToInt
+	LD (ZXBASIC_VAR_c),HL
+ZXBASIC_LINE_275:
+; 275  PRINT  AT 21,4; PAPER 4;sc; CHR 128
+	LD HL,275
+	LD (23621),HL
+; 		275.1  PRINT  AT 21{00 00 15 00 00 },4{00 00 04 00 00 }; PAPER 4{00 00 04 00 00 };sc; CHR 128{00 00 80 00 00 }
+	LD A,1
+	LD (23623),a
+	XOR A,A
+	LD (ZX_TV_FLAG),A
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,21
+	LD HL,4
+	CALL runtimePrintAt
+	LD HL,4
+	CALL runtimeLocalPaper
+	LD HL,(ZXBASIC_VAR_sc)
+	CALL runtimePrintInt
+; CHR
+	LD HL,128
+	CALL runtimeChr
+	CALL runtimePrintString
+	CALL runtimePrintNewline
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
+	CALL ZXFreeTempCompact
+ZXBASIC_LINE_280:
+; 280  RETURN 
+	LD HL,280
+	LD (23621),HL
+; 		280.1  RETURN 
+	LD A,1
+	LD (23623),a
+	CALL runtimeCheckBreak
+	RET
+ZXBASIC_LINE_700:
+; 700  PAPER 7: INK 0: BORDER 7: CLS 
+	LD HL,700
+	LD (23621),HL
+; 		700.1  PAPER 7{00 00 07 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,7
+	CALL runtimePaper
+; 		700.2  INK 0{00 00 00 00 00 }
+	LD A,2
+	LD (23623),a
+	LD HL,0
+	CALL runtimeInk
+; 		700.3  BORDER 7{00 00 07 00 00 }
+	LD A,3
+	LD (23623),a
+	LD HL,7
+	LD A,L
+	call $2297
+; 		700.4  CLS 
+	LD A,4
+	LD (23623),a
+	CALL runtimeCls
+ZXBASIC_LINE_701:
+; 701  PRINT  AT 7,2;"                                                                                                                                                                                           ";
+	LD HL,701
+	LD (23621),HL
+; 		701.1  PRINT  AT 7{00 00 07 00 00 },2{00 00 02 00 00 };"                                                                                                                                                                                           ";
+	LD A,1
+	LD (23623),a
+	XOR A,A
+	LD (ZX_TV_FLAG),A
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,7
+	LD HL,2
+	CALL runtimePrintAt
+	LD HL,STRING_15	;\8f      \8f  \8f\8f\8f\8f\8f\8f\8f\8f   \8f\8f\8f\8f\8f\8f     \8f      \8f  \8f         \8f      \8f    \8f      \8f  \8f         \8f      \8f    \8f      \8f  \8f\8f\8f\8f\8f\8f\8f   \8f      \8f    \8f      \8f  \8f         \8f      \8f    \8f      \8f  \8f         \8f      \8f    \8f      \8f  \8f         \8f      \8f     \8f\8f\8f\8f\8f\8f   \8f          \8f\8f\8f\8f\8f\8f 
+	CALL runtimePrintString
+	POP AF
+	LD (ZX_P_FLAG),A
+ZXBASIC_LINE_702:
+; 702  PRINT  AT 21,10;"By Animated AL"
+	LD HL,702
+	LD (23621),HL
+; 		702.1  PRINT  AT 21{00 00 15 00 00 },10{00 00 0a 00 00 };"By Animated AL"
+	LD A,1
+	LD (23623),a
+	XOR A,A
+	LD (ZX_TV_FLAG),A
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,21
+	LD HL,10
+	CALL runtimePrintAt
+	LD HL,STRING_16	;By Animated AL
+	CALL runtimePrintString
+	CALL runtimePrintNewline
+	POP AF
+	LD (ZX_P_FLAG),A
+ZXBASIC_LINE_703:
+; 703  PRINT  AT 1,8;"PRESS FIRE TO PLAY"
+	LD HL,703
+	LD (23621),HL
+; 		703.1  PRINT  AT 1{00 00 01 00 00 },8{00 00 08 00 00 };"PRESS FIRE TO PLAY"
+	LD A,1
+	LD (23623),a
+	XOR A,A
+	LD (ZX_TV_FLAG),A
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,1
+	LD HL,8
+	CALL runtimePrintAt
+	LD HL,STRING_17	;PRESS FIRE TO PLAY
+	CALL runtimePrintString
+	CALL runtimePrintNewline
+	POP AF
+	LD (ZX_P_FLAG),A
+ZXBASIC_LINE_705:
+; 705  OUT 254,( RND *32)
+	LD HL,705
+	LD (23621),HL
+; 		705.1  OUT 254{00 00 fe 00 00 },( RND *32{00 00 20 00 00 })
+	LD A,1
+	LD (23623),a
+	LD HL,254
+	PUSH HL
+; (
+; RND
+	CALL runtimeRND
+	LD HL,32
+; *
+	CALL runtimeIntToFloat
+	RST $28
+	DB $04	;MULT
+	DB $38	;END CALC
+; )
+	CALL runtimeFloatToInt
+	POP BC
+	LD A,L
+	OUT (C),A
+ZXBASIC_LINE_706:
+; 706  BEEP 0.008,35-( RND *7)
+	LD HL,706
+	LD (23621),HL
+; 		706.1  BEEP 0.008{7a 03 12 6e 97 },35{00 00 23 00 00 }-( RND *7{00 00 07 00 00 })
+	LD A,1
+	LD (23623),a
+	LD HL,FLOAT_10	;0.008
+	CALL runtimePushFloatVar
+	LD HL,35
+	PUSH HL
+; (
+; RND
+	CALL runtimeRND
+	LD HL,7
+; *
+	CALL runtimeIntToFloat
+	RST $28
+	DB $04	;MULT
+	DB $38	;END CALC
+; )
+; -
+	POP HL
+	CALL runtimeIntToFloat
+	CALL runtimeSwapFloat
+	CALL runtimeMinusFloat
+	CALL $03F8
+ZXBASIC_LINE_715:
+; 715  IF  INKEY  <> "" OR  IN 31=16 THEN  LET cn=2: GOTO 800
+	LD HL,715
+	LD (23621),HL
+; 		715.1  IF  INKEY  <> "" OR  IN 31{00 00 1f 00 00 }=16{00 00 10 00 00 } THEN  LET cn=2{00 00 02 00 00 }
+	LD A,1
+	LD (23623),a
+; INKEY
+	CALL runtimeInkey
+	LD DE,HL
+	LD HL,STRING_18	;
+; <>
+	CALL runtimeUnequalString
+	PUSH HL
+; IN
+	LD HL,31
+	LD BC,HL
+	IN A,(C)
+	LD L,A
+	LD H,0
+	LD DE,HL
+	LD HL,16
 ; =
-	CALL runtimeEqualString
+	SUB HL,DE
+	LD HL,0
+	CALL Z,HL1
+; OR
+	POP DE
+	call runtimeOrHLDE
 	LD A,L
 	CP 0
 	JP Z,ZXB_LABEL_13
-; 		358.2  GOSUB 430{00 00 ae 01 00 }
+; 		715.2  LET cn=2{00 00 02 00 00 }
+	LD A,2
+	LD (23623),a
+	LD HL,2
+	LD (ZXBASIC_VAR_cn),HL
+; 		715.3  GOTO 800{00 00 20 03 00 }
+	LD A,3
+	LD (23623),a
 	CALL runtimeCheckBreak
-	CALL ZX_LINE_430:
+	JP ZXBASIC_LINE_800
 ZXB_LABEL_13:
-ZX_LINE_360:
-; 360  IF k$ <> s$ THEN  GOTO 370: REM restart level pressed
-; 		360.1  IF k$ <> s$ THEN  GOTO 370{00 00 72 01 00 }
-	LD DE,(ZXBASIC_VAR_k_string)
-	LD HL,(ZXBASIC_VAR_s_string)
-; <>
-	CALL runtimeUnequalString
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_14
-; 		360.2  GOTO 370{00 00 72 01 00 }
+ZXBASIC_LINE_720:
+; 720  GOTO 705
+	LD HL,720
+	LD (23621),HL
+; 		720.1  GOTO 705{00 00 c1 02 00 }
+	LD A,1
+	LD (23623),a
 	CALL runtimeCheckBreak
-	JP ZX_LINE_370
-ZXB_LABEL_14:
-ZX_LINE_364:
-; 364  PRINT #0; AT 1,3;"Restart level. Sure? (y/n)"
-; 		364.1  PRINT #0{00 00 00 00 00 }; AT 1{00 00 01 00 00 },3{00 00 03 00 00 };"Restart level. Sure? (y/n)"
-	XOR A,A
-	LD (ZX_TV_FLAG),A
+	JP ZXBASIC_LINE_705
+ZXBASIC_LINE_800:
+; 800  REM SET UP
+	LD HL,800
+	LD (23621),HL
+	LD A,1
+	LD (23623),a
+ZXBASIC_LINE_805:
+; 805  PAPER 5: INK 0: BORDER 5: CLS 
+	LD HL,805
+	LD (23621),HL
+; 		805.1  PAPER 5{00 00 05 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,5
+	CALL runtimePaper
+; 		805.2  INK 0{00 00 00 00 00 }
+	LD A,2
+	LD (23623),a
 	LD HL,0
-	CALL runtimeSetStream
-	LD DE,1
-	LD HL,3
-	CALL runtimePrintAt
-	LD HL,STRING_28	;Restart level. Sure? (y/n)
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	LD HL,0
-	CALL runtimeSetStream
-ZX_LINE_365:
-; 365  LET i$= INKEY : IF i$="y" THEN  GOTO 320
-; 		365.1  LET i$= INKEY 
-; INKEY
-	CALL runtimeInkey
-	LD DE,HL
-	LD HL,ZXBASIC_VAR_i_string
-	CALL runtimeStoreString
-; 		365.2  IF i$="y" THEN  GOTO 320{00 00 40 01 00 }
-	LD DE,(ZXBASIC_VAR_i_string)
-	LD HL,STRING_29	;y
-; =
-	CALL runtimeEqualString
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_15
-; 		365.3  GOTO 320{00 00 40 01 00 }
-	CALL runtimeCheckBreak
-	JP ZX_LINE_320
-ZXB_LABEL_15:
-ZX_LINE_366:
-; 366  IF i$ <> "n" THEN  GOTO 365
-; 		366.1  IF i$ <> "n" THEN  GOTO 365{00 00 6d 01 00 }
-	LD DE,(ZXBASIC_VAR_i_string)
-	LD HL,STRING_30	;n
-; <>
-	CALL runtimeUnequalString
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_16
-; 		366.2  GOTO 365{00 00 6d 01 00 }
-	CALL runtimeCheckBreak
-	JP ZX_LINE_365
-ZXB_LABEL_16:
-ZX_LINE_367:
-; 367  PRINT #0; AT 1,0,,;
-; 		367.1  PRINT #0{00 00 00 00 00 }; AT 1{00 00 01 00 00 },0{00 00 00 00 00 },,;
-	XOR A,A
-	LD (ZX_TV_FLAG),A
-	LD HL,0
-	CALL runtimeSetStream
-	LD DE,1
-	LD HL,0
-	CALL runtimePrintAt
-	CALL runtimePrintTab
-	CALL runtimePrintTab
-	LD HL,0
-	CALL runtimeSetStream
-ZX_LINE_370:
-; 370  IF cont<targets THEN  GOTO 350
-; 		370.1  IF cont<targets THEN  GOTO 350{00 00 5e 01 00 }
-	LD DE,(ZXBASIC_VAR_cont)
-	LD HL,(ZXBASIC_VAR_targets)
-; <
-	SUB HL,DE
-	LD HL,0
-	call nc,HL1
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_17
-; 		370.2  GOTO 350{00 00 5e 01 00 }
-	CALL runtimeCheckBreak
-	JP ZX_LINE_350
-ZXB_LABEL_17:
-ZX_LINE_380:
-; 380  LET k$= INKEY : IF k$ <> "" THEN  GOTO 390
-; 		380.1  LET k$= INKEY 
-; INKEY
-	CALL runtimeInkey
-	LD DE,HL
-	LD HL,ZXBASIC_VAR_k_string
-	CALL runtimeStoreString
-; 		380.2  IF k$ <> "" THEN  GOTO 390{00 00 86 01 00 }
-	LD DE,(ZXBASIC_VAR_k_string)
-	LD HL,STRING_13	;
-; <>
-	CALL runtimeUnequalString
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_18
-; 		380.3  GOTO 390{00 00 86 01 00 }
-	CALL runtimeCheckBreak
-	JP ZX_LINE_390
-ZXB_LABEL_18:
-ZX_LINE_390:
-; 390  FOR n=1 TO 10: FOR b=0 TO 7: BORDER b: NEXT b: NEXT n: PRINT #0; AT 1,0;"W E L L   D O N E ! ! ! ! ! ! !"
-; 		390.1  FOR n=1{00 00 01 00 00 } TO 10{00 00 0a 00 00 }
-	CALL runtimeCheckBreak
-	LD HL,1
-	LD (ZXBASIC_VAR_n),HL
-	LD HL,10
-	LD (ZXBASIC_VAR_for_n),HL
-FOR_2:
-; 		390.2  FOR b=0{00 00 00 00 00 } TO 7{00 00 07 00 00 }
-	CALL runtimeCheckBreak
-	LD HL,0
-	LD (ZXBASIC_VAR_b),HL
-	LD HL,7
-	LD (ZXBASIC_VAR_for_b),HL
-FOR_3:
-; 		390.3  BORDER b
-	LD HL,(ZXBASIC_VAR_b)
-	PUSH HL
+	CALL runtimeInk
+; 		805.3  BORDER 5{00 00 05 00 00 }
+	LD A,3
+	LD (23623),a
+	LD HL,5
 	LD A,L
 	call $2297
-; 		390.4  NEXT b
+; 		805.4  CLS 
+	LD A,4
+	LD (23623),a
+	CALL runtimeCls
+ZXBASIC_LINE_810:
+; 810  FOR b=4 TO 19
+	LD HL,810
+	LD (23621),HL
+; 		810.1  FOR b=4{00 00 04 00 00 } TO 19{00 00 13 00 00 }
+	LD A,1
+	LD (23623),a
+	CALL runtimeCheckBreak
+	LD HL,4
+	LD (ZXBASIC_VAR_b),HL
+	LD HL,19
+	LD (ZXBASIC_VAR_for_b),HL
+FOR_7:
+ZXBASIC_LINE_815:
+; 815  PRINT  AT 3,14;""; PAPER 7;""; PAPER 5;"";
+	LD HL,815
+	LD (23621),HL
+; 		815.1  PRINT  AT 3{00 00 03 00 00 },14{00 00 0e 00 00 };""; PAPER 7{00 00 07 00 00 };""; PAPER 5{00 00 05 00 00 };"";
+	LD A,1
+	LD (23623),a
+	XOR A,A
+	LD (ZX_TV_FLAG),A
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,3
+	LD HL,14
+	CALL runtimePrintAt
+	LD HL,STRING_19	;\8d
+	CALL runtimePrintString
+	LD HL,7
+	CALL runtimeLocalPaper
+	LD HL,STRING_20	;\83\83
+	CALL runtimePrintString
+	LD HL,5
+	CALL runtimeLocalPaper
+	LD HL,STRING_21	;\8e
+	CALL runtimePrintString
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
+ZXBASIC_LINE_820:
+; 820  PRINT  AT b,14; INK 0; PAPER 7;"";: NEXT b
+	LD HL,820
+	LD (23621),HL
+; 		820.1  PRINT  AT b,14{00 00 0e 00 00 }; INK 0{00 00 00 00 00 }; PAPER 7{00 00 07 00 00 };"";
+	LD A,1
+	LD (23623),a
+	XOR A,A
+	LD (ZX_TV_FLAG),A
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,(ZXBASIC_VAR_b)
+	LD HL,14
+	CALL runtimePrintAt
+	LD HL,0
+	CALL runtimeLocalInk
+	LD HL,7
+	CALL runtimeLocalPaper
+	LD HL,STRING_22	;\8a\88\84\85
+	CALL runtimePrintString
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		820.2  NEXT b
+	LD A,2
+	LD (23623),a
 	CALL runtimeCheckBreak
 	LD HL,(ZXBASIC_VAR_b)
 	INC HL
@@ -937,5389 +1744,383 @@ FOR_3:
 	LD DE,(ZXBASIC_VAR_for_b)
 	EX HL,DE
 	SUB HL,DE
-	JP NC,FOR_3
-; 		390.5  NEXT n
-	CALL runtimeCheckBreak
-	LD HL,(ZXBASIC_VAR_n)
-	INC HL
-	LD (ZXBASIC_VAR_n),HL
-	LD DE,(ZXBASIC_VAR_for_n)
-	EX HL,DE
-	SUB HL,DE
-	JP NC,FOR_2
-; 		390.6  PRINT #0{00 00 00 00 00 }; AT 1{00 00 01 00 00 },0{00 00 00 00 00 };"W E L L   D O N E ! ! ! ! ! ! !"
-	XOR A,A
-	LD (ZX_TV_FLAG),A
-	LD HL,0
-	CALL runtimeSetStream
-	LD DE,1
-	LD HL,0
-	CALL runtimePrintAt
-	LD HL,STRING_31	;W E L L   D O N E ! ! ! ! ! ! !
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	LD HL,0
-	CALL runtimeSetStream
-ZX_LINE_400:
-; 400  LET k$= INKEY : IF k$ <> "" THEN  GOTO 400
-; 		400.1  LET k$= INKEY 
-; INKEY
-	CALL runtimeInkey
-	LD DE,HL
-	LD HL,ZXBASIC_VAR_k_string
-	CALL runtimeStoreString
-; 		400.2  IF k$ <> "" THEN  GOTO 400{00 00 90 01 00 }
-	LD DE,(ZXBASIC_VAR_k_string)
-	LD HL,STRING_13	;
-; <>
-	CALL runtimeUnequalString
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_19
-; 		400.3  GOTO 400{00 00 90 01 00 }
-	CALL runtimeCheckBreak
-	JP ZX_LINE_400
-ZXB_LABEL_19:
-ZX_LINE_410:
-; 410  PAUSE 0
-; 		410.1  PAUSE 0{00 00 00 00 00 }
-	LD HL,0
-	CALL runtimePause
-ZX_LINE_420:
-; 420  NEXT l
-; 		420.1  NEXT l
-	CALL runtimeCheckBreak
-	LD HL,(ZXBASIC_VAR_l)
-	INC HL
-	LD (ZXBASIC_VAR_l),HL
-	LD DE,(ZXBASIC_VAR_for_l)
-	EX HL,DE
-	SUB HL,DE
-	JP NC,FOR_0
-ZX_LINE_425:
-; 425  PRINT #0; AT 1,0;"WELL DONE - ALL LEVELS COMPLETED";: PAUSE 0: GOTO 90
-; 		425.1  PRINT #0{00 00 00 00 00 }; AT 1{00 00 01 00 00 },0{00 00 00 00 00 };"WELL DONE - ALL LEVELS COMPLETED";
-	XOR A,A
-	LD (ZX_TV_FLAG),A
-	LD HL,0
-	CALL runtimeSetStream
-	LD DE,1
-	LD HL,0
-	CALL runtimePrintAt
-	LD HL,STRING_32	;WELL DONE - ALL LEVELS COMPLETED
-	CALL runtimePrintString
-	LD HL,0
-	CALL runtimeSetStream
-; 		425.2  PAUSE 0{00 00 00 00 00 }
-	LD HL,0
-	CALL runtimePause
-; 		425.3  GOTO 90{00 00 5a 00 00 }
-	CALL runtimeCheckBreak
-	JP ZX_LINE_90
-ZX_LINE_429:
-; 429  GOTO 9998
-; 		429.1  GOTO 9998{00 00 0e 27 00 }
-	CALL runtimeCheckBreak
-	JP ZX_LINE_9998
-ZX_LINE_430:
-; 430  REM UNDO routine
-ZX_LINE_435:
-; 435  IF moves=0 THEN  RETURN 
-; 		435.1  IF moves=0{00 00 00 00 00 } THEN  RETURN 
-	LD DE,(ZXBASIC_VAR_moves)
-	LD HL,0
-; =
-	SUB HL,DE
-	LD HL,0
-	CALL Z,HL1
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_20
-; 		435.2  RETURN 
-	CALL runtimeCheckBreak
-	RET
-ZXB_LABEL_20:
-ZX_LINE_440:
-; 440  LET pull=0: LET k$=h$(moves): LET h$(moves)=" ": IF  CODE k$<97 THEN  LET pull=1: LET k$= CHR ( CODE k$+32)
-; 		440.1  LET pull=0{00 00 00 00 00 }
-	LD HL,0
-	LD (ZXBASIC_VAR_pull),HL
-; 		440.2  LET k$=h$(moves)
-; Array-Access
-	LD HL,(ZXBASIC_VAR_moves)
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_h_string_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	POP DE
-	LD HL,ZXBASIC_VAR_k_string
-	CALL runtimeStoreString
-; 		440.3  LET h$(moves)=" "
-	LD HL,(ZXBASIC_VAR_moves)
-	ADD HL,HL
-	PUSH HL
-	LD DE,STRING_12	; 
-	POP HL
-	LD BC,ZXBASIC_VAR_h_string_array
-	ADD HL,BC
-	LD (HL),DE
-; 		440.4  IF  CODE k$<97{00 00 61 00 00 } THEN  LET pull=1{00 00 01 00 00 }
-; CODE
-	LD HL,(ZXBASIC_VAR_k_string)
-	CALL runtimeCode
-	LD DE,HL
-	LD HL,97
-; <
-	SUB HL,DE
-	LD HL,0
-	call nc,HL1
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_21
-; 		440.5  LET pull=1{00 00 01 00 00 }
-	LD HL,1
-	LD (ZXBASIC_VAR_pull),HL
-; 		440.6  LET k$= CHR ( CODE k$+32{00 00 20 00 00 })
-; CHR
-; CODE
-	LD HL,(ZXBASIC_VAR_k_string)
-	CALL runtimeCode
-	LD DE,HL
-	LD HL,32
-; +
-	ADD HL,DE
-	CALL runtimeChr
-	LD DE,HL
-	LD HL,ZXBASIC_VAR_k_string
-	CALL runtimeStoreString
-ZXB_LABEL_21:
-ZX_LINE_441:
-; 441  LET o(1)=s(1): LET o(2)=s(2): LET vm=(1 AND k$=u$)+(-1 AND k$=d$): LET hm=(1 AND k$=l$)+(-1 AND k$=r$): REM reversed direction indicators
-; 		441.1  LET o(1{00 00 01 00 00 })=s(1{00 00 01 00 00 })
-	LD HL,1
-	ADD HL,HL
-	PUSH HL
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	POP DE
-	POP HL
-	LD BC,ZXBASIC_VAR_o_array
-	ADD HL,BC
-	LD (HL),DE
-; 		441.2  LET o(2{00 00 02 00 00 })=s(2{00 00 02 00 00 })
-	LD HL,2
-	ADD HL,HL
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	POP DE
-	POP HL
-	LD BC,ZXBASIC_VAR_o_array
-	ADD HL,BC
-	LD (HL),DE
-; 		441.3  LET vm=(1{00 00 01 00 00 } AND k$=u$)+(-1{00 00 01 00 00 } AND k$=d$)
-; (
-	LD HL,1
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_k_string)
-	LD HL,(ZXBASIC_VAR_u_string)
-; =
-	CALL runtimeEqualString
-; AND
-	POP DE
-	call runtimeAndHLDE
-	PUSH HL
-; )
-; (
-	LD HL,1
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_k_string)
-	LD HL,(ZXBASIC_VAR_d_string)
-; =
-	CALL runtimeEqualString
-; AND
-	POP DE
-	call runtimeAndHLDE
-	LD BC,HL
-; -
-	LD HL,0
-	SUB HL,BC
-; )
-; +
-	POP DE
-	ADD HL,DE
-	LD (ZXBASIC_VAR_vm),HL
-	CALL ZXFreeTempCompact
-; 		441.4  LET hm=(1{00 00 01 00 00 } AND k$=l$)+(-1{00 00 01 00 00 } AND k$=r$)
-; (
-	LD HL,1
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_k_string)
-	LD HL,(ZXBASIC_VAR_l_string)
-; =
-	CALL runtimeEqualString
-; AND
-	POP DE
-	call runtimeAndHLDE
-	PUSH HL
-; )
-; (
-	LD HL,1
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_k_string)
-	LD HL,(ZXBASIC_VAR_r_string)
-; =
-	CALL runtimeEqualString
-; AND
-	POP DE
-	call runtimeAndHLDE
-	LD BC,HL
-; -
-	LD HL,0
-	SUB HL,BC
-; )
-; +
-	POP DE
-	ADD HL,DE
-	LD (ZXBASIC_VAR_hm),HL
-	CALL ZXFreeTempCompact
-ZX_LINE_445:
-; 445  IF  NOT pull THEN  GOTO 489
-; 		445.1  IF  NOT pull THEN  GOTO 489{00 00 e9 01 00 }
-; NOT
-	LD HL,(ZXBASIC_VAR_pull)
-	CALL runtimeNotHL
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_22
-; 		445.2  GOTO 489{00 00 e9 01 00 }
-	CALL runtimeCheckBreak
-	JP ZX_LINE_489
-ZXB_LABEL_22:
-ZX_LINE_446:
-; 446  LET pushes=pushes-1
-; 		446.1  LET pushes=pushes-1{00 00 01 00 00 }
-	LD HL,(ZXBASIC_VAR_pushes)
-	DEC HL
-; -
-	LD (ZXBASIC_VAR_pushes),HL
-ZX_LINE_450:
-; 450  IF m$(s(1)-vm,s(2)-hm)="" THEN  LET m$(s(1)-vm,s(2)-hm)="": LET r=s(1)-vm: LET c=s(2)-hm: GOSUB 3000: GOTO 460
-; 		450.1  IF m$(s(1{00 00 01 00 00 })-vm,s(2{00 00 02 00 00 })-hm)="" THEN  LET m$(s(1{00 00 01 00 00 })-vm,s(2{00 00 02 00 00 })-hm)=""
-; Array-Access
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; -
-	POP DE
-	EX HL,DE
-	SUB HL,DE
-	LD DE,19
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; -
-	POP DE
-	EX HL,DE
-	SUB HL,DE
-	POP DE
-	ADD HL,DE
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_m_string_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,STRING_33	;\92
-; =
-	POP DE
-	CALL runtimeEqualString
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_23
-; 		450.2  LET m$(s(1{00 00 01 00 00 })-vm,s(2{00 00 02 00 00 })-hm)=""
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; -
-	POP DE
-	EX HL,DE
-	SUB HL,DE
-	LD DE,19
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; -
-	POP DE
-	EX HL,DE
-	SUB HL,DE
-	POP DE
-	ADD HL,DE
-	ADD HL,HL
-	PUSH HL
-	LD DE,STRING_34	;\91
-	POP HL
-	LD BC,ZXBASIC_VAR_m_string_array
-	ADD HL,BC
-	LD (HL),DE
-; 		450.3  LET r=s(1{00 00 01 00 00 })-vm
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; -
-	POP DE
-	EX HL,DE
-	SUB HL,DE
-	LD (ZXBASIC_VAR_r),HL
-; 		450.4  LET c=s(2{00 00 02 00 00 })-hm
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; -
-	POP DE
-	EX HL,DE
-	SUB HL,DE
-	LD (ZXBASIC_VAR_c),HL
-; 		450.5  GOSUB 3000{00 00 b8 0b 00 }
-	CALL runtimeCheckBreak
-	CALL ZX_LINE_3000:
-; 		450.6  GOTO 460{00 00 cc 01 00 }
-	CALL runtimeCheckBreak
-	JP ZX_LINE_460
-ZXB_LABEL_23:
-ZX_LINE_451:
-; 451  IF m$(s(1)-vm,s(2)-hm)="" THEN  LET m$(s(1)-vm,s(2)-hm)="": LET r=s(1)-vm: LET c=s(2)-hm: GOSUB 3000: LET cont=cont-1
-; 		451.1  IF m$(s(1{00 00 01 00 00 })-vm,s(2{00 00 02 00 00 })-hm)="" THEN  LET m$(s(1{00 00 01 00 00 })-vm,s(2{00 00 02 00 00 })-hm)=""
-; Array-Access
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; -
-	POP DE
-	EX HL,DE
-	SUB HL,DE
-	LD DE,19
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; -
-	POP DE
-	EX HL,DE
-	SUB HL,DE
-	POP DE
-	ADD HL,DE
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_m_string_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,STRING_35	;\96
-; =
-	POP DE
-	CALL runtimeEqualString
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_24
-; 		451.2  LET m$(s(1{00 00 01 00 00 })-vm,s(2{00 00 02 00 00 })-hm)=""
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; -
-	POP DE
-	EX HL,DE
-	SUB HL,DE
-	LD DE,19
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; -
-	POP DE
-	EX HL,DE
-	SUB HL,DE
-	POP DE
-	ADD HL,DE
-	ADD HL,HL
-	PUSH HL
-	LD DE,STRING_36	;\93
-	POP HL
-	LD BC,ZXBASIC_VAR_m_string_array
-	ADD HL,BC
-	LD (HL),DE
-; 		451.3  LET r=s(1{00 00 01 00 00 })-vm
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; -
-	POP DE
-	EX HL,DE
-	SUB HL,DE
-	LD (ZXBASIC_VAR_r),HL
-; 		451.4  LET c=s(2{00 00 02 00 00 })-hm
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; -
-	POP DE
-	EX HL,DE
-	SUB HL,DE
-	LD (ZXBASIC_VAR_c),HL
-; 		451.5  GOSUB 3000{00 00 b8 0b 00 }
-	CALL runtimeCheckBreak
-	CALL ZX_LINE_3000:
-; 		451.6  LET cont=cont-1{00 00 01 00 00 }
-	LD HL,(ZXBASIC_VAR_cont)
-	DEC HL
-; -
-	LD (ZXBASIC_VAR_cont),HL
-ZXB_LABEL_24:
-ZX_LINE_460:
-; 460  IF m$(s(1),s(2))="" THEN  LET m$(s(1),s(2))="": LET r=s(1): LET c=s(2): GOSUB 3000: GOTO 489
-; 		460.1  IF m$(s(1{00 00 01 00 00 }),s(2{00 00 02 00 00 }))="" THEN  LET m$(s(1{00 00 01 00 00 }),s(2{00 00 02 00 00 }))=""
-; Array-Access
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	LD HL,DE
-	LD DE,19
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	LD HL,DE
-	POP DE
-	ADD HL,DE
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_m_string_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,STRING_34	;\91
-; =
-	POP DE
-	CALL runtimeEqualString
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_25
-; 		460.2  LET m$(s(1{00 00 01 00 00 }),s(2{00 00 02 00 00 }))=""
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	LD HL,DE
-	LD DE,19
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	LD HL,DE
-	POP DE
-	ADD HL,DE
-	ADD HL,HL
-	PUSH HL
-	LD DE,STRING_33	;\92
-	POP HL
-	LD BC,ZXBASIC_VAR_m_string_array
-	ADD HL,BC
-	LD (HL),DE
-; 		460.3  LET r=s(1{00 00 01 00 00 })
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	LD HL,DE
-	LD (ZXBASIC_VAR_r),HL
-; 		460.4  LET c=s(2{00 00 02 00 00 })
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	LD HL,DE
-	LD (ZXBASIC_VAR_c),HL
-; 		460.5  GOSUB 3000{00 00 b8 0b 00 }
-	CALL runtimeCheckBreak
-	CALL ZX_LINE_3000:
-; 		460.6  GOTO 489{00 00 e9 01 00 }
-	CALL runtimeCheckBreak
-	JP ZX_LINE_489
-ZXB_LABEL_25:
-ZX_LINE_461:
-; 461  IF m$(s(1),s(2))="" THEN  LET m$(s(1),s(2))="": LET r=s(1): LET c=s(2): GOSUB 3000: LET cont=cont+1
-; 		461.1  IF m$(s(1{00 00 01 00 00 }),s(2{00 00 02 00 00 }))="" THEN  LET m$(s(1{00 00 01 00 00 }),s(2{00 00 02 00 00 }))=""
-; Array-Access
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	LD HL,DE
-	LD DE,19
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	LD HL,DE
-	POP DE
-	ADD HL,DE
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_m_string_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,STRING_36	;\93
-; =
-	POP DE
-	CALL runtimeEqualString
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_26
-; 		461.2  LET m$(s(1{00 00 01 00 00 }),s(2{00 00 02 00 00 }))=""
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	LD HL,DE
-	LD DE,19
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	LD HL,DE
-	POP DE
-	ADD HL,DE
-	ADD HL,HL
-	PUSH HL
-	LD DE,STRING_35	;\96
-	POP HL
-	LD BC,ZXBASIC_VAR_m_string_array
-	ADD HL,BC
-	LD (HL),DE
-; 		461.3  LET r=s(1{00 00 01 00 00 })
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	LD HL,DE
-	LD (ZXBASIC_VAR_r),HL
-; 		461.4  LET c=s(2{00 00 02 00 00 })
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	LD HL,DE
-	LD (ZXBASIC_VAR_c),HL
-; 		461.5  GOSUB 3000{00 00 b8 0b 00 }
-	CALL runtimeCheckBreak
-	CALL ZX_LINE_3000:
-; 		461.6  LET cont=cont+1{00 00 01 00 00 }
-	LD HL,(ZXBASIC_VAR_cont)
-	INC HL
-; +
-	LD (ZXBASIC_VAR_cont),HL
-ZXB_LABEL_26:
-ZX_LINE_489:
-; 489  LET s(1)=s(1)+vm: LET s(2)=s(2)+hm: REM direction indicators
-; 		489.1  LET s(1{00 00 01 00 00 })=s(1{00 00 01 00 00 })+vm
-	LD HL,1
-	ADD HL,HL
-	PUSH HL
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	POP HL
-	LD BC,ZXBASIC_VAR_s_array
-	ADD HL,BC
-	LD (HL),DE
-; 		489.2  LET s(2{00 00 02 00 00 })=s(2{00 00 02 00 00 })+hm
-	LD HL,2
-	ADD HL,HL
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	POP HL
-	LD BC,ZXBASIC_VAR_s_array
-	ADD HL,BC
-	LD (HL),DE
-ZX_LINE_490:
-; 490  LET moves=moves-1: GOTO 605
-; 		490.1  LET moves=moves-1{00 00 01 00 00 }
-	LD HL,(ZXBASIC_VAR_moves)
-	DEC HL
-; -
-	LD (ZXBASIC_VAR_moves),HL
-; 		490.2  GOTO 605{00 00 5d 02 00 }
-	CALL runtimeCheckBreak
-	JP ZX_LINE_605
-ZX_LINE_499:
-; 499  RETURN 
-; 		499.1  RETURN 
-	CALL runtimeCheckBreak
-	RET
-ZX_LINE_500:
-; 500  REM Game Loop
-ZX_LINE_510:
-; 510  LET k$= INKEY : IF k$ <> d$ AND k$ <> u$ AND k$ <> l$ AND k$ <> r$ THEN  RETURN 
-; 		510.1  LET k$= INKEY 
-; INKEY
-	CALL runtimeInkey
-	LD DE,HL
-	LD HL,ZXBASIC_VAR_k_string
-	CALL runtimeStoreString
-; 		510.2  IF k$ <> d$ AND k$ <> u$ AND k$ <> l$ AND k$ <> r$ THEN  RETURN 
-	LD DE,(ZXBASIC_VAR_k_string)
-	LD HL,(ZXBASIC_VAR_d_string)
-; <>
-	CALL runtimeUnequalString
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_k_string)
-	LD HL,(ZXBASIC_VAR_u_string)
-; <>
-	CALL runtimeUnequalString
-; AND
-	POP DE
-	call runtimeAndHLDE
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_k_string)
-	LD HL,(ZXBASIC_VAR_l_string)
-; <>
-	CALL runtimeUnequalString
-; AND
-	POP DE
-	call runtimeAndHLDE
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_k_string)
-	LD HL,(ZXBASIC_VAR_r_string)
-; <>
-	CALL runtimeUnequalString
-; AND
-	POP DE
-	call runtimeAndHLDE
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_27
-; 		510.3  RETURN 
-	CALL runtimeCheckBreak
-	RET
-ZXB_LABEL_27:
-ZX_LINE_520:
-; 520  LET o(1)=s(1): LET o(2)=s(2): LET o(3)=pushes: REM old player position/pushes
-; 		520.1  LET o(1{00 00 01 00 00 })=s(1{00 00 01 00 00 })
-	LD HL,1
-	ADD HL,HL
-	PUSH HL
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	POP DE
-	POP HL
-	LD BC,ZXBASIC_VAR_o_array
-	ADD HL,BC
-	LD (HL),DE
-; 		520.2  LET o(2{00 00 02 00 00 })=s(2{00 00 02 00 00 })
-	LD HL,2
-	ADD HL,HL
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	POP DE
-	POP HL
-	LD BC,ZXBASIC_VAR_o_array
-	ADD HL,BC
-	LD (HL),DE
-; 		520.3  LET o(3{00 00 03 00 00 })=pushes
-	LD HL,3
-	ADD HL,HL
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_pushes)
-	POP HL
-	LD BC,ZXBASIC_VAR_o_array
-	ADD HL,BC
-	LD (HL),DE
-ZX_LINE_530:
-; 530  LET vm=0+(-1 AND k$=u$)+(1 AND k$=d$): LET hm=0+(-1 AND k$=l$)+(1 AND k$=r$): REM direction indicators
-; 		530.1  LET vm=0{00 00 00 00 00 }+(-1{00 00 01 00 00 } AND k$=u$)+(1{00 00 01 00 00 } AND k$=d$)
-	LD HL,0
-	PUSH HL
-; (
-	LD HL,1
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_k_string)
-	LD HL,(ZXBASIC_VAR_u_string)
-; =
-	CALL runtimeEqualString
-; AND
-	POP DE
-	call runtimeAndHLDE
-	LD BC,HL
-; -
-	LD HL,0
-	SUB HL,BC
-; )
-; +
-	POP DE
-	ADD HL,DE
-	PUSH HL
-; (
-	LD HL,1
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_k_string)
-	LD HL,(ZXBASIC_VAR_d_string)
-; =
-	CALL runtimeEqualString
-; AND
-	POP DE
-	call runtimeAndHLDE
-; )
-; +
-	POP DE
-	ADD HL,DE
-	LD (ZXBASIC_VAR_vm),HL
-	CALL ZXFreeTempCompact
-; 		530.2  LET hm=0{00 00 00 00 00 }+(-1{00 00 01 00 00 } AND k$=l$)+(1{00 00 01 00 00 } AND k$=r$)
-	LD HL,0
-	PUSH HL
-; (
-	LD HL,1
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_k_string)
-	LD HL,(ZXBASIC_VAR_l_string)
-; =
-	CALL runtimeEqualString
-; AND
-	POP DE
-	call runtimeAndHLDE
-	LD BC,HL
-; -
-	LD HL,0
-	SUB HL,BC
-; )
-; +
-	POP DE
-	ADD HL,DE
-	PUSH HL
-; (
-	LD HL,1
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_k_string)
-	LD HL,(ZXBASIC_VAR_r_string)
-; =
-	CALL runtimeEqualString
-; AND
-	POP DE
-	call runtimeAndHLDE
-; )
-; +
-	POP DE
-	ADD HL,DE
-	LD (ZXBASIC_VAR_hm),HL
-	CALL ZXFreeTempCompact
-ZX_LINE_540:
-; 540  IF m$(s(1)+vm,s(2)+hm)="" THEN  LET s(1)=s(1)+vm: LET s(2)=s(2)+hm: LET moves=moves+1: GOTO 600: REM walk into blank space
-; 		540.1  IF m$(s(1{00 00 01 00 00 })+vm,s(2{00 00 02 00 00 })+hm)="" THEN  LET s(1{00 00 01 00 00 })=s(1{00 00 01 00 00 })+vm
-; Array-Access
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,19
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	POP DE
-	ADD HL,DE
-	POP DE
-	ADD HL,DE
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_m_string_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,STRING_34	;\91
-; =
-	POP DE
-	CALL runtimeEqualString
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_28
-; 		540.2  LET s(1{00 00 01 00 00 })=s(1{00 00 01 00 00 })+vm
-	LD HL,1
-	ADD HL,HL
-	PUSH HL
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	POP HL
-	LD BC,ZXBASIC_VAR_s_array
-	ADD HL,BC
-	LD (HL),DE
-; 		540.3  LET s(2{00 00 02 00 00 })=s(2{00 00 02 00 00 })+hm
-	LD HL,2
-	ADD HL,HL
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	POP HL
-	LD BC,ZXBASIC_VAR_s_array
-	ADD HL,BC
-	LD (HL),DE
-; 		540.4  LET moves=moves+1{00 00 01 00 00 }
-	LD HL,(ZXBASIC_VAR_moves)
-	INC HL
-; +
-	LD (ZXBASIC_VAR_moves),HL
-; 		540.5  GOTO 600{00 00 58 02 00 }
-	CALL runtimeCheckBreak
-	JP ZX_LINE_600
-ZXB_LABEL_28:
-ZX_LINE_550:
-; 550  IF m$(s(1)+vm,s(2)+hm)="" THEN  LET s(1)=s(1)+vm: LET s(2)=s(2)+hm: LET moves=moves+1: GOTO 600: REM walk into empty target
-; 		550.1  IF m$(s(1{00 00 01 00 00 })+vm,s(2{00 00 02 00 00 })+hm)="" THEN  LET s(1{00 00 01 00 00 })=s(1{00 00 01 00 00 })+vm
-; Array-Access
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,19
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	POP DE
-	ADD HL,DE
-	POP DE
-	ADD HL,DE
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_m_string_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,STRING_36	;\93
-; =
-	POP DE
-	CALL runtimeEqualString
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_29
-; 		550.2  LET s(1{00 00 01 00 00 })=s(1{00 00 01 00 00 })+vm
-	LD HL,1
-	ADD HL,HL
-	PUSH HL
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	POP HL
-	LD BC,ZXBASIC_VAR_s_array
-	ADD HL,BC
-	LD (HL),DE
-; 		550.3  LET s(2{00 00 02 00 00 })=s(2{00 00 02 00 00 })+hm
-	LD HL,2
-	ADD HL,HL
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	POP HL
-	LD BC,ZXBASIC_VAR_s_array
-	ADD HL,BC
-	LD (HL),DE
-; 		550.4  LET moves=moves+1{00 00 01 00 00 }
-	LD HL,(ZXBASIC_VAR_moves)
-	INC HL
-; +
-	LD (ZXBASIC_VAR_moves),HL
-; 		550.5  GOTO 600{00 00 58 02 00 }
-	CALL runtimeCheckBreak
-	JP ZX_LINE_600
-ZXB_LABEL_29:
-ZX_LINE_560:
-; 560  IF m$(s(1)+vm,s(2)+hm)="" THEN  IF m$(s(1)+vm+vm,s(2)+hm+hm)="" THEN  LET m$(s(1)+vm+vm,s(2)+hm+hm)=m$(s(1)+vm,s(2)+hm): LET m$(s(1)+vm,s(2)+hm)="": LET r=s(1)+vm+vm: LET c=s(2)+hm+hm: GOSUB 3000: LET s(1)=s(1)+vm: LET s(2)=s(2)+hm: LET moves=moves+1: LET pushes=pushes+1: GOTO 600: REM push crate into blank space
-; 		560.1  IF m$(s(1{00 00 01 00 00 })+vm,s(2{00 00 02 00 00 })+hm)="" THEN  IF m$(s(1{00 00 01 00 00 })+vm+vm,s(2{00 00 02 00 00 })+hm+hm)="" THEN  LET m$(s(1{00 00 01 00 00 })+vm+vm,s(2{00 00 02 00 00 })+hm+hm)=m$(s(1{00 00 01 00 00 })+vm,s(2{00 00 02 00 00 })+hm)
-; Array-Access
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,19
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	POP DE
-	ADD HL,DE
-	POP DE
-	ADD HL,DE
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_m_string_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,STRING_33	;\92
-; =
-	POP DE
-	CALL runtimeEqualString
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_30
-; 		560.2  IF m$(s(1{00 00 01 00 00 })+vm+vm,s(2{00 00 02 00 00 })+hm+hm)="" THEN  LET m$(s(1{00 00 01 00 00 })+vm+vm,s(2{00 00 02 00 00 })+hm+hm)=m$(s(1{00 00 01 00 00 })+vm,s(2{00 00 02 00 00 })+hm)
-; Array-Access
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	ADD HL,DE
-	LD DE,19
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	ADD HL,DE
-	POP DE
-	ADD HL,DE
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_m_string_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,STRING_34	;\91
-; =
-	POP DE
-	CALL runtimeEqualString
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_31
-; 		560.3  LET m$(s(1{00 00 01 00 00 })+vm+vm,s(2{00 00 02 00 00 })+hm+hm)=m$(s(1{00 00 01 00 00 })+vm,s(2{00 00 02 00 00 })+hm)
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	ADD HL,DE
-	LD DE,19
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	ADD HL,DE
-	POP DE
-	ADD HL,DE
-	ADD HL,HL
-	PUSH HL
-; Array-Access
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,19
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	POP DE
-	ADD HL,DE
-	POP DE
-	ADD HL,DE
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_m_string_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	POP DE
-	POP HL
-	LD BC,ZXBASIC_VAR_m_string_array
-	ADD HL,BC
-	LD (HL),DE
-; 		560.4  LET m$(s(1{00 00 01 00 00 })+vm,s(2{00 00 02 00 00 })+hm)=""
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,19
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	POP DE
-	ADD HL,DE
-	POP DE
-	ADD HL,DE
-	ADD HL,HL
-	PUSH HL
-	LD DE,STRING_34	;\91
-	POP HL
-	LD BC,ZXBASIC_VAR_m_string_array
-	ADD HL,BC
-	LD (HL),DE
-; 		560.5  LET r=s(1{00 00 01 00 00 })+vm+vm
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	ADD HL,DE
-	LD (ZXBASIC_VAR_r),HL
-; 		560.6  LET c=s(2{00 00 02 00 00 })+hm+hm
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	ADD HL,DE
-	LD (ZXBASIC_VAR_c),HL
-; 		560.7  GOSUB 3000{00 00 b8 0b 00 }
-	CALL runtimeCheckBreak
-	CALL ZX_LINE_3000:
-; 		560.8  LET s(1{00 00 01 00 00 })=s(1{00 00 01 00 00 })+vm
-	LD HL,1
-	ADD HL,HL
-	PUSH HL
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	POP HL
-	LD BC,ZXBASIC_VAR_s_array
-	ADD HL,BC
-	LD (HL),DE
-; 		560.9  LET s(2{00 00 02 00 00 })=s(2{00 00 02 00 00 })+hm
-	LD HL,2
-	ADD HL,HL
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	POP HL
-	LD BC,ZXBASIC_VAR_s_array
-	ADD HL,BC
-	LD (HL),DE
-; 		560.10  LET moves=moves+1{00 00 01 00 00 }
-	LD HL,(ZXBASIC_VAR_moves)
-	INC HL
-; +
-	LD (ZXBASIC_VAR_moves),HL
-; 		560.11  LET pushes=pushes+1{00 00 01 00 00 }
-	LD HL,(ZXBASIC_VAR_pushes)
-	INC HL
-; +
-	LD (ZXBASIC_VAR_pushes),HL
-; 		560.12  GOTO 600{00 00 58 02 00 }
-	CALL runtimeCheckBreak
-	JP ZX_LINE_600
-ZXB_LABEL_31:
-ZXB_LABEL_30:
-ZX_LINE_570:
-; 570  IF m$(s(1)+vm,s(2)+hm)="" THEN  IF m$(s(1)+vm+vm,s(2)+hm+hm)="" THEN  LET m$(s(1)+vm+vm,s(2)+hm+hm)="": LET m$(s(1)+vm,s(2)+hm)="": LET r=s(1)+vm+vm: LET c=s(2)+hm+hm: GOSUB 3000: LET s(1)=s(1)+vm: LET s(2)=s(2)+hm: LET moves=moves+1: LET pushes=pushes+1: LET cont=cont+1: GOTO 600: REM push crate into target
-; 		570.1  IF m$(s(1{00 00 01 00 00 })+vm,s(2{00 00 02 00 00 })+hm)="" THEN  IF m$(s(1{00 00 01 00 00 })+vm+vm,s(2{00 00 02 00 00 })+hm+hm)="" THEN  LET m$(s(1{00 00 01 00 00 })+vm+vm,s(2{00 00 02 00 00 })+hm+hm)=""
-; Array-Access
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,19
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	POP DE
-	ADD HL,DE
-	POP DE
-	ADD HL,DE
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_m_string_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,STRING_33	;\92
-; =
-	POP DE
-	CALL runtimeEqualString
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_32
-; 		570.2  IF m$(s(1{00 00 01 00 00 })+vm+vm,s(2{00 00 02 00 00 })+hm+hm)="" THEN  LET m$(s(1{00 00 01 00 00 })+vm+vm,s(2{00 00 02 00 00 })+hm+hm)=""
-; Array-Access
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	ADD HL,DE
-	LD DE,19
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	ADD HL,DE
-	POP DE
-	ADD HL,DE
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_m_string_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,STRING_36	;\93
-; =
-	POP DE
-	CALL runtimeEqualString
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_33
-; 		570.3  LET m$(s(1{00 00 01 00 00 })+vm+vm,s(2{00 00 02 00 00 })+hm+hm)=""
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	ADD HL,DE
-	LD DE,19
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	ADD HL,DE
-	POP DE
-	ADD HL,DE
-	ADD HL,HL
-	PUSH HL
-	LD DE,STRING_35	;\96
-	POP HL
-	LD BC,ZXBASIC_VAR_m_string_array
-	ADD HL,BC
-	LD (HL),DE
-; 		570.4  LET m$(s(1{00 00 01 00 00 })+vm,s(2{00 00 02 00 00 })+hm)=""
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,19
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	POP DE
-	ADD HL,DE
-	POP DE
-	ADD HL,DE
-	ADD HL,HL
-	PUSH HL
-	LD DE,STRING_34	;\91
-	POP HL
-	LD BC,ZXBASIC_VAR_m_string_array
-	ADD HL,BC
-	LD (HL),DE
-; 		570.5  LET r=s(1{00 00 01 00 00 })+vm+vm
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	ADD HL,DE
-	LD (ZXBASIC_VAR_r),HL
-; 		570.6  LET c=s(2{00 00 02 00 00 })+hm+hm
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	ADD HL,DE
-	LD (ZXBASIC_VAR_c),HL
-; 		570.7  GOSUB 3000{00 00 b8 0b 00 }
-	CALL runtimeCheckBreak
-	CALL ZX_LINE_3000:
-; 		570.8  LET s(1{00 00 01 00 00 })=s(1{00 00 01 00 00 })+vm
-	LD HL,1
-	ADD HL,HL
-	PUSH HL
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	POP HL
-	LD BC,ZXBASIC_VAR_s_array
-	ADD HL,BC
-	LD (HL),DE
-; 		570.9  LET s(2{00 00 02 00 00 })=s(2{00 00 02 00 00 })+hm
-	LD HL,2
-	ADD HL,HL
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	POP HL
-	LD BC,ZXBASIC_VAR_s_array
-	ADD HL,BC
-	LD (HL),DE
-; 		570.10  LET moves=moves+1{00 00 01 00 00 }
-	LD HL,(ZXBASIC_VAR_moves)
-	INC HL
-; +
-	LD (ZXBASIC_VAR_moves),HL
-; 		570.11  LET pushes=pushes+1{00 00 01 00 00 }
-	LD HL,(ZXBASIC_VAR_pushes)
-	INC HL
-; +
-	LD (ZXBASIC_VAR_pushes),HL
-; 		570.12  LET cont=cont+1{00 00 01 00 00 }
-	LD HL,(ZXBASIC_VAR_cont)
-	INC HL
-; +
-	LD (ZXBASIC_VAR_cont),HL
-; 		570.13  GOTO 600{00 00 58 02 00 }
-	CALL runtimeCheckBreak
-	JP ZX_LINE_600
-ZXB_LABEL_33:
-ZXB_LABEL_32:
-ZX_LINE_580:
-; 580  IF m$(s(1)+vm,s(2)+hm)="" THEN  IF m$(s(1)+vm+vm,s(2)+hm+hm)="" THEN  LET m$(s(1)+vm+vm,s(2)+hm+hm)="": LET m$(s(1)+vm,s(2)+hm)="": LET r=s(1)+vm+vm: LET c=s(2)+hm+hm: GOSUB 3000: LET s(1)=s(1)+vm: LET s(2)=s(2)+hm: LET moves=moves+1: LET pushes=pushes+1: LET cont=cont-1: GOTO 600: REM targeted crate into blank space
-; 		580.1  IF m$(s(1{00 00 01 00 00 })+vm,s(2{00 00 02 00 00 })+hm)="" THEN  IF m$(s(1{00 00 01 00 00 })+vm+vm,s(2{00 00 02 00 00 })+hm+hm)="" THEN  LET m$(s(1{00 00 01 00 00 })+vm+vm,s(2{00 00 02 00 00 })+hm+hm)=""
-; Array-Access
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,19
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	POP DE
-	ADD HL,DE
-	POP DE
-	ADD HL,DE
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_m_string_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,STRING_35	;\96
-; =
-	POP DE
-	CALL runtimeEqualString
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_34
-; 		580.2  IF m$(s(1{00 00 01 00 00 })+vm+vm,s(2{00 00 02 00 00 })+hm+hm)="" THEN  LET m$(s(1{00 00 01 00 00 })+vm+vm,s(2{00 00 02 00 00 })+hm+hm)=""
-; Array-Access
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	ADD HL,DE
-	LD DE,19
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	ADD HL,DE
-	POP DE
-	ADD HL,DE
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_m_string_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,STRING_34	;\91
-; =
-	POP DE
-	CALL runtimeEqualString
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_35
-; 		580.3  LET m$(s(1{00 00 01 00 00 })+vm+vm,s(2{00 00 02 00 00 })+hm+hm)=""
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	ADD HL,DE
-	LD DE,19
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	ADD HL,DE
-	POP DE
-	ADD HL,DE
-	ADD HL,HL
-	PUSH HL
-	LD DE,STRING_33	;\92
-	POP HL
-	LD BC,ZXBASIC_VAR_m_string_array
-	ADD HL,BC
-	LD (HL),DE
-; 		580.4  LET m$(s(1{00 00 01 00 00 })+vm,s(2{00 00 02 00 00 })+hm)=""
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,19
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	POP DE
-	ADD HL,DE
-	POP DE
-	ADD HL,DE
-	ADD HL,HL
-	PUSH HL
-	LD DE,STRING_36	;\93
-	POP HL
-	LD BC,ZXBASIC_VAR_m_string_array
-	ADD HL,BC
-	LD (HL),DE
-; 		580.5  LET r=s(1{00 00 01 00 00 })+vm+vm
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	ADD HL,DE
-	LD (ZXBASIC_VAR_r),HL
-; 		580.6  LET c=s(2{00 00 02 00 00 })+hm+hm
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	ADD HL,DE
-	LD (ZXBASIC_VAR_c),HL
-; 		580.7  GOSUB 3000{00 00 b8 0b 00 }
-	CALL runtimeCheckBreak
-	CALL ZX_LINE_3000:
-; 		580.8  LET s(1{00 00 01 00 00 })=s(1{00 00 01 00 00 })+vm
-	LD HL,1
-	ADD HL,HL
-	PUSH HL
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	POP HL
-	LD BC,ZXBASIC_VAR_s_array
-	ADD HL,BC
-	LD (HL),DE
-; 		580.9  LET s(2{00 00 02 00 00 })=s(2{00 00 02 00 00 })+hm
-	LD HL,2
-	ADD HL,HL
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	POP HL
-	LD BC,ZXBASIC_VAR_s_array
-	ADD HL,BC
-	LD (HL),DE
-; 		580.10  LET moves=moves+1{00 00 01 00 00 }
-	LD HL,(ZXBASIC_VAR_moves)
-	INC HL
-; +
-	LD (ZXBASIC_VAR_moves),HL
-; 		580.11  LET pushes=pushes+1{00 00 01 00 00 }
-	LD HL,(ZXBASIC_VAR_pushes)
-	INC HL
-; +
-	LD (ZXBASIC_VAR_pushes),HL
-; 		580.12  LET cont=cont-1{00 00 01 00 00 }
-	LD HL,(ZXBASIC_VAR_cont)
-	DEC HL
-; -
-	LD (ZXBASIC_VAR_cont),HL
-; 		580.13  GOTO 600{00 00 58 02 00 }
-	CALL runtimeCheckBreak
-	JP ZX_LINE_600
-ZXB_LABEL_35:
-ZXB_LABEL_34:
-ZX_LINE_590:
-; 590  IF m$(s(1)+vm,s(2)+hm)="" THEN  IF m$(s(1)+vm+vm,s(2)+hm+hm)="" THEN  LET m$(s(1)+vm+vm,s(2)+hm+hm)="": LET m$(s(1)+vm,s(2)+hm)="": LET r=s(1)+vm+vm: LET c=s(2)+hm+hm: GOSUB 3000: LET s(1)=s(1)+vm: LET s(2)=s(2)+hm: LET moves=moves+1: LET pushes=pushes+1: GOTO 600: REM targeted crate into target
-; 		590.1  IF m$(s(1{00 00 01 00 00 })+vm,s(2{00 00 02 00 00 })+hm)="" THEN  IF m$(s(1{00 00 01 00 00 })+vm+vm,s(2{00 00 02 00 00 })+hm+hm)="" THEN  LET m$(s(1{00 00 01 00 00 })+vm+vm,s(2{00 00 02 00 00 })+hm+hm)=""
-; Array-Access
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,19
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	POP DE
-	ADD HL,DE
-	POP DE
-	ADD HL,DE
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_m_string_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,STRING_35	;\96
-; =
-	POP DE
-	CALL runtimeEqualString
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_36
-; 		590.2  IF m$(s(1{00 00 01 00 00 })+vm+vm,s(2{00 00 02 00 00 })+hm+hm)="" THEN  LET m$(s(1{00 00 01 00 00 })+vm+vm,s(2{00 00 02 00 00 })+hm+hm)=""
-; Array-Access
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	ADD HL,DE
-	LD DE,19
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	ADD HL,DE
-	POP DE
-	ADD HL,DE
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_m_string_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,STRING_36	;\93
-; =
-	POP DE
-	CALL runtimeEqualString
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_37
-; 		590.3  LET m$(s(1{00 00 01 00 00 })+vm+vm,s(2{00 00 02 00 00 })+hm+hm)=""
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	ADD HL,DE
-	LD DE,19
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	ADD HL,DE
-	POP DE
-	ADD HL,DE
-	ADD HL,HL
-	PUSH HL
-	LD DE,STRING_35	;\96
-	POP HL
-	LD BC,ZXBASIC_VAR_m_string_array
-	ADD HL,BC
-	LD (HL),DE
-; 		590.4  LET m$(s(1{00 00 01 00 00 })+vm,s(2{00 00 02 00 00 })+hm)=""
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,19
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	POP DE
-	ADD HL,DE
-	POP DE
-	ADD HL,DE
-	ADD HL,HL
-	PUSH HL
-	LD DE,STRING_36	;\93
-	POP HL
-	LD BC,ZXBASIC_VAR_m_string_array
-	ADD HL,BC
-	LD (HL),DE
-; 		590.5  LET r=s(1{00 00 01 00 00 })+vm+vm
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	ADD HL,DE
-	LD (ZXBASIC_VAR_r),HL
-; 		590.6  LET c=s(2{00 00 02 00 00 })+hm+hm
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	ADD HL,DE
-	LD (ZXBASIC_VAR_c),HL
-; 		590.7  GOSUB 3000{00 00 b8 0b 00 }
-	CALL runtimeCheckBreak
-	CALL ZX_LINE_3000:
-; 		590.8  LET s(1{00 00 01 00 00 })=s(1{00 00 01 00 00 })+vm
-	LD HL,1
-	ADD HL,HL
-	PUSH HL
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_vm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	POP HL
-	LD BC,ZXBASIC_VAR_s_array
-	ADD HL,BC
-	LD (HL),DE
-; 		590.9  LET s(2{00 00 02 00 00 })=s(2{00 00 02 00 00 })+hm
-	LD HL,2
-	ADD HL,HL
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_hm)
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	POP HL
-	LD BC,ZXBASIC_VAR_s_array
-	ADD HL,BC
-	LD (HL),DE
-; 		590.10  LET moves=moves+1{00 00 01 00 00 }
-	LD HL,(ZXBASIC_VAR_moves)
-	INC HL
-; +
-	LD (ZXBASIC_VAR_moves),HL
-; 		590.11  LET pushes=pushes+1{00 00 01 00 00 }
-	LD HL,(ZXBASIC_VAR_pushes)
-	INC HL
-; +
-	LD (ZXBASIC_VAR_pushes),HL
-; 		590.12  GOTO 600{00 00 58 02 00 }
-	CALL runtimeCheckBreak
-	JP ZX_LINE_600
-ZXB_LABEL_37:
-ZXB_LABEL_36:
-ZX_LINE_595:
-; 595  RETURN 
-; 		595.1  RETURN 
-	CALL runtimeCheckBreak
-	RET
-ZX_LINE_600:
-; 600  IF o(3) <> pushes THEN  LET k$= CHR ( CODE k$-32)
-; 		600.1  IF o(3{00 00 03 00 00 }) <> pushes THEN  LET k$= CHR ( CODE k$-32{00 00 20 00 00 })
-; Array-Access
-	LD HL,3
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_o_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,(ZXBASIC_VAR_pushes)
-; <>
-	POP DE
-	SUB HL,DE
-	LD HL,0
-	CALL NZ,HL1
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_38
-; 		600.2  LET k$= CHR ( CODE k$-32{00 00 20 00 00 })
-; CHR
-; CODE
-	LD HL,(ZXBASIC_VAR_k_string)
-	CALL runtimeCode
-	LD DE,32
-; -
-	SUB HL,DE
-	CALL runtimeChr
-	LD DE,HL
-	LD HL,ZXBASIC_VAR_k_string
-	CALL runtimeStoreString
-ZXB_LABEL_38:
-ZX_LINE_601:
-; 601  LET h$(moves)=k$: REM store last move made
-; 		601.1  LET h$(moves)=k$
-	LD HL,(ZXBASIC_VAR_moves)
-	ADD HL,HL
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_k_string)
-	POP HL
-	LD BC,ZXBASIC_VAR_h_string_array
-	ADD HL,BC
-	LD (HL),DE
-ZX_LINE_605:
-; 605  IF s(1) <> o(1) OR s(2) <> o(2) THEN  LET r=o(1): LET c=o(2): GOSUB 3000: REM redraw character at old player position
-; 		605.1  IF s(1{00 00 01 00 00 }) <> o(1{00 00 01 00 00 }) OR s(2{00 00 02 00 00 }) <> o(2{00 00 02 00 00 }) THEN  LET r=o(1{00 00 01 00 00 })
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_o_array
-	ADD HL,DE
-	LD DE,(HL)
-	LD HL,DE
-; <>
-	POP DE
-	SUB HL,DE
-	LD HL,0
-	CALL NZ,HL1
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_o_array
-	ADD HL,DE
-	LD DE,(HL)
-	LD HL,DE
-; <>
-	POP DE
-	SUB HL,DE
-	LD HL,0
-	CALL NZ,HL1
-; OR
-	POP DE
-	call runtimeOrHLDE
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_39
-; 		605.2  LET r=o(1{00 00 01 00 00 })
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_o_array
-	ADD HL,DE
-	LD DE,(HL)
-	LD HL,DE
-	LD (ZXBASIC_VAR_r),HL
-; 		605.3  LET c=o(2{00 00 02 00 00 })
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_o_array
-	ADD HL,DE
-	LD DE,(HL)
-	LD HL,DE
-	LD (ZXBASIC_VAR_c),HL
-; 		605.4  GOSUB 3000{00 00 b8 0b 00 }
-	CALL runtimeCheckBreak
-	CALL ZX_LINE_3000:
-ZXB_LABEL_39:
-ZX_LINE_610:
-; 610  IF m$(s(1),s(2))="" THEN  PRINT  AT s(1),s(2); INK 2; PAPER 5;""
-; 		610.1  IF m$(s(1{00 00 01 00 00 }),s(2{00 00 02 00 00 }))="" THEN  PRINT  AT s(1{00 00 01 00 00 }),s(2{00 00 02 00 00 }); INK 2{00 00 02 00 00 }; PAPER 5{00 00 05 00 00 };""
-; Array-Access
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	LD HL,DE
-	LD DE,19
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	LD HL,DE
-	POP DE
-	ADD HL,DE
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_m_string_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,STRING_34	;\91
-; =
-	POP DE
-	CALL runtimeEqualString
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_40
-; 		610.2  PRINT  AT s(1{00 00 01 00 00 }),s(2{00 00 02 00 00 }); INK 2{00 00 02 00 00 }; PAPER 5{00 00 05 00 00 };""
-	XOR A,A
-	LD (ZX_TV_FLAG),A
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	LD HL,DE
-	POP DE
-	CALL runtimePrintAt
-	LD HL,2
-	CALL runtimeLocalInk
-	LD HL,5
-	CALL runtimeLocalPaper
-	LD HL,STRING_37	;\94
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
-ZXB_LABEL_40:
-ZX_LINE_620:
-; 620  IF m$(s(1),s(2))="" THEN  PRINT  AT s(1),s(2); INK 0; PAPER 2;""
-; 		620.1  IF m$(s(1{00 00 01 00 00 }),s(2{00 00 02 00 00 }))="" THEN  PRINT  AT s(1{00 00 01 00 00 }),s(2{00 00 02 00 00 }); INK 0{00 00 00 00 00 }; PAPER 2{00 00 02 00 00 };""
-; Array-Access
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	LD HL,DE
-	LD DE,19
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	LD HL,DE
-	POP DE
-	ADD HL,DE
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_m_string_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,STRING_36	;\93
-; =
-	POP DE
-	CALL runtimeEqualString
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_41
-; 		620.2  PRINT  AT s(1{00 00 01 00 00 }),s(2{00 00 02 00 00 }); INK 0{00 00 00 00 00 }; PAPER 2{00 00 02 00 00 };""
-	XOR A,A
-	LD (ZX_TV_FLAG),A
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	LD HL,DE
-	POP DE
-	CALL runtimePrintAt
-	LD HL,0
-	CALL runtimeLocalInk
-	LD HL,2
-	CALL runtimeLocalPaper
-	LD HL,STRING_38	;\95
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
-ZXB_LABEL_41:
-ZX_LINE_630:
-; 630  INK 0: PAPER 7: PRINT  AT 2,21;cont; AT 5,21;moves; AT 8,21;pushes
-; 		630.1  INK 0{00 00 00 00 00 }
-	LD HL,0
-	CALL runtimeInk
-; 		630.2  PAPER 7{00 00 07 00 00 }
-	LD HL,7
-	CALL runtimePaper
-; 		630.3  PRINT  AT 2{00 00 02 00 00 },21{00 00 15 00 00 };cont; AT 5{00 00 05 00 00 },21{00 00 15 00 00 };moves; AT 8{00 00 08 00 00 },21{00 00 15 00 00 };pushes
-	XOR A,A
-	LD (ZX_TV_FLAG),A
-	LD DE,2
-	LD HL,21
-	CALL runtimePrintAt
-	LD HL,(ZXBASIC_VAR_cont)
-	CALL runtimePrintInt
-	LD DE,5
-	LD HL,21
-	CALL runtimePrintAt
-	LD HL,(ZXBASIC_VAR_moves)
-	CALL runtimePrintInt
-	LD DE,8
-	LD HL,21
-	CALL runtimePrintAt
-	LD HL,(ZXBASIC_VAR_pushes)
-	CALL runtimePrintInt
-	CALL runtimePrintNewline
-ZX_LINE_650:
-; 650  RETURN 
-; 		650.1  RETURN 
-	CALL runtimeCheckBreak
-	RET
-ZX_LINE_1000:
-; 1000  RESTORE 1010: FOR n= USR "a" TO  USR "h"-1: READ a: POKE n,a: NEXT n: RETURN 
-; 		1000.1  RESTORE 1010{00 00 f2 03 00 }
-	LD HL,DATA_1010
-	LD (DATAPTR),HL
-; 		1000.2  FOR n= USR "a" TO  USR "h"-1{00 00 01 00 00 }
-	CALL runtimeCheckBreak
-; USR
-	LD HL,STRING_39	;a
-	CALL runtimeUsrUDG
-	LD (ZXBASIC_VAR_n),HL
-; USR
-	LD HL,STRING_40	;h
-	CALL runtimeUsrUDG
-	LD DE,1
-; -
-	SUB HL,DE
-	LD (ZXBASIC_VAR_for_n),HL
-FOR_4:
-; 		1000.3  READ a
-	LD HL,(DATAPTR)
-	LD DE,(HL)
-	INC HL
-	INC HL
-	LD (DATAPTR),HL
-	LD (ZXBASIC_VAR_a),DE
-; 		1000.4  POKE n,a
-	LD HL,(ZXBASIC_VAR_n)
-	LD DE,(ZXBASIC_VAR_a)
-	LD (HL),E
-; 		1000.5  NEXT n
-	CALL runtimeCheckBreak
-	LD HL,(ZXBASIC_VAR_n)
-	INC HL
-	LD (ZXBASIC_VAR_n),HL
-	LD DE,(ZXBASIC_VAR_for_n)
-	EX HL,DE
-	SUB HL,DE
-	JP NC,FOR_4
-; 		1000.6  RETURN 
-	CALL runtimeCheckBreak
-	RET
-ZX_LINE_1010:
-; 1010  DATA 85,129,1,129,1,129,1,255,0,0,8,56,28,16,0,0,0,42,124,70,68,70,124,0,255,255,247,199,227,239,255,255,24,60,90,255,219,102,60,24,231,195,165,0,36,153,195,231,255,213,131,185,187,185,131,255
-; 		1010.1  DATA 85{00 00 55 00 00 },129{00 00 81 00 00 },1{00 00 01 00 00 },129{00 00 81 00 00 },1{00 00 01 00 00 },129{00 00 81 00 00 },1{00 00 01 00 00 },255{00 00 ff 00 00 },0{00 00 00 00 00 },0{00 00 00 00 00 },8{00 00 08 00 00 },56{00 00 38 00 00 },28{00 00 1c 00 00 },16{00 00 10 00 00 },0{00 00 00 00 00 },0{00 00 00 00 00 },0{00 00 00 00 00 },42{00 00 2a 00 00 },124{00 00 7c 00 00 },70{00 00 46 00 00 },68{00 00 44 00 00 },70{00 00 46 00 00 },124{00 00 7c 00 00 },0{00 00 00 00 00 },255{00 00 ff 00 00 },255{00 00 ff 00 00 },247{00 00 f7 00 00 },199{00 00 c7 00 00 },227{00 00 e3 00 00 },239{00 00 ef 00 00 },255{00 00 ff 00 00 },255{00 00 ff 00 00 },24{00 00 18 00 00 },60{00 00 3c 00 00 },90{00 00 5a 00 00 },255{00 00 ff 00 00 },219{00 00 db 00 00 },102{00 00 66 00 00 },60{00 00 3c 00 00 },24{00 00 18 00 00 },231{00 00 e7 00 00 },195{00 00 c3 00 00 },165{00 00 a5 00 00 },0{00 00 00 00 00 },36{00 00 24 00 00 },153{00 00 99 00 00 },195{00 00 c3 00 00 },231{00 00 e7 00 00 },255{00 00 ff 00 00 },213{00 00 d5 00 00 },131{00 00 83 00 00 },185{00 00 b9 00 00 },187{00 00 bb 00 00 },185{00 00 b9 00 00 },131{00 00 83 00 00 },255{00 00 ff 00 00 }
-ZX_LINE_2000:
-; 2000  REM Quick draw the level
-ZX_LINE_2010:
-; 2010  GOSUB 4000: IF s(1)=0 AND s(2)=0 THEN  LET l=0: RETURN 
-; 		2010.1  GOSUB 4000{00 00 a0 0f 00 }
-	CALL runtimeCheckBreak
-	CALL ZX_LINE_4000:
-; 		2010.2  IF s(1{00 00 01 00 00 })=0{00 00 00 00 00 } AND s(2{00 00 02 00 00 })=0{00 00 00 00 00 } THEN  LET l=0{00 00 00 00 00 }
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,0
-; =
-	POP DE
-	SUB HL,DE
-	LD HL,0
-	CALL Z,HL1
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,0
-; =
-	POP DE
-	SUB HL,DE
-	LD HL,0
-	CALL Z,HL1
-; AND
-	POP DE
-	call runtimeAndHLDE
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_42
-; 		2010.3  LET l=0{00 00 00 00 00 }
-	LD HL,0
-	LD (ZXBASIC_VAR_l),HL
-; 		2010.4  RETURN 
-	CALL runtimeCheckBreak
-	RET
-ZXB_LABEL_42:
-ZX_LINE_2020:
-; 2020  LET i=1: PAPER 7: INK 0: CLS : FOR r=1 TO 17: FOR c=1 TO 19: REM fast
-; 		2020.1  LET i=1{00 00 01 00 00 }
-	LD HL,1
-	LD (ZXBASIC_VAR_i),HL
-; 		2020.2  PAPER 7{00 00 07 00 00 }
-	LD HL,7
-	CALL runtimePaper
-; 		2020.3  INK 0{00 00 00 00 00 }
-	LD HL,0
-	CALL runtimeInk
-; 		2020.4  CLS 
-	CALL runtimeCls
-; 		2020.5  FOR r=1{00 00 01 00 00 } TO 17{00 00 11 00 00 }
-	CALL runtimeCheckBreak
-	LD HL,1
-	LD (ZXBASIC_VAR_r),HL
-	LD HL,17
-	LD (ZXBASIC_VAR_for_r),HL
-FOR_5:
-; 		2020.6  FOR c=1{00 00 01 00 00 } TO 19{00 00 13 00 00 }
-	CALL runtimeCheckBreak
-	LD HL,1
-	LD (ZXBASIC_VAR_c),HL
-	LD HL,19
-	LD (ZXBASIC_VAR_for_c),HL
-FOR_6:
-ZX_LINE_2030:
-; 2030  GOSUB 3000
-; 		2030.1  GOSUB 3000{00 00 b8 0b 00 }
-	CALL runtimeCheckBreak
-	CALL ZX_LINE_3000:
-ZX_LINE_2040:
-; 2040  NEXT c: NEXT r: LET i=0
-; 		2040.1  NEXT c
-	CALL runtimeCheckBreak
-	LD HL,(ZXBASIC_VAR_c)
-	INC HL
-	LD (ZXBASIC_VAR_c),HL
-	LD DE,(ZXBASIC_VAR_for_c)
-	EX HL,DE
-	SUB HL,DE
-	JP NC,FOR_6
-; 		2040.2  NEXT r
-	CALL runtimeCheckBreak
-	LD HL,(ZXBASIC_VAR_r)
-	INC HL
-	LD (ZXBASIC_VAR_r),HL
-	LD DE,(ZXBASIC_VAR_for_r)
-	EX HL,DE
-	SUB HL,DE
-	JP NC,FOR_5
-; 		2040.3  LET i=0{00 00 00 00 00 }
-	LD HL,0
-	LD (ZXBASIC_VAR_i),HL
-ZX_LINE_2050:
-; 2050  IF m$(s(1),s(2))="" THEN  PRINT  AT s(1),s(2); INK 2; PAPER 5;""
-; 		2050.1  IF m$(s(1{00 00 01 00 00 }),s(2{00 00 02 00 00 }))="" THEN  PRINT  AT s(1{00 00 01 00 00 }),s(2{00 00 02 00 00 }); INK 2{00 00 02 00 00 }; PAPER 5{00 00 05 00 00 };""
-; Array-Access
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	LD HL,DE
-	LD DE,19
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	LD HL,DE
-	POP DE
-	ADD HL,DE
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_m_string_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,STRING_34	;\91
-; =
-	POP DE
-	CALL runtimeEqualString
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_43
-; 		2050.2  PRINT  AT s(1{00 00 01 00 00 }),s(2{00 00 02 00 00 }); INK 2{00 00 02 00 00 }; PAPER 5{00 00 05 00 00 };""
-	XOR A,A
-	LD (ZX_TV_FLAG),A
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	LD HL,DE
-	POP DE
-	CALL runtimePrintAt
-	LD HL,2
-	CALL runtimeLocalInk
-	LD HL,5
-	CALL runtimeLocalPaper
-	LD HL,STRING_37	;\94
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
-ZXB_LABEL_43:
-ZX_LINE_2060:
-; 2060  IF m$(s(1),s(2))="" THEN  PRINT  AT s(1),s(2); INK 0; PAPER 2;""
-; 		2060.1  IF m$(s(1{00 00 01 00 00 }),s(2{00 00 02 00 00 }))="" THEN  PRINT  AT s(1{00 00 01 00 00 }),s(2{00 00 02 00 00 }); INK 0{00 00 00 00 00 }; PAPER 2{00 00 02 00 00 };""
-; Array-Access
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	LD HL,DE
-	LD DE,19
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	LD HL,DE
-	POP DE
-	ADD HL,DE
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_m_string_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,STRING_36	;\93
-; =
-	POP DE
-	CALL runtimeEqualString
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_44
-; 		2060.2  PRINT  AT s(1{00 00 01 00 00 }),s(2{00 00 02 00 00 }); INK 0{00 00 00 00 00 }; PAPER 2{00 00 02 00 00 };""
-	XOR A,A
-	LD (ZX_TV_FLAG),A
-; Array-Access
-	LD HL,1
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-; Array-Access
-	LD HL,2
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	LD DE,(HL)
-	LD HL,DE
-	POP DE
-	CALL runtimePrintAt
-	LD HL,0
-	CALL runtimeLocalInk
-	LD HL,2
-	CALL runtimeLocalPaper
-	LD HL,STRING_38	;\95
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
-ZXB_LABEL_44:
-ZX_LINE_2070:
-; 2070  INK 1: PAPER 7: REM slow
-; 		2070.1  INK 1{00 00 01 00 00 }
-	LD HL,1
-	CALL runtimeInk
-; 		2070.2  PAPER 7{00 00 07 00 00 }
-	LD HL,7
-	CALL runtimePaper
-ZX_LINE_2080:
-; 2080  PRINT  AT 1,21;"Crates 'on'"; AT 4,21;"Moves: "; AT 7,21;"Pushes:"
-; 		2080.1  PRINT  AT 1{00 00 01 00 00 },21{00 00 15 00 00 };"Crates 'on'"; AT 4{00 00 04 00 00 },21{00 00 15 00 00 };"Moves
-	XOR A,A
-	LD (ZX_TV_FLAG),A
-	LD DE,1
-	LD HL,21
-	CALL runtimePrintAt
-	LD HL,STRING_41	;Crates 'on'
-	CALL runtimePrintString
-	LD DE,4
-	LD HL,21
-	CALL runtimePrintAt
-	LD HL,STRING_42	;Moves: 
-	CALL runtimePrintString
-	LD DE,7
-	LD HL,21
-	CALL runtimePrintAt
-	LD HL,STRING_43	;Pushes:
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-ZX_LINE_2090:
-; 2090  INK 0: RETURN 
-; 		2090.1  INK 0{00 00 00 00 00 }
-	LD HL,0
-	CALL runtimeInk
-; 		2090.2  RETURN 
-	CALL runtimeCheckBreak
-	RET
-ZX_LINE_3000:
-; 3000  REM choose ink and paper colour
-ZX_LINE_3010:
-; 3010  IF m$(r,c)="" THEN  PAPER 7: INK 0: IF i THEN  LET targets=targets+1
-; 		3010.1  IF m$(r,c)="" THEN  PAPER 7{00 00 07 00 00 }
-; Array-Access
-	LD HL,(ZXBASIC_VAR_r)
-	LD DE,19
-	CALL runtimeMult16bit
-	LD DE,HL
-	LD HL,(ZXBASIC_VAR_c)
-	ADD HL,DE
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_m_string_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,STRING_36	;\93
-; =
-	POP DE
-	CALL runtimeEqualString
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_45
-; 		3010.2  PAPER 7{00 00 07 00 00 }
-	LD HL,7
-	CALL runtimePaper
-; 		3010.3  INK 0{00 00 00 00 00 }
-	LD HL,0
-	CALL runtimeInk
-; 		3010.4  IF i THEN  LET targets=targets+1{00 00 01 00 00 }
-	LD HL,(ZXBASIC_VAR_i)
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_46
-; 		3010.5  LET targets=targets+1{00 00 01 00 00 }
-	LD HL,(ZXBASIC_VAR_targets)
-	INC HL
-; +
-	LD (ZXBASIC_VAR_targets),HL
-ZXB_LABEL_46:
-ZXB_LABEL_45:
-ZX_LINE_3020:
-; 3020  IF m$(r,c)="" THEN  PAPER 5: INK 0
-; 		3020.1  IF m$(r,c)="" THEN  PAPER 5{00 00 05 00 00 }
-; Array-Access
-	LD HL,(ZXBASIC_VAR_r)
-	LD DE,19
-	CALL runtimeMult16bit
-	LD DE,HL
-	LD HL,(ZXBASIC_VAR_c)
-	ADD HL,DE
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_m_string_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,STRING_34	;\91
-; =
-	POP DE
-	CALL runtimeEqualString
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_47
-; 		3020.2  PAPER 5{00 00 05 00 00 }
-	LD HL,5
-	CALL runtimePaper
-; 		3020.3  INK 0{00 00 00 00 00 }
-	LD HL,0
-	CALL runtimeInk
-ZXB_LABEL_47:
-ZX_LINE_3030:
-; 3030  IF m$(r,c)="" THEN  PAPER 5: INK 2
-; 		3030.1  IF m$(r,c)="" THEN  PAPER 5{00 00 05 00 00 }
-; Array-Access
-	LD HL,(ZXBASIC_VAR_r)
-	LD DE,19
-	CALL runtimeMult16bit
-	LD DE,HL
-	LD HL,(ZXBASIC_VAR_c)
-	ADD HL,DE
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_m_string_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,STRING_33	;\92
-; =
-	POP DE
-	CALL runtimeEqualString
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_48
-; 		3030.2  PAPER 5{00 00 05 00 00 }
-	LD HL,5
-	CALL runtimePaper
-; 		3030.3  INK 2{00 00 02 00 00 }
-	LD HL,2
-	CALL runtimeInk
-ZXB_LABEL_48:
-ZX_LINE_3040:
-; 3040  IF m$(r,c)="" THEN  PAPER 2: INK 0: IF i THEN  LET targets=targets+1: LET cont=cont+1
-; 		3040.1  IF m$(r,c)="" THEN  PAPER 2{00 00 02 00 00 }
-; Array-Access
-	LD HL,(ZXBASIC_VAR_r)
-	LD DE,19
-	CALL runtimeMult16bit
-	LD DE,HL
-	LD HL,(ZXBASIC_VAR_c)
-	ADD HL,DE
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_m_string_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,STRING_35	;\96
-; =
-	POP DE
-	CALL runtimeEqualString
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_49
-; 		3040.2  PAPER 2{00 00 02 00 00 }
-	LD HL,2
-	CALL runtimePaper
-; 		3040.3  INK 0{00 00 00 00 00 }
-	LD HL,0
-	CALL runtimeInk
-; 		3040.4  IF i THEN  LET targets=targets+1{00 00 01 00 00 }
-	LD HL,(ZXBASIC_VAR_i)
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_50
-; 		3040.5  LET targets=targets+1{00 00 01 00 00 }
-	LD HL,(ZXBASIC_VAR_targets)
-	INC HL
-; +
-	LD (ZXBASIC_VAR_targets),HL
-; 		3040.6  LET cont=cont+1{00 00 01 00 00 }
-	LD HL,(ZXBASIC_VAR_cont)
-	INC HL
-; +
-	LD (ZXBASIC_VAR_cont),HL
-ZXB_LABEL_50:
-ZXB_LABEL_49:
-ZX_LINE_3050:
-; 3050  IF m$(r,c)="" THEN  PAPER 6: INK 1
-; 		3050.1  IF m$(r,c)="" THEN  PAPER 6{00 00 06 00 00 }
-; Array-Access
-	LD HL,(ZXBASIC_VAR_r)
-	LD DE,19
-	CALL runtimeMult16bit
-	LD DE,HL
-	LD HL,(ZXBASIC_VAR_c)
-	ADD HL,DE
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_m_string_array
-	ADD HL,DE
-	LD DE,(HL)
-	PUSH DE
-	LD HL,STRING_44	;\90
-; =
-	POP DE
-	CALL runtimeEqualString
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_51
-; 		3050.2  PAPER 6{00 00 06 00 00 }
-	LD HL,6
-	CALL runtimePaper
-; 		3050.3  INK 1{00 00 01 00 00 }
-	LD HL,1
-	CALL runtimeInk
-ZXB_LABEL_51:
-ZX_LINE_3060:
-; 3060  PRINT  AT r,c;m$(r,c): RETURN 
-; 		3060.1  PRINT  AT r,c;m$(r,c)
-	XOR A,A
-	LD (ZX_TV_FLAG),A
-	LD DE,(ZXBASIC_VAR_r)
-	LD HL,(ZXBASIC_VAR_c)
-	CALL runtimePrintAt
-; Array-Access
-	LD HL,(ZXBASIC_VAR_r)
-	LD DE,19
-	CALL runtimeMult16bit
-	LD DE,HL
-	LD HL,(ZXBASIC_VAR_c)
-	ADD HL,DE
-	ADD HL,HL
-	LD DE, ZXBASIC_VAR_m_string_array
-	ADD HL,DE
-	LD DE,(HL)
-	LD HL,DE
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	CALL ZXFreeTempCompact
-; 		3060.2  RETURN 
-	CALL runtimeCheckBreak
-	RET
-ZX_LINE_4000:
-; 4000  REM Level data
-ZX_LINE_4010:
-; 4010  REM fast
-ZX_LINE_4020:
-; 4020  DIM o(3): DIM m$(17,19): DIM h$(5000): LET moves=0: LET pushes=0: LET targets=0: LET cont=0: REM cont=crates on targets
-; 		4020.1  DIM o(3{00 00 03 00 00 })
-	LD HL,ZXBASIC_VAR_o_array
-	LD BC,8
-	CALL runtimeClearArray
-; 		4020.2  DIM m$(17{00 00 11 00 00 },19{00 00 13 00 00 })
-	LD HL,ZXBASIC_VAR_m_string_array
-	LD BC,360
-	CALL runtimeClearStringArray
-; 		4020.3  DIM h$(5000{00 00 88 13 00 })
-	LD HL,ZXBASIC_VAR_h_string_array
-	LD BC,5001
-	CALL runtimeClearStringArray
-; 		4020.4  LET moves=0{00 00 00 00 00 }
-	LD HL,0
-	LD (ZXBASIC_VAR_moves),HL
-; 		4020.5  LET pushes=0{00 00 00 00 00 }
-	LD (ZXBASIC_VAR_pushes),HL
-; 		4020.6  LET targets=0{00 00 00 00 00 }
-	LD HL,0
-	LD (ZXBASIC_VAR_targets),HL
-; 		4020.7  LET cont=0{00 00 00 00 00 }
-	LD (ZXBASIC_VAR_cont),HL
-ZX_LINE_4030:
-; 4030  LET b$=""
-; 		4030.1  LET b$=""
-	LD DE,STRING_45	;\90\90\90\90\90\90\90\90\90\90\90\90\90\90\90\90\90\90\90
-	LD HL,ZXBASIC_VAR_b_string
-	CALL runtimeStoreString
-ZX_LINE_4040:
-; 4040  IF l<0 OR l>50 THEN  STOP 
-; 		4040.1  IF l<0{00 00 00 00 00 } OR l>50{00 00 32 00 00 } THEN  STOP 
-	LD DE,(ZXBASIC_VAR_l)
-	LD HL,0
-; <
-	SUB HL,DE
-	LD HL,0
-	call nc,HL1
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_l)
-	LD HL,50
-; >
-	SUB HL,DE
-	LD HL,0
-	call c,HL1
-; OR
-	POP DE
-	call runtimeOrHLDE
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_52
-; 		4040.2  STOP 
-ZXB_LABEL_52:
-ZX_LINE_4050:
-; 4050  RESTORE 5000+l*10
-; 		4050.1  RESTORE 5000{00 00 88 13 00 }+l*10{00 00 0a 00 00 }
-	LD HL,5000
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_l)
-	LD HL,10
-; *
-	call runtimeMult16bit
-; +
-	POP DE
-	ADD HL,DE
-	LD DE,HL
-	LD HL,ZXDATA
-	CALL runtimeFindLine
-	EX HL,DE
-	LD (DATAPTR),DE
-ZX_LINE_4060:
-; 4060  FOR y=1 TO 17: LET m$(y)=b$: NEXT y: REM blank level
-; 		4060.1  FOR y=1{00 00 01 00 00 } TO 17{00 00 11 00 00 }
-	CALL runtimeCheckBreak
-	LD HL,1
-	LD (ZXBASIC_VAR_y),HL
-	LD HL,17
-	LD (ZXBASIC_VAR_for_y),HL
-FOR_7:
-; 		4060.2  LET m$(y)=b$
-	LD HL,(ZXBASIC_VAR_y)
-	LD DE,19
-	CALL runtimeMult16bit
-	ADD HL,HL
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_b_string)
-	POP HL
-	LD BC,ZXBASIC_VAR_m_string_array
-	ADD HL,BC
-	LD (HL),DE
-; 		4060.3  NEXT y
-	CALL runtimeCheckBreak
-	LD HL,(ZXBASIC_VAR_y)
-	INC HL
-	LD (ZXBASIC_VAR_y),HL
-	LD DE,(ZXBASIC_VAR_for_y)
-	EX HL,DE
-	SUB HL,DE
 	JP NC,FOR_7
-ZX_LINE_4070:
-; 4070  READ index: DIM s(2): IF index=-1 THEN  RETURN 
-; 		4070.1  READ index
-	LD HL,(DATAPTR)
-	LD DE,(HL)
-	INC HL
-	INC HL
-	LD (DATAPTR),HL
-	LD (ZXBASIC_VAR_index),DE
-; 		4070.2  DIM s(2{00 00 02 00 00 })
-	LD HL,ZXBASIC_VAR_s_array
-	LD BC,6
-	CALL runtimeClearArray
-; 		4070.3  IF index=-1{00 00 01 00 00 } THEN  RETURN 
-	LD HL,(ZXBASIC_VAR_index)
-	PUSH HL
+ZXBASIC_LINE_825:
+; 825  PRINT  AT 20,0; PAPER 4;""
+	LD HL,825
+	LD (23621),HL
+; 		825.1  PRINT  AT 20{00 00 14 00 00 },0{00 00 00 00 00 }; PAPER 4{00 00 04 00 00 };""
+	LD A,1
+	LD (23623),a
+	XOR A,A
+	LD (ZX_TV_FLAG),A
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,20
+	LD HL,0
+	CALL runtimePrintAt
+	LD HL,4
+	CALL runtimeLocalPaper
+	LD HL,STRING_23	;\83\83\83\83\83\83\83\83\83\83\83\83\83\83\83\83\83\83\83\83\83\83\83\83\83\83\83\83\83\83\83\83
+	CALL runtimePrintString
+	CALL runtimePrintNewline
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
+ZXBASIC_LINE_826:
+; 826  PRINT  AT 21,0; PAPER 4;,,
+	LD HL,826
+	LD (23621),HL
+; 		826.1  PRINT  AT 21{00 00 15 00 00 },0{00 00 00 00 00 }; PAPER 4{00 00 04 00 00 };,,
+	LD A,1
+	LD (23623),a
+	XOR A,A
+	LD (ZX_TV_FLAG),A
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,21
+	LD HL,0
+	CALL runtimePrintAt
+	LD HL,4
+	CALL runtimeLocalPaper
+	CALL runtimePrintTab
+	CALL runtimePrintTab
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
+ZXBASIC_LINE_830:
+; 830  LET y=19: LET oy=y: LET x=13: LET ox=x
+	LD HL,830
+	LD (23621),HL
+; 		830.1  LET y=19{00 00 13 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,19
+	LD (ZXBASIC_VAR_y),HL
+; 		830.2  LET oy=y
+	LD A,2
+	LD (23623),a
+	LD HL,(ZXBASIC_VAR_y)
+	LD (ZXBASIC_VAR_oy),HL
+; 		830.3  LET x=13{00 00 0d 00 00 }
+	LD A,3
+	LD (23623),a
+	LD HL,13
+	LD (ZXBASIC_VAR_x),HL
+; 		830.4  LET ox=x
+	LD A,4
+	LD (23623),a
+	LD HL,(ZXBASIC_VAR_x)
+	LD (ZXBASIC_VAR_ox),HL
+ZXBASIC_LINE_840:
+; 840  LET r=5: LET or=r: LET c=1: LET oc=c: LET h=1: LET v=1
+	LD HL,840
+	LD (23621),HL
+; 		840.1  LET r=5{00 00 05 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,5
+	LD (ZXBASIC_VAR_r),HL
+; 		840.2  LET or=r
+	LD A,2
+	LD (23623),a
+	LD HL,(ZXBASIC_VAR_r)
+	LD (ZXBASIC_VAR_or),HL
+; 		840.3  LET c=1{00 00 01 00 00 }
+	LD A,3
+	LD (23623),a
 	LD HL,1
-	LD BC,HL
-; -
+	LD (ZXBASIC_VAR_c),HL
+; 		840.4  LET oc=c
+	LD A,4
+	LD (23623),a
+	LD HL,(ZXBASIC_VAR_c)
+	LD (ZXBASIC_VAR_oc),HL
+; 		840.5  LET h=1{00 00 01 00 00 }
+	LD A,5
+	LD (23623),a
+	LD HL,1
+	LD (ZXBASIC_VAR_h),HL
+; 		840.6  LET v=1{00 00 01 00 00 }
+	LD A,6
+	LD (23623),a
+	LD HL,1
+	LD (ZXBASIC_VAR_v),HL
+ZXBASIC_LINE_845:
+; 845  LET i=0: LET fl=0: LET fr=0
+	LD HL,845
+	LD (23621),HL
+; 		845.1  LET i=0{00 00 00 00 00 }
+	LD A,1
+	LD (23623),a
 	LD HL,0
-	SUB HL,BC
-; =
-	POP DE
-	SUB HL,DE
+	LD (ZXBASIC_VAR_i),HL
+; 		845.2  LET fl=0{00 00 00 00 00 }
+	LD A,2
+	LD (23623),a
 	LD HL,0
-	CALL Z,HL1
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_53
-; 		4070.4  RETURN 
+	LD (ZXBASIC_VAR_fl),HL
+; 		845.3  LET fr=0{00 00 00 00 00 }
+	LD A,3
+	LD (23623),a
+	LD HL,0
+	LD (ZXBASIC_VAR_fr),HL
+ZXBASIC_LINE_850:
+; 850  PRINT  AT 21,0; PAPER 4;"UFO:";sc; AT 21,24;"TOWERS:";l
+	LD HL,850
+	LD (23621),HL
+; 		850.1  PRINT  AT 21{00 00 15 00 00 },0{00 00 00 00 00 }; PAPER 4{00 00 04 00 00 };"UFO
+	LD A,1
+	LD (23623),a
+	XOR A,A
+	LD (ZX_TV_FLAG),A
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,21
+	LD HL,0
+	CALL runtimePrintAt
+	LD HL,4
+	CALL runtimeLocalPaper
+	LD HL,STRING_24	;UFO:
+	CALL runtimePrintString
+	LD HL,(ZXBASIC_VAR_sc)
+	CALL runtimePrintInt
+	LD DE,21
+	LD HL,24
+	CALL runtimePrintAt
+	LD HL,STRING_25	;TOWERS:
+	CALL runtimePrintString
+	LD HL,(ZXBASIC_VAR_l)
+	CALL runtimePrintInt
+	CALL runtimePrintNewline
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
+ZXBASIC_LINE_860:
+; 860  RETURN 
+	LD HL,860
+	LD (23621),HL
+; 		860.1  RETURN 
+	LD A,1
+	LD (23623),a
 	CALL runtimeCheckBreak
 	RET
-ZXB_LABEL_53:
-ZX_LINE_4080:
-; 4080  READ y,x: LET s(1)=y: LET s(2)=x: FOR n=1 TO index: READ y$: LET y= CODE y$(1)-96: LET f= CODE y$(2)-96: LET y$=y$(3 TO ): LET m$(y,f TO f+ LEN y$-1)=y$: NEXT n
-; 		4080.1  READ y,x
-	LD HL,(DATAPTR)
-	LD DE,(HL)
-	INC HL
-	INC HL
-	LD (DATAPTR),HL
-	LD (ZXBASIC_VAR_y),DE
-	LD HL,(DATAPTR)
-	LD DE,(HL)
-	INC HL
-	INC HL
-	LD (DATAPTR),HL
-	LD (ZXBASIC_VAR_x),DE
-; 		4080.2  LET s(1{00 00 01 00 00 })=y
-	LD HL,1
-	ADD HL,HL
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_y)
-	POP HL
-	LD BC,ZXBASIC_VAR_s_array
-	ADD HL,BC
-	LD (HL),DE
-; 		4080.3  LET s(2{00 00 02 00 00 })=x
-	LD HL,2
-	ADD HL,HL
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_x)
-	POP HL
-	LD BC,ZXBASIC_VAR_s_array
-	ADD HL,BC
-	LD (HL),DE
-; 		4080.4  FOR n=1{00 00 01 00 00 } TO index
+ZXBASIC_LINE_950:
+; 950  FOR a=0 TO 23
+	LD HL,950
+	LD (23621),HL
+; 		950.1  FOR a=0{00 00 00 00 00 } TO 23{00 00 17 00 00 }
+	LD A,1
+	LD (23623),a
 	CALL runtimeCheckBreak
-	LD HL,1
-	LD (ZXBASIC_VAR_n),HL
-	LD HL,(ZXBASIC_VAR_index)
-	LD (ZXBASIC_VAR_for_n),HL
+	LD HL,0
+	LD (ZXBASIC_VAR_a),HL
+	LD HL,23
+	LD (ZXBASIC_VAR_for_a),HL
 FOR_8:
-; 		4080.5  READ y$
+ZXBASIC_LINE_960:
+; 960  READ dat
+	LD HL,960
+	LD (23621),HL
+; 		960.1  READ dat
+	LD A,1
+	LD (23623),a
 	LD HL,(DATAPTR)
-	LD (ZXBASIC_VAR_y_string),HL
-	LD BC,(HL)
+	LD DE,(HL)
 	INC HL
 	INC HL
-	ADD HL,BC
 	LD (DATAPTR),HL
-; 		4080.6  LET y= CODE y$(1{00 00 01 00 00 })-96{00 00 60 00 00 }
-; CODE
-	LD HL,(ZXBASIC_VAR_y_string)
-	PUSH HL
-	LD HL,1
-	POP BC
-	CALL runtimeCharAt
-	CALL runtimeCode
-	LD DE,96
-; -
-	SUB HL,DE
-	LD (ZXBASIC_VAR_y),HL
-	CALL ZXFreeTempCompact
-; 		4080.7  LET f= CODE y$(2{00 00 02 00 00 })-96{00 00 60 00 00 }
-; CODE
-	LD HL,(ZXBASIC_VAR_y_string)
-	PUSH HL
-	LD HL,2
-	POP BC
-	CALL runtimeCharAt
-	CALL runtimeCode
-	LD DE,96
-; -
-	SUB HL,DE
-	LD (ZXBASIC_VAR_f),HL
-	CALL ZXFreeTempCompact
-; 		4080.8  LET y$=y$(3{00 00 03 00 00 } TO )
-	LD HL,(ZXBASIC_VAR_y_string)
-	PUSH HL
-	LD DE,3
-	LD HL,-1
-	POP BC
-	CALL runtimeSubstring
+	LD (ZXBASIC_VAR_dat),DE
+ZXBASIC_LINE_970:
+; 970  POKE  USR "a"+a,dat
+	LD HL,970
+	LD (23621),HL
+; 		970.1  POKE  USR "a"+a,dat
+	LD A,1
+	LD (23623),a
+; USR
+	LD HL,STRING_3	;a
+	CALL runtimeUsrUDG
 	LD DE,HL
-	LD HL,ZXBASIC_VAR_y_string
-	CALL runtimeStoreString
-; 		4080.9  LET m$(y,f TO f+ LEN y$-1{00 00 01 00 00 })=y$
-	LD HL,(ZXBASIC_VAR_y)
-	LD DE,19
-	CALL runtimeMult16bit
-	LD DE,HL
-	LD HL,(ZXBASIC_VAR_f)
+	LD HL,(ZXBASIC_VAR_a)
+; +
 	ADD HL,DE
-	ADD HL,HL
-	LD DE,HL
-; TO
-	POP HL
-	LD BC,ZXBASIC_VAR_m_string_array
-	ADD HL,BC
-	LD (HL),DE
-; 		4080.10 f+ LEN y$-1{00 00 01 00 00 })=y$
-; 		4080.11 + LEN y$-1{00 00 01 00 00 })=y$
-; 		4080.12  LEN y$-1{00 00 01 00 00 })=y$
-; 		4080.13 $-1{00 00 01 00 00 })=y$
-; 		4080.14 -1{00 00 01 00 00 })=y$
-; 		4080.15  )=y$
-; 		4080.16 )=y$
-; 		4080.17 =y$
-; 		4080.18 $
-; 		4080.19  NEXT n
+	LD DE,(ZXBASIC_VAR_dat)
+	LD (HL),E
+ZXBASIC_LINE_980:
+; 980  NEXT a: RETURN 
+	LD HL,980
+	LD (23621),HL
+; 		980.1  NEXT a
+	LD A,1
+	LD (23623),a
 	CALL runtimeCheckBreak
-	LD HL,(ZXBASIC_VAR_n)
+	LD HL,(ZXBASIC_VAR_a)
 	INC HL
-	LD (ZXBASIC_VAR_n),HL
-	LD DE,(ZXBASIC_VAR_for_n)
+	LD (ZXBASIC_VAR_a),HL
+	LD DE,(ZXBASIC_VAR_for_a)
 	EX HL,DE
 	SUB HL,DE
 	JP NC,FOR_8
-ZX_LINE_4090:
-; 4090  REM slow
-ZX_LINE_4100:
-; 4100  RETURN 
-; 		4100.1  RETURN 
+; 		980.2  RETURN 
+	LD A,2
+	LD (23623),a
 	CALL runtimeCheckBreak
 	RET
-ZX_LINE_5000:
-; 5000  DATA 26,2,2,"bb","ib","pb","cb","cf","cj","cr","db","eb","ef","fb","gb","hb","hf","hj","hr","jb","jf","kb","lb","lf","ll","mb","nb","ob","of"
-; 		5000.1  DATA 26{00 00 1a 00 00 },2{00 00 02 00 00 },2{00 00 02 00 00 },"bb","ib","pb","cb","cf","cj","cr","db","eb","ef","fb","gb","hb","hf","hj","hr","jb","jf","kb","lb","lf","ll","mb","nb","ob","of"
-ZX_LINE_5010:
-; 5010  DATA 10,11,12,"df","ef","ff","gd","hd","ib","io","jb","kf","lf"
-; 		5010.1  DATA 10{00 00 0a 00 00 },11{00 00 0b 00 00 },12{00 00 0c 00 00 },"df","ef","ff","gd","hd","ib","io","jb","kf","lf"
-ZX_LINE_5020:
-; 5020  DATA 8,8,11,"ee","fe","ge","he","ie","jj","kg","lg"
-; 		5020.1  DATA 8{00 00 08 00 00 },8{00 00 08 00 00 },11{00 00 0b 00 00 },"ee","fe","ge","he","ie","jj","kg","lg"
-ZX_LINE_5030:
-; 5030  DATA 9,5,16,"ek","fk","gk","hl","ik","jc","jk","kd","lc"
-; 		5030.1  DATA 9{00 00 09 00 00 },5{00 00 05 00 00 },16{00 00 10 00 00 },"ek","fk","gk","hl","ik","jc","jk","kd","lc"
-ZX_LINE_5040:
-; 5040  DATA 12,13,11,"cm","dm","eb","fb","gb","hb","ib","jc","kb","lb","mb","nb"
-; 		5040.1  DATA 12{00 00 0c 00 00 },13{00 00 0d 00 00 },11{00 00 0b 00 00 },"cm","dm","eb","fb","gb","hb","ib","jc","kb","lb","mb","nb"
-ZX_LINE_5050:
-; 5050  DATA 11,10,16,"dk","ek","fk","gk","hc","ic","jc","kk","lk","mm","nm"
-; 		5050.1  DATA 11{00 00 0b 00 00 },10{00 00 0a 00 00 },16{00 00 10 00 00 },"dk","ek","fk","gk","hc","ic","jc","kk","lk","mm","nm"
-ZX_LINE_5060:
-; 5060  DATA 12,5,13,"ee","em","fe","fl","ge","he","ie","ij","jh","kh","lh","mh"
-; 		5060.1  DATA 12{00 00 0c 00 00 },5{00 00 05 00 00 },13{00 00 0d 00 00 },"ee","em","fe","fl","ge","he","ie","ij","jh","kh","lh","mh"
-ZX_LINE_5070:
-; 5070  DATA 15,5,9,"dl","ef","fe","ge","gm","hg","hm","ie","il","je","ke","kl","le","ll","me"
-; 		5070.1  DATA 15{00 00 0f 00 00 },5{00 00 05 00 00 },9{00 00 09 00 00 },"dl","ef","fe","ge","gm","hg","hm","ie","il","je","ke","kl","le","ll","me"
-ZX_LINE_5080:
-; 5080  DATA 15,7,3,"be","ce","de","ee","fe","fp","gc","hc","ic","jg","ke","le","me","ne","oe"
-; 		5080.1  DATA 15{00 00 0f 00 00 },7{00 00 07 00 00 },3{00 00 03 00 00 },"be","ce","de","ee","fe","fp","gc","hc","ic","jg","ke","le","me","ne","oe"
-ZX_LINE_5090:
-; 5090  DATA 12,12,3,"cm","dm","ei","fi","gj","hj","ih","jh","kd","lc","mh","nh"
-; 		5090.1  DATA 12{00 00 0c 00 00 },12{00 00 0c 00 00 },3{00 00 03 00 00 },"cm","dm","ei","fi","gj","hj","ih","jh","kd","lc","mh","nh"
-ZX_LINE_5100:
-; 5100  DATA 18,2,3,"bc","bh","cb","db","eb","fd","gb","hb","hl","hp","ic","jb","kb","lb","mf","nf","np","of"
-; 		5100.1  DATA 18{00 00 12 00 00 },2{00 00 02 00 00 },3{00 00 03 00 00 },"bc","bh","cb","db","eb","fd","gb","hb","hl","hp","ic","jb","kb","lb","mf","nf","np","of"
-ZX_LINE_5110:
-; 5110  DATA 15,4,8,"cl","dg","dl","ee","fd","gc","hc","ic","je","ke","lb","lj","mb","nb","ob"
-; 		5110.1  DATA 15{00 00 0f 00 00 },4{00 00 04 00 00 },8{00 00 08 00 00 },"cl","dg","dl","ee","fd","gc","hc","ic","je","ke","lb","lj","mb","nb","ob"
-ZX_LINE_5120:
-; 5120  DATA 14,7,9,"dc","ec","el","fc","gc","hc","ho","ic","jc","jg","kc","lg","mk","nk"
-; 		5120.1  DATA 14{00 00 0e 00 00 },7{00 00 07 00 00 },9{00 00 09 00 00 },"dc","ec","el","fc","gc","hc","ho","ic","jc","jg","kc","lg","mk","nk"
-ZX_LINE_5130:
-; 5130  DATA 12,7,7,"de","ed","fb","gb","hb","ib","jb","kb","lc","mc","mk","nc"
-; 		5130.1  DATA 12{00 00 0c 00 00 },7{00 00 07 00 00 },7{00 00 07 00 00 },"de","ed","fb","gb","hb","ib","jb","kb","lc","mc","mk","nc"
-ZX_LINE_5140:
-; 5140  DATA 20,3,11,"bi","cc","dc","ec","eg","fc","gc","gg","hc","hj","hn","ib","jb","kb","kl","lf","mh","ml","nh","oo"
-; 		5140.1  DATA 20{00 00 14 00 00 },3{00 00 03 00 00 },11{00 00 0b 00 00 },"bi","cc","dc","ec","eg","fc","gc","gg","hc","hj","hn","ib","jb","kb","kl","lf","mh","ml","nh","oo"
-ZX_LINE_5150:
-; 5150  DATA 16,6,8,"bf","cf","df","ed","fd","gd","he","hj","id","jd","kd","lc","lh","mc","nc","oh"
-; 		5150.1  DATA 16{00 00 10 00 00 },6{00 00 06 00 00 },8{00 00 08 00 00 },"bf","cf","df","ed","fd","gd","he","hj","id","jd","kd","lc","lh","mc","nc","oh"
-ZX_LINE_5160:
-; 5160  DATA 14,7,7,"ce","de","ee","em","fe","gg","hf","if","jf","kh","lg","mg","ng","og"
-; 		5160.1  DATA 14{00 00 0e 00 00 },7{00 00 07 00 00 },7{00 00 07 00 00 },"ce","de","ee","em","fe","gg","hf","if","jf","kh","lg","mg","ng","og"
-ZX_LINE_5170:
-; 5170  DATA 14,12,5,"cg","dg","eg","fl","gf","hf","ig","ip","jd","jn","kd","ld","mg","ng"
-; 		5170.1  DATA 14{00 00 0e 00 00 },12{00 00 0c 00 00 },5{00 00 05 00 00 },"cg","dg","eg","fl","gf","hf","ig","ip","jd","jn","kd","ld","mg","ng"
-ZX_LINE_5180:
-; 5180  DATA 13,5,14,"dg","eg","fg","gc","gl","hb","ib","je","ke","ld","md","nd","nq"
-; 		5180.1  DATA 13{00 00 0d 00 00 },5{00 00 05 00 00 },14{00 00 0e 00 00 },"dg","eg","fg","gc","gl","hb","ib","je","ke","ld","md","nd","nq"
-ZX_LINE_5190:
-; 5190  DATA 18,2,7,"bd","cf","db","eb","fb","fm","gc","hc","hk","ic","jc","kc","kg","lb","lk","mb","ne","ob"
-; 		5190.1  DATA 18{00 00 12 00 00 },2{00 00 02 00 00 },7{00 00 07 00 00 },"bd","cf","db","eb","fb","fm","gc","hc","hk","ic","jc","kc","kg","lb","lk","mb","ne","ob"
-ZX_LINE_5200:
-; 5200  DATA 21,3,15,"bf","cb","db","dj","do","eb","fb","gb","hb","hi","ib","if","jb","jo","kb","lb","me","mj","ne","no","oe"
-; 		5200.1  DATA 21{00 00 15 00 00 },3{00 00 03 00 00 },15{00 00 0f 00 00 },"bf","cb","db","dj","do","eb","fb","gb","hb","hi","ib","if","jb","jo","kb","lb","me","mj","ne","no","oe"
-ZX_LINE_5210:
-; 5210  DATA 14,6,7,"cd","dd","ee","ej","fe","gd","hd","id","jg","ke","le","me","ni","oj"
-; 		5210.1  DATA 14{00 00 0e 00 00 },6{00 00 06 00 00 },7{00 00 07 00 00 },"cd","dd","ee","ej","fe","gd","hd","id","jg","ke","le","me","ni","oj"
-ZX_LINE_5220:
-; 5220  DATA 21,5,11,"bb","bm","cb","db","ec","fb","fq","gb","hb","ib","jb","kb","kk","kp","lb","lj","mb","nc","nj","nr","ob"
-; 		5220.1  DATA 21{00 00 15 00 00 },5{00 00 05 00 00 },11{00 00 0b 00 00 },"bb","bm","cb","db","ec","fb","fq","gb","hb","ib","jb","kb","kk","kp","lb","lj","mb","nc","nj","nr","ob"
-ZX_LINE_5230:
-; 5230  DATA 14,9,4,"cf","df","eb","fb","gb","hb","ib","jb","kb","lb","mb","nc","ni","np"
-; 		5230.1  DATA 14{00 00 0e 00 00 },9{00 00 09 00 00 },4{00 00 04 00 00 },"cf","df","eb","fb","gb","hb","ib","jb","kb","lb","mb","nc","ni","np"
-ZX_LINE_5240:
-; 5240  DATA 19,15,4,"bb","cb","dl","eb","fc","fh","gb","hb","hq","ib","ij","iq","jd","jq","kd","lc","mc","nc","oc"
-; 		5240.1  DATA 19{00 00 13 00 00 },15{00 00 0f 00 00 },4{00 00 04 00 00 },"bb","cb","dl","eb","fc","fh","gb","hb","hq","ib","ij","iq","jd","jq","kd","lc","mc","nc","oc"
-ZX_LINE_5250:
-; 5250  DATA 22,7,17,"bb","cb","db","dm","ec","fb","fn","gb","gq","hc","hq","ib","jb","kb","kg","lb","mb","nb","ni","np","ob","op"
-; 		5250.1  DATA 22{00 00 16 00 00 },7{00 00 07 00 00 },17{00 00 11 00 00 },"bb","cb","db","dm","ec","fb","fn","gb","gq","hc","hq","ib","jb","kb","kg","lb","mb","nb","ni","np","ob","op"
-ZX_LINE_5260:
-; 5260  DATA 10,12,16,"de","ee","fd","gd","hd","id","je","ke","lj","mj"
-; 		5260.1  DATA 10{00 00 0a 00 00 },12{00 00 0c 00 00 },16{00 00 10 00 00 },"de","ee","fd","gd","hd","id","je","ke","lj","mj"
-ZX_LINE_5270:
-; 5270  DATA 12,14,11,"dc","ec","fb","gb","hj","id","jd","kc","kk","lc","mc","ni"
-; 		5270.1  DATA 12{00 00 0c 00 00 },14{00 00 0e 00 00 },11{00 00 0b 00 00 },"dc","ec","fb","gb","hj","id","jd","kc","kk","lc","mc","ni"
-ZX_LINE_5280:
-; 5280  DATA 16,10,3,"cl","dh","eg","fc","gc","gk","go","hd","ic","jc","jo","kf","lg","mg","ng","ol"
-; 		5280.1  DATA 16{00 00 10 00 00 },10{00 00 0a 00 00 },3{00 00 03 00 00 },"cl","dh","eg","fc","gc","gk","go","hd","ic","jc","jo","kf","lg","mg","ng","ol"
-ZX_LINE_5290:
-; 5290  DATA 14,7,12,"db","eb","fc","gc","hb","ib","ig","iq","jb","kc","lb","ln","mb","nb"
-; 		5290.1  DATA 14{00 00 0e 00 00 },7{00 00 07 00 00 },12{00 00 0c 00 00 },"db","eb","fc","gc","hb","ib","ig","iq","jb","kc","lb","ln","mb","nb"
-ZX_LINE_5300:
-; 5300  DATA 18,7,6,"ci","di","eb","ej","fb","gb","hc","hg","ic","ik","iq","jc","kb","kg","lb","mb","nf","no"
-; 		5300.1  DATA 18{00 00 12 00 00 },7{00 00 07 00 00 },6{00 00 06 00 00 },"ci","di","eb","ej","fb","gb","hc","hg","ic","ik","iq","jc","kb","kg","lb","mb","nf","no"
-ZX_LINE_5310:
-; 5310  DATA 16,4,9,"bd","cd","dc","ec","fc","gb","hb","ib","jc","jh","jm","kc","lf","me","ne","oe"
-; 		5310.1  DATA 16{00 00 10 00 00 },4{00 00 04 00 00 },9{00 00 09 00 00 },"bd","cd","dc","ec","fc","gb","hb","ib","jc","jh","jm","kc","lf","me","ne","oe"
-ZX_LINE_5320:
-; 5320  DATA 13,6,5,"ck","dg","ef","fe","gh","hf","if","jf","kf","lk","mk","nk","ok"
-; 		5320.1  DATA 13{00 00 0d 00 00 },6{00 00 06 00 00 },5{00 00 05 00 00 },"ck","dg","ef","fe","gh","hf","if","jf","kf","lk","mk","nk","ok"
-ZX_LINE_5330:
-; 5330  DATA 13,12,14,"cf","df","eh","fe","ge","he","ie","je","ke","lh","me","nf","og"
-; 		5330.1  DATA 13{00 00 0d 00 00 },12{00 00 0c 00 00 },14{00 00 0e 00 00 },"cf","df","eh","fe","ge","he","ie","je","ke","lh","me","nf","og"
-ZX_LINE_5340:
-; 5340  DATA 15,5,14,"cf","df","ef","fe","ge","hf","hj","if","jf","kf","kk","lf","mf","nh","oh"
-; 		5340.1  DATA 15{00 00 0f 00 00 },5{00 00 05 00 00 },14{00 00 0e 00 00 },"cf","df","ef","fe","ge","hf","hj","if","jf","kf","kk","lf","mf","nh","oh"
-ZX_LINE_5350:
-; 5350  DATA 20,3,11,"bb","bo","cb","db","dj","ec","ej","fc","gc","he","hm","ib","jb","kb","lb","mb","nc","nj","oc","oj"
-; 		5350.1  DATA 20{00 00 14 00 00 },3{00 00 03 00 00 },11{00 00 0b 00 00 },"bb","bo","cb","db","dj","ec","ej","fc","gc","he","hm","ib","jb","kb","lb","mb","nc","nj","oc","oj"
-ZX_LINE_5360:
-; 5360  DATA 21,8,11,"bn","cb","ci","db","eb","fd","gd","gj","gp","hd","hj","ic","ij","in","jc","jn","kc","lc","mi","nf","of"
-; 		5360.1  DATA 21{00 00 15 00 00 },8{00 00 08 00 00 },11{00 00 0b 00 00 },"bn","cb","ci","db","eb","fd","gd","gj","gp","hd","hj","ic","ij","in","jc","jn","kc","lc","mi","nf","of"
-ZX_LINE_5370:
-; 5370  DATA 15,15,10,"cb","db","eb","eg","fb","gb","gl","hd","id","jd","kf","le","me","nf","oj"
-; 		5370.1  DATA 15{00 00 0f 00 00 },15{00 00 0f 00 00 },10{00 00 0a 00 00 },"cb","db","eb","eg","fb","gb","gl","hd","id","jd","kf","le","me","nf","oj"
-ZX_LINE_5380:
-; 5380  DATA 9,5,13,"el","ff","gf","hg","ig","jg","kg","lg","mg"
-; 		5380.1  DATA 9{00 00 09 00 00 },5{00 00 05 00 00 },13{00 00 0d 00 00 },"el","ff","gf","hg","ig","jg","kg","lg","mg"
-ZX_LINE_5390:
-; 5390  DATA 19,4,12,"bo","cc","db","eb","fb","gb","hc","hi","hm","ic","jb","jg","jp","kb","lb","lo","mb","nb","og"
-; 		5390.1  DATA 19{00 00 13 00 00 },4{00 00 04 00 00 },12{00 00 0c 00 00 },"bo","cc","db","eb","fb","gb","hc","hi","hm","ic","jb","jg","jp","kb","lb","lo","mb","nb","og"
-ZX_LINE_5400:
-; 5400  DATA 14,4,17,"bg","cg","dg","eg","ff","gf","hg","if","jf","kh","lc","mc","nc","oc"
-; 		5400.1  DATA 14{00 00 0e 00 00 },4{00 00 04 00 00 },17{00 00 11 00 00 },"bg","cg","dg","eg","ff","gf","hg","if","jf","kh","lc","mc","nc","oc"
-ZX_LINE_5410:
-; 5410  DATA 16,10,18,"cm","dl","ek","fj","gi","hi","ib","il","jb","kb","kl","lb","ll","mb","no","op"
-; 		5410.1  DATA 16{00 00 10 00 00 },10{00 00 0a 00 00 },18{00 00 12 00 00 },"cm","dl","ek","fj","gi","hi","ib","il","jb","kb","kl","lb","ll","mb","no","op"
-ZX_LINE_5420:
-; 5420  DATA 13,5,17,"dg","ed","fd","gd","hb","ib","jb","kb","kh","kl","ld","md","ni"
-; 		5420.1  DATA 13{00 00 0d 00 00 },5{00 00 05 00 00 },17{00 00 11 00 00 },"dg","ed","fd","gd","hb","ib","jb","kb","kh","kl","ld","md","ni"
-ZX_LINE_5430:
-; 5430  DATA 12,11,10,"ej","ff","gf","hc","ib","ig","jb","kb","kq","lb","lk","ml"
-; 		5430.1  DATA 12{00 00 0c 00 00 },11{00 00 0b 00 00 },10{00 00 0a 00 00 },"ej","ff","gf","hc","ib","ig","jb","kb","kq","lb","lk","ml"
-ZX_LINE_5440:
-; 5440  DATA 19,5,10,"cc","dc","ec","fc","fm","gc","gh","hc","hi","ic","ii","jb","kb","lg","ll","ml","nl","np","ol"
-; 		5440.1  DATA 19{00 00 13 00 00 },5{00 00 05 00 00 },10{00 00 0a 00 00 },"cc","dc","ec","fc","fm","gc","gh","hc","hi","ic","ii","jb","kb","lg","ll","ml","nl","np","ol"
-ZX_LINE_5450:
-; 5450  DATA 16,12,7,"dc","di","ec","ei","fc","gd","he","ic","jc","jm","kc","lc","mc","nc","nk","oc"
-; 		5450.1  DATA 16{00 00 10 00 00 },12{00 00 0c 00 00 },7{00 00 07 00 00 },"dc","di","ec","ei","fc","gd","he","ic","jc","jm","kc","lc","mc","nc","nk","oc"
-ZX_LINE_5460:
-; 5460  DATA 16,8,14,"bd","cd","ck","dd","ed","ff","gf","hg","ig","jg","kg","lg","ln","mf","nf","of"
-; 		5460.1  DATA 16{00 00 10 00 00 },8{00 00 08 00 00 },14{00 00 0e 00 00 },"bd","cd","ck","dd","ed","ff","gf","hg","ig","jg","kg","lg","ln","mf","nf","of"
-ZX_LINE_5470:
-; 5470  DATA 10,9,8,"ek","fc","gb","hb","ib","jb","jj","kb","ld","md"
-; 		5470.1  DATA 10{00 00 0a 00 00 },9{00 00 09 00 00 },8{00 00 08 00 00 },"ek","fc","gb","hb","ib","jb","jj","kb","ld","md"
-ZX_LINE_5480:
-; 5480  DATA 15,14,10,"bg","cg","dg","eg","fg","gi","hi","ij","je","ke","lf","mf","nf","of","om"
-; 		5480.1  DATA 15{00 00 0f 00 00 },14{00 00 0e 00 00 },10{00 00 0a 00 00 },"bg","cg","dg","eg","fg","gi","hi","ij","je","ke","lf","mf","nf","of","om"
-ZX_LINE_5490:
-; 5490  DATA 16,13,9,"cj","dj","ej","fj","gh","he","hn","ic","jc","kc","le","lk","lo","mh","nj","oj"
-; 		5490.1  DATA 16{00 00 10 00 00 },13{00 00 0d 00 00 },9{00 00 09 00 00 },"cj","dj","ej","fj","gh","he","hn","ic","jc","kc","le","lk","lo","mh","nj","oj"
-ZX_LINE_5500:
-; 5500  DATA 19,8,3,"bh","cg","df","ee","fe","gb","hb","hk","ib","jd","kd","ld","lm","md","mm","nd","od","nn","on"
-; 		5500.1  DATA 19{00 00 13 00 00 },8{00 00 08 00 00 },3{00 00 03 00 00 },"bh","cg","df","ee","fe","gb","hb","hk","ib","jd","kd","ld","lm","md","mm","nd","od","nn","on"
-ZX_LINE_9998:
+ZXBASIC_LINE_1000:
+; 1000  DATA 6,6,243,63,15,139,219,126
+	LD HL,1000
+	LD (23621),HL
+; 		1000.1  DATA 6{00 00 06 00 00 },6{00 00 06 00 00 },243{00 00 f3 00 00 },63{00 00 3f 00 00 },15{00 00 0f 00 00 },139{00 00 8b 00 00 },219{00 00 db 00 00 },126{00 00 7e 00 00 }
+	LD A,1
+	LD (23623),a
+ZXBASIC_LINE_1010:
+; 1010  DATA 96,96,207,252,240,209,219,126
+	LD HL,1010
+	LD (23621),HL
+; 		1010.1  DATA 96{00 00 60 00 00 },96{00 00 60 00 00 },207{00 00 cf 00 00 },252{00 00 fc 00 00 },240{00 00 f0 00 00 },209{00 00 d1 00 00 },219{00 00 db 00 00 },126{00 00 7e 00 00 }
+	LD A,1
+	LD (23623),a
+ZXBASIC_LINE_1020:
+; 1020  DATA 24,60,102,66,255,219,126,129
+	LD HL,1020
+	LD (23621),HL
+; 		1020.1  DATA 24{00 00 18 00 00 },60{00 00 3c 00 00 },102{00 00 66 00 00 },66{00 00 42 00 00 },255{00 00 ff 00 00 },219{00 00 db 00 00 },126{00 00 7e 00 00 },129{00 00 81 00 00 }
+	LD A,1
+	LD (23623),a
+ZXBASIC_LINE_9998:
 ; 9998  STOP 
+	LD HL,9998
+	LD (23621),HL
 ZXBASIC_VAR_a:	dw 0
 ZXBASIC_VAR_b:	dw 0
-ZXBASIC_VAR_b_string:	dw 0
 ZXBASIC_VAR_c:	dw 0
-ZXBASIC_VAR_cont:	dw 0
-ZXBASIC_VAR_d_string:	dw 0
-ZXBASIC_VAR_f:	dw 0
+ZXBASIC_VAR_cn:	dw 0
+ZXBASIC_VAR_d:	dw 0
+ZXBASIC_VAR_dat:	dw 0
+ZXBASIC_VAR_fl:	dw 0
+ZXBASIC_VAR_for_a:	dw 0
 ZXBASIC_VAR_for_b:	dw 0
-ZXBASIC_VAR_for_c:	dw 0
-ZXBASIC_VAR_for_l:	dw 0
-ZXBASIC_VAR_for_n:	dw 0
-ZXBASIC_VAR_for_r:	dw 0
-ZXBASIC_VAR_for_y:	dw 0
-ZXBASIC_VAR_h_string_array:	defs 10002
-ZXBASIC_VAR_hm:	dw 0
+ZXBASIC_VAR_for_d:	dw 0
+ZXBASIC_VAR_for_g:	dw 0
+ZXBASIC_VAR_for_k:	dw 0
+ZXBASIC_VAR_for_s:	dw 0
+ZXBASIC_VAR_for_u:	dw 0
+ZXBASIC_VAR_for_w:	dw 0
+ZXBASIC_VAR_fr:	dw 0
+ZXBASIC_VAR_g:	dw 0
+ZXBASIC_VAR_h:	dw 0
 ZXBASIC_VAR_i:	dw 0
-ZXBASIC_VAR_i_string:	dw 0
-ZXBASIC_VAR_index:	dw 0
+ZXBASIC_VAR_j:	dw 0
+ZXBASIC_VAR_k:	dw 0
 ZXBASIC_VAR_k_string:	dw 0
 ZXBASIC_VAR_l:	dw 0
-ZXBASIC_VAR_l_string:	dw 0
-ZXBASIC_VAR_m_string_array:	defs 720
-ZXBASIC_VAR_moves:	dw 0
-ZXBASIC_VAR_n:	dw 0
-ZXBASIC_VAR_o_array:	defs 8
-ZXBASIC_VAR_pull:	dw 0
-ZXBASIC_VAR_pushes:	dw 0
-ZXBASIC_VAR_q_string:	dw 0
+ZXBASIC_VAR_oc:	dw 0
+ZXBASIC_VAR_or:	dw 0
+ZXBASIC_VAR_ox:	dw 0
+ZXBASIC_VAR_oy:	dw 0
 ZXBASIC_VAR_r:	dw 0
-ZXBASIC_VAR_r_string:	dw 0
-ZXBASIC_VAR_s_array:	defs 6
-ZXBASIC_VAR_s_string:	dw 0
-ZXBASIC_VAR_targets:	dw 0
-ZXBASIC_VAR_u_string:	dw 0
-ZXBASIC_VAR_vm:	dw 0
+ZXBASIC_VAR_s:	dw 0
+ZXBASIC_VAR_sc:	dw 0
+ZXBASIC_VAR_u:	dw 0
+ZXBASIC_VAR_v:	dw 0
+ZXBASIC_VAR_w:	dw 0
 ZXBASIC_VAR_x:	dw 0
 ZXBASIC_VAR_y:	dw 0
-ZXBASIC_VAR_y_string:	dw 0
-STRING_0:	dw 1
-	db	"k"
+FLOAT_1:	db $79, $03, $12, $6e, $97	;0.004
+FLOAT_10:	db $7a, $03, $12, $6e, $97	;0.008
+FLOAT_2:	db $78, $03, $12, $6e, $97	;0.002
+FLOAT_3:	db $7a, $44, $9b, $a5, $e3	;.012
+FLOAT_4:	db $77, $44, $9b, $a5, $e3	;0.0015
+FLOAT_5:	db $84, $58, $00, $00, $00	;13.5
+FLOAT_6:	db $85, $0c, $00, $00, $00	;17.5
+FLOAT_7:	db $7a, $75, $c2, $8f, $5c	;0.015
+FLOAT_8:	db $00, $00, $0c, $00, $00	;12.0
+FLOAT_9:	db $77, $03, $12, $6e, $97	;0.001
+STRING_0:	dw 9
+	db	"WELL DONE"
 STRING_1:	dw 1
-	db	"m"
-STRING_10:	dw 7
-	db	", undo="
-STRING_11:	dw 1
-	db	"."
-STRING_12:	dw 1
-	db	" "
-STRING_13:	dw 0
-STRING_14:	dw 13
-	db	"key for left?"
-STRING_15:	dw 14
-	db	"key for right?"
-STRING_16:	dw 14
-	db	"key for up?   "
-STRING_17:	dw 13
-	db	"key for down?"
-STRING_18:	dw 21
-	db	"key to restart level?"
-STRING_19:	dw 21
-	db	"key to undo move?    "
-STRING_2:	dw 1
-	db	"z"
-STRING_20:	dw 29
-	db	"G A M E   O V E R ! ! ! ! ! !"
-STRING_21:	dw 15
-	db	"SOKOBAN Level: "
-STRING_22:	dw 12
-	db	"Keys (UDLR)="
-STRING_23:	dw 7
-	db	", UNDO="
-STRING_24:	dw 1
-	db	","
-STRING_25:	dw 8
-	db	"Restart="
-STRING_26:	dw 1
-	db	"<"
-STRING_27:	dw 1
-	db	">"
-STRING_28:	dw 26
-	db	"Restart level. Sure? (y/n)"
-STRING_29:	dw 1
-	db	"y"
-STRING_3:	dw 1
-	db	"x"
-STRING_30:	dw 1
-	db	"n"
-STRING_31:	dw 31
-	db	"W E L L   D O N E ! ! ! ! ! ! !"
-STRING_32:	dw 32
-	db	"WELL DONE - ALL LEVELS COMPLETED"
-STRING_33:	dw 1
 	db	$92
-STRING_34:	dw 1
-	db	$91
-STRING_35:	dw 1
-	db	$96
-STRING_36:	dw 1
-	db	$93
-STRING_37:	dw 1
-	db	$94
-STRING_38:	dw 1
-	db	$95
-STRING_39:	dw 1
+STRING_10:	dw 1
+	db	"*"
+STRING_11:	dw 1
+	db	$89
+STRING_12:	dw 4
+	db	"****"
+STRING_13:	dw 4
+	db	$92, $92, $92, $92
+STRING_14:	dw 16
+	db	"G A M E  O V E R"
+STRING_15:	dw 252
+	db	$8f, "      ", $8f, "  ", $8f, $8f, $8f, $8f, $8f, $8f, $8f, $8f, "   ", $8f, $8f, $8f, $8f, $8f, $8f, "     ", $8f, "      ", $8f, "  ", $8f, "         ", $8f, "      ", $8f, "    ", $8f, "      ", $8f, "  ", $8f, "         ", $8f, "      ", $8f, "    ", $8f, "      ", $8f
+	db "  ", $8f, $8f, $8f, $8f, $8f, $8f, $8f, "   ", $8f, "      ", $8f, "    ", $8f, "      ", $8f, "  ", $8f, "         ", $8f, "      ", $8f, "    ", $8f, "      ", $8f, "  ", $8f, "         ", $8f, "      ", $8f, "    ", $8f, "      ", $8f, "  ", $8f, "         ", $8f
+	db "      ", $8f, "     ", $8f, $8f, $8f, $8f, $8f, $8f, "   ", $8f, "          ", $8f, $8f, $8f, $8f, $8f, $8f, " "
+STRING_16:	dw 14
+	db	"By Animated AL"
+STRING_17:	dw 18
+	db	"PRESS FIRE TO PLAY"
+STRING_18:	dw 0
+STRING_19:	dw 1
+	db	$8d
+STRING_2:	dw 13
+	db	"TOWERS SAVED "
+STRING_20:	dw 2
+	db	$83, $83
+STRING_21:	dw 1
+	db	$8e
+STRING_22:	dw 4
+	db	$8a, $88, $84, $85
+STRING_23:	dw 32
+	db	$83, $83, $83, $83, $83, $83, $83, $83, $83, $83, $83, $83, $83, $83, $83, $83, $83, $83, $83, $83, $83, $83, $83, $83, $83, $83, $83, $83, $83, $83, $83, $83
+STRING_24:	dw 4
+	db	"UFO:"
+STRING_25:	dw 7
+	db	"TOWERS:"
+STRING_3:	dw 1
 	db	"a"
 STRING_4:	dw 1
 	db	"q"
-STRING_40:	dw 1
-	db	"h"
-STRING_41:	dw 11
-	db	"Crates 'on'"
-STRING_42:	dw 7
-	db	"Moves: "
-STRING_43:	dw 7
-	db	"Pushes:"
-STRING_44:	dw 1
-	db	$90
-STRING_45:	dw 19
-	db	$90, $90, $90, $90, $90, $90, $90, $90, $90, $90, $90, $90, $90, $90, $90, $90, $90, $90, $90
 STRING_5:	dw 1
-	db	"u"
-STRING_6:	dw 32
-	db	"Sokoban in BASIC by Simon Ferre'"
-STRING_7:	dw 31
-	db	"ENTER-play, SPACE-redefine keys"
-STRING_8:	dw 7
-	db	"(lrud)="
-STRING_9:	dw 10
-	db	", restart="
-ZXDATA:
-	dw 1010, DATA_1010
-	dw 5000, DATA_5000
-	dw 5010, DATA_5010
-	dw 5020, DATA_5020
-	dw 5030, DATA_5030
-	dw 5040, DATA_5040
-	dw 5050, DATA_5050
-	dw 5060, DATA_5060
-	dw 5070, DATA_5070
-	dw 5080, DATA_5080
-	dw 5090, DATA_5090
-	dw 5100, DATA_5100
-	dw 5110, DATA_5110
-	dw 5120, DATA_5120
-	dw 5130, DATA_5130
-	dw 5140, DATA_5140
-	dw 5150, DATA_5150
-	dw 5160, DATA_5160
-	dw 5170, DATA_5170
-	dw 5180, DATA_5180
-	dw 5190, DATA_5190
-	dw 5200, DATA_5200
-	dw 5210, DATA_5210
-	dw 5220, DATA_5220
-	dw 5230, DATA_5230
-	dw 5240, DATA_5240
-	dw 5250, DATA_5250
-	dw 5260, DATA_5260
-	dw 5270, DATA_5270
-	dw 5280, DATA_5280
-	dw 5290, DATA_5290
-	dw 5300, DATA_5300
-	dw 5310, DATA_5310
-	dw 5320, DATA_5320
-	dw 5330, DATA_5330
-	dw 5340, DATA_5340
-	dw 5350, DATA_5350
-	dw 5360, DATA_5360
-	dw 5370, DATA_5370
-	dw 5380, DATA_5380
-	dw 5390, DATA_5390
-	dw 5400, DATA_5400
-	dw 5410, DATA_5410
-	dw 5420, DATA_5420
-	dw 5430, DATA_5430
-	dw 5440, DATA_5440
-	dw 5450, DATA_5450
-	dw 5460, DATA_5460
-	dw 5470, DATA_5470
-	dw 5480, DATA_5480
-	dw 5490, DATA_5490
-	dw 5500, DATA_5500
-	dw 0, 0
+	db	" "
+STRING_6:	dw 1
+	db	$90
+STRING_7:	dw 1
+	db	$91
+STRING_8:	dw 1
+	db	"o"
+STRING_9:	dw 1
+	db	"p"
 DATAPTR:	DW 0
+DATA_1000:
+	dw 6
+	dw 6
+	dw 243
+	dw 63
+	dw 15
+	dw 139
+	dw 219
+	dw 126
 DATA_1010:
-	dw 85
-	dw 129
-	dw 1
-	dw 129
-	dw 1
-	dw 129
-	dw 1
-	dw 255
-	dw 0
-	dw 0
-	dw 8
-	dw 56
-	dw 28
-	dw 16
-	dw 0
-	dw 0
-	dw 0
-	dw 42
-	dw 124
-	dw 70
-	dw 68
-	dw 70
-	dw 124
-	dw 0
-	dw 255
-	dw 255
-	dw 247
-	dw 199
-	dw 227
-	dw 239
-	dw 255
-	dw 255
+	dw 96
+	dw 96
+	dw 207
+	dw 252
+	dw 240
+	dw 209
+	dw 219
+	dw 126
+DATA_1020:
 	dw 24
 	dw 60
-	dw 90
+	dw 102
+	dw 66
 	dw 255
 	dw 219
-	dw 102
-	dw 60
-	dw 24
-	dw 231
-	dw 195
-	dw 165
-	dw 0
-	dw 36
-	dw 153
-	dw 195
-	dw 231
-	dw 255
-	dw 213
-	dw 131
-	dw 185
-	dw 187
-	dw 185
-	dw 131
-	dw 255
-DATA_5000:
-	dw 26
-	dw 2
-	dw 2
-	dw 19
-	db "bb", $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91
-	dw 19
-	db "ib", $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91
-	dw 19
-	db "pb", $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91
-	dw 3
-	db "cb", $91
-	dw 3
-	db "cf", $91
-	dw 7
-	db "cj", $91, $90, $92, $90, $91
-	dw 3
-	db "cr", $91
-	dw 19
-	db "db", $91, $90, $93, $92, $91, $90, $91, $90, $91, $90, $93, $90, $91, $90, $91, $90, $91
-	dw 3
-	db "eb", $91
-	dw 15
-	db "ef", $91, $90, $91, $90, $91, $90, $90, $91, $91, $90, $91, $90, $91
-	dw 19
-	db "fb", $91, $91, $91, $90, $91, $90, $91, $90, $91, $90, $91, $90, $91, $90, $91, $90, $91
-	dw 19
-	db "gb", $91, $91, $91, $90, $91, $90, $91, $90, $91, $90, $91, $90, $91, $90, $91, $90, $91
-	dw 3
-	db "hb", $91
-	dw 3
-	db "hf", $91
-	dw 7
-	db "hj", $91, $90, $91, $90, $91
-	dw 3
-	db "hr", $91
-	dw 3
-	db "jb", $91
-	dw 15
-	db "jf", $93, $91, $91, $90, $90, $91, $91, $90, $91, $91, $92, $90, $91
-	dw 19
-	db "kb", $91, $90, $91, $91, $90, $91, $90, $91, $91, $90, $91, $90, $90, $91, $91, $90, $91
-	dw 3
-	db "lb", $91
-	dw 4
-	db "lf", $91, $91
-	dw 9
-	db "ll", $91, $90, $93, $90, $91, $90, $91
-	dw 19
-	db "mb", $91, $90, $91, $91, $90, $91, $90, $93, $93, $90, $91, $90, $91, $91, $90, $90, $91
-	dw 19
-	db "nb", $91, $90, $91, $91, $90, $91, $90, $92, $92, $90, $91, $90, $93, $92, $90, $90, $91
-	dw 3
-	db "ob", $91
-	dw 15
-	db "of", $91, $91, $90, $91, $91, $90, $91, $90, $92, $91, $91, $90, $91
-DATA_5010:
-	dw 10
-	dw 11
-	dw 12
-	dw 5
-	db "df", $91, $91, $91
-	dw 5
-	db "ef", $92, $91, $91
-	dw 5
-	db "ff", $91, $91, $92
-	dw 8
-	db "gd", $91, $91, $92, $91, $92, $91
-	dw 8
-	db "hd", $91, $90, $91, $90, $90, $91
-	dw 10
-	db "ib", $91, $91, $91, $90, $91, $90, $90, $91
-	dw 6
-	db "io", $91, $91, $93, $93
-	dw 19
-	db "jb", $91, $92, $91, $91, $92, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $93, $93
-	dw 15
-	db "kf", $91, $90, $90, $90, $91, $90, $91, $90, $90, $91, $91, $93, $93
-	dw 7
-	db "lf", $91, $91, $91, $91, $91
-DATA_5020:
-	dw 8
-	dw 8
-	dw 11
-	dw 12
-	db "ee", $93, $93, $91, $91, $90, $91, $91, $91, $91, $91
-	dw 14
-	db "fe", $93, $93, $91, $91, $90, $91, $92, $91, $91, $92, $91, $91
-	dw 14
-	db "ge", $93, $93, $91, $91, $90, $92, $90, $90, $90, $90, $91, $91
-	dw 14
-	db "he", $93, $93, $91, $91, $91, $91, $91, $91, $90, $90, $91, $91
-	dw 13
-	db "ie", $93, $93, $91, $91, $90, $91, $90, $91, $91, $92, $91
-	dw 9
-	db "jj", $91, $90, $90, $92, $91, $92, $91
-	dw 12
-	db "kg", $91, $92, $91, $91, $92, $91, $92, $91, $92, $91
-	dw 12
-	db "lg", $91, $91, $91, $91, $90, $91, $91, $91, $91, $91
-DATA_5030:
-	dw 9
-	dw 5
-	dw 16
-	dw 8
-	db "ek", $91, $91, $91, $91, $91, $91
-	dw 7
-	db "fk", $91, $92, $90, $92, $91
-	dw 7
-	db "gk", $91, $92, $91, $91, $92
-	dw 6
-	db "hl", $92, $91, $92, $91
-	dw 7
-	db "ik", $91, $92, $91, $90, $91
-	dw 8
-	db "jc", $93, $93, $93, $93, $91, $91
-	dw 9
-	db "jk", $91, $92, $91, $91, $92, $91, $91
-	dw 16
-	db "kd", $93, $93, $93, $91, $91, $91, $91, $92, $91, $91, $92, $91, $91, $91
-	dw 8
-	db "lc", $93, $93, $93, $93, $91, $91
-DATA_5040:
-	dw 12
-	dw 13
-	dw 11
-	dw 8
-	db "cm", $91, $91, $93, $93, $93, $93
-	dw 8
-	db "dm", $91, $91, $93, $93, $93, $93
-	dw 19
-	db "eb", $91, $91, $91, $91, $90, $91, $91, $92, $91, $92, $91, $91, $91, $93, $93, $93, $93
-	dw 19
-	db "fb", $91, $92, $92, $92, $90, $92, $91, $91, $92, $91, $90, $91, $91, $93, $93, $93, $93
-	dw 19
-	db "gb", $91, $91, $92, $91, $91, $91, $91, $91, $92, $91, $90, $91, $91, $93, $93, $93, $93
-	dw 12
-	db "hb", $91, $92, $92, $91, $90, $92, $91, $92, $91, $92
-	dw 12
-	db "ib", $91, $91, $92, $91, $90, $91, $91, $91, $91, $91
-	dw 3
-	db "jc", $91
-	dw 11
-	db "kb", $91, $91, $91, $91, $90, $91, $91, $91, $91
-	dw 11
-	db "lb", $91, $91, $91, $91, $91, $92, $91, $91, $91
-	dw 12
-	db "mb", $91, $91, $92, $92, $90, $92, $92, $91, $91, $91
-	dw 11
-	db "nb", $91, $91, $91, $91, $90, $91, $91, $91, $91
-DATA_5050:
-	dw 11
-	dw 10
-	dw 16
-	dw 5
-	db "dk", $91, $91, $91
-	dw 9
-	db "ek", $91, $90, $92, $90, $90, $91, $91
-	dw 9
-	db "fk", $91, $91, $91, $91, $91, $92, $91
-	dw 9
-	db "gk", $91, $90, $90, $90, $91, $91, $91
-	dw 15
-	db "hc", $93, $93, $93, $93, $91, $91, $90, $90, $91, $92, $91, $91, $92
-	dw 15
-	db "ic", $93, $93, $93, $93, $91, $91, $91, $91, $92, $91, $92, $92, $91
-	dw 16
-	db "jc", $93, $93, $93, $93, $91, $91, $90, $90, $92, $91, $91, $92, $91, $91
-	dw 7
-	db "kk", $91, $91, $92, $91, $91
-	dw 8
-	db "lk", $91, $92, $91, $92, $91, $91
-	dw 6
-	db "mm", $91, $90, $90, $91
-	dw 6
-	db "nm", $91, $91, $91, $91
-DATA_5060:
-	dw 12
-	dw 5
-	dw 13
-	dw 6
-	db "ee", $93, $93, $91, $91
-	dw 3
-	db "em", $91
-	dw 6
-	db "fe", $93, $93, $91, $91
-	dw 5
-	db "fl", $91, $91, $91
-	dw 12
-	db "ge", $93, $93, $91, $91, $91, $91, $91, $92, $92, $91
-	dw 12
-	db "he", $93, $93, $91, $91, $90, $91, $90, $91, $92, $91
-	dw 4
-	db "ie", $93, $93
-	dw 7
-	db "ij", $91, $90, $91, $92, $91
-	dw 9
-	db "jh", $91, $92, $91, $90, $92, $91, $91
-	dw 9
-	db "kh", $91, $91, $92, $90, $91, $92, $91
-	dw 9
-	db "lh", $91, $92, $91, $91, $92, $91, $91
-	dw 9
-	db "mh", $91, $91, $90, $90, $91, $91, $91
-DATA_5070:
-	dw 15
-	dw 5
-	dw 9
-	dw 5
-	db "dl", $91, $91, $91
-	dw 12
-	db "ef", $91, $90, $91, $91, $90, $90, $91, $92, $92, $91
-	dw 13
-	db "fe", $91, $91, $91, $91, $92, $91, $91, $91, $91, $91, $91
-	dw 7
-	db "ge", $91, $91, $92, $91, $91
-	dw 5
-	db "gm", $91, $91, $91
-	dw 3
-	db "hg", $91
-	dw 3
-	db "hm", $92
-	dw 6
-	db "ie", $91, $92, $91, $91
-	dw 5
-	db "il", $91, $93, $93
-	dw 12
-	db "je", $91, $92, $91, $92, $91, $92, $91, $93, $93, $93
-	dw 6
-	db "ke", $91, $91, $91, $91
-	dw 5
-	db "kl", $93, $93, $93
-	dw 6
-	db "le", $91, $92, $92, $91
-	dw 5
-	db "ll", $93, $93, $93
-	dw 4
-	db "me", $91, $91
-DATA_5080:
-	dw 15
-	dw 7
-	dw 3
-	dw 4
-	db "be", $91, $91
-	dw 14
-	db "ce", $91, $91, $91, $91, $92, $91, $91, $91, $92, $91, $92, $91
-	dw 14
-	db "de", $91, $92, $90, $91, $92, $91, $90, $91, $91, $92, $91, $91
-	dw 14
-	db "ee", $91, $91, $92, $91, $92, $91, $91, $90, $91, $91, $91, $91
-	dw 9
-	db "fe", $91, $92, $90, $91, $90, $91, $91
-	dw 3
-	db "fp", $91
-	dw 16
-	db "gc", $91, $90, $92, $91, $92, $91, $92, $91, $91, $90, $90, $91, $91, $91
-	dw 16
-	db "hc", $91, $91, $91, $91, $92, $91, $90, $92, $90, $91, $91, $91, $90, $91
-	dw 16
-	db "ic", $91, $91, $91, $92, $91, $91, $91, $91, $92, $91, $92, $91, $92, $91
-	dw 4
-	db "jg", $91, $91
-	dw 8
-	db "ke", $91, $91, $91, $91, $91, $91
-	dw 8
-	db "le", $91, $91, $91, $91, $91, $91
-	dw 8
-	db "me", $93, $93, $93, $93, $93, $93
-	dw 8
-	db "ne", $93, $93, $93, $93, $93, $93
-	dw 8
-	db "oe", $93, $93, $93, $93, $93, $93
-DATA_5090:
-	dw 12
-	dw 12
-	dw 3
-	dw 7
-	db "cm", $91, $91, $93, $93, $93
-	dw 7
-	db "dm", $91, $91, $93, $93, $93
-	dw 11
-	db "ei", $91, $91, $91, $91, $91, $91, $93, $91, $93
-	dw 11
-	db "fi", $91, $91, $90, $90, $91, $91, $93, $93, $93
-	dw 10
-	db "gj", $91, $90, $90, $91, $91, $93, $93, $93
-	dw 3
-	db "hj", $91
-	dw 7
-	db "ih", $91, $92, $92, $92, $91
-	dw 8
-	db "jh", $91, $91, $92, $91, $92, $91
-	dw 16
-	db "kd", $91, $91, $91, $90, $92, $91, $92, $91, $91, $91, $90, $91, $91, $91
-	dw 17
-	db "lc", $91, $91, $92, $91, $91, $92, $91, $91, $91, $91, $92, $91, $91, $92, $91
-	dw 8
-	db "mh", $91, $92, $92, $91, $92, $91
-	dw 8
-	db "nh", $91, $91, $91, $91, $91, $91
-DATA_5100:
-	dw 18
-	dw 2
-	dw 3
-	dw 3
-	db "bc", $91
-	dw 13
-	db "bh", $91, $91, $91, $91, $91, $91, $91, $90, $91, $91, $91
-	dw 19
-	db "cb", $91, $92, $92, $91, $91, $91, $92, $92, $91, $91, $92, $91, $92, $91, $93, $93, $93
-	dw 19
-	db "db", $91, $91, $92, $92, $92, $90, $91, $91, $91, $91, $92, $91, $91, $90, $93, $93, $93
-	dw 19
-	db "eb", $91, $92, $91, $91, $91, $90, $91, $92, $92, $91, $92, $92, $91, $90, $93, $93, $93
-	dw 17
-	db "fd", $91, $91, $91, $90, $91, $91, $92, $91, $91, $91, $91, $90, $93, $93, $93
-	dw 19
-	db "gb", $91, $91, $91, $91, $91, $90, $91, $92, $91, $92, $91, $92, $91, $90, $93, $93, $93
-	dw 6
-	db "hb", $91, $91, $91, $91
-	dw 3
-	db "hl", $91
-	dw 5
-	db "hp", $93, $93, $93
-	dw 18
-	db "ic", $91, $90, $91, $91, $90, $91, $91, $92, $91, $92, $91, $91, $90, $93, $93, $93
-	dw 19
-	db "jb", $91, $91, $90, $90, $91, $90, $91, $92, $92, $91, $92, $91, $92, $90, $90, $93, $93
-	dw 19
-	db "kb", $91, $93, $93, $90, $91, $90, $91, $91, $92, $91, $91, $91, $91, $91, $91, $90, $93
-	dw 19
-	db "lb", $91, $93, $93, $90, $91, $90, $91, $92, $92, $92, $91, $92, $92, $92, $91, $90, $93
-	dw 15
-	db "mf", $91, $90, $91, $91, $91, $91, $91, $91, $91, $90, $91, $90, $93
-	dw 3
-	db "nf", $91
-	dw 5
-	db "np", $91, $90, $93
-	dw 15
-	db "of", $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $90, $93
-DATA_5110:
-	dw 15
-	dw 4
-	dw 8
-	dw 4
-	db "cl", $91, $91
-	dw 4
-	db "dg", $91, $91
-	dw 4
-	db "dl", $92, $91
-	dw 11
-	db "ee", $91, $91, $91, $91, $91, $91, $92, $91, $91
-	dw 11
-	db "fd", $91, $91, $92, $91, $92, $92, $90, $90, $91
-	dw 13
-	db "gc", $91, $91, $90, $92, $90, $90, $91, $91, $91, $91, $91
-	dw 12
-	db "hc", $91, $90, $91, $92, $91, $92, $92, $91, $90, $91
-	dw 14
-	db "ic", $91, $91, $91, $92, $91, $90, $91, $91, $90, $91, $92, $91
-	dw 16
-	db "je", $91, $91, $91, $91, $90, $91, $91, $92, $92, $91, $90, $91, $91, $91
-	dw 16
-	db "ke", $91, $90, $90, $91, $92, $91, $91, $91, $91, $91, $91, $91, $91, $91
-	dw 7
-	db "lb", $93, $91, $91, $91, $91
-	dw 4
-	db "lj", $91, $91
-	dw 7
-	db "mb", $93, $93, $91, $93, $93
-	dw 7
-	db "nb", $93, $93, $93, $90, $93
-	dw 7
-	db "ob", $93, $93, $93, $93, $93
-DATA_5120:
-	dw 14
-	dw 7
-	dw 9
-	dw 16
-	db "dc", $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91
-	dw 5
-	db "ec", $91, $90, $91
-	dw 7
-	db "el", $91, $91, $91, $91, $91
-	dw 16
-	db "fc", $91, $90, $91, $91, $92, $91, $92, $91, $92, $91, $92, $90, $91, $91
-	dw 16
-	db "gc", $91, $90, $91, $91, $91, $92, $91, $92, $91, $91, $91, $90, $90, $91
-	dw 11
-	db "hc", $91, $90, $91, $91, $92, $91, $92, $91, $92
-	dw 5
-	db "ho", $93, $93, $93
-	dw 17
-	db "ic", $91, $90, $91, $91, $91, $92, $91, $92, $91, $91, $90, $90, $93, $93, $93
-	dw 3
-	db "jc", $91
-	dw 13
-	db "jg", $92, $92, $92, $91, $92, $91, $90, $90, $93, $93, $93
-	dw 17
-	db "kc", $91, $91, $91, $91, $91, $90, $91, $90, $90, $91, $90, $90, $93, $93, $93
-	dw 13
-	db "lg", $91, $91, $91, $90, $90, $91, $90, $90, $93, $93, $93
-	dw 7
-	db "mk", $91, $91, $91, $91, $91
-	dw 7
-	db "nk", $91, $91, $91, $91, $91
-DATA_5130:
-	dw 12
-	dw 7
-	dw 7
-	dw 9
-	db "de", $91, $91, $91, $90, $90, $91, $91
-	dw 15
-	db "ed", $91, $91, $91, $91, $91, $90, $91, $91, $90, $91, $91, $91, $91
-	dw 19
-	db "fb", $91, $91, $92, $91, $90, $92, $91, $90, $91, $91, $90, $91, $91, $93, $93, $93, $91
-	dw 19
-	db "gb", $91, $90, $91, $92, $90, $91, $92, $90, $90, $91, $90, $91, $90, $93, $90, $93, $91
-	dw 19
-	db "hb", $91, $91, $90, $91, $90, $92, $91, $91, $90, $91, $91, $91, $91, $93, $91, $93, $91
-	dw 19
-	db "ib", $91, $92, $91, $91, $91, $91, $92, $91, $90, $91, $90, $91, $90, $93, $90, $93, $91
-	dw 19
-	db "jb", $91, $91, $91, $90, $90, $91, $91, $90, $90, $92, $91, $92, $91, $93, $91, $93, $91
-	dw 19
-	db "kb", $91, $92, $91, $90, $91, $91, $91, $90, $91, $91, $90, $92, $90, $93, $90, $93, $91
-	dw 18
-	db "lc", $91, $92, $91, $91, $92, $91, $91, $91, $92, $91, $91, $92, $93, $93, $93, $91
-	dw 4
-	db "mc", $92, $91
-	dw 10
-	db "mk", $91, $91, $91, $91, $90, $90, $91, $91
-	dw 4
-	db "nc", $91, $91
-DATA_5140:
-	dw 20
-	dw 3
-	dw 11
-	dw 7
-	db "bi", $91, $91, $91, $91, $91
-	dw 13
-	db "cc", $91, $91, $91, $91, $91, $90, $91, $92, $91, $92, $91
-	dw 9
-	db "dc", $92, $92, $91, $90, $91, $91, $91
-	dw 3
-	db "ec", $91
-	dw 13
-	db "eg", $93, $93, $93, $93, $93, $93, $90, $90, $91, $91, $91
-	dw 17
-	db "fc", $91, $91, $91, $92, $93, $93, $93, $93, $93, $93, $90, $90, $91, $90, $91
-	dw 3
-	db "gc", $91
-	dw 13
-	db "gg", $93, $93, $93, $93, $93, $93, $91, $91, $91, $91, $91
-	dw 5
-	db "hc", $91, $91, $91
-	dw 3
-	db "hj", $91
-	dw 5
-	db "hn", $91, $90, $92
-	dw 17
-	db "ib", $91, $91, $90, $92, $91, $91, $91, $90, $91, $91, $92, $91, $91, $90, $91
-	dw 17
-	db "jb", $91, $91, $92, $91, $92, $92, $92, $91, $91, $90, $91, $92, $90, $90, $91
-	dw 9
-	db "kb", $91, $91, $91, $92, $91, $92, $91
-	dw 7
-	db "kl", $92, $92, $91, $90, $91
-	dw 13
-	db "lf", $91, $91, $91, $91, $91, $92, $91, $91, $91, $90, $91
-	dw 3
-	db "mh", $91
-	dw 7
-	db "ml", $91, $91, $91, $90, $91
-	dw 11
-	db "nh", $91, $91, $91, $91, $91, $90, $91, $91, $91
-	dw 4
-	db "oo", $91, $91
-DATA_5150:
-	dw 16
-	dw 6
-	dw 8
-	dw 8
-	db "bf", $91, $91, $91, $90, $91, $91
-	dw 8
-	db "cf", $91, $91, $92, $91, $91, $91
-	dw 8
-	db "df", $91, $90, $92, $91, $91, $91
-	dw 13
-	db "ed", $91, $91, $92, $91, $91, $90, $90, $92, $91, $91, $91
-	dw 13
-	db "fd", $91, $91, $90, $91, $91, $91, $92, $91, $90, $91, $92
-	dw 13
-	db "gd", $91, $91, $90, $91, $91, $91, $91, $91, $91, $92, $91
-	dw 3
-	db "he", $91
-	dw 10
-	db "hj", $92, $90, $90, $91, $91, $91, $91, $91
-	dw 16
-	db "id", $91, $92, $90, $93, $93, $93, $93, $93, $90, $91, $90, $91, $91, $91
-	dw 14
-	db "jd", $91, $91, $92, $93, $93, $96, $96, $93, $91, $92, $90, $91
-	dw 14
-	db "kd", $91, $91, $90, $93, $93, $93, $93, $93, $90, $91, $91, $91
-	dw 5
-	db "lc", $91, $91, $91
-	dw 3
-	db "lh", $91
-	dw 10
-	db "mc", $91, $92, $92, $91, $91, $90, $91, $91
-	dw 10
-	db "nc", $91, $91, $90, $91, $91, $91, $91, $91
-	dw 5
-	db "oh", $91, $91, $91
-DATA_5160:
-	dw 14
-	dw 7
-	dw 7
-	dw 5
-	db "ce", $91, $91, $91
-	dw 6
-	db "de", $91, $91, $91, $91
-	dw 6
-	db "ee", $91, $92, $91, $91
-	dw 4
-	db "em", $91, $91
-	dw 12
-	db "fe", $91, $91, $92, $92, $91, $92, $91, $91, $91, $92
-	dw 10
-	db "gg", $91, $91, $90, $92, $91, $91, $91, $91
-	dw 12
-	db "hf", $91, $91, $90, $90, $91, $91, $92, $91, $92, $91
-	dw 13
-	db "if", $91, $92, $91, $91, $90, $90, $91, $90, $90, $91, $93
-	dw 13
-	db "jf", $91, $91, $90, $92, $90, $90, $92, $91, $91, $90, $93
-	dw 11
-	db "kh", $91, $91, $91, $92, $93, $93, $90, $90, $93
-	dw 12
-	db "lg", $91, $91, $91, $91, $90, $93, $96, $93, $93, $93
-	dw 12
-	db "mg", $91, $92, $92, $91, $90, $93, $93, $93, $93, $93
-	dw 4
-	db "ng", $91, $91
-	dw 4
-	db "og", $91, $91
-DATA_5170:
-	dw 14
-	dw 12
-	dw 5
-	dw 10
-	db "cg", $93, $93, $91, $91, $90, $91, $91, $91
-	dw 10
-	db "dg", $93, $93, $91, $91, $91, $91, $91, $91
-	dw 9
-	db "eg", $93, $93, $91, $91, $90, $91, $91
-	dw 7
-	db "fl", $91, $91, $90, $91, $91
-	dw 14
-	db "gf", $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91
-	dw 14
-	db "hf", $91, $91, $90, $91, $91, $90, $90, $91, $91, $90, $91, $91
-	dw 7
-	db "ig", $91, $90, $90, $91, $91
-	dw 3
-	db "ip", $91
-	dw 7
-	db "jd", $91, $91, $92, $91, $91
-	dw 6
-	db "jn", $91, $90, $91, $91
-	dw 16
-	db "kd", $91, $90, $91, $92, $91, $91, $92, $91, $91, $90, $91, $92, $91, $91
-	dw 15
-	db "ld", $91, $91, $92, $91, $91, $92, $91, $91, $91, $90, $91, $91, $91
-	dw 6
-	db "mg", $91, $90, $90, $91
-	dw 6
-	db "ng", $91, $91, $91, $91
-DATA_5180:
-	dw 13
-	dw 5
-	dw 14
-	dw 11
-	db "dg", $91, $91, $93, $91, $91, $90, $91, $91, $91
-	dw 11
-	db "eg", $91, $90, $93, $91, $91, $91, $91, $91, $91
-	dw 9
-	db "fg", $91, $90, $90, $93, $93, $90, $91
-	dw 8
-	db "gc", $91, $91, $90, $91, $93, $93
-	dw 7
-	db "gl", $91, $91, $91, $91, $91
-	dw 19
-	db "hb", $91, $92, $91, $90, $93, $93, $93, $91, $91, $91, $92, $91, $90, $91, $91, $92, $91
-	dw 19
-	db "ib", $91, $91, $91, $91, $93, $93, $91, $90, $90, $91, $91, $90, $90, $91, $90, $90, $91
-	dw 16
-	db "je", $92, $90, $90, $92, $90, $91, $92, $91, $90, $91, $91, $91, $90, $91
-	dw 16
-	db "ke", $91, $90, $91, $91, $91, $91, $90, $92, $91, $92, $92, $91, $90, $91
-	dw 17
-	db "ld", $91, $91, $92, $91, $90, $91, $90, $91, $91, $90, $91, $92, $90, $90, $91
-	dw 17
-	db "md", $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91
-	dw 4
-	db "nd", $91, $91
-	dw 4
-	db "nq", $91, $91
-DATA_5190:
-	dw 18
-	dw 2
-	dw 7
-	dw 6
-	db "bd", $91, $91, $91, $91
-	dw 7
-	db "cf", $91, $92, $91, $91, $91
-	dw 11
-	db "db", $91, $91, $91, $90, $90, $91, $91, $91, $91
-	dw 14
-	db "eb", $91, $92, $91, $90, $91, $91, $90, $90, $91, $91, $91, $91
-	dw 8
-	db "fb", $91, $92, $91, $90, $91, $91
-	dw 3
-	db "fm", $91
-	dw 13
-	db "gc", $91, $92, $91, $91, $92, $91, $91, $91, $91, $90, $91
-	dw 7
-	db "hc", $91, $92, $91, $92, $91
-	dw 5
-	db "hk", $91, $90, $91
-	dw 13
-	db "ic", $91, $90, $91, $91, $92, $91, $91, $90, $91, $90, $91
-	dw 13
-	db "jc", $91, $90, $91, $90, $92, $90, $91, $91, $91, $90, $91
-	dw 3
-	db "kc", $91
-	dw 9
-	db "kg", $91, $91, $91, $90, $91, $90, $91
-	dw 7
-	db "lb", $91, $91, $92, $91, $91
-	dw 10
-	db "lk", $91, $90, $91, $90, $93, $93, $93, $93
-	dw 19
-	db "mb", $91, $91, $91, $91, $92, $91, $91, $91, $91, $92, $91, $91, $91, $93, $93, $90, $93
-	dw 16
-	db "ne", $92, $91, $91, $92, $90, $91, $92, $91, $91, $91, $93, $93, $93, $93
-	dw 19
-	db "ob", $91, $91, $91, $91, $91, $91, $91, $90, $91, $91, $90, $90, $91, $93, $93, $93, $93
-DATA_5200:
-	dw 21
-	dw 3
-	dw 15
-	dw 10
-	db "bf", $91, $91, $91, $91, $91, $91, $91, $91
-	dw 17
-	db "cb", $91, $91, $91, $91, $91, $90, $91, $91, $91, $92, $91, $91, $90, $91, $91
-	dw 3
-	db "db", $91
-	dw 3
-	db "dj", $92
-	dw 4
-	db "do", $91, $91
-	dw 19
-	db "eb", $91, $90, $91, $91, $91, $91, $90, $90, $91, $90, $91, $91, $90, $92, $91, $93, $93
-	dw 19
-	db "fb", $91, $90, $91, $92, $91, $91, $91, $91, $91, $90, $91, $91, $90, $91, $91, $90, $93
-	dw 19
-	db "gb", $91, $90, $91, $92, $91, $91, $90, $91, $91, $91, $91, $91, $90, $92, $91, $93, $93
-	dw 6
-	db "hb", $91, $90, $91, $91
-	dw 12
-	db "hi", $91, $90, $90, $91, $91, $91, $91, $91, $90, $93
-	dw 3
-	db "ib", $91
-	dw 15
-	db "if", $91, $91, $90, $91, $91, $90, $91, $91, $90, $92, $91, $93, $93
-	dw 11
-	db "jb", $91, $90, $91, $91, $91, $91, $90, $91, $91
-	dw 6
-	db "jo", $91, $91, $90, $93
-	dw 19
-	db "kb", $91, $90, $92, $91, $91, $91, $92, $91, $91, $92, $91, $91, $90, $92, $91, $93, $93
-	dw 19
-	db "lb", $91, $91, $91, $91, $92, $91, $90, $91, $92, $91, $92, $91, $90, $91, $91, $90, $93
-	dw 4
-	db "me", $91, $92
-	dw 11
-	db "mj", $91, $91, $91, $91, $90, $92, $91, $93, $93
-	dw 9
-	db "ne", $91, $91, $91, $91, $92, $92, $91
-	dw 6
-	db "no", $93, $93, $93, $93
-	dw 8
-	db "oe", $91, $91, $91, $91, $91, $91
-DATA_5210:
-	dw 14
-	dw 6
-	dw 7
-	dw 9
-	db "cd", $91, $91, $91, $91, $91, $91, $91
-	dw 9
-	db "dd", $91, $91, $91, $91, $91, $91, $91
-	dw 3
-	db "ee", $91
-	dw 6
-	db "ej", $91, $90, $91, $91
-	dw 11
-	db "fe", $91, $90, $91, $90, $90, $91, $91, $91, $91
-	dw 12
-	db "gd", $91, $92, $92, $92, $91, $92, $91, $91, $92, $92
-	dw 12
-	db "hd", $91, $91, $90, $91, $90, $90, $91, $92, $91, $91
-	dw 12
-	db "id", $91, $91, $90, $91, $90, $90, $91, $91, $92, $91
-	dw 12
-	db "jg", $91, $91, $92, $92, $92, $91, $92, $90, $91, $91
-	dw 14
-	db "ke", $91, $91, $91, $90, $90, $91, $91, $91, $93, $93, $93, $93
-	dw 14
-	db "le", $91, $90, $91, $91, $91, $90, $91, $90, $93, $93, $91, $93
-	dw 14
-	db "me", $91, $91, $91, $90, $91, $90, $91, $90, $90, $93, $93, $93
-	dw 10
-	db "ni", $91, $92, $91, $91, $90, $93, $93, $93
-	dw 5
-	db "oj", $91, $91, $91
-DATA_5220:
-	dw 21
-	dw 5
-	dw 11
-	dw 6
-	db "bb", $91, $91, $91, $91
-	dw 4
-	db "bm", $91, $91
-	dw 19
-	db "cb", $91, $91, $91, $92, $90, $91, $91, $90, $91, $91, $92, $91, $91, $90, $91, $91, $91
-	dw 19
-	db "db", $91, $91, $92, $91, $91, $92, $91, $91, $92, $91, $90, $91, $92, $91, $92, $91, $91
-	dw 18
-	db "ec", $92, $91, $92, $91, $91, $91, $90, $91, $91, $90, $91, $92, $91, $91, $91, $91
-	dw 6
-	db "fb", $91, $91, $92, $91
-	dw 3
-	db "fq", $91
-	dw 18
-	db "gb", $91, $90, $91, $91, $91, $90, $93, $93, $93, $93, $93, $93, $93, $90, $91, $92
-	dw 18
-	db "hb", $91, $90, $90, $91, $91, $90, $91, $93, $93, $93, $93, $93, $93, $90, $91, $91
-	dw 18
-	db "ib", $91, $90, $91, $91, $91, $92, $93, $93, $93, $93, $93, $93, $93, $93, $92, $91
-	dw 18
-	db "jb", $91, $90, $91, $92, $91, $90, $93, $93, $93, $93, $91, $93, $93, $90, $91, $91
-	dw 7
-	db "kb", $91, $91, $92, $91, $92
-	dw 3
-	db "kk", $92
-	dw 4
-	db "kp", $91, $92
-	dw 7
-	db "lb", $91, $92, $91, $91, $91
-	dw 10
-	db "lj", $91, $92, $91, $91, $91, $92, $91, $91
-	dw 19
-	db "mb", $91, $92, $91, $91, $91, $91, $91, $92, $91, $92, $91, $91, $92, $91, $91, $91, $91
-	dw 3
-	db "nc", $91
-	dw 5
-	db "nj", $91, $92, $91
-	dw 3
-	db "nr", $91
-	dw 19
-	db "ob", $91, $91, $91, $91, $91, $91, $91, $91, $91, $90, $91, $91, $91, $91, $91, $91, $91
-DATA_5230:
-	dw 14
-	dw 9
-	dw 4
-	dw 7
-	db "cf", $91, $91, $90, $91, $91
-	dw 10
-	db "df", $91, $92, $90, $92, $91, $90, $91, $91
-	dw 15
-	db "eb", $93, $93, $91, $90, $91, $91, $90, $91, $91, $90, $91, $91, $91
-	dw 15
-	db "fb", $93, $93, $91, $90, $91, $92, $90, $92, $91, $90, $91, $91, $92
-	dw 18
-	db "gb", $93, $91, $91, $90, $91, $91, $91, $91, $91, $90, $92, $91, $91, $90, $91, $91
-	dw 18
-	db "hb", $93, $93, $91, $91, $91, $92, $90, $91, $91, $90, $91, $92, $91, $91, $91, $91
-	dw 18
-	db "ib", $93, $93, $91, $90, $91, $91, $90, $92, $91, $90, $92, $91, $91, $90, $91, $91
-	dw 18
-	db "jb", $93, $93, $91, $90, $91, $92, $90, $91, $91, $91, $91, $91, $92, $90, $91, $91
-	dw 18
-	db "kb", $93, $93, $91, $90, $91, $91, $90, $92, $92, $90, $92, $91, $91, $90, $91, $91
-	dw 19
-	db "lb", $93, $93, $91, $90, $91, $92, $90, $91, $91, $90, $91, $91, $92, $90, $92, $91, $91
-	dw 19
-	db "mb", $93, $93, $91, $90, $91, $91, $90, $91, $91, $90, $91, $91, $91, $90, $91, $91, $91
-	dw 4
-	db "nc", $93, $91
-	dw 4
-	db "ni", $91, $91
-	dw 5
-	db "np", $91, $91, $91
-DATA_5240:
-	dw 19
-	dw 15
-	dw 4
-	dw 15
-	db "bb", $93, $93, $93, $93, $93, $93, $93, $93, $93, $93, $91, $91, $93
-	dw 15
-	db "cb", $93, $93, $93, $93, $93, $93, $93, $93, $93, $93, $92, $92, $93
-	dw 8
-	db "dl", $92, $91, $90, $91, $91, $91
-	dw 19
-	db "eb", $91, $91, $91, $91, $91, $91, $92, $91, $91, $92, $91, $91, $91, $91, $91, $92, $91
-	dw 3
-	db "fc", $91
-	dw 13
-	db "fh", $91, $91, $91, $90, $91, $91, $92, $91, $90, $91, $91
-	dw 18
-	db "gb", $91, $91, $91, $91, $91, $91, $90, $91, $91, $91, $90, $90, $91, $91, $90, $91
-	dw 14
-	db "hb", $91, $91, $92, $90, $91, $91, $90, $91, $90, $90, $91, $91
-	dw 3
-	db "hq", $91
-	dw 7
-	db "ib", $91, $92, $91, $90, $92
-	dw 6
-	db "ij", $91, $91, $91, $91
-	dw 3
-	db "iq", $91
-	dw 12
-	db "jd", $91, $91, $92, $91, $90, $91, $91, $90, $91, $91
-	dw 3
-	db "jq", $91
-	dw 16
-	db "kd", $91, $91, $91, $91, $92, $91, $90, $90, $91, $90, $91, $91, $90, $91
-	dw 18
-	db "lc", $91, $92, $91, $91, $90, $91, $91, $92, $91, $91, $92, $91, $92, $91, $91, $91
-	dw 18
-	db "mc", $91, $91, $92, $91, $91, $92, $90, $92, $92, $92, $91, $91, $90, $91, $91, $91
-	dw 14
-	db "nc", $91, $91, $90, $91, $91, $92, $91, $91, $91, $91, $91, $91
-	dw 14
-	db "oc", $91, $91, $90, $90, $91, $91, $90, $91, $91, $90, $91, $91
-DATA_5250:
-	dw 22
-	dw 7
-	dw 17
-	dw 4
-	db "bb", $91, $91
-	dw 17
-	db "cb", $91, $91, $90, $91, $91, $91, $93, $93, $90, $93, $93, $93, $93, $93, $93
-	dw 8
-	db "db", $91, $91, $90, $91, $90, $91
-	dw 6
-	db "dm", $91, $93, $93, $93
-	dw 16
-	db "ec", $92, $90, $91, $91, $91, $91, $93, $93, $93, $93, $93, $93, $93, $93
-	dw 8
-	db "fb", $91, $91, $91, $90, $90, $92
-	dw 4
-	db "fn", $91, $91
-	dw 11
-	db "gb", $91, $92, $91, $90, $91, $91, $91, $91, $91
-	dw 4
-	db "gq", $91, $91
-	dw 10
-	db "hc", $92, $91, $90, $91, $92, $91, $91, $91
-	dw 4
-	db "hq", $91, $91
-	dw 19
-	db "ib", $91, $91, $92, $91, $90, $92, $92, $92, $90, $90, $91, $91, $91, $91, $91, $91, $91
-	dw 17
-	db "jb", $91, $91, $91, $91, $91, $91, $90, $91, $91, $91, $91, $90, $92, $90, $92
-	dw 3
-	db "kb", $91
-	dw 13
-	db "kg", $91, $90, $92, $92, $92, $92, $92, $91, $91, $91, $91
-	dw 18
-	db "lb", $91, $90, $91, $91, $91, $91, $92, $91, $91, $91, $91, $91, $90, $91, $91, $91
-	dw 17
-	db "mb", $91, $90, $91, $91, $91, $90, $90, $91, $91, $91, $91, $91, $91, $91, $91
-	dw 3
-	db "nb", $91
-	dw 3
-	db "ni", $92
-	dw 5
-	db "np", $91, $92, $91
-	dw 10
-	db "ob", $91, $91, $91, $91, $91, $91, $91, $91
-	dw 5
-	db "op", $91, $91, $91
-DATA_5260:
-	dw 10
-	dw 12
-	dw 16
-	dw 7
-	db "de", $91, $91, $90, $91, $91
-	dw 11
-	db "ee", $91, $91, $90, $91, $91, $90, $93, $93, $93
-	dw 14
-	db "fd", $91, $91, $92, $90, $91, $91, $90, $93, $93, $93, $91, $91
-	dw 14
-	db "gd", $91, $92, $91, $90, $92, $92, $91, $93, $93, $93, $91, $91
-	dw 14
-	db "hd", $91, $91, $92, $90, $91, $91, $90, $93, $93, $93, $91, $93
-	dw 8
-	db "id", $91, $91, $91, $90, $91, $92
-	dw 14
-	db "je", $92, $91, $91, $91, $91, $91, $91, $91, $92, $91, $92, $91
-	dw 14
-	db "ke", $91, $91, $90, $91, $91, $92, $92, $91, $90, $91, $91, $91
-	dw 9
-	db "lj", $91, $91, $90, $90, $92, $92, $91
-	dw 8
-	db "mj", $91, $91, $91, $91, $91, $91
-DATA_5270:
-	dw 12
-	dw 14
-	dw 11
-	dw 17
-	db "dc", $93, $93, $93, $91, $91, $91, $90, $91, $91, $91, $91, $90, $91, $91, $91
-	dw 18
-	db "ec", $93, $93, $93, $93, $93, $91, $91, $92, $90, $90, $91, $90, $91, $90, $92, $91
-	dw 19
-	db "fb", $93, $93, $93, $93, $93, $93, $90, $91, $91, $92, $91, $91, $90, $91, $91, $91, $91
-	dw 19
-	db "gb", $93, $93, $93, $93, $93, $93, $90, $91, $91, $90, $91, $91, $90, $91, $90, $91, $91
-	dw 11
-	db "hj", $91, $92, $91, $91, $92, $91, $92, $91, $91
-	dw 16
-	db "id", $91, $91, $91, $91, $91, $90, $92, $90, $90, $92, $91, $90, $90, $92
-	dw 17
-	db "jd", $91, $91, $91, $92, $91, $91, $91, $91, $90, $91, $92, $91, $91, $91, $91
-	dw 7
-	db "kc", $91, $91, $90, $90, $91
-	dw 10
-	db "kk", $91, $90, $91, $91, $90, $90, $92, $91
-	dw 18
-	db "lc", $91, $92, $91, $92, $92, $91, $91, $91, $91, $91, $92, $91, $91, $92, $91, $91
-	dw 13
-	db "mc", $91, $92, $91, $91, $91, $91, $92, $90, $90, $92, $91
-	dw 6
-	db "ni", $91, $91, $91, $91
-DATA_5280:
-	dw 16
-	dw 10
-	dw 3
-	dw 5
-	db "cl", $91, $91, $91
-	dw 9
-	db "dh", $91, $92, $91, $91, $92, $91, $91
-	dw 13
-	db "eg", $91, $92, $91, $91, $92, $91, $92, $91, $90, $90, $93
-	dw 17
-	db "fc", $91, $91, $91, $91, $91, $91, $91, $92, $92, $91, $91, $90, $90, $93, $93
-	dw 4
-	db "gc", $91, $91
-	dw 3
-	db "gk", $91
-	dw 5
-	db "go", $93, $93, $91
-	dw 16
-	db "hd", $91, $90, $91, $91, $90, $91, $91, $91, $91, $90, $93, $93, $93, $91
-	dw 17
-	db "ic", $91, $92, $91, $91, $91, $90, $91, $91, $91, $91, $90, $93, $93, $93, $91
-	dw 10
-	db "jc", $91, $91, $90, $92, $91, $90, $90, $91
-	dw 5
-	db "jo", $93, $93, $93
-	dw 14
-	db "kf", $91, $91, $92, $91, $92, $92, $91, $91, $90, $90, $93, $93
-	dw 13
-	db "lg", $91, $91, $92, $91, $92, $91, $91, $92, $93, $93, $93
-	dw 13
-	db "mg", $91, $92, $92, $91, $91, $92, $91, $90, $91, $91, $93
-	dw 10
-	db "ng", $91, $91, $91, $92, $91, $92, $91, $91
-	dw 5
-	db "ol", $91, $91, $91
-DATA_5290:
-	dw 14
-	dw 7
-	dw 12
-	dw 5
-	db "db", $91, $91, $91
-	dw 6
-	db "eb", $91, $92, $91, $91
-	dw 13
-	db "fc", $91, $90, $91, $90, $91, $91, $91, $91, $91, $91, $91
-	dw 18
-	db "gc", $91, $90, $91, $91, $91, $92, $90, $92, $90, $91, $91, $91, $90, $91, $91, $91
-	dw 19
-	db "hb", $91, $91, $90, $91, $91, $91, $91, $91, $91, $92, $91, $90, $91, $91, $91, $92, $91
-	dw 4
-	db "ib", $91, $91
-	dw 3
-	db "ig", $91
-	dw 3
-	db "iq", $91
-	dw 18
-	db "jb", $91, $91, $90, $90, $91, $93, $93, $96, $93, $93, $93, $93, $93, $91, $90, $91
-	dw 17
-	db "kc", $91, $90, $90, $91, $96, $93, $96, $93, $93, $96, $93, $96, $91, $90, $91
-	dw 4
-	db "lb", $91, $92
-	dw 7
-	db "ln", $91, $90, $90, $92, $91
-	dw 19
-	db "mb", $91, $91, $92, $91, $91, $91, $92, $91, $91, $92, $91, $91, $91, $91, $92, $91, $91
-	dw 19
-	db "nb", $91, $91, $90, $91, $91, $91, $90, $91, $91, $91, $90, $91, $91, $91, $90, $91, $91
-DATA_5300:
-	dw 18
-	dw 7
-	dw 6
-	dw 11
-	db "ci", $91, $91, $91, $90, $91, $91, $91, $91, $91
-	dw 11
-	db "di", $91, $91, $91, $91, $91, $92, $91, $92, $91
-	dw 5
-	db "eb", $91, $91, $91
-	dw 9
-	db "ej", $91, $92, $90, $90, $91, $90, $91
-	dw 18
-	db "fb", $91, $92, $91, $90, $90, $91, $91, $91, $90, $91, $90, $90, $91, $92, $91, $91
-	dw 18
-	db "gb", $91, $92, $91, $91, $91, $92, $92, $91, $90, $91, $90, $90, $92, $92, $92, $91
-	dw 3
-	db "hc", $91
-	dw 13
-	db "hg", $91, $91, $91, $90, $91, $90, $90, $91, $91, $91, $91
-	dw 7
-	db "ic", $91, $90, $91, $91, $91
-	dw 3
-	db "ik", $91
-	dw 3
-	db "iq", $92
-	dw 17
-	db "jc", $91, $90, $91, $91, $91, $91, $91, $92, $91, $91, $90, $93, $93, $93, $93
-	dw 4
-	db "kb", $91, $91
-	dw 13
-	db "kg", $91, $90, $90, $91, $92, $91, $90, $93, $93, $93, $93
-	dw 19
-	db "lb", $91, $92, $91, $91, $91, $92, $91, $90, $91, $91, $91, $90, $93, $93, $92, $93, $91
-	dw 19
-	db "mb", $91, $91, $90, $90, $91, $92, $91, $90, $91, $91, $90, $90, $93, $93, $93, $93, $91
-	dw 5
-	db "nf", $91, $91, $91
-	dw 5
-	db "no", $93, $93, $93
-DATA_5310:
-	dw 16
-	dw 4
-	dw 9
-	dw 4
-	db "bd", $91, $91
-	dw 12
-	db "cd", $91, $91, $90, $90, $91, $91, $90, $91, $91, $91
-	dw 13
-	db "dc", $91, $91, $92, $90, $91, $92, $91, $92, $91, $91, $91
-	dw 16
-	db "ec", $92, $91, $91, $92, $91, $91, $90, $91, $92, $91, $92, $90, $91, $91
-	dw 17
-	db "fc", $91, $91, $92, $90, $90, $91, $90, $92, $91, $92, $91, $91, $91, $91, $91
-	dw 18
-	db "gb", $91, $91, $90, $91, $91, $90, $91, $90, $91, $91, $91, $92, $92, $92, $91, $91
-	dw 15
-	db "hb", $91, $92, $91, $91, $91, $91, $92, $91, $91, $92, $90, $90, $91
-	dw 15
-	db "ib", $91, $92, $91, $92, $91, $90, $92, $90, $91, $91, $90, $91, $91
-	dw 4
-	db "jc", $91, $91
-	dw 4
-	db "jh", $91, $91
-	dw 4
-	db "jm", $92, $91
-	dw 14
-	db "kc", $91, $91, $90, $93, $93, $93, $93, $91, $91, $91, $91, $91
-	dw 8
-	db "lf", $93, $93, $93, $93, $93, $93
-	dw 6
-	db "me", $93, $93, $93, $93
-	dw 5
-	db "ne", $93, $93, $93
-	dw 5
-	db "oe", $93, $93, $93
-DATA_5320:
-	dw 13
-	dw 6
-	dw 5
-	dw 4
-	db "ck", $91, $91
-	dw 8
-	db "dg", $91, $91, $91, $91, $91, $92
-	dw 9
-	db "ef", $91, $92, $91, $91, $90, $90, $91
-	dw 12
-	db "fe", $91, $92, $91, $92, $91, $90, $91, $92, $91, $91
-	dw 9
-	db "gh", $91, $90, $90, $91, $91, $91, $92
-	dw 11
-	db "hf", $93, $93, $93, $93, $90, $92, $91, $92, $91
-	dw 11
-	db "if", $93, $93, $93, $93, $90, $91, $91, $91, $92
-	dw 11
-	db "jf", $93, $93, $93, $93, $91, $91, $92, $92, $91
-	dw 12
-	db "kf", $93, $93, $93, $91, $90, $91, $92, $91, $91, $91
-	dw 7
-	db "lk", $92, $91, $92, $91, $91
-	dw 5
-	db "mk", $91, $91, $91
-	dw 4
-	db "nk", $92, $91
-	dw 4
-	db "ok", $91, $91
-DATA_5330:
-	dw 13
-	dw 12
-	dw 14
-	dw 10
-	db "cf", $91, $91, $91, $91, $90, $90, $91, $91
-	dw 11
-	db "df", $91, $91, $91, $92, $91, $91, $91, $92, $91
-	dw 9
-	db "eh", $91, $90, $90, $91, $92, $92, $91
-	dw 12
-	db "fe", $91, $91, $91, $92, $91, $90, $91, $91, $91, $91
-	dw 9
-	db "ge", $91, $92, $92, $92, $91, $90, $91
-	dw 11
-	db "he", $91, $91, $91, $90, $91, $90, $91, $92, $91
-	dw 12
-	db "ie", $91, $91, $90, $91, $91, $90, $91, $91, $92, $91
-	dw 12
-	db "je", $91, $92, $90, $91, $92, $90, $91, $91, $91, $91
-	dw 9
-	db "ke", $91, $91, $91, $93, $93, $90, $91
-	dw 9
-	db "lh", $93, $93, $91, $92, $91, $90, $91
-	dw 12
-	db "me", $93, $93, $93, $93, $93, $90, $91, $92, $90, $91
-	dw 11
-	db "nf", $93, $93, $93, $93, $90, $91, $91, $92, $91
-	dw 10
-	db "og", $93, $93, $90, $90, $91, $91, $91, $91
-DATA_5340:
-	dw 15
-	dw 5
-	dw 14
-	dw 9
-	db "cf", $93, $93, $93, $93, $91, $91, $91
-	dw 10
-	db "df", $93, $90, $93, $90, $91, $91, $92, $91
-	dw 11
-	db "ef", $93, $93, $93, $93, $90, $91, $90, $91, $91
-	dw 13
-	db "fe", $91, $93, $93, $93, $93, $90, $91, $91, $90, $91, $91
-	dw 14
-	db "ge", $91, $91, $91, $91, $91, $90, $92, $91, $90, $90, $92, $91
-	dw 3
-	db "hf", $91
-	dw 9
-	db "hj", $91, $91, $92, $91, $91, $91, $91
-	dw 13
-	db "if", $92, $91, $91, $92, $91, $92, $91, $92, $90, $91, $91
-	dw 13
-	db "jf", $91, $90, $91, $91, $92, $91, $92, $91, $90, $90, $91
-	dw 4
-	db "kf", $91, $91
-	dw 7
-	db "kk", $91, $91, $90, $90, $91
-	dw 12
-	db "lf", $91, $91, $91, $91, $90, $90, $91, $90, $90, $91
-	dw 12
-	db "mf", $91, $91, $92, $91, $90, $91, $91, $92, $91, $91
-	dw 8
-	db "nh", $92, $91, $92, $91, $91, $91
-	dw 4
-	db "oh", $91, $91
-DATA_5350:
-	dw 20
-	dw 3
-	dw 11
-	dw 13
-	db "bb", $91, $91, $91, $90, $91, $91, $91, $91, $90, $91, $90
-	dw 6
-	db "bo", $93, $93, $93, $93
-	dw 19
-	db "cb", $91, $91, $91, $92, $92, $90, $91, $91, $91, $91, $91, $91, $93, $93, $93, $93, $93
-	dw 7
-	db "db", $91, $91, $91, $90, $91
-	dw 11
-	db "dj", $91, $91, $91, $90, $91, $93, $93, $93, $93
-	dw 6
-	db "ec", $91, $90, $90, $91
-	dw 11
-	db "ej", $91, $91, $90, $91, $91, $93, $93, $93, $93
-	dw 15
-	db "fc", $91, $92, $91, $92, $91, $91, $91, $91, $91, $90, $91, $90, $91
-	dw 18
-	db "gc", $91, $91, $92, $91, $92, $90, $90, $91, $91, $90, $91, $91, $91, $91, $91, $91
-	dw 6
-	db "he", $91, $90, $91, $91
-	dw 8
-	db "hm", $91, $90, $91, $90, $90, $91
-	dw 19
-	db "ib", $91, $91, $90, $91, $90, $92, $91, $91, $91, $90, $90, $91, $90, $91, $91, $91, $91
-	dw 18
-	db "jb", $91, $92, $91, $91, $92, $91, $91, $90, $91, $90, $90, $91, $90, $91, $91, $91
-	dw 18
-	db "kb", $91, $90, $91, $92, $91, $92, $91, $91, $91, $91, $90, $91, $90, $91, $91, $91
-	dw 14
-	db "lb", $91, $91, $92, $91, $90, $90, $91, $90, $90, $91, $90, $91
-	dw 14
-	db "mb", $91, $92, $92, $91, $91, $91, $91, $91, $92, $92, $91, $91
-	dw 6
-	db "nc", $91, $90, $90, $91
-	dw 6
-	db "nj", $91, $92, $91, $91
-	dw 6
-	db "oc", $91, $91, $91, $91
-	dw 6
-	db "oj", $91, $91, $91, $91
-DATA_5360:
-	dw 21
-	dw 8
-	dw 11
-	dw 5
-	db "bn", $91, $91, $91
-	dw 5
-	db "cb", $91, $91, $91
-	dw 10
-	db "ci", $91, $91, $92, $91, $92, $91, $92, $91
-	dw 17
-	db "db", $91, $92, $91, $91, $91, $90, $90, $91, $90, $90, $91, $90, $90, $91, $91
-	dw 18
-	db "eb", $91, $91, $91, $92, $91, $92, $91, $91, $91, $91, $91, $92, $91, $91, $92, $91
-	dw 16
-	db "fd", $91, $92, $91, $91, $90, $90, $91, $90, $90, $91, $91, $91, $91, $91
-	dw 3
-	db "gd", $91
-	dw 3
-	db "gj", $91
-	dw 5
-	db "gp", $92, $92, $91
-	dw 3
-	db "hd", $92
-	dw 11
-	db "hj", $91, $91, $90, $90, $91, $91, $91, $91, $91
-	dw 6
-	db "ic", $91, $92, $91, $91
-	dw 3
-	db "ij", $92
-	dw 6
-	db "in", $91, $92, $91, $91
-	dw 10
-	db "jc", $91, $92, $91, $91, $90, $91, $91, $91
-	dw 4
-	db "jn", $91, $91
-	dw 15
-	db "kc", $91, $92, $92, $91, $92, $91, $90, $91, $91, $91, $92, $92, $91
-	dw 15
-	db "lc", $91, $91, $91, $91, $91, $90, $91, $91, $91, $90, $90, $91, $91
-	dw 6
-	db "mi", $93, $93, $91, $93
-	dw 11
-	db "nf", $93, $93, $93, $93, $93, $93, $93, $93, $93
-	dw 11
-	db "of", $93, $93, $93, $93, $93, $93, $93, $93, $93
-DATA_5370:
-	dw 15
-	dw 15
-	dw 10
-	dw 11
-	db "cb", $93, $93, $93, $93, $93, $93, $91, $91, $91
-	dw 19
-	db "db", $93, $93, $93, $93, $93, $93, $91, $91, $91, $90, $91, $91, $90, $90, $91, $91, $91
-	dw 4
-	db "eb", $93, $93
-	dw 14
-	db "eg", $91, $92, $91, $91, $91, $91, $92, $91, $91, $91, $91, $91
-	dw 19
-	db "fb", $93, $93, $93, $91, $92, $91, $92, $91, $90, $91, $91, $91, $90, $90, $91, $91, $91
-	dw 7
-	db "gb", $93, $93, $93, $90, $92
-	dw 9
-	db "gl", $91, $91, $91, $91, $90, $91, $91
-	dw 17
-	db "hd", $91, $91, $91, $91, $90, $91, $91, $91, $90, $92, $91, $91, $90, $92, $91
-	dw 17
-	db "id", $91, $91, $92, $92, $91, $92, $91, $92, $91, $91, $92, $90, $90, $91, $91
-	dw 17
-	db "jd", $91, $91, $92, $91, $91, $91, $90, $92, $90, $92, $91, $90, $90, $92, $91
-	dw 15
-	db "kf", $91, $90, $90, $91, $90, $91, $91, $91, $91, $90, $90, $91, $91
-	dw 11
-	db "le", $91, $91, $92, $91, $92, $91, $90, $90, $91
-	dw 12
-	db "me", $91, $91, $91, $91, $92, $91, $91, $92, $91, $91
-	dw 11
-	db "nf", $91, $91, $91, $90, $91, $90, $91, $91, $91
-	dw 3
-	db "oj", $91
-DATA_5380:
-	dw 9
-	dw 5
-	dw 13
-	dw 4
-	db "el", $91, $91
-	dw 10
-	db "ff", $91, $91, $91, $91, $91, $92, $91, $91
-	dw 10
-	db "gf", $91, $91, $91, $92, $90, $90, $91, $92
-	dw 9
-	db "hg", $92, $90, $93, $93, $93, $90, $91
-	dw 9
-	db "ig", $91, $92, $93, $93, $93, $91, $91
-	dw 9
-	db "jg", $91, $90, $93, $91, $93, $90, $91
-	dw 10
-	db "kg", $91, $91, $91, $90, $91, $90, $92, $91
-	dw 10
-	db "lg", $92, $91, $91, $92, $91, $91, $91, $91
-	dw 4
-	db "mg", $91, $91
-DATA_5390:
-	dw 19
-	dw 4
-	dw 12
-	dw 6
-	db "bo", $93, $93, $93, $93
-	dw 18
-	db "cc", $91, $91, $91, $90, $90, $91, $91, $91, $91, $91, $90, $90, $93, $93, $93, $93
-	dw 19
-	db "db", $91, $91, $92, $92, $90, $90, $91, $91, $92, $91, $91, $90, $90, $93, $93, $93, $93
-	dw 19
-	db "eb", $91, $91, $91, $91, $91, $91, $92, $92, $91, $92, $90, $91, $91, $93, $93, $93, $93
-	dw 19
-	db "fb", $91, $91, $92, $91, $90, $90, $91, $92, $92, $91, $90, $91, $90, $91, $93, $93, $93
-	dw 19
-	db "gb", $91, $91, $92, $91, $90, $90, $91, $92, $91, $91, $90, $91, $91, $93, $93, $93, $93
-	dw 3
-	db "hc", $91
-	dw 3
-	db "hi", $91
-	dw 6
-	db "hm", $91, $90, $90, $93
-	dw 18
-	db "ic", $91, $91, $91, $92, $91, $91, $92, $91, $90, $90, $91, $91, $91, $93, $91, $91
-	dw 4
-	db "jb", $91, $92
-	dw 6
-	db "jg", $91, $91, $90, $91
-	dw 3
-	db "jp", $91
-	dw 17
-	db "kb", $91, $91, $91, $92, $91, $91, $91, $90, $91, $91, $91, $91, $91, $91, $91
-	dw 12
-	db "lb", $91, $91, $92, $91, $90, $92, $91, $92, $91, $92
-	dw 4
-	db "lo", $91, $91
-	dw 12
-	db "mb", $91, $92, $92, $92, $90, $91, $92, $91, $91, $91
-	dw 12
-	db "nb", $91, $91, $91, $91, $90, $91, $91, $92, $92, $91
-	dw 5
-	db "og", $91, $91, $91
-DATA_5400:
-	dw 14
-	dw 4
-	dw 17
-	dw 12
-	db "bg", $91, $91, $91, $91, $91, $91, $91, $91, $91, $91
-	dw 13
-	db "cg", $91, $91, $90, $91, $90, $92, $92, $91, $92, $91, $91
-	dw 13
-	db "dg", $92, $91, $90, $92, $90, $91, $91, $90, $90, $91, $91
-	dw 12
-	db "eg", $91, $90, $90, $91, $90, $91, $92, $91, $90, $91
-	dw 13
-	db "ff", $91, $91, $91, $92, $91, $90, $92, $91, $91, $90, $91
-	dw 13
-	db "gf", $91, $91, $91, $90, $91, $92, $91, $91, $91, $90, $91
-	dw 12
-	db "hg", $91, $92, $91, $92, $91, $91, $91, $90, $90, $91
-	dw 13
-	db "if", $91, $91, $90, $91, $91, $90, $90, $91, $91, $92, $91
-	dw 13
-	db "jf", $91, $91, $91, $91, $90, $90, $91, $92, $92, $90, $91
-	dw 11
-	db "kh", $92, $92, $91, $91, $91, $90, $91, $91, $91
-	dw 9
-	db "lc", $93, $93, $93, $93, $90, $91, $91
-	dw 8
-	db "mc", $93, $90, $93, $93, $93, $91
-	dw 9
-	db "nc", $93, $93, $93, $93, $91, $91, $91
-	dw 9
-	db "oc", $93, $93, $93, $93, $91, $91, $91
-DATA_5410:
-	dw 16
-	dw 10
-	dw 18
-	dw 5
-	db "cm", $91, $91, $91
-	dw 7
-	db "dl", $91, $91, $91, $91, $91
-	dw 8
-	db "ek", $91, $91, $92, $92, $91, $91
-	dw 9
-	db "fj", $91, $92, $92, $91, $91, $92, $91
-	dw 10
-	db "gi", $91, $92, $91, $91, $91, $91, $92, $91
-	dw 8
-	db "hi", $91, $91, $91, $92, $92, $91
-	dw 4
-	db "ib", $91, $91
-	dw 9
-	db "il", $91, $90, $90, $91, $91, $91, $91
-	dw 19
-	db "jb", $93, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $92, $92, $92, $91
-	dw 5
-	db "kb", $93, $90, $91
-	dw 8
-	db "kl", $91, $90, $90, $91, $91, $91
-	dw 5
-	db "lb", $93, $90, $91
-	dw 8
-	db "ll", $93, $91, $90, $92, $91, $92
-	dw 19
-	db "mb", $93, $93, $93, $93, $93, $93, $93, $93, $93, $93, $93, $91, $90, $91, $91, $91, $91
-	dw 6
-	db "no", $91, $91, $92, $91
-	dw 4
-	db "op", $91, $91
-DATA_5420:
-	dw 13
-	dw 5
-	dw 17
-	dw 8
-	db "dg", $91, $91, $91, $91, $91, $91
-	dw 16
-	db "ed", $91, $91, $91, $91, $90, $90, $91, $92, $91, $92, $91, $91, $91, $91
-	dw 15
-	db "fd", $91, $90, $90, $91, $90, $90, $92, $90, $92, $91, $92, $91, $92
-	dw 15
-	db "gd", $91, $93, $93, $93, $93, $93, $93, $90, $91, $91, $92, $92, $91
-	dw 18
-	db "hb", $91, $91, $91, $93, $93, $93, $93, $93, $93, $90, $91, $91, $90, $91, $91, $91
-	dw 18
-	db "ib", $91, $90, $91, $93, $93, $93, $93, $93, $93, $90, $92, $91, $91, $92, $91, $91
-	dw 18
-	db "jb", $91, $90, $92, $93, $93, $93, $93, $93, $93, $91, $92, $92, $90, $91, $92, $91
-	dw 5
-	db "kb", $91, $91, $91
-	dw 3
-	db "kh", $91
-	dw 7
-	db "kl", $92, $91, $91, $92, $91
-	dw 15
-	db "ld", $91, $91, $92, $91, $91, $92, $91, $91, $92, $91, $91, $92, $91
-	dw 15
-	db "md", $91, $91, $92, $91, $91, $92, $91, $91, $92, $91, $91, $92, $91
-	dw 5
-	db "ni", $91, $91, $91
-DATA_5430:
-	dw 12
-	dw 11
-	dw 10
-	dw 7
-	db "ej", $91, $91, $90, $91, $91
-	dw 14
-	db "ff", $91, $91, $91, $90, $91, $91, $91, $92, $91, $91, $91, $91
-	dw 14
-	db "gf", $91, $90, $92, $92, $91, $90, $90, $91, $90, $90, $91, $91
-	dw 16
-	db "hc", $91, $91, $91, $91, $91, $91, $90, $91, $90, $91, $91, $90, $90, $91
-	dw 4
-	db "ib", $91, $91
-	dw 14
-	db "ig", $91, $92, $90, $92, $91, $91, $92, $91, $91, $92, $91, $91
-	dw 19
-	db "jb", $93, $93, $93, $91, $91, $91, $91, $90, $91, $90, $90, $91, $91, $90, $91, $91, $91
-	dw 14
-	db "kb", $93, $93, $93, $90, $91, $91, $91, $91, $91, $91, $90, $91
-	dw 3
-	db "kq", $91
-	dw 8
-	db "lb", $93, $93, $93, $90, $91, $91
-	dw 10
-	db "lk", $91, $91, $92, $91, $91, $92, $91, $91
-	dw 9
-	db "ml", $91, $91, $91, $90, $91, $91, $91
-DATA_5440:
-	dw 19
-	dw 5
-	dw 10
-	dw 5
-	db "cc", $91, $91, $91
-	dw 5
-	db "dc", $91, $90, $91
-	dw 10
-	db "ec", $91, $91, $91, $91, $91, $91, $92, $91
-	dw 9
-	db "fc", $91, $92, $91, $90, $90, $92, $91
-	dw 5
-	db "fm", $91, $91, $91
-	dw 3
-	db "gc", $91
-	dw 10
-	db "gh", $91, $92, $91, $91, $91, $91, $92, $91
-	dw 3
-	db "hc", $91
-	dw 9
-	db "hi", $91, $90, $91, $91, $90, $92, $91
-	dw 4
-	db "ic", $91, $91
-	dw 12
-	db "ii", $91, $90, $90, $92, $91, $91, $91, $91, $91, $91
-	dw 19
-	db "jb", $91, $91, $92, $90, $91, $91, $92, $91, $91, $90, $91, $90, $90, $91, $90, $90, $91
-	dw 19
-	db "kb", $91, $91, $91, $91, $91, $91, $91, $91, $91, $90, $91, $90, $93, $93, $93, $90, $91
-	dw 4
-	db "lg", $91, $91
-	dw 9
-	db "ll", $91, $91, $93, $93, $93, $91, $91
-	dw 9
-	db "ml", $91, $90, $93, $93, $93, $90, $91
-	dw 3
-	db "nl", $91
-	dw 5
-	db "np", $91, $90, $91
-	dw 9
-	db "ol", $91, $91, $91, $91, $91, $91, $91
-DATA_5450:
-	dw 16
-	dw 12
-	dw 7
-	dw 5
-	db "dc", $93, $93, $93
-	dw 4
-	db "di", $91, $91
-	dw 5
-	db "ec", $93, $93, $93
-	dw 7
-	db "ei", $91, $91, $92, $91, $91
-	dw 13
-	db "fc", $93, $93, $93, $93, $90, $90, $91, $92, $91, $91, $92
-	dw 14
-	db "gd", $93, $93, $93, $93, $90, $90, $91, $91, $91, $92, $91, $91
-	dw 13
-	db "he", $93, $93, $93, $91, $90, $90, $91, $92, $91, $92, $91
-	dw 15
-	db "ic", $91, $90, $90, $91, $91, $91, $91, $90, $91, $91, $92, $91, $91
-	dw 9
-	db "jc", $91, $91, $90, $90, $91, $90, $91
-	dw 3
-	db "jm", $91
-	dw 16
-	db "kc", $91, $92, $91, $90, $91, $90, $92, $91, $91, $92, $91, $91, $91, $91
-	dw 16
-	db "lc", $91, $91, $92, $91, $91, $91, $92, $91, $91, $91, $91, $92, $91, $91
-	dw 14
-	db "mc", $91, $91, $91, $90, $91, $92, $91, $92, $92, $91, $92, $91
-	dw 4
-	db "nc", $91, $91
-	dw 4
-	db "nk", $91, $91
-	dw 3
-	db "oc", $91
-DATA_5460:
-	dw 16
-	dw 8
-	dw 14
-	dw 10
-	db "bd", $91, $91, $91, $91, $91, $91, $91, $91
-	dw 3
-	db "cd", $91
-	dw 6
-	db "ck", $91, $90, $91, $91
-	dw 14
-	db "dd", $91, $90, $91, $92, $91, $92, $91, $92, $91, $91, $92, $91
-	dw 14
-	db "ed", $91, $91, $91, $91, $91, $91, $91, $90, $92, $91, $91, $91
-	dw 10
-	db "ff", $92, $91, $91, $92, $92, $90, $91, $91
-	dw 10
-	db "gf", $91, $91, $90, $90, $91, $90, $91, $92
-	dw 10
-	db "hg", $92, $90, $91, $91, $91, $92, $91, $91
-	dw 8
-	db "ig", $91, $91, $92, $91, $92, $91
-	dw 10
-	db "jg", $91, $90, $91, $91, $91, $92, $91, $91
-	dw 10
-	db "kg", $91, $90, $90, $91, $91, $91, $90, $91
-	dw 4
-	db "lg", $91, $91
-	dw 3
-	db "ln", $91
-	dw 11
-	db "mf", $91, $91, $91, $91, $91, $91, $91, $91, $91
-	dw 9
-	db "nf", $93, $93, $93, $93, $93, $93, $93
-	dw 9
-	db "of", $93, $93, $93, $93, $93, $93, $93
-DATA_5470:
-	dw 10
-	dw 9
-	dw 8
-	dw 4
-	db "ek", $91, $91
-	dw 13
-	db "fc", $91, $91, $92, $91, $91, $91, $91, $91, $91, $92, $91
-	dw 18
-	db "gb", $91, $91, $91, $90, $90, $91, $90, $90, $91, $91, $91, $90, $90, $93, $93, $93
-	dw 18
-	db "hb", $91, $90, $92, $92, $91, $92, $91, $92, $92, $90, $92, $90, $90, $93, $93, $93
-	dw 18
-	db "ib", $91, $90, $91, $91, $91, $91, $91, $91, $91, $90, $91, $91, $91, $93, $93, $93
-	dw 7
-	db "jb", $91, $91, $92, $90, $91
-	dw 10
-	db "jj", $92, $92, $91, $91, $91, $93, $93, $93
-	dw 18
-	db "kb", $91, $92, $91, $91, $92, $92, $91, $91, $92, $91, $90, $90, $93, $93, $93, $93
-	dw 10
-	db "ld", $92, $91, $91, $91, $91, $91, $91, $91
-	dw 4
-	db "md", $91, $91
-DATA_5480:
-	dw 15
-	dw 14
-	dw 10
-	dw 9
-	db "bg", $96, $93, $96, $90, $96, $93, $96
-	dw 9
-	db "cg", $93, $96, $93, $96, $93, $96, $93
-	dw 9
-	db "dg", $96, $93, $96, $93, $96, $93, $96
-	dw 9
-	db "eg", $93, $96, $93, $96, $93, $96, $93
-	dw 9
-	db "fg", $96, $93, $96, $93, $96, $93, $96
-	dw 5
-	db "gi", $91, $91, $91
-	dw 5
-	db "hi", $91, $91, $91
-	dw 3
-	db "ij", $91
-	dw 13
-	db "je", $91, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91
-	dw 13
-	db "ke", $91, $92, $91, $92, $91, $92, $91, $92, $91, $92, $91
-	dw 11
-	db "lf", $91, $92, $91, $92, $91, $92, $91, $92, $91
-	dw 11
-	db "mf", $92, $91, $92, $91, $92, $91, $92, $91, $92
-	dw 11
-	db "nf", $91, $91, $91, $92, $91, $92, $91, $91, $91
-	dw 4
-	db "of", $91, $91
-	dw 4
-	db "om", $91, $91
-DATA_5490:
-	dw 16
-	dw 13
-	dw 9
-	dw 4
-	db "cj", $91, $91
-	dw 5
-	db "dj", $91, $91, $91
-	dw 6
-	db "ej", $91, $92, $92, $91
-	dw 7
-	db "fj", $92, $91, $91, $92, $91
-	dw 10
-	db "gh", $91, $91, $91, $91, $92, $91, $91, $91
-	dw 6
-	db "he", $91, $91, $90, $91
-	dw 4
-	db "hn", $91, $91
-	dw 15
-	db "ic", $91, $91, $91, $91, $90, $91, $90, $93, $93, $93, $93, $92, $91
-	dw 15
-	db "jc", $91, $90, $91, $91, $91, $92, $91, $93, $93, $93, $93, $90, $91
-	dw 15
-	db "kc", $91, $91, $92, $91, $90, $91, $90, $93, $96, $93, $93, $90, $91
-	dw 4
-	db "le", $91, $91
-	dw 3
-	db "lk", $91
-	dw 3
-	db "lo", $91
-	dw 10
-	db "mh", $91, $91, $92, $91, $91, $90, $90, $92
-	dw 9
-	db "nj", $91, $92, $91, $91, $91, $91, $91
-	dw 9
-	db "oj", $91, $91, $90, $90, $91, $91, $91
-DATA_5500:
-	dw 19
-	dw 8
-	dw 3
-	dw 12
-	db "bh", $93, $93, $91, $91, $91, $91, $90, $91, $91, $91
-	dw 13
-	db "cg", $93, $93, $96, $91, $92, $91, $91, $91, $91, $92, $91
-	dw 13
-	db "df", $93, $93, $96, $93, $90, $91, $90, $91, $90, $92, $91
-	dw 15
-	db "ee", $93, $93, $96, $93, $90, $91, $90, $91, $90, $91, $92, $91, $91
-	dw 15
-	db "fe", $93, $93, $93, $90, $91, $91, $90, $91, $91, $91, $91, $90, $91
-	dw 18
-	db "gb", $91, $91, $90, $90, $91, $90, $91, $91, $91, $91, $91, $91, $91, $91, $91, $91
-	dw 8
-	db "hb", $91, $91, $92, $91, $92, $91
-	dw 8
-	db "hk", $91, $91, $90, $91, $90, $91
-	dw 17
-	db "ib", $91, $92, $91, $91, $91, $92, $91, $91, $91, $90, $91, $90, $91, $91, $91
-	dw 15
-	db "jd", $92, $92, $91, $91, $91, $90, $91, $90, $91, $90, $91, $90, $91
-	dw 13
-	db "kd", $91, $91, $91, $92, $91, $91, $91, $90, $91, $90, $91
-	dw 6
-	db "ld", $91, $92, $90, $91
-	dw 8
-	db "lm", $91, $91, $91, $91, $91, $91
-	dw 6
-	db "md", $92, $91, $91, $91
-	dw 8
-	db "mm", $91, $91, $91, $90, $91, $91
-	dw 4
-	db "nd", $91, $91
-	dw 4
-	db "od", $91, $91
-	dw 7
-	db "nn", $91, $91, $91, $91, $91
-	dw 6
-	db "on", $91, $91, $91, $91
+	dw 126
+	dw 129
 
 
     DISPLAY "Compiled Basic = ", /D, $-CBASIC_START,  " bytes"

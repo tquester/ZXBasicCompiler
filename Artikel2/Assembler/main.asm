@@ -3,7 +3,7 @@
 ; main.asm
 ;===========================================================================
 DEBUG                       equ 0			; Enables debug mode. Used to test so new functions. Compiled BASIC runs with custom PRINT command
-DEBUGBASIC                  equ 1		; Initializes the ZX Spectrum using a copy of the startup, then starts the compiled BASIC program.
+DEBUGBASIC                  equ 0		; Initializes the ZX Spectrum using a copy of the startup, then starts the compiled BASIC program.
 											; Rom routines are allowed
 DEBUGSAVESCREEN				equ 0			; Heep Walk saves and restores the screen (costs 6144+768 Bytes )
 DEBUGMATH                   equ 0			; Calls the Math Debug code on run	
@@ -42,9 +42,8 @@ NEX:    equ 1   ;  1=Create nex file, 0=create sna file
 
 START:RELOCATE_START 
 
-main:   if DEBUGBASIC=1
-
-
+main:   ld sp,stack_top
+		if DEBUGBASIC=1
          call InitSpectrum
         endif 
         if DEBUGHEAP=1
@@ -55,7 +54,7 @@ main:   if DEBUGBASIC=1
         jp debugDemo
 ;        jp relocator_code
 scroll: ret
-
+		if DEBUGBASIC=1
 InitSpectrum:
         LD A,$07                ;	Make the border white in colour.
         OUT ($FE),A
@@ -82,7 +81,7 @@ InitSpectrum:
         jp  $12a2
    
         ret
-
+		endif
 BASIC:  LINE
         DB      zxb_print,ZXB_USR,ZXB_VAL, '"32771"'
         db 13,$80
@@ -91,6 +90,7 @@ BASIC_END: EQU $
 
 BASIC_LEN EQU $ - BASIC
 
+		if DEBUGBASIC=1
 NEW:
 	DI	; Disable the maskable interrupt.
 	LD A,$FF	; The NEW flag.
@@ -233,6 +233,7 @@ RAM_SET	LD ($5CB2),HL	; Set RAMTOP.
 
  	jp  $12a2
 	RET     
+	endif
 
 	if DEBUGBASIC=1
 localudb: defs 8*21

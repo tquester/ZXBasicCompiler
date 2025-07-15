@@ -95,6 +95,7 @@ zxcalc_get_mem4         equ $E4
 zxcalc_get_mem5         equ $E5
 
 
+; ---------------------- 16bit maath -------------
 xorb1:          ld a,1
                 xor b
                 ld b,a
@@ -142,6 +143,8 @@ runtimeDiv16bit:
                 call z,neghl
                  ret
 
+
+; ---------------------- Display --------------------
 ; * 128 If the character position is flashing, 0 if it is steady 
 ;	64 if the character position is bright, 0 if it is normal 
 ;	8* the code for the paper colour 
@@ -317,6 +320,31 @@ runtimePaper:
     ld (ZX_ATTR_P), a
     ret   
 
+; ======================================================================
+; ATTR
+; hl = x
+; de = y
+; returns hl=Attr
+; ======================================================================
+runtimeAttr:
+    push hl
+    ld   hl,de
+    add  hl,hl          ; * 2
+    add  hl,hl          ; * 4 
+    add  hl,hl          ; * 8
+    add  hl,hl          ; * 16
+    add  hl,hl          ; * 32   
+    pop  bc
+    add  hl,bc
+    ld   bc,$4000+6144
+    add  hl,bc          ; hl = $4000 + 6144 + x + y*32
+    ld   a,(hl)         ; get the attribute
+    ld   l,a
+    ld   h,0
+    ret 
+
+
+; -----------------------------------------------------------------------
 runtimePlot:  
 	LD B,L
 	LD C,E
@@ -353,17 +381,18 @@ runtimeDraw2:
     LD E,A
     LD A,H
     LD D,H
-
-
-
     call $24BA ; call zxromDraw
     ret
 
 ; compiled strings start with the length (2 bytes) followed by the string without terminating 0
 runtimePrintString:
     ld bc,(hl)
+    ld  a,b
+    or  c
+    ret z               ; empty string
     inc hl
     inc hl
+runtimePrintFixString:
 runtimePrntString1:
     ld a,(hl)
     
@@ -602,21 +631,8 @@ runtimeClearArray:
 ; HL = String Array
 ; BC = Anzahl der Strings
 runtimeClearStringArray:
-    ld de,(hl)
-    ld a,d
-    or e
-    jr z, runtimeClearStringSkip
-    push hl
-    push bc
-    ld hl,de
-    call ZXFree
-    pop bc
-    pop hl
-
-
-runtimeClearStringSkip:
-    ld (hl),0
-    inc hl
+    ld a,32:
+    ld (hl),a
     inc hl
     dec bc
     ld a,b
@@ -624,6 +640,102 @@ runtimeClearStringSkip:
     jr nz, runtimeClearStringArray
     ret
 
+; ============================================================================================
+; Store a partial string
+; HL = Source String (BASIC-String with length)
+; IX = Variable contianing the Target String (BASIC-String with length)
+; BC = Start position in target string (1 = first position)
+; DE = End Position in target string (-1 = end of string)
+; ============================================================================================
+    
+runtimeStoreSubstringVarVar:  
+    call runtimeCopyStringStringVarIXToHeap ; copy the target string to the heap, if not already in heap
+    ld a,e
+    cp $FF 
+    call z, runtimeStoreSubstringSetEnd
+ ; no BC holds the start, DE holds the end inside the target string (1=fist positon)
+    push hl
+    ld   hl,de
+    sub  hl,bc
+    push hl
+    ld   hl,(ix)
+    ld   ix,hl
+    pop  hl
+    dec  bc
+    add  ix,bc
+    inc  ix     ; skip length
+    inc  ix
+    ld   bc,hl
+    inc  bc
+    pop  hl
+    inc  hl     ; skip length
+    inc  hl
+; now bc contains the length, ix points to the start of the target string, hl points to the source string
+; we do not need to allocate a string, it is already existing (or has been allocated at the start of this function)
+runtimeStoreSubStringVarVarLoop:
+    ld   a,(hl)              ; get the next character from the source string
+    ld   (ix),a              ; store it in the target string
+    inc  hl                  ; next character in source string
+    inc  ix                  ; next character in target string
+    dec  bc                  ; one less character to copy
+    ld   a,b
+    or   c                   ; check if we are done
+    jr   nz, runtimeStoreSubStringVarVarLoop ; loop until done
+    ret
+runtimeStoreSubstringSetEnd:        ; set de to the lengh of the string in case DE is $FFFF
+    ld a,D                          ; check if D is $$ also (we checked e prior)
+    cp $FF  
+    ret nz              
+    push hl
+    ld  hl,(ix)
+    ld  de,(hl)
+    pop hl
+    inc de                          ; the first position in BASIC is one, so increment
+    ret
+; -------------------------------------------------------------------------------------------- 
+
+; ============================================================================================
+; runtimeCopyStringToHeap. 
+; check if the String HL is already in the heap, if not copy it to the heap 
+; ============================================================================================
+
+runtimeCopyStringStringVarIXToHeap:
+; ix holds the variable
+        push hl
+        ld   hl,(ix)                     ; get the string from the variable
+        call runtimeCopyStringToHeap
+        ld   (ix),hl
+        pop  hl 
+        ret
+
+
+runtimeCopyStringToHeap:
+        push bc
+        push de
+        push hl
+        call ZXCheckIfHlisHeapBlock         ; if HL is alread in heap, return
+        pop  hl
+        cp   a,1
+        jr   z,runtimeCopyStringToHeapEnd
+        push hl
+        ld   bc,(hl)                        ; get length of string
+        inc  bc
+        inc  bc                             ; plus 2 bytes for length
+        call ZXAlloc                        ; alloc
+        ld   de,hl                          ; de = target 
+        pop  hl                             ; hl = source
+        push de
+        ldir                                ; copy the string to the heap
+        pop  hl                             ; the new
+runtimeCopyStringToHeapEnd:        
+        pop  de
+        pop  bc
+        ret
+
+
+; -------------------------------------------------------------------------------------------- 
+
+ 
 ; HL = Adress of variable
 ; DE = Adress of string to store
 runtimeStoreString:
@@ -688,6 +800,235 @@ runtimeSubstringEnd
     ld  b,(hl)
     dec hl
     ret    
+
+
+; ============================================================================================
+; runtimeStoreStringVarFix. 
+; Store a BASIC String to a Fixed Length string
+; BC = length of target string
+; DE = Target String
+; HL = Source String
+; ============================================================================================
+
+runtimeStoreStringVarFix:
+    push ix
+    LD IX,HL
+    LD HL,(ix)
+    inc ix
+    inc ix
+runtimeStoreStringVarFixLoop:
+    ld  a,h
+    or  l
+    jr  z,runtimeStoreStringVarFixEnd
+    ld  a,b
+    or  c
+    jr  z,runtimeStoreStringVarFixEnd
+    ld  a,(ix)
+    ld  (de),a
+    inc ix
+    inc de
+    dec hl
+    dec bc
+    jr runtimeStoreStringVarFixLoop
+runtimeStoreStringVarFixEnd:
+    pop ix
+    ret
+
+
+; ============================================================================================
+; runtimeStoreFixedStringWithRangeFromBstr. 
+; Store a BASIC String to a Fixed Length string
+; HL = Source String 
+; Source Str, start, end pushed on stack
+; (ix+8) = Target String
+; (ix+4) = end position
+; (ix+6) = start pos
+; ============================================================================================
+
+runtimeStoreFixedStringWithRangeFromBstr: 
+    push hl
+    ld hl,0
+    add hl,sp
+    ld ix,hl
+
+
+    ld  hl,(ix+4)
+    ld  de,(ix+6)           ; de = end position
+    sub hl,de               ; length
+    ld  a,l
+    or  h
+    call z,HL1
+    ld  bc,hl
+    ld  hl,(ix+6)
+    ld  de,(ix+8)           ; de = start position
+    add hl,de               ; hl = start position in target string
+    ex  hl,de
+    pop hl
+    inc hl
+    inc hl
+runtimeStoreFixedStringWithRangeFromBstrLoop:    
+    ld  a,(hl)
+    ld  (de),a
+    inc de
+    inc hl
+    dec bc
+    ld  a,b
+    or  c
+    jr  nz,runtimeStoreFixedStringWithRangeFromBstrLoop
+    ld  hl,0
+    pop  hl
+    pop  bc
+    pop  bc
+    pop  bc
+    jp  (hl)
+
+    ret
+    add hl,sp
+    ld  de,8
+    add hl,de
+    ld  sp,hl
+    ret
+
+; ============================================================================================
+; runtimeStoreSubstringVarFix. 
+; Store a fixed length string into a BASIC String with range
+; HL = Source String 
+; BC = Length of source String
+; Source Str, start, end pushed on stack
+; (ix+4) = Target String
+; (ix+6) = Ende     - Länge
+; (ix+8) = Anfang
+; ============================================================================================
+
+
+runtimeStoreSubstringVarFix:
+    push hl                  ; save source string
+    ld hl,0                  ; setup ix to point to stack
+    add hl,sp
+    ld ix,hl
+    push bc
+
+    ld  hl,(ix+6)
+    ld  a,h
+    cp  $ff
+    call z,runtimeStoreSubstringVarFixFindEnd
+    ld   hl,(ix+6)
+    ld   de,(ix+8)           ; de = start position
+    sub  hl,de               ; length
+    ld   (ix+6),hl      
+    push de
+    ld   hl,(ix+4)           ; hl = target string
+    ld   de,(hl)
+    ex   hl,de
+    pop  de
+    add  hl,de               ; hl = start position in target string
+    inc  hl                  ; dec 1 and skip two bytes
+
+    pop  bc
+    pop  de
+runtimeStoreSubstringVarFixLoop:
+    ld  a,(hl)
+    ld  (de),a
+    dec bc
+    ld  a,b
+    or  c
+    jr  z,runtimeStoreSubstringVarFixEnd2
+    push hl
+    ld hl,(ix+6)
+    dec hl
+    ld (ix+6),hl
+    ld  a,h
+    or  l
+    jr  z,runtimeStoreSubstringVarFixEnd
+    pop hl
+    jr  runtimeStoreSubstringVarFixLoop
+runtimeStoreSubstringVarFixEnd:
+    pop hl
+runtimeStoreSubstringVarFixEnd2:    
+    pop hl              ; return address
+    pop bc              ; pop length
+    pop bc              ; pop source string
+    pop bc              ; pop target string
+    jp (hl)
+
+
+runtimeStoreSubstringVarFixFindEnd:
+    ld a,l  	        ; check if to pos is -1 
+    cp $ff
+    ret nz              ; return if not
+    ld  hl,(ix+4)       ; hl = target string
+    ld  de,(hl)         ; length of target string
+    ex hl,de
+    ld  de,(hl)
+    inc de              ; +p (First pos in BASIC is 1)
+    ld  (ix+6),de       ; store the length in ix+6
+    ret
+
+; ============================================================================================
+; runtimePushFixedSubString. 
+; Store a fixed length string into a BASIC String with range
+; HL = String
+; BC = Ende
+; DE = Start
+; ============================================================================================
+runtimePushFixedSubString:
+    push hl
+    ld   hl,bc
+    sub  hl,de
+    inc hl
+    ld   a,h
+    or   l
+    call z,HL1
+    ld   bc,hl          ; bc = length
+    pop  hl
+    add  hl,de          ; hl = start
+    dec  hl
+    ld   de,hl          ; de = start, bc = length
+    push bc
+    push de
+    inc  bc
+    inc  bc
+    ld   a,ZXHeapTypeTemp
+    call ZXAlloc        ; allocate memory for the string
+    pop  de
+    pop  bc
+    push hl
+    ld   (hl),bc
+    inc  hl
+    inc  hl
+runtimePushFixedSubStringLoop:
+    ld   a,(de)         ; get the next character from the source string
+    ld   (hl),a         ; store it in the target string
+    inc  hl             ; next character in source string
+    inc  de             ; next character in target string
+    dec  bc             ; one less character to copy
+    ld   a,b
+    or   c              ; check if we are done
+    jr   nz, runtimePushFixedSubStringLoop ; loop until done
+    pop hl
+    ret
+
+
+; ============================================================================================
+; runtimeVarStrAndInt. 
+; if number is zero, replace return empty string, otherwise return string
+; HL = String
+; DE = integer
+; ============================================================================================
+
+runtimeVarStrAndInt:
+    ld a,d
+    or e
+    ret nz
+    ld hl,constEmptyString
+    ret
+
+constEmptyString: dw 0
+
+
+
+
+
 
 ; HL = second string
 ; DE = first String
@@ -908,9 +1249,22 @@ sgnabszero:
     ret
 
 runtimeIntToFloat:
+    ld      A,H
+    AND     $80
+    JR      NZ,runtimeIntToFloatNeg
     LD      BC,HL
     call    $2D2B               ;  2D2B: THE 'STACK-BC' SUBROUTINE
     ret
+runtimeIntToFloatNeg:
+    ld     DE,0
+    EX     HL,DE
+    SUB    HL,DE
+    call    $2D2B               ;  2D2B: THE 'STACK-BC' SUBROUTINE
+    RST    $28
+    db     zxcalc_negate        ; Negate the value on the calculator stack
+    db  zxcalc_end_calc ; End the calculation
+    ret
+
 
 runtimeFloatToInt:
     call    $2DA2;              ; FTP-TO-BC    
@@ -1256,15 +1610,85 @@ printFloat1:
     djnz printFloat1
     call newline
     ret
-    endif    
+    endif   
+
+
+runtimeStrTemp:
+     defs 7    
 
 runtimeStrInt:
+    ld a,h
+    and $80
+    jr  z,runtimeStrIntU
+    call neghl
+    ld ix,runtimeStrTemp
+    ld de,0 ; len
+    ld a,1
+    push af
+    jr runtimeStrIntUIntLoop
+
+runtimeStrIntU:
+; convert an integer to a string
+        ld ix,runtimeStrTemp
+        ld de,0 ; len
+        ld a,0
+        push af
+runtimeStrIntUIntLoop:        
+        ld a,h
+        or l
+        jr z,runtimeStrIntUIntEnd
+        ld c,10
+        call DivHlCRest
+        add a,48
+        ld (ix),a
+        inc ix
+        inc de
+        jr  runtimeStrIntUIntLoop
+runtimeStrIntUIntEnd:
+        pop af
+        cp  0
+        jr  z,runtimeStrIntUIntEnd2
+        ld  a,'-'
+        ld  (ix),a
+        inc ix
+        inc de
+runtimeStrIntUIntEnd2:        
+        ld  bc,de
+        inc bc
+        inc bc
+        ld  a,ZXHeapTypeTemp
+        call ZXAlloc            ; allocate memory for the string
+        push hl
+        ld   (hl),de
+        inc  hl
+        inc  hl
+runtimeStrIntUIntLoop2:
+        dec ix
+        ld a,(ix)
+        ld (hl),a
+        inc hl
+        dec de
+        ld a,b
+        or e
+        jr nz,runtimeStrIntUIntLoop2
+        pop hl
+        ret        
+
+
+
+
+
+; input HL an integer
+; output HL as string (allocated on heap)
+
+
+runtimeValInt:
     ld hl,0
     ld  a,(de)
     inc de
     cp  '-'
-    jr  z, runtimeStrIntNeg
-runtimeStrIntLoop
+    jr  z, runtimeValIntNeg
+runtimeValIntLoop
     cp  '0'-1
     ret  c
     cp  '9'+1
@@ -1282,11 +1706,11 @@ runtimeStrIntLoop
     add  hl,bc
     ld   a,(de)
     inc  de
-    jr   runtimeStrIntLoop
-runtimeStrIntNeg:
+    jr   runtimeValIntLoop
+runtimeValIntNeg:
     ld  a,(de)
     inc de
-    call runtimeStrIntLoop
+    call runtimeValIntLoop
     ld   de,0
     sub  hl,de
     ex   hl,de
@@ -1296,7 +1720,7 @@ runtimeInputInt:
     ld   (rtInputFlags),a
     call rtInput
     ld   de,rtInputBuffer
-    call runtimeStrInt
+    call runtimeValInt
     ret 
 runtimeInputString:
     ld   a,0
@@ -1386,6 +1810,9 @@ runtime0DE:
     ld DE,0
     ret
 
+runtimeVarCall:
+
+    jp (hl)
 ; HL points to the line table (first word = line number, second word = label)
 ; DE contains the number we want
 ; if the entry is 0 it is the end of the table
@@ -1749,6 +2176,24 @@ rtAscciiToFloatEnd: ret
 
 runtimeNegFloat:
                 ret
+
+runtimeDebug:   
+    if DEBUG=1
+    push af
+    ld a,0
+    ld (charX),a
+    ld (charY),a
+    call printDezHL
+    ld   a,':'
+    call printA
+    pop  af
+    call printDezA
+    ld   a,' '
+    call printA
+    call printA
+    endif
+    
+    ret                
 
 
 
