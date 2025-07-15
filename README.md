@@ -34,7 +34,7 @@ Stil Missing:
 Some games have been successfully compiled, but not all games profit, this one runs far too fast
 ![ufo_compiled](https://github.com/user-attachments/assets/6d7b285c-91c5-404d-9bd7-03460c353e53)
 
-Thanks  Animated Alex for your games, it showed my lots of errors in my compiler and I discovered aspects of BASIC I did not know.
+Thanks  Animated Alex for your games, it showed my lots of errors in my compiler and I discovered aspects of BASIC I did not know. Breathing pure Assembler
 https://animatedal.itch.io/
 
 
