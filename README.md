@@ -19,18 +19,21 @@ https://github.com/tquester/ZXBasicCompiler/blob/main/DifferencesGer.md
  |-----------------------|----------------|
  | First Basic compiler | OK
  | Strings | OK |
- | Floats | In progress |
+ | Floats | mostly working |
  | All BASIC commands running | In progress |
  | Tests for each command | In progress | 
  | QBasic commands running | In planning |
  | Documentation | In progress |
- | English | In planning |
 
 Stil Missing: 
-* String compare
+* String compare is incomplete. Since there are two kinds of string, fixed length and variable length there will be lots of function fix < fix, var < fix, var < var, fix < var etc.
 * Unary operator. You can not write LET a = -5, you must write LET a = 0-5 or LET a = 0.0-5.0 for float
 * Test
 * QBasic-Functions
+
+Some games have been successfully compiled, but not all games profit, this one runs far too fast
+![ufo_compiled](https://github.com/user-attachments/assets/6d7b285c-91c5-404d-9bd7-03460c353e53)
+
 
 Planned:
 * BASIC Editor with labels and optional line numbers. It will create a BASIC program with line numbers which run in the BASIC interpreter
