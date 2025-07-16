@@ -10,7 +10,7 @@ Since the compiler does not run on the ZX Spectrum, the entire usable memory can
 
 https://github.com/tquester/ZXBasicCompiler/blob/main/Download.md 
 
-## Unterschiede zu ZX Basic
+## Differences to ZX Basic
 https://github.com/tquester/ZXBasicCompiler/blob/main/DifferencesGer.md
 
 # Status
@@ -26,9 +26,9 @@ https://github.com/tquester/ZXBasicCompiler/blob/main/DifferencesGer.md
  | Documentation | In progress |
 
 Stil Missing: 
-* String compare is incomplete. Since there are two kinds of string, fixed length and variable length there will be lots of function fix < fix, var < fix, var < var, fix < var etc.
-* Unary operator. You can not write LET a = -5, you must write LET a = 0-5 or LET a = 0.0-5.0 for float
-* Test
+* String compare is incomplete. The compiler handles dynamic strings and fixed length strings as separate types, so it needs 6*4 = 24 different compare operators
+* Some fixed length operations are still missing (Input, USR, VAL, CODE,..) but are working with dynamic strings
+* Currently the compiler gets tested with BASIC games from the internet. See https://itch.io/jam/zx-spectrum-basic-jam
 * QBasic-Functions
 
 Some games have been successfully compiled, but not all games profit, this one runs far too fast
