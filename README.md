@@ -1,5 +1,8 @@
 Deutsch: [Hier klicken](https://github.com/tquester/ZXBasicCompiler/blob/main/ReadmeGer.md)
 # ZXBasicCompiler
+The goal is to write a compiler for ZX Basic with all differences that ZX Basic has in contrast to other BASIC dialects so that it is mostly compatible with existing BASIC programs and games.
+Later the compiler will be extended with sprites and other functions from QBasic2. After the compiler got a GUI and its own editor, it may be extended with labels, procedures etc.
+It is also planned to create several back ends, for example for ZX81.
 
 This BASIC compiler loads the BASIC from a .TAP file, i.e. you use the ZX Spectrum Emulator for editing and testing.
 The compiler then generates a text file which must be compiled with an assembler (sjasmplus). 
