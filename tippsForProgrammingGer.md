@@ -57,3 +57,17 @@ Besser ist:
 
 Arrayzugriffe benötigen immer mindestens eine Multiplikation, wenn c und d Gleitkomma sind muss jeweils mit 5 multipliziert werden, ansonsten mit 2 (das wird durch Addition gelöst) danach muss noch einmal mit der 2 Dimension des M-Arrays multipliziert werden (hier 13)
 Das Abspeichern in einer Integer-Variable führt dies nur einmal durch.
+
+# Vermeiden Sie berechnete Sprünge
+```
+10 LET InitLevel=2000
+..
+500 GOSUB InitLevel
+...
+2000 REM Init Level
+```
+Nicht nur, dass dies von der Renumber-Funktion des ZX Spectrum 128 berücksichtigt wird, der Compiler erzeugt eine Tabelle mit allen Zeilennummern und durchsucht diese jedes Mal.
+Variablen sind gut für die Übersicht und man kann berechnete Sprünge gut einsetzen wenn man kein Renumber verwendet, z.B. um Leveldaten zu laden, aber es ist wesentlich langsamer als ein Sprung zu einer Zeilennummer.
+
+Es gibt diverse Tools, mit denen man die BASIC-Programme bequem unter Windows mit Labeln erfassen kann, dies wird dann umgewandelt in Zeilennummern und als .TAP zur Verfügung gestellt. 
+
