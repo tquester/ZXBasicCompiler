@@ -94,6 +94,8 @@ Der Großteil der Geschwindigkeit stammt aus der Optimierung mit Integer-Zahlen,
 
 Kompiliert mit Integer
 
+# Tipps für mehr Geschwindigkeit
+https://github.com/tquester/ZXBasicCompiler/blob/main/tippsForProgrammingGer.md
 
                 
 
