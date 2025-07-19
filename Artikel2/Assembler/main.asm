@@ -5,6 +5,7 @@
 DEBUG                       equ 0			; Enables debug mode. Used to test so new functions. Compiled BASIC runs with custom PRINT command
 DEBUGBASIC                  equ 0		; Initializes the ZX Spectrum using a copy of the startup, then starts the compiled BASIC program.
 											; Rom routines are allowed
+DEBUGBASIC_CALLEDITOR       equ 0
 DEBUGSAVESCREEN				equ 0			; Heep Walk saves and restores the screen (costs 6144+768 Bytes )
 DEBUGMATH                   equ 0			; Calls the Math Debug code on run	
 DEBUGHEAP                   equ 0			; Calls the Heap Debug code on run
@@ -21,7 +22,7 @@ SLOW_SPRITE_COUNT           equ 5
 
 
     include "macros.asm"
-    ORG 27000
+    ORG 24500
 PROGSTART:
 
     SLDOPT COMMENT WPMEM, LOGPOINT, ASSERTION
@@ -42,7 +43,13 @@ NEX:    equ 1   ;  1=Create nex file, 0=create sna file
 
 START:RELOCATE_START 
 
-main:   ld sp,stack_top
+
+
+main:   
+
+
+
+ 		ld sp,stack_top
 		if DEBUGBASIC=1
          call InitSpectrum
         endif 
@@ -222,7 +229,10 @@ RAM_SET	LD ($5CB2),HL	; Set RAMTOP.
 
 	LD A,$00	; Channel 'K' is opened before calling the EDITOR.
 	CALL $1601	; CHAN_OPEN
+	if DEBUGBASIC_CALLEDITOR=1
 	CALL $0F2C	; EDITOR	
+	endif
+	;call $0F38
 	ld   A,(IY+$02)	; TV Flag
 	and $fe	; Clear bit 0 of TV-FLAG.
 	ld   (IY+$02),A	; Clear the TV-FLAG.
@@ -237,6 +247,9 @@ RAM_SET	LD ($5CB2),HL	; Set RAMTOP.
 
 	if DEBUGBASIC=1
 localudb: defs 8*21
+
+EDITOR:
+
 	endif 
 	
 ;===========================================================================

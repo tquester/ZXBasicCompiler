@@ -392,6 +392,13 @@ ZXClearHeap:         push   ix
 ZXAlloc:                push ix
                         push bc
                         push de
+                        CALL ZXFreeTempCompact
+                        pop de
+                        pop bc
+                        pop ix
+                        push ix
+                        push bc
+                        push de                        
                         ld (ZXHeapNewType),a
                         ld (ZXHeapTempNumOfByts),bc
                         ld ix,(ZXHeapStart)
@@ -545,7 +552,11 @@ ZXClaim:                call ZXCheckIfHlisHeapBlock
                         ret
 ; We did not find any memory block with the required size (or did not find any block at all)
 ; now create a new block at the end of the memory.
-ZXAllocNotFound:        ld   hl,error_no_heap
+ZXAllocNotFound:        if DEBUG=1
+                        call runtimeCls
+                        call ZXHeapWalk
+                        endif
+                        ld   hl,error_no_heap
                         call runtimePrintString
                         ld   sp,(runtimeSaveSP)
                         ret

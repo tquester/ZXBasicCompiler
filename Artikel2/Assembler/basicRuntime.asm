@@ -106,6 +106,14 @@ neghl:          ex hl,de
                 ld h,a
                 sbc hl,de
                 ret                
+
+runtimeAbsInt:  ld a,h  
+                and $80
+                ret z
+                ld de,0
+                ex hl,de
+                sub hl,de
+                ret                
 runtimeMult16bit:
                 ld b,0
                 call sgnabs
@@ -190,6 +198,12 @@ rt_cls2:
 
 
 runtimeLocalInk:
+;    ld a,$16
+;    rst $10
+;    ld a,l
+;    rst $10
+;    ret
+    
     ld a, (ZX_ATTR_T)
     and 0b11111000
     or l
@@ -197,6 +211,11 @@ runtimeLocalInk:
     ret
 
 runtimeLocalPaper:
+;    ld a,$17
+;    rst $10
+;    ld a,l
+;    rst $10
+;    ret
     ld a,l
     and a,7
     add a,a
@@ -568,6 +587,9 @@ runtimeSetStream:
     ret    
 
 runtimePause:
+    ld   BC,HL
+    jp   $1F3D;     PAUsE
+
     call rtGetKey
     cp 0
     jr z, runtimePause1
@@ -610,6 +632,14 @@ CTOB:
 runtimeCheckBreak:      call    $1F54
                         ret     c
                         ld     sp,(runtimeSaveSP)
+                        ret
+
+runtimeCheckBreakDebug: call    $1F54
+                        ret c
+                        if DEBUG=1
+                        ld a,1
+                        ld (rtStopped),a
+                        endif
                         ret
 
 runtimeClearArray:
@@ -834,6 +864,65 @@ runtimeStoreStringVarFixEnd:
     pop ix
     ret
 
+runtimeSetFixedString:
+; ============================================================================================
+; runtimeSetFixedString.
+; copy a fixed string to another fixed string
+; (ix+4) = Len Source
+; (ix+6) = Len Target
+; (ix+8) = Source String
+; (ix+10) = Target String
+; 
+
+; todo: implement
+    push hl
+    ld hl,0
+    add hl,sp
+    ld ix,hl
+    ld  hl,(ix+4)   ; get length of source string
+    ld  de,(ix+6)   ; get length of target string
+    call runtimeMinHlDl
+    ld  bc,hl       ; bc length to copy (minimum of both)
+    pop  hl
+    ld  a,b
+    or  c
+    jr  z,runtimeSetFixedStringEnd           ; nothing to copy, return
+    ld  hl,(ix+10)
+    ld  de,(ix+8)   ; de = target string
+runtimeSetFixedStringLoop:
+    ld a,(de)
+    ld (hl),a
+    inc hl
+    inc de
+    dec bc
+    ld a,b
+    or c
+    jr nz,runtimeSetFixedStringLoop
+runtimeSetFixedStringEnd:
+    pop hl      ; return address
+    pop bc
+    pop bc
+    pop bc
+    pop bc
+    jp (hl);
+
+; ============================================================================================
+; runtimeMinHlDl.
+; Compare HL and DE and return the minimum in HL
+; ============================================================================================
+
+runtimeMinHlDl:
+    push hl
+    sub hl,de
+    jr  c, runtimeMinHlDlHl
+    pop hl
+    ld hl,de
+    ret
+
+runtimeMinHlDlHl:
+    pop hl
+    ret
+
 
 ; ============================================================================================
 ; runtimeStoreFixedStringWithRangeFromBstr. 
@@ -850,6 +939,10 @@ runtimeStoreFixedStringWithRangeFromBstr:
     ld hl,0
     add hl,sp
     ld ix,hl
+    ld hl,(ix+6)
+    dec hl
+    ld (ix+6),hl
+
 
 
     ld  hl,(ix+4)
@@ -1397,139 +1490,6 @@ runtimeSmallerEqualFloat:
     db  zxcalc_end_calc
     jp  runtimeFloatToInt
 
-; -------- String compare -----
-
-; DE = fist String
-; HL = second String
-runtimeEqualString:
-    call runtimeStringCompare
-    cp 0
-    jr z, runtimeReturn1
-    jr runtimeReturn0
-
-runtimeUnequalString:
-    call runtimeStringCompare
-    cp 0
-    jr z, runtimeReturn0
-    jr runtimeReturn1
-
-runtimeSmallerString:
-    call runtimeStringCompare
-    cp -1
-    jr z, runtimeReturn1
-    jr runtimeReturn0
-
-runtimeSmallerEqualString:
-    call runtimeStringCompare
-    cp 0
-    jr z, runtimeReturn1
-    cp 1
-    jr z,runtimeReturn1
-    jr runtimeReturn0
-
-runtimeBiggerString:
-    call runtimeStringCompare
-    cp 1
-    jr z, runtimeReturn1
-    jr runtimeReturn0
-
-runtimeBiggerEqualString:
-    call runtimeStringCompare
-    cp 1
-    jr z, runtimeReturn1
-    cp 0
-    jr z, runtimeReturn1
-    jr runtimeReturn0
-
-runtimeStringResult: db 0
-runtimeCompareStringHL0:
-    ex hl,de
-    ld  bc,(hl)
-    ex hl,de
-    ld a,b
-    or c
-    jr nz,runtimeStringCompareHlContinue
-    pop de
-    pop  hl
-    ld l,0
-    ld h,0
-    ret             ; beide Strings sind leer, also gleich
-
-runtimeStringCompare:
-    push hl
-    push de
-    ex  hl,de
-    ld   bc,(hl)
-    ld   a,b
-    or   c
-    jr   z, runtimeCompareStringHL0
-runtimeStringCompareHlContinue:
-    ex hl,de
-    ld   de,(hl)
-    ld   hl,de          ; hl = String 1
-    sub  hl,bc          ; bc = string 2
-    ld   a,h
-    or   l
-    jr   z, runtimeStringCompareEqualSize
-    ld   a,h
-    and  $80
-    jr   z, runtimeStringCompareLenDE
-    pop  de
-    pop  hl
-    ld   a,1
-    ld   (runtimeStringResult),a
-    ld   bc,(hl)
-    jr   runtimeStringCompareLoop
-runtimeStringCompareEqualSize:
-    pop de
-    pop hl
-    ld a,0
-    ld (runtimeStringResult),a
-    ld bc,(hl)
-    inc hl
-    inc hl
-    inc de
-    inc de
-    jr runtimeStringCompareLoop
-
-runtimeStringCompareLenDE:
-    pop de
-    pop hl
-    ld a,-1
-    ld (runtimeStringResult),a
-    ex hl,de
-    ld bc,(hl)
-    ex hl,de
-runtimeStringCompareLoop:
-    ld a,(de)
-    cp a,(hl)
-    jr z, runtimeStringCompareLoop2
-    jr nc, runtimeStringHlSmaller
-    jr c, runtimeStringHlBigger
-runtimeStringHlSmaller:
-    ld a,1
-    ld (runtimeStringResult),a
-    ret
-runtimeStringHlBigger:
-    ld a,-1
-    ld (runtimeStringResult),a
-    ret
-runtimeStringCompareLoop2:
-    inc de
-    inc hl
-    dec bc
-    ld a,b
-    or c
-    jr nz, runtimeStringCompareLoop
-    ld a,0
-    ld (runtimeStringResult),a
-    ret
-
-
-
-
-
-
 
 
 runtimeNextFloat:	
@@ -1817,26 +1777,29 @@ runtimeVarCall:
 ; DE contains the number we want
 ; if the entry is 0 it is the end of the table
 runtimeFindLine:
-    ld bc,(hl)
+    LD BC,DE
+runtimeFindLineLoop:
+    ld DE,(hl)
     inc hl
     inc hl
-    ld a,c
-    or b
-    jr z, runtimeFindLineEnd
-    ld a,c
-    cp e
-    jr nz,runtimeFindLineNext
-    ld a,b
-    cp d 
-    jr nz,runtimeFindLineNext
+    ld  a,d
+    or  e
+    jr  z,runtimeFindLineEnd
+    ex  de,hl
+    or a,a
+    sbc hl,bc
+    ex  hl,de
+    jr  z,runtimeFindLineFound
+    jr  nc,runtimeFindLineFound
+    inc hl
+    inc hl
+    jr  runtimeFindLineLoop
     ; found
+runtimeFindLineFound: 
     ld de,(hl)
     ex hl,de
     ret
-runtimeFindLineNext:
-    inc hl
-    inc hl
-    jr  runtimeFindLine
+
 runtimeFindLineEnd:
 ; return to BASIC if not found
     push de
@@ -2177,24 +2140,680 @@ rtAscciiToFloatEnd: ret
 runtimeNegFloat:
                 ret
 
+; =============================================================================
+; Int16-Vergleiche
+; vergleiche hl-de, ergebnis hl=1 oder hl=0
+; ============================================================================
+
+runtimeReturnFalse:
+    ld hl,0
+    ret
+
+runtimeReturnTrue:
+    ld hl,1
+    ret
+
+; --- HL < DE ---
+runtimeCmpHLltDE:
+    ex hl,de
+    or a
+    sbc hl,de
+    jp c, runtimeReturnTrue
+    jp runtimeReturnFalse
+
+; --- HL <= DE ---
+runtimeCmpHLLeDE:
+    ex hl,de
+    or a
+    sbc hl,de
+    jp z, runtimeReturnTrue
+    jp c, runtimeReturnTrue
+    jp runtimeReturnFalse
+
+; --- HL > DE ---
+runtimeCmpHlGtDE:
+    ex hl,de
+    or a
+    sbc hl,de
+    jp nc, .check
+    jp runtimeReturnFalse
+.check:
+    jp z, runtimeReturnFalse
+    jp runtimeReturnTrue
+
+; --- HL >= DE ---
+runtimeCmpHLGeDE:
+    ex hl,de
+    or a
+    sbc hl,de
+    jp nc, runtimeReturnTrue
+    jp runtimeReturnFalse
+
+; --- HL = DE ---
+runtimeCmpHLEqDE:
+    or a
+    sbc hl,de
+    jp z, runtimeReturnTrue
+    jp runtimeReturnFalse
+
+; --- HL ≠ DE ---
+runtimeCmpHlNeDE:
+    or a
+    sbc hl,de
+    jp nz, runtimeReturnTrue
+    jp runtimeReturnFalse
+
+; =======================================================================
+; String compare fixed string convention
+; HL = String 1
+; IX = String 2
+; BC = Length String 1
+; DE = Length String 2
+; Basic String convention
+; HL = String1 (BC / HL will get created from String info)
+; IX = String2 
+; =======================================================================
+
+runtimeCompareStringBCBigger:
+    ld  bc,de
+    ret
+runtimeCompareString:
+    ld  a,b
+    or  c
+    jr  nz, runtimeCompareStringNZBC
+    ld  a,d
+    or  e
+    jr  nz, runtimeCompareStringCont
+    ld  a,0                             ; Strings sind gleich (beide leer)
+    ret
+runtimeCompareStringNeg:
+    ld a,-1
+    ret
+
+runtimeCompareStringPos:
+    ld a,1
+    ret
+
+
+runtimeCompareStringNZBC:               ; BC > 0, wenn DE > 0 dann a=-1
+    ld   a,d
+    or   e
+    jr   z, runtimeCompareStringNeg    
+
+runtimeCompareStringCont:
+    push hl                             ; Ermitteln der Länge DE-BC oder BC-DE
+    ld   hl,de
+    sub  hl,bc
+    call c,runtimeCompareStringBCBigger
+    pop  hl             
+    dec  ix
+    dec  hl
+runtimeCompareStringLoop:
+    inc  ix
+    inc  hl
+    ld   a,(hl)                         ; Ermitteln der Zeichen
+    cp   a,(ix)
+    jr   z, runtimeCompareStringLoop2
+    jr   c, runtimeCompareStringPos     ; String1 > String2
+    jr   runtimeCompareStringNeg         ; String1 < String2        
+runtimeCompareStringLoop2:
+    dec bc
+    ld  a,b
+    or  c
+    jr  nz, runtimeCompareStringLoop
+    ld  a,0
+    ret
+    ; Strings sind gleich
+runtimeEqualStringFixFix:
+    call runtimeCompareString
+    cp 0
+    jp z, runtimeReturn1
+    jp runtimeReturn0
+
+runtimeUnequalStringFixFix
+    call runtimeCompareString
+    cp 0
+    jp nz, runtimeReturn1
+    jp runtimeReturn0
+
+runtimeBiggerStringFixFix
+    call runtimeCompareString
+    cp 1
+    jp z, runtimeReturn1
+    jp runtimeReturn0
+runtimeSmallerStringFixFix:
+    call runtimeCompareString
+    cp -1
+    jp z, runtimeReturn1
+    jp runtimeReturn0
+
+runtimeSmallerEqualStringFixFix
+    call runtimeCompareString
+    cp -1
+    jp z, runtimeReturn1
+    cp 0
+    jp z, runtimeReturn1
+    
+    jp runtimeReturn0
+runtimeBiggerEqualStringFixFix
+    call runtimeCompareString
+    cp 1
+    jp z, runtimeReturn1
+    cp 0
+    jp z, runtimeReturn1    
+    jp runtimeReturn0
+
+
+runtimeVar1ToFix:
+    ld   bc,(hl)
+    inc hl
+    inc hl
+    ret
+runtimeVar2ToFix:
+    ld ix,de
+    ld   de,(ix)
+    inc ix
+    inc ix
+    ret
+runtimeEqualStringVarFix:
+    call runtimeVar1ToFix
+    jr  runtimeEqualStringX
+runtimeUnequalStringVarFix:
+    call runtimeVar2ToFix
+    jr   runtimeUnequalStringX
+
+runtimeBiggerStringVarFix:
+    call runtimeVar1ToFix
+    jr   runtimeBiggerStringX
+runtimeSmallerStringVarFix:
+    call runtimeVar1ToFix
+    jr   runtimeSmallerStringX
+runtimeSmallerEqualStringVarFix:
+    call runtimeVar1ToFix
+    jr   runtimeSmallerEqualStringX
+
+runtimeBiggerEqualStringVarFix:    
+    call runtimeVar1ToFix
+    jr  runtimeBiggerEqualStringX
+
+runtimeEqualStringFixVar:
+    call runtimeVar2ToFix
+runtimeEqualStringX:    
+    call runtimeCompareString
+    cp 0
+    jp z, runtimeReturn1
+    jp runtimeReturn0
+runtimeUnequalStringFixVar:
+    call runtimeVar2ToFix
+runtimeUnequalStringX:    
+    call runtimeCompareString
+    cp 0
+    jp nz, runtimeReturn1
+    jp runtimeReturn0
+runtimeBiggerStringFixVar:
+    call runtimeVar2ToFix
+runtimeBiggerStringX:
+    call runtimeCompareString
+    cp 1
+    jp z, runtimeReturn1
+    jp runtimeReturn0
+runtimeBiggerEqualStringFixVar:
+    call runtimeVar2ToFix
+runtimeBiggerEqualStringX:    
+    call runtimeCompareString
+    cp 1
+    jp z, runtimeReturn1
+    cp 0
+    jp z, runtimeReturn1    
+    jp runtimeReturn0
+
+runtimeSmallerStringFixVar:
+    call runtimeVar2ToFix
+runtimeSmallerStringX:
+    call runtimeCompareString
+    cp -1
+    jp z, runtimeReturn1
+    jp runtimeReturn0
+runtimeSmallerEqualStringFixVar:
+    call runtimeVar2ToFix
+runtimeSmallerEqualStringX:
+    call runtimeCompareString
+    cp -1
+    jp z, runtimeReturn1
+    cp 0
+    jp z, runtimeReturn1
+    jp runtimeReturn0
+
+runtimeEqualString:
+    call runtimeVar1ToFix
+    call runtimeVar2ToFix
+    jr   runtimeEqualStringX
+
+runtimeUnequalString:
+    call runtimeVar1ToFix
+    call runtimeVar2ToFix
+    jr   runtimeUnequalStringX
+
+runtimeSmallerString:
+    call runtimeVar1ToFix
+    call runtimeVar2ToFix
+    jr   runtimeSmallerStringX
+runtimeSmallerEqualString:
+    call runtimeVar1ToFix
+    call runtimeVar2ToFix
+    jr   runtimeSmallerEqualStringX
+runtimeBiggerString:
+    call runtimeVar1ToFix
+    call runtimeVar2ToFix
+    jr   runtimeBiggerStringX
+runtimeBiggerEqualString
+    call runtimeVar1ToFix
+    call runtimeVar2ToFix
+    jr   runtimeBiggerEqualStringX
+
+
+
 runtimeDebug:   
+    if DEBUG=0
+    ret
+    endif
+
     if DEBUG=1
-    push af
+    ld (rtDebugStmt),a
+    ld (rtDebugLine),hl
+
+
+    ld   bc,(rtBreakpoint)
+    or   a,a
+    sbc  hl,bc
+    call z,rtDebugSetStop
+
+
+    ld   a,(rtStopped)
+    cp   0
+    jr   z,rtDebugContinue
+    ld a,5*8
+    ld (charAttrib),a
     ld a,0
-    ld (charX),a
     ld (charY),a
+    ld  a,24
+    ld (charX),a
+    ld  hl,(rtDebugLine)
     call printDezHL
+    ld   bc,(rtBreakpoint)
+    or   a,a
+    sbc  hl,bc
+    call z,rtDebugSetStop
     ld   a,':'
     call printA
-    pop  af
+    ld   a,(rtDebugStmt)
     call printDezA
     ld   a,' '
     call printA
     call printA
-    endif
-    
-    ret                
+    call rtDebugSaveScreen
+rtDebugLoop:
+    ld  a,0
+    ld (charX),a
+    ld a,1
+    ld (charY),a
+    ld   hl,rtDebugMsg
+    call rtPrintString0
+    ld a,0
+    ld (charX),a
+    ld (charY),a
+    ld  hl,rtDebugMsgBp
+    call rtPrintString0
+    ld  hl,(rtBreakpoint)
+    call printDezHL
+    call rtDebugPrintWatch
+    call rtDebugWaitKey
+    and %01011111;      convert to upper case
+    cp   'B'
+    jr   z,rtDebugSetBreakpoint
+    cp   'R'
+    jr   z,rtDebugRun
+    cp   'S'
+    jr   z,rtDebugContinue
+    cp   'W'
+    jp   z,rtDebugWatch
+rtDebugContinueExit
+    call rtDebugRestoreScreen
 
+rtDebugContinue:
+    
+    ret    
+
+rtDebugRun:
+    ld a,0
+    ld (rtStopped),a
+    jr rtDebugContinueExit
+
+rtDebugSetBreakpoint:
+    call rtDebugInput
+    ld  de,rtDebugInputBuf
+    call runtimeValInt
+    ld  (rtBreakpoint),hl
+    jr rtDebugContinueExit
+
+rtDebugWaitKey:
+    call rtGetKey
+    cp 0
+    jr z,rtDebugWaitKey
+    push af
+rtDebugWaitKey1
+    call rtGetKey
+    cp 0
+    jr nz, rtDebugWaitKey1
+    pop af
+    ret
+
+rtDebugSetStop:
+
+    ld a,1
+    ld (rtStopped),a
+    ret
+
+rtDebugWatch:
+    call rtDebugInput
+    ld   hl,rtDebugInputBuf
+    ld   de,rtDebugWatchBuf
+    ld   bc,32
+    ldir
+
+    jr rtDebugLoop    
+
+rtPrintString0:
+    ld   a,(hl)
+    or   a
+    ret  z
+    call printA
+    inc  hl
+    jr   rtPrintString0
+
+rtDebugInput:
+    ld ix,rtDebugInputBuf
+    ld (ix),0
+rtDebugInputPrint:    
+    ld HL,rtDebugInputBuf
+    ld a,0
+    ld (charX),a
+    ld (charY),a
+rtDebugInputPrintLoop:
+    ld  a,(hl)
+    cp  0
+    jr  z,rtDebugInputPrintEnd
+    call printA
+    inc  hl
+    jp   rtDebugInputPrintLoop
+rtDebugInputPrintEnd:
+    ld a,'*'
+    call printA
+rtDebugInputPrintLoop2
+    ld a,(charX)
+    cp 31
+    jr z,rtDebugInputPrintEnd2
+    ld a,'_'
+    call printA
+    jr  rtDebugInputPrintLoop2
+rtDebugInputPrintEnd2:
+    push hl
+    call rtDebugWaitKey
+    pop hl
+    cp  12
+    jr  z,rtDebugBackspace
+    cp  13
+    ret z
+    ld (hl),a
+    inc hl
+    ld  a,0
+    ld (hl),a
+    jr  rtDebugInputPrint
+rtDebugBackspace:
+    ld  bc,rtDebugInputBuf
+    ld  a,h
+    cp  b
+    jr  nz,rtDebugBackspace1
+    ld  a,l
+    cp  c
+    jr  z,rtDebugInputPrintEnd2
+rtDebugBackspace1:
+    dec hl
+    ld  (hl),0
+    jp  rtDebugInputPrint
+
+rtDebugPrintWatch:
+    ld a,0
+    ld (charX),a
+    ld a,3
+    ld (charY),a
+    ld hl, rtDebugWatchBuf
+    ld b,0
+rtDebugPrintWatch0:
+    ld de,hl
+    ld a,(hl)
+    cp 0
+    ret z
+    cp a,32
+    jr nz,rtDebugPrintWatch1
+    inc hl
+    jr  rtDebugPrintWatch0
+rtDebugPrintWatch1
+    ld a,(hl)
+    cp 0
+    jr z,rtDebugWatchPrintVar
+    cp a,32
+    jr z,rtDebugWatchPrintVar
+    call printA
+    inc hl
+    inc b
+    jr  rtDebugPrintWatch1
+
+rtDebugWatchPrintVar:
+    ld (rtDebugNextVar),hl
+    ld hl,de
+    ld ix,ZX_VARIABLES
+rtDebugWatchPrintFindVarLoop:
+
+    ld a,(ix)
+    cp 0
+    jr z,rtDebugVarPrintNotFound
+    ld  c,a
+    inc ix
+    call debugCompareHlIx
+    cp  a,0
+    jr  z,rtDebugVarPrintFound
+    ld  e,(ix-1)
+    push hl
+    push ix
+    pop  hl
+    ld  d,0
+    add hl,de
+    ld  a,(hl)  ; /type
+    inc hl
+    ld  a,(hl)  ; Anzahl dimns
+    inc hl
+    ld  e,a
+    ld  d,0
+    add hl,de
+    inc hl
+    inc hl
+    push hl
+    pop  ix
+    pop  hl
+    jr   rtDebugWatchPrintFindVarLoop
+
+rtDebugVarPrintNotFound:
+        ld  hl,(rtDebugNextVar)
+    jp rtDebugPrintWatch0
+
+debugCompareHlIx:
+    ld  a,b
+    cp  c
+    jr  nz,debugCompareHlIxFalse
+    push hl
+    push ix
+    push bc
+debugCompareHlIxLoop:
+    ld a,(hl)
+    inc hl
+    cp  (ix)
+    jr  nz,debugCompareHlIxFalsePop
+    inc ix
+    dec b
+    jr  nz,debugCompareHlIxLoop
+debugCompareHlIxTrue:
+    pop bc
+    pop ix
+    pop hl
+    ld a,0
+    ret
+
+
+debugCompareHlIxFalsePop:
+    pop bc
+    pop ix
+    pop hl
+debugCompareHlIxFalse:
+    ld a,1
+    ret
+
+
+rtDebugVarPrintFound:
+    
+    ld a,":"
+    call printA
+    ld b,0
+    push ix
+    pop  hl
+    add hl,bc
+    ld  c,(hl)      ; type
+    inc hl
+    ld a,(hl)      ; Anzahl dimns
+    cp 0
+    jr  nz,rtDebugVarPrintFoundArray
+    inc hl
+    ld  de,(hl)
+
+    ex  hl,de
+    ld  a,c
+    cp  1
+    jr  z,rtDebugPrintInt
+    cp  2
+    jr  z,rtDebugPrintFloat2
+    cp  3
+    jr  z,rtDebugPrintString
+    ret 
+rtDebugPrintInt:
+    ld   de,(hl)
+    ex   hl,de
+    call printDezHL
+    ld  hl,(rtDebugNextVar)
+    ld a,32
+    call printA
+    jp   rtDebugPrintWatch0
+
+rtDebugPrintFloat2:
+    call runtimePushFloatVar
+    call   runtimePrintFloat
+    ld  hl,(rtDebugNextVar)
+    jp rtDebugPrintWatch0
+
+rtDebugPrintString:
+    ld   de,(hl)
+    ld   a,d
+    or   e
+    jr   z,rtDebugPrintStringEnd
+    ex   hl,de
+    ld   bc,(hl)
+    inc hl
+    inc hl
+rtDebugPrintStringLoop:
+    ld a,(hl)
+    call printA
+    inc hl
+    dec bc
+    ld  a,b
+    or  c
+    jr  nz,rtDebugPrintStringLoop
+    ld  hl,(rtDebugNextVar)
+rtDebugPrintStringEnd:    
+    ld a,32
+    call printA
+    jp  rtDebugPrintWatch0
+
+
+rtDebugVarPrintFoundArray:
+    ret
+
+
+
+
+  
+rtDebugStmt: db 0
+rtDebugLine: dw 0
+rtDebugScreenLines equ 3
+rtDebugNextVar: dw 0
+rtBreakpoint: dw -1
+rtStopped:    db 1
+rtDebugMsgBp: db "BP:",0
+rtDebugMsg:  db "(B)reakpt (R)un (S)tep (W)atch",0
+rtDebugInputBuf: defs 32,0
+rtDebugWatchBuf: db "b g i jj c$",0
+                defs 32,0
+
+rtSaveScreen:
+        defs 2048
+rtSaveAttr:
+        defs 256
+
+rtDebugSaveScreen:
+    ld   HL,$4000
+    ld   DE,rtSaveScreen
+    ld   BC,2048
+    ldir
+    ld   hl,$4000+6144
+    ld   de,rtSaveAttr
+    ld   bc,256
+    push hl
+    ldir 
+    pop hl
+    
+    ld  bc,256
+rtDebugSaveScreenLoop:
+    ld  a,5*8
+    ld (hl),a
+    inc hl
+    dec bc
+    ld  a,b
+    or  c
+    jr  nz,rtDebugSaveScreenLoop
+    ld   HL,rtSaveScreen
+    ld   BC,2048
+rtDebugSaveScreenLoop2:
+    ld a,0
+    ld (hl),a
+    inc hl
+    dec bc
+    ld a,b
+    or c
+    jr nz, rtDebugSaveScreenLoop2
+
+    ret
+
+rtDebugRestoreScreen:
+    ld   DE,$4000
+    ld   HL,rtSaveScreen
+    ld   BC,2048
+    ldir
+    ld   de,$4000+6144
+    ld   hl,rtSaveAttr
+    ld   bc,256
+    ldir 
+
+    ret
+
+    endif
 
 
 

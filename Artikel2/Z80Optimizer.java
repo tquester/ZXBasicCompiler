@@ -244,8 +244,31 @@ public class Z80Optimizer {
 						count++;
 					}
 						
-					
-					
+				if (check(cmd1,"LD","HL") &&
+					check(cmd2,"PUSH","HL") &&
+					check(cmd3,"LD","HL") &&	
+					check(cmd4,"POP","IX")) {	
+					    set(cmd1,"LD","IX",par2(cmd1));
+						remove(cmd2);
+						remove(cmd4);
+						     count++;
+						   
+					}
+					/*
+				if (check(cmd1,"LD","HL","0") &&
+					check(cmd2,"CALL","Z","HL1") &&
+					check(cmd3,"LD","A","L") &&	
+					check(cmd4,"CP","0") &&
+					check(cmd5,"JP","Z")) {	
+						    set(cmd1,"JP","Z",par2(cmd5));
+							remove(cmd2);
+							remove(cmd3);
+							remove(cmd4);
+							remove(cmd5);
+							     count++;
+							   
+						}
+					*/
 				
 				icmd++;
 			}		

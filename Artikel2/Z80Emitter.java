@@ -6,6 +6,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import zxcompiler.ZXTokenizer.ParserToken;
+import zxcompiler.ZXTokenizer.ZXBasicLine;
 
 // writes Z80 code
 public class Z80Emitter {
@@ -17,6 +18,11 @@ public class Z80Emitter {
 
 	// in order to optimize the code, it is stored in machine readable format
 
+	public class CBasicLine {
+		int line;
+		int stmt;
+		String text;
+	}
 	public static class Variable {
 		public String name;
 		public VARTYP typ;
@@ -85,18 +91,20 @@ public class Z80Emitter {
 	TreeMap<String, String> mMapFloatConsts = new TreeMap<String, String>();
 	TreeMap<String, String> mMapFloatValues = new TreeMap<String, String>();
 	TreeMap<String, String> mMapRFloatConsts = new TreeMap<String, String>();
-	TreeMap<String, String> mMapDataLines = new TreeMap<String, String>();
-	TreeMap<String, String> mMapCodeLines = new TreeMap<String, String>();
+	TreeMap<Integer, String> mMapDataLines = new TreeMap<Integer, String>();
+	TreeMap<Integer, String> mMapCodeLines = new TreeMap<Integer, String>();
 	public boolean mUsesVarGoto = false;
 	public boolean mUsesVarData = false;
 	ArrayList<Z80Command> mCommands = new ArrayList<Z80Command>();
 	ArrayList<Z80Command> mLocalCommands = new ArrayList<Z80Command>();
 	ArrayList<Z80Command> mSaveCommands;
+	ArrayList<CBasicLine> mBasicLines = new ArrayList<Z80Emitter.CBasicLine>();
 	private StringBuilder mSBData = new StringBuilder();
 	private boolean mUsesData;
 	public int mOptimize = 1;
 	private int mFloatNr = 1;
 	private String mNextComment;
+	public boolean mSettingDebug;
 
 	Variable getVariable(String name) {
 		if (name.endsWith("$"))
@@ -224,14 +232,77 @@ public class Z80Emitter {
 			emitString(String.format("DATAPTR:\tDW 0"));
 		}
 		emitString(mSBData.toString());
+		if (mSettingDebug) 
+			writeDebugInfos();
+	}
+	
+	private void writeDebugInfos() {
+		emitString("ZX_VARIABLES:");
+		for (String key: mMapVariables.keySet()) {
+			Variable var = mMapVariables.get(key);
+			String varname = key;
+			if (varname.endsWith("_string")) 
+				varname = varname.substring(0,varname.length()-7)+"$";
+			String line = String.format("\tdb %d,\"%s\",%d", varname.length(), varname, typtoint(var.typ));
+			if (var.dimen == null) {
+				line += ",0";
+			} else {
+				line += String.format(",%d", var.dimen.length);
+				for (int i=0;i<var.dimen.length;i++) {
+					line += String.format(",%d", var.dimen[i]);
+				}
+			}
+			emitString(line);
+			emitString(String.format("\tdw ZXBASIC_VAR_%s", key));
+			
+		}
+		emitString("\tdb 0");
+		
 	}
 
-	private void writeLineMap(TreeMap<String, String> map, String label) {
+	private int typtoint(VARTYP typ) {
+		switch(typ) {
+		case TYPE_INT: return 1;
+		case TYPE_FLOAT: return 2;
+		case TYPE_STRING: return 3;
+		case TYPE_FIXSTRING: return 4;
+		}
+		return 0;
+	}
+
+	String findCodeLine(int line) {
+		Integer cint = Integer.valueOf(line);
+		String label = mMapCodeLines.get(cint);
+		if (label != null) return label;
+		for (Integer ii: mMapCodeLines.keySet()) {
+			int i = ii.intValue();
+			if (ii >= line) 
+				return mMapCodeLines.get(ii);
+		}
+		return null;
+	}
+
+	String findDataLine(int line) {
+		Integer cint = Integer.valueOf(line);
+		String label = mMapDataLines.get(cint);
+		if (label != null) return label;
+		for (Integer ii: mMapDataLines.keySet()) {
+			int i = ii.intValue();
+			if (ii >= line) 
+				return mMapDataLines.get(ii);
+		}
+		return null;
+		
+		
+		
+	}
+
+	private void writeLineMap(TreeMap<Integer, String> map, String label) {
 		if (map.size() == 0) return;
 		emitString(label+":");
-		for (String key: map.keySet()) {
+		for (Integer key: map.keySet()) {
 			String val = map.get(key);
-			emitString(String.format("\tdw %s, %s", key,val));
+			emitString(String.format("\tdw %s, %s", key.toString(),val));
 		}
 		emitString(String.format("\tdw %s, %s", "0","0"));
 	}
@@ -487,9 +558,7 @@ public class Z80Emitter {
 		emitBlockComment("<");
 		emitCommand("POP", "HL");
 		emitCommand("POP", "DE");
-		emitCommand("SUB", "HL", "DE");
-		emitCommand("LD", "HL", "0");
-		emitCommand("call", "nc", "HL1");
+		emitCommand("CALL","runtimeCmpHLltDE");
 		emitCommand("PUSH", "HL");
 		emitBlockCommentEnd();
 	}
@@ -498,9 +567,7 @@ public class Z80Emitter {
 		emitBlockComment("OR");
 		emitCommand("POP", "HL");
 		emitCommand("POP", "DE");
-		emitCommand("SUB", "HL", "DE");
-		emitCommand("LD", "HL", "0");
-		emitCommand("call", "c", "HL1");
+		emitCommand("CALL","runtimeCmpHlGtDE");
 		emitCommand("PUSH", "HL");
 		emitBlockCommentEnd();
 	}
@@ -509,10 +576,7 @@ public class Z80Emitter {
 		emitBlockComment("<=");
 		emitCommand("POP", "HL");
 		emitCommand("POP", "DE");
-		emitCommand("SUB", "HL", "DE");
-		emitCommand("LD", "HL", "0");
-		emitCommand("call", "nc", "HL1");
-		emitCommand("call", "z", "HL1");
+		emitCommand("CALL","runtimeCmpHLLeDE");
 		emitCommand("PUSH", "HL");
 		emitBlockCommentEnd();
 	}
@@ -521,10 +585,7 @@ public class Z80Emitter {
 		emitBlockComment(">=");
 		emitCommand("POP", "HL");
 		emitCommand("POP", "DE");
-		emitCommand("SUB", "HL", "DE");
-		emitCommand("LD", "HL", "0");
-		emitCommand("call", "c", "HL1");
-		emitCommand("call", "z", "HL1");
+		emitCommand("CALL","runtimeCmpHLGeDE");
 		emitCommand("PUSH", "HL");
 		emitBlockCommentEnd();
 	}
@@ -533,9 +594,7 @@ public class Z80Emitter {
 		emitBlockComment("<>");
 		emitCommand("POP", "HL");
 		emitCommand("POP", "DE");
-		emitCommand("SUB", "HL", "DE");
-		emitCommand("LD", "HL", "0");
-		emitCommand("CALL", "NZ", "HL1");
+		emitCommand("CALL","runtimeCmpHlNeDE");
 		emitCommand("PUSH", "HL");
 		emitBlockCommentEnd();
 	}
@@ -544,18 +603,25 @@ public class Z80Emitter {
 		emitBlockComment("==");
 		emitCommand("POP", "HL");
 		emitCommand("POP", "DE");
-		emitCommand("SUB", "HL", "DE");
-		emitCommand("LD", "HL", "0");
-		emitCommand("CALL", "Z", "HL1");
+		emitCommand("CALL","runtimeCmpHLEqDE");
 		emitCommand("PUSH", "HL");
 		emitBlockCommentEnd();
 	}
 
+	public void storeLine(int line) {
+		mMapCodeLines.put(Integer.valueOf(line),String.format("ZXBASIC_LINE_%d",line));
+	}
+	public void storeDataLine(int line) {
+		String label=String.format("DATA_%d",line);
+		Integer cline = Integer.valueOf(line);
+		mMapDataLines.put(cline,label);
+	}
+	
 	public void emitLine(int line) {
 		String label = String.format("ZXBASIC_LINE_%d", line);
 		emitString(label + ":");
 		Z80Command cmd = new Z80Command(label, null, null, null, null);
-		mMapCodeLines.put(String.format("%d", line),String.format("ZXBASIC_LINE_%d",line));
+		Integer cline = Integer.valueOf(line);
 		mCommands.add(cmd);
 	}
 
@@ -620,11 +686,11 @@ public class Z80Emitter {
 	}
 
 	public void emitJumpToLine(String line) {
-		emitCommand("JP", String.format("ZXBASIC_LINE_%s", line));
+		emitCommand("JP", line);
 	}
 
 	public void emitCallToLine(String line) {
-		emitCommand("CALL", String.format("ZXBASIC_LINE_%s:", line));
+		emitCommand("CALL", line);
 
 	}
 
@@ -658,7 +724,7 @@ public class Z80Emitter {
 		emitCommand("LD", "B", "L");
 		emitCommand("LD", "C", "E");
 		emitCommand("POP", "DE");
-		emitCommand("CALL", "runtimeCircle");
+		emitCommand("CALL", "$233B",null,"ROM: Circle");
 	}
 
 	public void emitPoke() {
@@ -1059,7 +1125,6 @@ public class Z80Emitter {
 	public String emitStartData(int line) {
 		String label=String.format("DATA_%d",line);
 		mSBData.append(String.format("DATA_%s:\n", line));
-		mMapDataLines.put(String.format("%d", line),label);
 		mUsesData = true;
 		return label;
 
@@ -1092,7 +1157,7 @@ public class Z80Emitter {
 	}
 
 	public void emitRestore(String literal) {
-		emitCommand("LD", "HL", "DATA_" + literal);
+		emitCommand("LD", "HL", literal);
 		emitCommand("LD", "(DATAPTR)", "HL");
 		mUsesData = true;
 	}
@@ -1260,6 +1325,9 @@ public class Z80Emitter {
 	}
 
 	public void emitMultiPlyTopOfStack(int faktor) {
+		if (faktor == 1) {
+			return;
+		}
 		emitCommand("POP", "HL");
 		if (faktor == 2) {
 			emitCommand("ADD", "HL", "HL");
@@ -1276,6 +1344,26 @@ public class Z80Emitter {
 		}
 	}
 
+	public void emitMultiPlyTopOfStackPush(int faktor) {
+		if (faktor == 1) {
+			return;
+		}
+		emitCommand("POP", "HL");
+		if (faktor == 2) {
+			emitCommand("ADD", "HL", "HL");
+		} else if (faktor == 4) {
+			emitCommand("ADD", "HL", "HL");
+			emitCommand("ADD", "HL", "HL");
+		} else if (faktor == 8) {
+			emitCommand("ADD", "HL", "HL");
+			emitCommand("ADD", "HL", "HL");
+			emitCommand("ADD", "HL", "HL");
+		} else {
+			emitCommand("LD", "DE", String.format("%d", faktor));
+			emitCommand("CALL", "runtimeMult16bit");
+		}
+		emitCommand("PUSH","HL");
+	}
 	public void emitPause() {
 		emitCommand("POP", "HL");
 		emitCommand("CALL", "runtimePause");
@@ -1289,7 +1377,10 @@ public class Z80Emitter {
 	}
 
 	public void emitCheckBreak() {
-		emitCommand("CALL", "runtimeCheckBreak");
+		if (mSettingDebug)
+			emitCommand("CALL", "runtimeCheckBreakDebug");
+		else
+			emitCommand("CALL", "runtimeCheckBreak");
 	}
 
 	public void emitStartInput() {
@@ -1352,7 +1443,7 @@ public class Z80Emitter {
 	}
 
 	public void emitClearTemp() {
-		emitCommand("CALL", "ZXFreeTempCompact");
+		//emitCommand("CALL", "ZXFreeTempCompact");
 	}
 
 	public void emitPushAddFloat() {
@@ -1387,6 +1478,7 @@ public class Z80Emitter {
 	}
 
 	public void emitStmtNr(int stmt) {
+		
 		emitCommand("LD", "A", String.format("%d", stmt));
 		emitCommand("LD", "(23623)", "a");
 	}
@@ -1424,9 +1516,11 @@ public class Z80Emitter {
 
 	}
 
-	public void emitUpperScreen() {
-		emitCommand("XOR", "A", "A");
-		emitCommand("LD", "(ZX_TV_FLAG)", "A");
+	public void emitUpperScreen(int channel) {
+		emitCommand("LD", "A", String.format("%d",channel));
+//		emitCommand("LD", "(ZX_TV_FLAG)", "A");
+		emitCommand("CALL", "$1601",null,"Open Channel");
+
 
 	}
 
@@ -1653,164 +1747,16 @@ public class Z80Emitter {
 		emitCommand("CALL","runtimePrintFixString");
 	}
 
-	public void emitPlusFixVarString(int size) {
-		emitCommand("POP","HL");
-		emitCommand("LD","BC",String.format("%d", size));
-		emitCommand("CALL","runtimeAddStringFixVar");
-		emitCommand("PUSH","HL");
-		
-	}
 
 	public void emitPlusVarFixString(int size) {
 		emitCommand("POP","HL");
 		emitCommand("LD","BC",String.format("%d", size));
-		emitCommand("CALL","runtimeAddStringFixVar");
+		emitCommand("CALL","runtimeAddStringVarFix");
 		emitCommand("PUSH","HL");
 		
 	}
 
-	public void emitPlusFixFixString(int size1, int size2) {
-		emitCommand("LD","BC",String.format("%d", size1));
-		emitCommand("PUSH","BC");
-		emitCommand("LD","BC",String.format("%d", size2));
-		emitCommand("PUSH","BC");
-		emitCommand("CALL","runtimeAddStringFixFix");
-		emitCommand("PUSH","HL");
-	}
 
-	public void emitBiggerFixVarString(int size) {
-		emitCommand("POP","HL");
-		emitCommand("LD","BC",String.format("%d", size));
-		emitCommand("CALL","runtimeBiggerStringFixVar");
-		emitCommand("PUSH","HL");
-		
-	}
-
-	public void emitBiggerVarFixString(int size) {
-		emitCommand("POP","HL");
-		emitCommand("LD","BC",String.format("%d", size));
-		emitCommand("CALL","runtimeBiggerStringVarFix");
-		emitCommand("PUSH","HL");
-		
-	}
-
-	public void emitBiggerFixFixString(int size1, int size2) {
-		emitCommand("LD","BC",String.format("%d", size1));
-		emitCommand("PUSH","BC");
-		emitCommand("LD","BC",String.format("%d", size2));
-		emitCommand("PUSH","BC");
-		emitCommand("CALL","runtimeBiggerStringFixFix");
-		emitCommand("PUSH","HL");
-	}
-
-	public void emitBiggerEqualFixVarString(int size) {
-		emitCommand("POP","HL");
-		emitCommand("LD","BC",String.format("%d", size));
-		emitCommand("CALL","runtimeBiggerEqualStringFixVar");
-		emitCommand("PUSH","HL");
-		
-	}
-
-	public void emitBiggerEqualVarFixString(int size) {
-		emitCommand("POP","HL");
-		emitCommand("LD","BC",String.format("%d", size));
-		emitCommand("CALL","runtimeBiggerEqualStringVarFix");
-		emitCommand("PUSH","HL");
-		
-	}
-
-	public void emitBiggerEqualFixFixString(int size1, int size2) {
-		emitCommand("LD","BC",String.format("%d", size1));
-		emitCommand("PUSH","BC");
-		emitCommand("LD","BC",String.format("%d", size2));
-		emitCommand("PUSH","BC");
-		emitCommand("CALL","runtimeBiggerEqualStringFixFix");
-		emitCommand("PUSH","HL");
-	}
-
-	public void emitSmallerFixVarString(int size) {
-		emitCommand("POP","HL");
-		emitCommand("LD","BC",String.format("%d", size));
-		emitCommand("CALL","runtimeSmallerStringFixVar");
-		emitCommand("PUSH","HL");
-		
-	}
-
-	public void emitSmallerVarFixString(int size) {
-		emitCommand("POP","HL");
-		emitCommand("LD","BC",String.format("%d", size));
-		emitCommand("CALL","runtimeSmallerStringVarFix");
-		emitCommand("PUSH","HL");
-		
-	}
-
-	public void emitSmallerFixFixString(int size1, int size2) {
-		emitCommand("LD","BC",String.format("%d", size1));
-		emitCommand("PUSH","BC");
-		emitCommand("LD","BC",String.format("%d", size2));
-		emitCommand("PUSH","BC");
-		emitCommand("CALL","runtimeSmallerStringFixFix");
-		emitCommand("PUSH","HL");
-	}
-
-	public void emitSmallerEqualFixVarString(int size) {
-		emitCommand("POP","HL");
-		emitCommand("LD","BC",String.format("%d", size));
-		emitCommand("CALL","runtimeSmallerEqualStringFixVar");
-		emitCommand("PUSH","HL");
-		
-	}
-
-	public void emitEqualVarFixString(int size) {
-		emitCommand("POP","HL");
-		emitCommand("LD","BC",String.format("%d", size));
-		emitCommand("CALL","runtimeEqualStringVarFix");
-		emitCommand("PUSH","HL");
-		
-	}
-
-	public void emitEqualFixVarString(int size) {
-		emitCommand("POP","HL");
-		emitCommand("LD","BC",String.format("%d", size));
-		emitCommand("CALL","runtimeEqualStringFixVar");
-		emitCommand("PUSH","HL");
-		
-	}
-
-	public void emitEqualFixFixString(int size1, int size2) {
-		emitCommand("LD","BC",String.format("%d", size1));
-		emitCommand("PUSH","BC");
-		emitCommand("LD","BC",String.format("%d", size2));
-		emitCommand("PUSH","BC");
-		emitCommand("CALL","runtimeEqualStringFixFix");
-		emitCommand("PUSH","HL");
-	}
-
-
-	public void emitUnEqualFixVarString(int size) {
-		emitCommand("POP","HL");
-		emitCommand("LD","BC",String.format("%d", size));
-		emitCommand("CALL","runtimeUnequalStringFixVar");
-		emitCommand("PUSH","HL");
-		
-	}
-
-	public void emitUnEqualVarFixString(int size) {
-		emitCommand("POP","HL");
-		emitCommand("LD","BC",String.format("%d", size));
-		emitCommand("CALL","runtimeUnequalStringVarFix");
-		emitCommand("PUSH","HL");
-		
-	}
-
-	public void emitUnEqualFixFixString(int size1, int size2) {
-		emitCommand("LD","BC",String.format("%d", size1));
-		emitCommand("PUSH","BC");
-		emitCommand("LD","BC",String.format("%d", size2));
-		emitCommand("PUSH","BC");
-		emitCommand("CALL","runtimeUnequalStringFixFix");
-		emitCommand("PUSH","HL");
-	}
 
 	public void emitCreatesubstring() {
 		emitCommand("POP","DE");
@@ -1880,9 +1826,218 @@ public class Z80Emitter {
 		emitCommand("JR","NZ",label);
 		emitCommand("PUSH","HL");
 	}
+	
+	// -------- String-Vergleiche ---------
+	
+	
+	// Vergleiche Var mit Fix
+
+	public void emitBiggerVarFixString(int size) {
+		emitCommand("POP","HL");
+		emitCommand("POP","IX");
+		emitCommand("LD","DE",String.format("%d", size));
+		emitCommand("CALL","runtimeBiggerStringVarFix");
+		emitCommand("PUSH","HL");
+	}
+
+	public void emitBiggerEqualVarFixString(int size) {
+		emitCommand("POP","HL");
+		emitCommand("POP","IX");
+		emitCommand("LD","DE",String.format("%d", size));
+		emitCommand("CALL","runtimeBiggerEqualStringVarFix");
+		emitCommand("PUSH","HL");
+	}
+
+
+	public void emitSmallerVarFixString(int size) {
+		emitCommand("POP","HL");
+		emitCommand("POP","IX");
+		emitCommand("LD","DE",String.format("%d", size));
+		emitCommand("CALL","runtimeSmallerStringVarFix");
+		emitCommand("PUSH","HL");
+	}
+
+	public void emitEqualVarFixString(int size) {
+		emitCommand("POP","HL");
+		emitCommand("POP","IX");
+		emitCommand("LD","DE",String.format("%d", size));
+		emitCommand("CALL","runtimeEqualStringVarFix");
+		emitCommand("PUSH","HL");
+	}
+
+	public void emitUnEqualVarFixString(int size) {
+		emitCommand("POP","DE");
+		emitCommand("POP","HL");
+		emitCommand("LD","BC",String.format("%d", size));
+		emitCommand("CALL","runtimeUnequalStringVarFix");
+		emitCommand("PUSH","HL");
+	}
+	
+	public void emitSmallerEqualVarFixString(int size) {
+		emitCommand("POP","HL");
+		emitCommand("POP","IX");
+		emitCommand("LD","DE",String.format("%d", size));
+		emitCommand("CALL","runtimeSmallerEqualStringVarFix");
+		emitCommand("PUSH","HL");
+		
+	}
+	
+	// Vergleiche Fix mit Var
+	
+	public void emitEqualFixVarString(int size) {
+		emitCommand("POP","IX");
+		emitCommand("POP","HL");
+		emitCommand("LD","DE",String.format("%d", size));
+		emitCommand("CALL","runtimeEqualStringFixVar");
+		emitCommand("PUSH","HL");
+		
+	}
 
 
 
+	public void emitUnEqualFixVarString(int size) {
+		emitCommand("POP","IX");
+		emitCommand("POP","HL");
+		emitCommand("LD","DE",String.format("%d", size));
+		emitCommand("CALL","runtimeUnequalStringFixVar");
+		emitCommand("PUSH","HL");
+		
+	}	
 
+	public void emitPlusFixVarString(int size) {
+		emitCommand("POP","HL");
+		emitCommand("LD","BC",String.format("%d", size));
+		emitCommand("CALL","runtimeAddStringFixVar");
+		emitCommand("PUSH","HL");
+		
+	}
+
+	public void emitBiggerFixVarString(int size) {
+		emitCommand("POP","IX");
+		emitCommand("POP","HL");
+		emitCommand("LD","DE",String.format("%d", size));
+		emitCommand("CALL","runtimeBiggerStringFixVar");
+		emitCommand("PUSH","HL");
+		
+	}
+	
+	public void emitBiggerEqualFixVarString(int size) {
+		emitCommand("POP","HL");
+		emitCommand("POP","DE");
+		emitCommand("LD","BC",String.format("%d", size));
+		emitCommand("CALL","runtimeBiggerEqualStringFixVar");
+		emitCommand("PUSH","HL");
+		
+	}
+	
+	public void emitSmallerFixVarString(int size) {
+		emitCommand("POP","IX");
+		emitCommand("POP","HL");
+		emitCommand("LD","DE",String.format("%d", size));
+		emitCommand("CALL","runtimeSmallerStringFixVar");
+		emitCommand("PUSH","HL");
+		
+	}
+
+	public void emitSmallerEqualFixVarString(int size) {
+		emitCommand("POP","IX");
+		emitCommand("POP","HL");
+		emitCommand("LD","DE",String.format("%d", size));
+		emitCommand("CALL","runtimeSmallerEqualStringFixVar");
+		emitCommand("PUSH","HL");
+		
+	}
+	
+	
+	// Vergleiche Fix String mit Fix String
+	
+
+	public void emitEqualFixFixString(int size1, int size2) {
+		emitCommand("POP","HL");
+		emitCommand("POP","IX");
+		emitCommand("LD","BC",String.format("%d", size1));
+		emitCommand("LD","DE",String.format("%d", size2));
+		emitCommand("CALL","runtimeEqualStringFixFix");
+		emitCommand("PUSH","HL");
+	}
+
+	public void emitUnEqualFixFixString(int size1, int size2) {
+		emitCommand("POP","HL");
+		emitCommand("POP","IX");
+		emitCommand("LD","BC",String.format("%d", size1));
+		emitCommand("LD","DE",String.format("%d", size2));
+		emitCommand("CALL","runtimeUnequalStringFixFix");
+		emitCommand("PUSH","HL");
+	}	
+
+	public void emitBiggerFixFixString(int size1, int size2) {
+		emitCommand("POP","IX");
+		emitCommand("POP","HL");
+		emitCommand("LD","BC",String.format("%d", size1));
+		emitCommand("LD","DE",String.format("%d", size2));
+		emitCommand("CALL","runtimeBiggerStringFixFix");
+		emitCommand("PUSH","HL");
+	}	
+
+	
+	public void emitPlusFixFixString(int size1, int size2) {
+		emitCommand("LD","BC",String.format("%d", size1));
+		emitCommand("PUSH","BC");
+		emitCommand("LD","BC",String.format("%d", size2));
+		emitCommand("PUSH","BC");
+		emitCommand("CALL","runtimeAddStringFixFix");
+		emitCommand("PUSH","HL");
+	}
+
+
+
+	public void emitBiggerEqualFixFixString(int size1, int size2) {
+		emitCommand("POP","HL");
+		emitCommand("POP","IX");
+		emitCommand("LD","BC",String.format("%d", size1));
+		emitCommand("LD","DE",String.format("%d", size2));
+		emitCommand("CALL","runtimeBiggerEqualStringFixFix");
+		emitCommand("PUSH","HL");
+	}
+
+	public void emitSmallerFixFixString(int size1, int size2) {
+		emitCommand("POP","HL");
+		emitCommand("POP","IX");
+		emitCommand("LD","BC",String.format("%d", size1));
+		emitCommand("LD","DE",String.format("%d", size2));
+		emitCommand("CALL","runtimeSmallerStringFixFix");
+		emitCommand("PUSH","HL");
+	}
+
+	public void emitSmallerEqualFixFixString(int size1, int size2) {
+		emitCommand("POP","HL");
+		emitCommand("POP","IX");		
+		emitCommand("LD","BC",String.format("%d", size1));
+		emitCommand("LD","DE",String.format("%d", size2));
+		emitCommand("CALL","runtimeSmallerEqualStringFixFix");
+		emitCommand("PUSH","HL");
+	}
+
+	public void emitAbsInt() {
+		emitCommand("POP","HL");
+		emitCommand("CALL","runtimeAbsInt");
+		emitCommand("PUSH","HL");
+	}
+
+	public void emitAbsFloat() {
+		emitCommand("RST","$28");
+		emitCommand("db","zxcalc_abs");
+		emitCommand("db","$38");
+		
+	}
+
+	public void emitBasicLine(int line, int stmt, String text) {
+		CBasicLine bline = new CBasicLine();
+		bline.line = line;
+		bline.stmt = stmt;
+		bline.text = text;
+		mBasicLines.add(bline);
+		
+	}
 	
 }

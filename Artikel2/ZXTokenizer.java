@@ -105,8 +105,12 @@ public class ZXTokenizer {
 				} else {
 					String strToken = token.mMapTokens.get(b);
 					if (strToken == null) {
-						if (b != 13)
-							strLine += String.format("%c", b);
+						if (b != 13) {
+							if (b < 32 || b >= 128)
+								strLine += String.format("\\%03d", b);
+							else
+								strLine += String.format("%c", b);
+						}
 					}
 						
 					else
@@ -228,6 +232,7 @@ public class ZXTokenizer {
 					token.literal = String.format("%c", b);
 					while (true) {
 						b = bytes[mPos++]; 
+						if (b == 13 || b == ':') break;
 						if (b == 13) break;
 						if (b < 0) b+=256;
 						if (b == 0x0e) {
@@ -274,7 +279,7 @@ public class ZXTokenizer {
 			return result;
 		}
 
-		public Object getStmt() {
+		public String getStmt() {
 			return toString(true);
 		}
 	}

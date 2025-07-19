@@ -131,7 +131,7 @@ public class ZXToken {
 		mMapTokens.put(SPECTRUM, "TRUM");
 		mMapTokens.put(ZXB_PLAY, "PLAY");
 		mMapTokens.put(ZXB_RND, "RND");
-		mMapTokens.put(ZXB_INKEY, "INKEY");
+		mMapTokens.put(ZXB_INKEY, "INKEY$");
 		mMapTokens.put(ZXB_PI, "PI");
 		mMapTokens.put(ZXB_FN, "FN");
 		mMapTokens.put(ZXB_POINT, "POINT");
@@ -159,7 +159,7 @@ public class ZXToken {
 		mMapTokens.put(ZXB_IN, "IN");
 		mMapTokens.put(ZXB_USR, "USR");
 		mMapTokens.put(ZXB_STR, "STR");
-		mMapTokens.put(ZXB_CHR, "CHR");
+		mMapTokens.put(ZXB_CHR, "CHR$");
 		mMapTokens.put(ZXB_NOTX, "NOT");
 		mMapTokens.put(ZXB_BIN, "BIN");
 		mMapTokens.put(ZXB_ORX, "OR");
