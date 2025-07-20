@@ -9,7 +9,7 @@ The compiler then generates a text file which must be compiled with an assembler
 If the optimization is switched on, an easily readable assembler file is generated which can be edited further if required.
 Since the compiler does not run on the ZX Spectrum, the entire usable memory can be used.
 
-<img width="1327" height="783" alt="image" src="https://github.com/user-attachments/assets/2e7aff16-a027-4dd6-830d-86cdb42ef8b6" 
+<img width="1327" height="783" alt="image" src="https://github.com/user-attachments/assets/2e7aff16-a027-4dd6-830d-86cdb42ef8b6" >
 Slow Maniac Willy running under Dezog in Assembler. Thanks to Animated Alex (https://animatedal.itch.io/slow-manic-willy)
 
 
