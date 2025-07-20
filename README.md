@@ -29,6 +29,7 @@ https://github.com/tquester/ZXBasicCompiler/blob/main/DifferencesGer.md
  | Documentation | In progress |
 
 Stil Missing: 
+* The program must end with STOP. I did not figure out, how to find the end of the BASIC in a TAP file so it compiles until STOP
 * String compare is incomplete. The compiler handles dynamic strings and fixed length strings as separate types, so it needs 6*4 = 24 different compare operators
 * Some fixed length operations are still missing (Input, USR, VAL, CODE,..) but are working with dynamic strings
 * Currently the compiler gets tested with BASIC games from the internet. See https://itch.io/jam/zx-spectrum-basic-jam
