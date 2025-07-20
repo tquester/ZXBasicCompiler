@@ -1,6 +1,12 @@
 # Unterschiede im BASIC
 Das kompilierte BASIC hat einige Unterschiede zum BASIC im ZX Spectrum
 
+## Stop ist obligatorisch
+Der Compiler kompiliert bis zum STOP-Befehl. Ich habe noch nicht rausgefunden wie man das Ende von BASIC im Tape findet.
+Fast alle meine Programme haben 
+9998 STOP
+9999 SAVE "program"
+
 ## Integer
 Wenn Variablen als Integer definiert sind, ist der Wertebereich -32767 bis 32767 und es gibt natürlich keine Nachkommastellen, d.h. 1/7 = 0
 Dafür sind Integer-Variablen 20-30 mal schneller als Gleitkomma
