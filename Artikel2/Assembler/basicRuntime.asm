@@ -413,6 +413,9 @@ runtimePrintString:
     inc hl
 runtimePrintFixString:
 runtimePrntString1:
+    ld a,b
+    or c
+    ret z
     ld a,(hl)
     
     PUSH BC
@@ -842,7 +845,8 @@ runtimeSubstringEnd
 
 runtimeStoreStringVarFix:
     push ix
-    LD IX,HL
+    push hl
+    pop ix
     LD HL,(ix)
     inc ix
     inc ix
@@ -1083,6 +1087,7 @@ runtimePushFixedSubString:
     inc  bc
     ld   a,ZXHeapTypeTemp
     call ZXAlloc        ; allocate memory for the string
+    ;call ZXHeapWalk
     pop  de
     pop  bc
     push hl
@@ -1126,6 +1131,7 @@ constEmptyString: dw 0
 ; HL = second string
 ; DE = first String
 runtimeStringAdd:
+    push ix
     push hl
     push de
     ld   bc,(hl)
@@ -1138,31 +1144,43 @@ runtimeStringAdd:
     dec  de
     add  hl,bc          ; Länge beider Strings
     ld   bc,hl
+    push bc
     inc  bc
     inc  bc
     ld   a,ZXHeapTypeTemp
+
     call ZXAlloc
     push hl
-    pop  ix
-    dec  bc
-    dec  bc
+    pop  ix             ; ix = holds result string
+    pop  bc
     ld   (hl),bc
     inc  hl
-    inc  hl
-    ld   de,hl          ; Ziel
-    pop  hl
-    ld   c,(hl)
-    inc  hl
-    ld   b,(hl)
-    inc  hl
-    call ldirnotzero
-    pop  hl
+    inc  hl             ; hl = new BASIC string with combinded length
+
+    pop  de
+    ex   hl,de
     ld   bc,(hl)
-    inc  hl
-    inc  hl
+    ex   hl,de          ; bc = length of first string
+    inc  de
+    inc  de             ; de = points to first character of first string
+    ex   hl,de
     call ldirnotzero
-    push ix
-    pop  hl
+    ex  hl,de
+
+    pop  de
+    ex   hl,de
+    ld   bc,(hl)
+    ex   hl,de          ; bc = length of first string
+    inc  de
+    inc  de             ; de = points to first character of first string
+    ex   hl,de
+    call ldirnotzero
+    ex   hl,de
+
+
+    push  ix
+    pop   hl
+    pop   ix
     ret
 
 ldirnotzero:
@@ -1290,6 +1308,7 @@ runtimeStr:
     LD  A,ZXHeapTypeTemp    ; The string is stored in the temporary heap.
     inc  bc
     inc  bc
+    ld   A,1
     CALL ZXAlloc            ; Allocate memory for the string. Return to BASIC if no memory available
     dec  bc
     dec bc
@@ -2428,29 +2447,13 @@ runtimeDebug:
     sbc  hl,bc
     call z,rtDebugSetStop
 
-
+    ;call rtDebugShowLine
     ld   a,(rtStopped)
     cp   0
     jr   z,rtDebugContinue
-    ld a,5*8
+        ld a,5*8
     ld (charAttrib),a
-    ld a,0
-    ld (charY),a
-    ld  a,24
-    ld (charX),a
-    ld  hl,(rtDebugLine)
-    call printDezHL
-    ld   bc,(rtBreakpoint)
-    or   a,a
-    sbc  hl,bc
-    call z,rtDebugSetStop
-    ld   a,':'
-    call printA
-    ld   a,(rtDebugStmt)
-    call printDezA
-    ld   a,' '
-    call printA
-    call printA
+    call rtDebugShowLine
     call rtDebugSaveScreen
 rtDebugLoop:
     ld  a,0
@@ -2483,6 +2486,27 @@ rtDebugContinueExit
 rtDebugContinue:
     
     ret    
+
+rtDebugShowLine:
+
+    ld a,0
+    ld (charY),a
+    ld  a,24
+    ld (charX),a
+    ld  hl,(rtDebugLine)
+    call printDezHL
+    ld   bc,(rtBreakpoint)
+    or   a,a
+    sbc  hl,bc
+    call z,rtDebugSetStop
+    ld   a,':'
+    call printA
+    ld   a,(rtDebugStmt)
+    call printDezA
+    ld   a,' '
+    call printA
+    call printA
+    ret
 
 rtDebugRun:
     ld a,0
@@ -2521,7 +2545,7 @@ rtDebugWatch:
     ld   bc,32
     ldir
 
-    jr rtDebugLoop    
+    jp rtDebugLoop    
 
 rtPrintString0:
     ld   a,(hl)
@@ -2691,10 +2715,31 @@ rtDebugVarPrintFound:
     inc hl
     ld a,(hl)      ; Anzahl dimns
     cp 0
-    jr  nz,rtDebugVarPrintFoundArray
-    inc hl
-    ld  de,(hl)
+    jr  z,rtDebugVarPrintFound0
+    ld b,a
+    
+    push hl
+    pop ix
+    inc ix
+    ld hl,0
+    ld (rtDebugDim),hl
+    ld hl,1
+rtDebugVarPrintFoundDimLoop:
+    ld e,(ix)
+    ld d,0
+    push bc
+    call runtimeMult16bit
+    pop bc
+    inc ix
+    djnz rtDebugVarPrintFoundDimLoop
+    ld (rtDebugDim),hl
+    ld de,(ix)
+    jr rtDebugVarPrintFound1:
+rtDebugVarPrintFound0:    
+    inc ix
+    ld de,(ix)
 
+rtDebugVarPrintFound1:
     ex  hl,de
     ld  a,c
     cp  1
@@ -2715,31 +2760,22 @@ rtDebugPrintInt:
 
 rtDebugPrintFloat2:
     call runtimePushFloatVar
-    call   runtimePrintFloat
+    call runtimeStr
+    call rtDebugPrintString
+    
     ld  hl,(rtDebugNextVar)
     jp rtDebugPrintWatch0
 
 rtDebugPrintString:
-    ld   de,(hl)
-    ld   a,d
-    or   e
-    jr   z,rtDebugPrintStringEnd
-    ex   hl,de
-    ld   bc,(hl)
-    inc hl
-    inc hl
-rtDebugPrintStringLoop:
-    ld a,(hl)
-    call printA
-    inc hl
-    dec bc
-    ld  a,b
-    or  c
-    jr  nz,rtDebugPrintStringLoop
-    ld  hl,(rtDebugNextVar)
-rtDebugPrintStringEnd:    
-    ld a,32
-    call printA
+    ld   bc,(rtDebugDim)
+    ld   a,b
+    or   c
+    jr   z,rtDebugPrintStringBasic
+    call  rtDebugPrintFixString
+    jp  rtDebugPrintWatch0
+
+rtDebugPrintStringBasic:
+    call rtDebugPrintBASICString
     jp  rtDebugPrintWatch0
 
 
@@ -2749,7 +2785,7 @@ rtDebugVarPrintFoundArray:
 
 
 
-  
+rtDebugDim: dw 0  
 rtDebugStmt: db 0
 rtDebugLine: dw 0
 rtDebugScreenLines equ 3
@@ -2759,7 +2795,7 @@ rtStopped:    db 1
 rtDebugMsgBp: db "BP:",0
 rtDebugMsg:  db "(B)reakpt (R)un (S)tep (W)atch",0
 rtDebugInputBuf: defs 32,0
-rtDebugWatchBuf: db "b g i jj c$",0
+rtDebugWatchBuf: db "a$",0
                 defs 32,0
 
 rtSaveScreen:
@@ -2813,7 +2849,63 @@ rtDebugRestoreScreen:
 
     ret
 
-    endif
+rtDebugPrintBASICString:
+    PUSHA
+    push hl
+    call printf
+    db  "Länge=",0
+    pop  hl
+    push hl
+    ld   de,(hl)
+    ex   hl,de
+    call printDezHL
+    ld   a,32
+    call printA
+    pop  hl
+    ld   bc,(hl)
+    inc  hl
+    inc  hl
+    call rtDebugPrintFixString    
+    POPA
+    ret
+
+rtDebugPrintFixString
+    PUSHA
+rtDebugPrintFixStringLoop:
+    ld   a,(hl)
+    inc  hl
+    call rtDebugPrintA
+    dec  bc
+    ld   a,b
+    or   c
+    jr   nz,rtDebugPrintFixStringLoop
+    ld  a,13
+    call printA
+
+    POPA
+    ret
+
+rtDebugPrintA:
+    push bc
+    ld   b,a
+    ld   c,32
+    cp   a,31
+    jr   c,rtDebugPrintAHex
+    cp   164
+    jr   nc,rtDebugPrintAHex
+    ld   a,b
+    call printA
+    pop bc
+    ret
+rtDebugPrintAHex:
+    ld a,'$'
+    call printA
+    ld   a,b
+    call printHex2
+    pop  bc
+    ret    
+
+endif
 
 
 

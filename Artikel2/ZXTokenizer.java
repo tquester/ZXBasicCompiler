@@ -215,7 +215,10 @@ public class ZXTokenizer {
 					if (b == 34) 
 						break;
 					if (b > 0) {
-						token.literal += (char)b;
+						if (b < 32 || b > 128)
+							token.literal += String.format("\\%02x", b);
+						else
+							token.literal += (char)b;
 					} else {
 						int c = b+256;
 						token.literal += String.format("\\%02x", c);
@@ -257,6 +260,7 @@ public class ZXTokenizer {
 								(b >= 'A' && b <= 'Z') || 
 								b == '$' || 
 								(b >= '0' && b <= '9'))) break;
+						if (b <= 32) break;
 						mPos++;
 						token.literal += String.format("%c", b);
 					}

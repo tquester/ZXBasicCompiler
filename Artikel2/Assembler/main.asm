@@ -2,8 +2,8 @@
 ;===========================================================================
 ; main.asm
 ;===========================================================================
-DEBUG                       equ 0			; Enables debug mode. Used to test so new functions. Compiled BASIC runs with custom PRINT command
-DEBUGBASIC                  equ 0		; Initializes the ZX Spectrum using a copy of the startup, then starts the compiled BASIC program.
+DEBUG                       equ 1		; Enables debug mode. Used to test so new functions. Compiled BASIC runs with custom PRINT command
+DEBUGBASIC                  equ 1		; Initializes the ZX Spectrum using a copy of the startup, then starts the compiled BASIC program.
 											; Rom routines are allowed
 DEBUGBASIC_CALLEDITOR       equ 0
 DEBUGSAVESCREEN				equ 0			; Heep Walk saves and restores the screen (costs 6144+768 Bytes )
@@ -38,6 +38,7 @@ NEX:    equ 1   ;  1=Create nex file, 0=create sna file
         ;DEVICE NOSLOT64K
     ELSE
         DEVICE ZXSPECTRUMNEXT
+		
     ENDIF
 
 
@@ -50,6 +51,8 @@ main:
 
 
  		ld sp,stack_top
+		ld hl,EndOfCode
+		;ld (ZXHeapStart),hl
 		if DEBUGBASIC=1
          call InitSpectrum
         endif 
@@ -336,10 +339,12 @@ stack_top:
 main_end:
 relocator_table:
 ;    RELOCATE_TABLE
+EndOfCode: equ $
 
 
 code_size   EQU     $ - main
     DISPLAY "Code size = ", /D, code_size,  " bytes"
+	DISPLAY "EndOfCode =" ,$
 	MakeTape "compiled.tap", "compiled", START, code_size
         RELOCATE_END
 relocate_count equ (code_size-relocator_table)/2

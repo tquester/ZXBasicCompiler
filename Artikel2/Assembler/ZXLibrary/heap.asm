@@ -149,6 +149,8 @@ ZXHeapCompactFreeNext:      ld    DE,(ix+ZXBlockSize)
 ; --------------------------------------------------------
 ZXHeapWalk:         if DEBUG=1
                     PUSHA
+                    ;CALL ZXFreeTempCompact
+
                     call saveScreen 
                     call runtimeCls
                     call ZXHeapWalkPrint
@@ -392,7 +394,10 @@ ZXClearHeap:         push   ix
 ZXAlloc:                push ix
                         push bc
                         push de
-                        CALL ZXFreeTempCompact
+                        push af
+                        
+;                        CALL ZXFreeTempCompact
+                        pop af
                         pop de
                         pop bc
                         pop ix
@@ -554,7 +559,7 @@ ZXClaim:                call ZXCheckIfHlisHeapBlock
 ; now create a new block at the end of the memory.
 ZXAllocNotFound:        if DEBUG=1
                         call runtimeCls
-                        call ZXHeapWalk
+;                        call ZXHeapWalk
                         endif
                         ld   hl,error_no_heap
                         call runtimePrintString

@@ -68,6 +68,13 @@ public class Z80Emitter {
 			}
 			return String.format("%s %s", strtyp, name);
 		}
+
+		public int getFixStringLen() {
+			int i = dimen.length;
+			if (i == 0) return 0;
+			i--;
+			return dimen[i];
+		}
 	}
 
 	public static class CDefFN {
@@ -232,29 +239,30 @@ public class Z80Emitter {
 			emitString(String.format("DATAPTR:\tDW 0"));
 		}
 		emitString(mSBData.toString());
-		if (mSettingDebug) 
 			writeDebugInfos();
 	}
 	
 	private void writeDebugInfos() {
 		emitString("ZX_VARIABLES:");
-		for (String key: mMapVariables.keySet()) {
-			Variable var = mMapVariables.get(key);
-			String varname = key;
-			if (varname.endsWith("_string")) 
-				varname = varname.substring(0,varname.length()-7)+"$";
-			String line = String.format("\tdb %d,\"%s\",%d", varname.length(), varname, typtoint(var.typ));
-			if (var.dimen == null) {
-				line += ",0";
-			} else {
-				line += String.format(",%d", var.dimen.length);
-				for (int i=0;i<var.dimen.length;i++) {
-					line += String.format(",%d", var.dimen[i]);
+		if (mSettingDebug) {
+			for (String key: mMapVariables.keySet()) {
+				Variable var = mMapVariables.get(key);
+				String varname = key;
+				if (varname.endsWith("_string")) 
+					varname = varname.substring(0,varname.length()-7)+"$";
+				String line = String.format("\tdb %d,\"%s\",%d", varname.length(), varname, typtoint(var.typ));
+				if (var.dimen == null) {
+					line += ",0";
+				} else {
+					line += String.format(",%d", var.dimen.length);
+					for (int i=0;i<var.dimen.length;i++) {
+						line += String.format(",%d", var.dimen[i]);
+					}
 				}
+				emitString(line);
+				emitString(String.format("\tdw ZXBASIC_VAR_%s", key));
+				
 			}
-			emitString(line);
-			emitString(String.format("\tdw ZXBASIC_VAR_%s", key));
-			
 		}
 		emitString("\tdb 0");
 		
@@ -983,8 +991,14 @@ public class Z80Emitter {
 		emitCommand("POP", "HL");
 		emitCommand("CALL", "runtimeUsrUDG");
 		emitCommand("PUSH", "HL");
-
 	}
+	public void emitUsrUDGFixString() {
+		emitCommand("POP", "HL");
+		emitCommand("CALL", "runtimeUsrUDGFixString");
+		emitCommand("PUSH", "HL");
+		
+	}
+	
 
 	public void emitLn() {
 		emitCommand("CALL", "runtimeLn");
@@ -1443,7 +1457,7 @@ public class Z80Emitter {
 	}
 
 	public void emitClearTemp() {
-		//emitCommand("CALL", "ZXFreeTempCompact");
+		emitCommand("CALL", "ZXFreeTempCompact");
 	}
 
 	public void emitPushAddFloat() {
@@ -2039,5 +2053,6 @@ public class Z80Emitter {
 		mBasicLines.add(bline);
 		
 	}
+
 	
 }

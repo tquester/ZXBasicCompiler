@@ -3,4485 +3,3458 @@ CBASIC_START
 compiledBasic:
 	call ZXHeapClear
 	LD (runtimeSaveSP),SP
-	LD HL,DATA_140
+	LD HL,DATA_900
 	LD (DATAPTR),HL
-; 4.1  DIM s(22,22)
-	LD HL,ZXBASIC_VAR_s_array
-	LD BC,2645
-	CALL runtimeClearArray
-; 4.1  DIM x(100)
-	LD HL,ZXBASIC_VAR_x_array
-	LD BC,505
-	CALL runtimeClearArray
-; 4.1  DIM y(100)
-	LD HL,ZXBASIC_VAR_y_array
-	LD BC,505
-	CALL runtimeClearArray
-; 4.1  DIM c$(100,1)
-	LD HL,ZXBASIC_VAR_c_string
-	LD BC,202
+; 760.1  DIM a$(32)
+	LD HL,ZXBASIC_VAR_a_string
+	LD BC,33
 	CALL runtimeClearStringArray
-; 4.1  DIM d$(100,1)
+; 760.1  DIM d$(32)
 	LD HL,ZXBASIC_VAR_d_string
-	LD BC,202
+	LD BC,33
 	CALL runtimeClearStringArray
-; 4.1  DIM c(100)
-	LD HL,ZXBASIC_VAR_c_array
-	LD BC,505
-	CALL runtimeClearArray
-; 4.1  DIM d(100)
-	LD HL,ZXBASIC_VAR_d_array
-	LD BC,505
-	CALL runtimeClearArray
-; 140.1 
-; 160.1 
-; 180.1 
-; 200.1 
-; 470.1  DIM s(22,32)
-	LD HL,ZXBASIC_VAR_s_array
-	LD BC,2645
-	CALL runtimeClearArray
-; 530.1  DIM x(nz)
-; 540.1  DIM y(nz)
-; 550.1  DIM c$(nz,1)
-; 550.1  DIM d$(nz,1)
-; 560.1  DIM c(nz)
-; 560.1  DIM d(nz)
-ZXBASIC_LINE_1:
-; 1  REM compiler-options
-ZXBASIC_LINE_2:
-; 2  REM int16 i x y dx dy ny nx n b zi zx zy UDG s() x() y() d()
-ZXBASIC_LINE_3:
-; 3  REM data int16
-ZXBASIC_LINE_4:
-; 4  DIM s(22,22): DIM x(100): DIM y(100): DIM c$(100,1): DIM d$(100,1): DIM c(100): DIM d(100)
-; 		4.1  DIM s(22{00 00 16 00 00 },22{00 00 16 00 00 })
-	LD HL,ZXBASIC_VAR_s_array
-	LD BC,2645
-	CALL runtimeClearArray
-; 		4.2  DIM x(100{00 00 64 00 00 })
-	LD HL,ZXBASIC_VAR_x_array
-	LD BC,505
-	CALL runtimeClearArray
-; 		4.3  DIM y(100{00 00 64 00 00 })
-	LD HL,ZXBASIC_VAR_y_array
-	LD BC,505
-	CALL runtimeClearArray
-; 		4.4  DIM c$(100{00 00 64 00 00 },1{00 00 01 00 00 })
-	LD HL,ZXBASIC_VAR_c_string
-	LD BC,202
+; 760.1  DIM e$(32)
+	LD HL,ZXBASIC_VAR_e_string
+	LD BC,33
 	CALL runtimeClearStringArray
-; 		4.5  DIM d$(100{00 00 64 00 00 },1{00 00 01 00 00 })
-	LD HL,ZXBASIC_VAR_d_string
-	LD BC,202
-	CALL runtimeClearStringArray
-; 		4.6  DIM c(100{00 00 64 00 00 })
-	LD HL,ZXBASIC_VAR_c_array
-	LD BC,505
-	CALL runtimeClearArray
-; 		4.7  DIM d(100{00 00 64 00 00 })
-	LD HL,ZXBASIC_VAR_d_array
-	LD BC,505
-	CALL runtimeClearArray
+; 900.1 
+; 920.1 
+; 950.1 
+; 970.1 
+; 990.1 
+; 1010.1 
 ZXBASIC_LINE_10:
-; 10  REM \134      ZXombies!      \134
+; 10  REM *** ZAP ***
+	LD HL,10
+	LD (23621),HL
+	LD A,1
+	LD (23623),a
+	LD HL,10
+	LD A,1
+	CALL runtimeDebug
 ZXBASIC_LINE_20:
-; 20  REM \134   2017 @xenopunk   \134
+; 20  GOSUB 560: REM UDG
+	LD HL,20
+	LD (23621),HL
+; 		20.1  GOSUB 560{00 00 30 02 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,20
+	LD A,1
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	CALL ZXBASIC_LINE_560
+	LD A,2
+	LD (23623),a
+	LD HL,20
+	LD A,2
+	CALL runtimeDebug
 ZXBASIC_LINE_30:
-; 30  REM \134 #zxspectrumbasicjam \134
-ZXBASIC_LINE_40:
-; 40  LET UDG=0
-; 		40.1  LET UDG=0{00 00 00 00 00 }
-	LD HL,FLOAT_1	;0
-	LD DE,ZXBASIC_VAR_UDG
-	LD BC,5
-	LDIR
-ZXBASIC_LINE_50:
-; 50  REM \134\134\134\134\134\134\134\134\134\134 Title Screen
-ZXBASIC_LINE_60:
-; 60  BORDER 0: PAPER 0: INK 7: BRIGHT 1: CLS 
-; 		60.1  BORDER 0{00 00 00 00 00 }
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
+; 30  PAPER 0: BORDER 0: CLS 
+	LD HL,30
+	LD (23621),HL
+; 		30.1  PAPER 0{00 00 00 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,30
+	LD A,1
+	CALL runtimeDebug
+	LD HL,0
+	CALL runtimePaper
+; 		30.2  BORDER 0{00 00 00 00 00 }
+	LD A,2
+	LD (23623),a
+	LD HL,30
+	LD A,2
+	CALL runtimeDebug
+	LD HL,0
 	LD A,L
 	call $2297
-; 		60.2  PAPER 0{00 00 00 00 00 }
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimePaper
-; 		60.3  INK 7{00 00 07 00 00 }
-	LD HL,FLOAT_2	;7
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeInk
-; 		60.4  BRIGHT 1{00 00 01 00 00 }
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeBright
-; 		60.5  CLS 
+; 		30.3  CLS 
+	LD A,3
+	LD (23623),a
+	LD HL,30
+	LD A,3
+	CALL runtimeDebug
 	CALL runtimeCls
-ZXBASIC_LINE_70:
-; 70  PRINT  AT 0,12; INK 2;"ZXombies!"
-; 		70.1  PRINT  AT 0{00 00 00 00 00 },12{00 00 0c 00 00 }; INK 2{00 00 02 00 00 };"ZXombies!"
+ZXBASIC_LINE_40:
+; 40  LET hs=0
+	LD HL,40
+	LD (23621),HL
+; 		40.1  LET hs=0{00 00 00 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,40
+	LD A,1
+	CALL runtimeDebug
+	LD HL,0
+	LD (ZXBASIC_VAR_hs),HL
+ZXBASIC_LINE_50:
+; 50  GOSUB 700
+	LD HL,50
+	LD (23621),HL
+; 		50.1  GOSUB 700{00 00 bc 02 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,50
+	LD A,1
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	CALL ZXBASIC_LINE_700
+ZXBASIC_LINE_170:
+; 170  REM *** GAME LOOP ***
+	LD HL,170
+	LD (23621),HL
+	LD A,1
+	LD (23623),a
+	LD HL,170
+	LD A,1
+	CALL runtimeDebug
+ZXBASIC_LINE_180:
+; 180  LET k= IN 57342: LET j= IN 31
+	LD HL,180
+	LD (23621),HL
+; 		180.1  LET k= IN 57342{00 00 fe df 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,180
+	LD A,1
+	CALL runtimeDebug
+; IN
+	LD HL,57342
+	LD BC,HL
+	IN A,(C)
+	LD L,A
+	LD H,0
+	LD (ZXBASIC_VAR_k),HL
+; 		180.2  LET j= IN 31{00 00 1f 00 00 }
 	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,FLOAT_4	;12
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,FLOAT_5	;2
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalInk
-	LD HL,STRING_0	;ZXombies!
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
-	POP AF
-	LD (ZX_P_FLAG),A
-ZXBASIC_LINE_80:
-; 80  PRINT  AT 2,3; INK 6; BRIGHT 0;"It's 1983 and the dead are"; AT 3,5;"rising from the grave."; AT 4,8;"Who can save us?"
-; 		80.1  PRINT  AT 2{00 00 02 00 00 },3{00 00 03 00 00 }; INK 6{00 00 06 00 00 }; BRIGHT 0{00 00 00 00 00 };"It's 1983 and the dead are"; AT 3{00 00 03 00 00 },5{00 00 05 00 00 };"rising from the grave."; AT 4{00 00 04 00 00 },8{00 00 08 00 00 };"Who can save us?"
+	LD (23623),a
+	LD HL,180
 	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,FLOAT_5	;2
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,FLOAT_6	;3
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,FLOAT_7	;6
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalInk
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalBright
-	LD HL,STRING_1	;It's 1983 and the dead are
-	CALL runtimePrintString
-	LD HL,FLOAT_6	;3
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,FLOAT_8	;5
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,STRING_2	;rising from the grave.
-	CALL runtimePrintString
-	LD HL,FLOAT_9	;4
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,FLOAT_10	;8
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,STRING_3	;Who can save us?
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
-	POP AF
-	LD (ZX_P_FLAG),A
-ZXBASIC_LINE_90:
-; 90  PRINT  AT 18,9; INK 4; BRIGHT 0;"2017 @xenopunk"
-; 		90.1  PRINT  AT 18{00 00 12 00 00 },9{00 00 09 00 00 }; INK 4{00 00 04 00 00 }; BRIGHT 0{00 00 00 00 00 };"2017 @xenopunk"
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,FLOAT_11	;18
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,FLOAT_12	;9
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,FLOAT_9	;4
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalInk
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalBright
-	LD HL,STRING_4	;2017 @xenopunk
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
-	POP AF
-	LD (ZX_P_FLAG),A
-ZXBASIC_LINE_100:
-; 100  PRINT  AT 19,7; INK 4; BRIGHT 0;"#zxspectrumbasicjam"
-; 		100.1  PRINT  AT 19{00 00 13 00 00 },7{00 00 07 00 00 }; INK 4{00 00 04 00 00 }; BRIGHT 0{00 00 00 00 00 };"#zxspectrumbasicjam"
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,FLOAT_13	;19
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,FLOAT_2	;7
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,FLOAT_9	;4
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalInk
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalBright
-	LD HL,STRING_5	;#zxspectrumbasicjam
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
-	POP AF
-	LD (ZX_P_FLAG),A
-ZXBASIC_LINE_110:
-; 110  REM --------Define graphics
-ZXBASIC_LINE_120:
-; 120  IF UDG THEN  GOTO 230
-; 		120.1  IF UDG THEN  GOTO 230{00 00 e6 00 00 }
-	LD HL,ZXBASIC_VAR_UDG
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
+	CALL runtimeDebug
+; IN
+	LD HL,31
+	LD BC,HL
+	IN A,(C)
+	LD L,A
+	LD H,0
+	LD (ZXBASIC_VAR_j),HL
+ZXBASIC_LINE_185:
+; 185  IF j>16 THEN  LET j=j-16: GOSUB f
+	LD HL,185
+	LD (23621),HL
+; 		185.1  IF j>16{00 00 10 00 00 } THEN  LET j=j-16{00 00 10 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,185
+	LD A,1
+	CALL runtimeDebug
+	LD DE,(ZXBASIC_VAR_j)
+	LD HL,16
+; >
+	CALL runtimeCmpHlGtDE
 	LD A,L
 	CP 0
 	JP Z,ZXB_LABEL_1
-; 		120.2  GOTO 230{00 00 e6 00 00 }
-	CALL runtimeCheckBreak
-	JP ZXBASIC_LINE_230
-ZXB_LABEL_1:
-ZXBASIC_LINE_130:
-; 130  PRINT  AT 21,8; INK 1; BRIGHT 0;"Decomposing"
-; 		130.1  PRINT  AT 21{00 00 15 00 00 },8{00 00 08 00 00 }; INK 1{00 00 01 00 00 }; BRIGHT 0{00 00 00 00 00 };"Decomposing"
+; 		185.2  LET j=j-16{00 00 10 00 00 }
 	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,FLOAT_15	;21
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,FLOAT_10	;8
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalInk
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalBright
-	LD HL,STRING_6	;Decomposing
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
-	POP AF
-	LD (ZX_P_FLAG),A
-ZXBASIC_LINE_140:
-; 140  DATA 56: RESTORE 140: READ n: FOR i=1 TO n: READ b: POKE  USR "a"+i-1,b: PRINT  AT 21,20; INK 1; BRIGHT 0;i;"/";n: BEEP 0.002,i: NEXT i
-; 		140.1  DATA 56{00 00 38 00 00 }
-; 		140.2  RESTORE 140{00 00 8c 00 00 }
-	LD HL,DATA_140
-	LD (DATAPTR),HL
-; 		140.3  READ n
-	LD HL,(DATAPTR)
-	LD DE,ZXBASIC_VAR_n
-	LD BC,5
-	LDIR
-	LD (DATAPTR),HL
-; 		140.4  FOR i=1{00 00 01 00 00 } TO n
-	CALL runtimeCheckBreak
-	LD HL,FLOAT_3	;1
-	LD DE,ZXBASIC_VAR_i
-	LD BC,5
-	LDIR
-	LD HL,ZXBASIC_VAR_n
-	LD DE,ZXBASIC_VAR_for_i
-	LD BC,5
-	LDIR
-FOR_0:
-; 		140.5  READ b
-	LD HL,(DATAPTR)
-	LD DE,ZXBASIC_VAR_b
-	LD BC,5
-	LDIR
-	LD (DATAPTR),HL
-; 		140.6  POKE  USR "a"+i-1{00 00 01 00 00 },b
-; USR
-	LD HL,STRING_7	;a
-	CALL runtimeUsrUDG
-	PUSH HL
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-; +
-	POP HL
-	CALL runtimeIntToFloat
-	CALL runtimePlusFloat
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
+	LD (23623),a
+	LD HL,185
+	LD A,2
+	CALL runtimeDebug
+	LD HL,(ZXBASIC_VAR_j)
+	LD DE,16
 ; -
-	RST $28
-	DB $03	;SUB
-	DB $38	;END CALC
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,ZXBASIC_VAR_b
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	EX HL,DE
-	LD (HL),E
-; 		140.7  PRINT  AT 21{00 00 15 00 00 },20{00 00 14 00 00 }; INK 1{00 00 01 00 00 }; BRIGHT 0{00 00 00 00 00 };i;"/";n
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,FLOAT_15	;21
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,FLOAT_17	;20
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalInk
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalBright
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-	CALL runtimePrintFloat
-	LD HL,STRING_8	;/
-	CALL runtimePrintString
-	LD HL,ZXBASIC_VAR_n
-	CALL runtimePushFloatVar
-	CALL runtimePrintFloat
-	CALL runtimePrintNewline
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
-	POP AF
-	LD (ZX_P_FLAG),A
-; 		140.8  BEEP 0.002{78 03 12 6e 97 },i
-	LD HL,FLOAT_18	;0.002
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-	CALL $03F8
-; 		140.9  NEXT i
-	CALL runtimeCheckBreak
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-	RST $28
-	DB zxcalc_stack_one	;STACK ONE
-	DB zxcalc_addition	;ADD
-	DB zxcalc_end_calc	;END CALC
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimeStoreFloat
-	LD HL,ZXBASIC_VAR_for_i
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-	CALL runtimeSmallerFloat
-	LD A,L
-	CP 0
-	JP Z,FOR_0
-ZXBASIC_LINE_150:
-; 150  DATA 24,24,16,60,90,24,36,68
-; 		150.1  DATA 24{00 00 18 00 00 },24{00 00 18 00 00 },16{00 00 10 00 00 },60{00 00 3c 00 00 },90{00 00 5a 00 00 },24{00 00 18 00 00 },36{00 00 24 00 00 },68{00 00 44 00 00 }
-ZXBASIC_LINE_160:
-; 160  DATA 0,60,126,66,126,66,126,126
-; 		160.1  DATA 0{00 00 00 00 00 },60{00 00 3c 00 00 },126{00 00 7e 00 00 },66{00 00 42 00 00 },126{00 00 7e 00 00 },66{00 00 42 00 00 },126{00 00 7e 00 00 },126{00 00 7e 00 00 }
-ZXBASIC_LINE_170:
-; 170  DATA 0,8,16,223,252,34,65,0
-; 		170.1  DATA 0{00 00 00 00 00 },8{00 00 08 00 00 },16{00 00 10 00 00 },223{00 00 df 00 00 },252{00 00 fc 00 00 },34{00 00 22 00 00 },65{00 00 41 00 00 },0{00 00 00 00 00 }
-ZXBASIC_LINE_180:
-; 180  DATA 24,24,16,30,24,24,20,36
-; 		180.1  DATA 24{00 00 18 00 00 },24{00 00 18 00 00 },16{00 00 10 00 00 },30{00 00 1e 00 00 },24{00 00 18 00 00 },24{00 00 18 00 00 },20{00 00 14 00 00 },36{00 00 24 00 00 }
+	SUB HL,DE
+	LD (ZXBASIC_VAR_j),HL
+; 		185.3  GOSUB f
+	LD A,3
+	LD (23623),a
+	LD HL,185
+	LD A,3
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	LD DE,(ZXBASIC_VAR_f)
+	LD HL,ZXLINES
+	CALL runtimeFindLine
+	CALL runtimeVarCall
+ZXB_LABEL_1:
 ZXBASIC_LINE_190:
-; 190  DATA 24,24,82,60,24,24,20,20
-; 		190.1  DATA 24{00 00 18 00 00 },24{00 00 18 00 00 },82{00 00 52 00 00 },60{00 00 3c 00 00 },24{00 00 18 00 00 },24{00 00 18 00 00 },20{00 00 14 00 00 },20{00 00 14 00 00 }
+; 190  INK 0
+	LD HL,190
+	LD (23621),HL
+; 		190.1  INK 0{00 00 00 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,190
+	LD A,1
+	CALL runtimeDebug
+	LD HL,0
+	CALL runtimeInk
 ZXBASIC_LINE_200:
-; 200  DATA 24,24,16,56,124,186,40,68
-; 		200.1  DATA 24{00 00 18 00 00 },24{00 00 18 00 00 },16{00 00 10 00 00 },56{00 00 38 00 00 },124{00 00 7c 00 00 },186{00 00 ba 00 00 },40{00 00 28 00 00 },68{00 00 44 00 00 }
-ZXBASIC_LINE_210:
-; 210  DATA 0,24,24,126,126,24,24,0
-; 		210.1  DATA 0{00 00 00 00 00 },24{00 00 18 00 00 },24{00 00 18 00 00 },126{00 00 7e 00 00 },126{00 00 7e 00 00 },24{00 00 18 00 00 },24{00 00 18 00 00 },0{00 00 00 00 00 }
-ZXBASIC_LINE_220:
-; 220  LET UDG=1
-; 		220.1  LET UDG=1{00 00 01 00 00 }
-	LD HL,FLOAT_3	;1
-	LD DE,ZXBASIC_VAR_UDG
-	LD BC,5
-	LDIR
-ZXBASIC_LINE_230:
-; 230  REM -----------Instructions
-ZXBASIC_LINE_240:
-; 240  PRINT  AT 6,3; INK 3;"\144"; INK 7; BRIGHT 0;" MAGENTA       100% badass"
-; 		240.1  PRINT  AT 6{00 00 06 00 00 },3{00 00 03 00 00 }; INK 3{00 00 03 00 00 };"\144"; INK 7{00 00 07 00 00 }; BRIGHT 0{00 00 00 00 00 };" MAGENTA       100% badass"
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,FLOAT_7	;6
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
+; 200   LET a$=a$(32)+a$( TO 31)
+	LD HL,200
+	LD (23621),HL
+; 		200.1  LET a$=a$(32{00 00 20 00 00 })+a$( TO 31{00 00 1f 00 00 })
+	LD A,1
+	LD (23623),a
+	LD HL,200
+	LD A,1
+	CALL runtimeDebug
+	LD HL,ZXBASIC_VAR_a_string
 	PUSH HL
-	LD HL,FLOAT_6	;3
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,FLOAT_6	;3
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalInk
-	LD HL,STRING_9	;\90
-	CALL runtimePrintString
-	LD HL,FLOAT_2	;7
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalInk
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalBright
-	LD HL,STRING_10	; MAGENTA       100% badass
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
-	POP AF
-	LD (ZX_P_FLAG),A
-ZXBASIC_LINE_250:
-; 250  PRINT  AT 8,3; INK 4; BRIGHT 1;"\147"; INK 7; BRIGHT 0;" DAWDLER        +10 points"
-; 		250.1  PRINT  AT 8{00 00 08 00 00 },3{00 00 03 00 00 }; INK 4{00 00 04 00 00 }; BRIGHT 1{00 00 01 00 00 };"\147"; INK 7{00 00 07 00 00 }; BRIGHT 0{00 00 00 00 00 };" DAWDLER        +10 points"
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,FLOAT_10	;8
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
+	LD HL,ZXBASIC_VAR_a_string
 	PUSH HL
-	LD HL,FLOAT_6	;3
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,FLOAT_9	;4
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalInk
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalBright
-	LD HL,STRING_11	;\93
-	CALL runtimePrintString
-	LD HL,FLOAT_2	;7
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalInk
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalBright
-	LD HL,STRING_12	; DAWDLER        +10 points
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
-	POP AF
-	LD (ZX_P_FLAG),A
-ZXBASIC_LINE_260:
-; 260  PRINT  AT 10,3; INK 5; BRIGHT 1;"\148"; INK 7; BRIGHT 0;" WHINGER        +20 points"
-; 		260.1  PRINT  AT 10{00 00 0a 00 00 },3{00 00 03 00 00 }; INK 5{00 00 05 00 00 }; BRIGHT 1{00 00 01 00 00 };"\148"; INK 7{00 00 07 00 00 }; BRIGHT 0{00 00 00 00 00 };" WHINGER        +20 points"
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,FLOAT_19	;10
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
+	LD HL,32
 	PUSH HL
-	LD HL,FLOAT_6	;3
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
+	LD BC,HL
 	POP DE
-	CALL runtimePrintAt
-	LD HL,FLOAT_8	;5
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalInk
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalBright
-	LD HL,STRING_13	;\94
-	CALL runtimePrintString
-	LD HL,FLOAT_2	;7
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalInk
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalBright
-	LD HL,STRING_14	; WHINGER        +20 points
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
-	POP AF
-	LD (ZX_P_FLAG),A
-ZXBASIC_LINE_270:
-; 270  PRINT  AT 12,3; INK 6; BRIGHT 1;"\149"; INK 7; BRIGHT 0;" GUZZLER        +30 points"
-; 		270.1  PRINT  AT 12{00 00 0c 00 00 },3{00 00 03 00 00 }; INK 6{00 00 06 00 00 }; BRIGHT 1{00 00 01 00 00 };"\149"; INK 7{00 00 07 00 00 }; BRIGHT 0{00 00 00 00 00 };" GUZZLER        +30 points"
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,FLOAT_4	;12
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
+	POP HL
+	CALL runtimePushFixedSubString
 	PUSH HL
-	LD HL,FLOAT_6	;3
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,FLOAT_7	;6
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalInk
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalBright
-	LD HL,STRING_15	;\95
-	CALL runtimePrintString
-	LD HL,FLOAT_2	;7
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalInk
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalBright
-	LD HL,STRING_16	; GUZZLER        +30 points
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
-	POP AF
-	LD (ZX_P_FLAG),A
-ZXBASIC_LINE_280:
-; 280  PRINT  AT 14,3; PAPER 2; INK 7; BRIGHT 1;"\150"; PAPER 0; INK 7; BRIGHT 0;" PLASTER           +1 life"
-; 		280.1  PRINT  AT 14{00 00 0e 00 00 },3{00 00 03 00 00 }; PAPER 2{00 00 02 00 00 }; INK 7{00 00 07 00 00 }; BRIGHT 1{00 00 01 00 00 };"\150"; PAPER 0{00 00 00 00 00 }; INK 7{00 00 07 00 00 }; BRIGHT 0{00 00 00 00 00 };" PLASTER           +1 life"
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,FLOAT_20	;14
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
+	LD HL,ZXBASIC_VAR_a_string
 	PUSH HL
-	LD HL,FLOAT_6	;3
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,FLOAT_5	;2
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalPaper
-	LD HL,FLOAT_2	;7
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalInk
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalBright
-	LD HL,STRING_17	;\96
-	CALL runtimePrintString
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalPaper
-	LD HL,FLOAT_2	;7
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalInk
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalBright
-	LD HL,STRING_18	; PLASTER           +1 life
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
-	POP AF
-	LD (ZX_P_FLAG),A
-ZXBASIC_LINE_290:
-; 290  PRINT  AT 16,3; INK 5; BRIGHT 1;"QAOP to move + M to attack!"
-; 		290.1  PRINT  AT 16{00 00 10 00 00 },3{00 00 03 00 00 }; INK 5{00 00 05 00 00 }; BRIGHT 1{00 00 01 00 00 };"QAOP to move + M to attack!"
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,FLOAT_21	;16
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
+	LD HL,1
 	PUSH HL
-	LD HL,FLOAT_6	;3
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
+	LD HL,31
+	LD BC,HL
 	POP DE
-	CALL runtimePrintAt
-	LD HL,FLOAT_8	;5
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalInk
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalBright
-	LD HL,STRING_19	;QAOP to move + M to attack!
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
-	POP AF
-	LD (ZX_P_FLAG),A
-ZXBASIC_LINE_300:
-; 300  PRINT  AT 21,0; INK 7; FLASH 1;"     Press any key to start     "
-; 		300.1  PRINT  AT 21{00 00 15 00 00 },0{00 00 00 00 00 }; INK 7{00 00 07 00 00 }; FLASH 1{00 00 01 00 00 };"     Press any key to start     "
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,FLOAT_15	;21
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
+	POP HL
+	CALL runtimePushFixedSubString
+; +
 	POP DE
-	CALL runtimePrintAt
-	LD HL,FLOAT_2	;7
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalInk
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalFlash
-	LD HL,STRING_20	;     Press any key to start     
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
-	POP AF
-	LD (ZX_P_FLAG),A
-ZXBASIC_LINE_310:
-; 310  IF  INKEY$ ="" THEN  GOTO 310
-; 		310.1  IF  INKEY$ ="" THEN  GOTO 310{00 00 36 01 00 }
-; INKEY$
-	CALL runtimeInkey
-	LD DE,HL
-	LD HL,STRING_21	;
-; =
-	CALL runtimeEqualString
+	CALL runtimeStringAdd
+	POP DE
+	LD BC,32
+	CALL runtimeStoreStringVarFix
+ZXBASIC_LINE_202:
+; 202  REM PRINT AT 2,0; INK 3;a$;
+	LD HL,202
+	LD (23621),HL
+	LD A,1
+	LD (23623),a
+	LD HL,202
+	LD A,1
+	CALL runtimeDebug
+ZXBASIC_LINE_203:
+; 203  
+	LD HL,203
+	LD (23621),HL
+ZXBASIC_LINE_205:
+; 205   IF l >= 4 THEN  LET e$=e$(32)+e$( TO 31)
+	LD HL,205
+	LD (23621),HL
+; 		205.1  IF l >= 4{00 00 04 00 00 } THEN  LET e$=e$(32{00 00 20 00 00 })+e$( TO 31{00 00 1f 00 00 })
+	LD A,1
+	LD (23623),a
+	LD HL,205
+	LD A,1
+	CALL runtimeDebug
+	LD DE,(ZXBASIC_VAR_l)
+	LD HL,4
+; >=
+	CALL runtimeCmpHLGeDE
 	LD A,L
 	CP 0
 	JP Z,ZXB_LABEL_2
-; 		310.2  GOTO 310{00 00 36 01 00 }
-	CALL runtimeCheckBreak
-	JP ZXBASIC_LINE_310
+; 		205.2  LET e$=e$(32{00 00 20 00 00 })+e$( TO 31{00 00 1f 00 00 })
+	LD A,2
+	LD (23623),a
+	LD HL,205
+	LD A,2
+	CALL runtimeDebug
+	LD HL,ZXBASIC_VAR_e_string
+	PUSH HL
+	LD HL,ZXBASIC_VAR_e_string
+	PUSH HL
+	LD HL,32
+	PUSH HL
+	LD BC,HL
+	POP DE
+	POP HL
+	CALL runtimePushFixedSubString
+	PUSH HL
+	LD HL,ZXBASIC_VAR_e_string
+	PUSH HL
+	LD HL,1
+	PUSH HL
+	LD HL,31
+	LD BC,HL
+	POP DE
+	POP HL
+	CALL runtimePushFixedSubString
+; +
+	POP DE
+	CALL runtimeStringAdd
+	POP DE
+	LD BC,32
+	CALL runtimeStoreStringVarFix
 ZXB_LABEL_2:
-ZXBASIC_LINE_320:
-; 320  REM \134\134\134\134\134\134\134\134\134\134\134\134 Start game
-ZXBASIC_LINE_330:
-; 330  BORDER 0: PAPER 0: INK 7: BRIGHT 1: CLS 
-; 		330.1  BORDER 0{00 00 00 00 00 }
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD A,L
-	call $2297
-; 		330.2  PAPER 0{00 00 00 00 00 }
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimePaper
-; 		330.3  INK 7{00 00 07 00 00 }
-	LD HL,FLOAT_2	;7
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeInk
-; 		330.4  BRIGHT 1{00 00 01 00 00 }
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeBright
-; 		330.5  CLS 
-	CALL runtimeCls
-ZXBASIC_LINE_340:
-; 340  REM ---------------Draw map
-ZXBASIC_LINE_350:
-; 350  INK 1: BRIGHT 0
-; 		350.1  INK 1{00 00 01 00 00 }
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeInk
-; 		350.2  BRIGHT 0{00 00 00 00 00 }
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeBright
-ZXBASIC_LINE_360:
-; 360  PRINT  AT 2,0;"+++++++++++++++++++++++++++++++++"
-; 		360.1  PRINT  AT 2{00 00 02 00 00 },0{00 00 00 00 00 };"+++++++++++++++++++++++++++++++++"
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,FLOAT_5	;2
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,STRING_22	;+++++++++++++++++++++++++++++++++
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	POP AF
-	LD (ZX_P_FLAG),A
-ZXBASIC_LINE_370:
-; 370  FOR i=3 TO 19
-; 		370.1  FOR i=3{00 00 03 00 00 } TO 19{00 00 13 00 00 }
-	CALL runtimeCheckBreak
-	LD HL,FLOAT_6	;3
-	LD DE,ZXBASIC_VAR_i
-	LD BC,5
-	LDIR
-	LD HL,FLOAT_13	;19
-	LD DE,ZXBASIC_VAR_for_i
-	LD BC,5
-	LDIR
-FOR_1:
-ZXBASIC_LINE_380:
-; 380  PRINT  AT i,31;"++"
-; 		380.1  PRINT  AT i,31{00 00 1f 00 00 };"++"
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,FLOAT_23	;31
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,STRING_23	;++
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	POP AF
-	LD (ZX_P_FLAG),A
-ZXBASIC_LINE_390:
-; 390  NEXT i
-; 		390.1  NEXT i
-	CALL runtimeCheckBreak
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-	RST $28
-	DB zxcalc_stack_one	;STACK ONE
-	DB zxcalc_addition	;ADD
-	DB zxcalc_end_calc	;END CALC
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimeStoreFloat
-	LD HL,ZXBASIC_VAR_for_i
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-	CALL runtimeSmallerFloat
-	LD A,L
-	CP 0
-	JP Z,FOR_1
-ZXBASIC_LINE_400:
-; 400  PRINT  AT 20,31;"+++++++++++++++++++++++++++++++++"
-; 		400.1  PRINT  AT 20{00 00 14 00 00 },31{00 00 1f 00 00 };"+++++++++++++++++++++++++++++++++"
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,FLOAT_17	;20
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,FLOAT_23	;31
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,STRING_22	;+++++++++++++++++++++++++++++++++
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	POP AF
-	LD (ZX_P_FLAG),A
-ZXBASIC_LINE_410:
-; 410  INK 7: BRIGHT 1
-; 		410.1  INK 7{00 00 07 00 00 }
-	LD HL,FLOAT_2	;7
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeInk
-; 		410.2  BRIGHT 1{00 00 01 00 00 }
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeBright
-ZXBASIC_LINE_420:
-; 420  REM -----------Setup player
-ZXBASIC_LINE_430:
-; 430  LET score=0: PRINT  AT 0,0; BRIGHT 0;"Score:": GOSUB 1210
-; 		430.1  LET score=0{00 00 00 00 00 }
-	LD HL,FLOAT_1	;0
-	LD DE,ZXBASIC_VAR_score
-	LD BC,5
-	LDIR
-; 		430.2  PRINT  AT 0{00 00 00 00 00 },0{00 00 00 00 00 }; BRIGHT 0{00 00 00 00 00 };"Score
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalBright
-	LD HL,STRING_24	;Score:
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
-	POP AF
-	LD (ZX_P_FLAG),A
-; 		430.3  GOSUB 1210{00 00 ba 04 00 }
-	CALL runtimeCheckBreak
-	CALL ZXBASIC_LINE_1210
-ZXBASIC_LINE_440:
-; 440  LET lives=3: PRINT  AT 0,23; BRIGHT 0;"Lives:"; INK 3; BRIGHT 1;"\144\144\144"
-; 		440.1  LET lives=3{00 00 03 00 00 }
-	LD HL,FLOAT_6	;3
-	LD DE,ZXBASIC_VAR_lives
-	LD BC,5
-	LDIR
-; 		440.2  PRINT  AT 0{00 00 00 00 00 },23{00 00 17 00 00 }; BRIGHT 0{00 00 00 00 00 };"Lives
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,FLOAT_25	;23
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalBright
-	LD HL,STRING_25	;Lives:
-	CALL runtimePrintString
-	LD HL,FLOAT_6	;3
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalInk
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalBright
-	LD HL,STRING_26	;\90\90\90
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
-	POP AF
-	LD (ZX_P_FLAG),A
-ZXBASIC_LINE_450:
-; 450  LET wave=1: PRINT  AT 0,13; BRIGHT 0;"Wave:": GOSUB 1240
-; 		450.1  LET wave=1{00 00 01 00 00 }
-	LD HL,FLOAT_3	;1
-	LD DE,ZXBASIC_VAR_wave
-	LD BC,5
-	LDIR
-; 		450.2  PRINT  AT 0{00 00 00 00 00 },13{00 00 0d 00 00 }; BRIGHT 0{00 00 00 00 00 };"Wave
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,FLOAT_26	;13
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalBright
-	LD HL,STRING_27	;Wave:
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
-	POP AF
-	LD (ZX_P_FLAG),A
-; 		450.3  GOSUB 1240{00 00 d8 04 00 }
-	CALL runtimeCheckBreak
-	CALL ZXBASIC_LINE_1240
-ZXBASIC_LINE_460:
-; 460  REM \134\134\134\134\134\134\134\134\134\134\134\134 Start wave
-ZXBASIC_LINE_470:
-; 470  DIM s(22,32)
-; 		470.1  DIM s(22{00 00 16 00 00 },32{00 00 20 00 00 })
-	LD HL,ZXBASIC_VAR_s_array
-	LD BC,2645
-	CALL runtimeClearArray
-ZXBASIC_LINE_480:
-; 480  REM ----------Setup zombies
-ZXBASIC_LINE_490:
-; 490  LET nz=5+ INT ( RND *25)
-; 		490.1  LET nz=5{00 00 05 00 00 }+ INT ( RND *25{00 00 19 00 00 })
-	LD HL,FLOAT_8	;5
-	CALL runtimePushFloatVar
-; INT
-; RND
-	CALL runtimeRND
-	LD HL,FLOAT_28	;25
-	CALL runtimePushFloatVar
-; *
-	RST $28
-	DB $04	;MULT
-	DB $38	;END CALC
-	CALL runtimeFloatToInt
-; +
-	CALL runtimeIntToFloat
-	CALL runtimePlusFloat
-	LD HL,ZXBASIC_VAR_nz
-	CALL runtimeStoreFloat
-ZXBASIC_LINE_500:
-; 500  LET za=4/7
-; 		500.1  LET za=4{00 00 04 00 00 }/7{00 00 07 00 00 }
-	LD HL,FLOAT_9	;4
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_2	;7
-	CALL runtimePushFloatVar
-; /
-	RST $28
-	DB $05	;DIV
-	DB $38	;END CALC
-	LD HL,ZXBASIC_VAR_za
-	CALL runtimeStoreFloat
-ZXBASIC_LINE_510:
-; 510  LET zb=2/3
-; 		510.1  LET zb=2{00 00 02 00 00 }/3{00 00 03 00 00 }
-	LD HL,FLOAT_5	;2
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_6	;3
-	CALL runtimePushFloatVar
-; /
-	RST $28
-	DB $05	;DIV
-	DB $38	;END CALC
-	LD HL,ZXBASIC_VAR_zb
-	CALL runtimeStoreFloat
-ZXBASIC_LINE_520:
-; 520  LET zc=1
-; 		520.1  LET zc=1{00 00 01 00 00 }
-	LD HL,FLOAT_3	;1
-	LD DE,ZXBASIC_VAR_zc
-	LD BC,5
-	LDIR
-ZXBASIC_LINE_530:
-; 530  DIM x(nz)
-; 		530.1  DIM x(nz)
-; 		530.2 )
-ZXBASIC_LINE_540:
-; 540  DIM y(nz)
-; 		540.1  DIM y(nz)
-; 		540.2 )
-ZXBASIC_LINE_550:
-; 550  DIM c$(nz,1): DIM d$(nz,1)
-; 		550.1  DIM c$(nz,1{00 00 01 00 00 })
-; 		550.2 ,1{00 00 01 00 00 })
-; 		550.3 )
-; 		550.4  DIM d$(nz,1{00 00 01 00 00 })
-; 		550.5 ,1{00 00 01 00 00 })
-; 		550.6 )
-ZXBASIC_LINE_560:
-; 560  DIM c(nz): DIM d(nz)
-; 		560.1  DIM c(nz)
-; 		560.2 )
-; 		560.3  DIM d(nz)
-; 		560.4 )
-ZXBASIC_LINE_570:
-; 570  LET zi=1
-; 		570.1  LET zi=1{00 00 01 00 00 }
-	LD HL,FLOAT_3	;1
-	LD DE,ZXBASIC_VAR_zi
-	LD BC,5
-	LDIR
-ZXBASIC_LINE_580:
-; 580  LET kz=0
-; 		580.1  LET kz=0{00 00 00 00 00 }
-	LD HL,FLOAT_1	;0
-	LD DE,ZXBASIC_VAR_kz
-	LD BC,5
-	LDIR
-ZXBASIC_LINE_590:
-; 590  PRINT  AT 1,10; INK 1;"Exhuming"
-; 		590.1  PRINT  AT 1{00 00 01 00 00 },10{00 00 0a 00 00 }; INK 1{00 00 01 00 00 };"Exhuming"
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,FLOAT_19	;10
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalInk
-	LD HL,STRING_28	;Exhuming
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
-	POP AF
-	LD (ZX_P_FLAG),A
-ZXBASIC_LINE_600:
-; 600  FOR i=1 TO nz
-; 		600.1  FOR i=1{00 00 01 00 00 } TO nz
-	CALL runtimeCheckBreak
-	LD HL,FLOAT_3	;1
-	LD DE,ZXBASIC_VAR_i
-	LD BC,5
-	LDIR
-	LD HL,ZXBASIC_VAR_nz
-	LD DE,ZXBASIC_VAR_for_i
-	LD BC,5
-	LDIR
-FOR_2:
-ZXBASIC_LINE_610:
-; 610  LET x(i)=2+ INT ( RND *28)
-; 		610.1  LET x(i)=2{00 00 02 00 00 }+ INT ( RND *28{00 00 1c 00 00 })
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,5
-	CALL runtimeMult16bit
-	PUSH HL
-	LD HL,FLOAT_5	;2
-	CALL runtimePushFloatVar
-; INT
-; RND
-	CALL runtimeRND
-	LD HL,FLOAT_29	;28
-	CALL runtimePushFloatVar
-; *
-	RST $28
-	DB $04	;MULT
-	DB $38	;END CALC
-	CALL runtimeFloatToInt
-; +
-	CALL runtimeIntToFloat
-	CALL runtimePlusFloat
-	POP HL
-	LD BC,ZXBASIC_VAR_x_array
-	ADD HL,BC
-	CALL runtimeStoreFloat
-ZXBASIC_LINE_620:
-; 620  LET y(i)=4+ INT ( RND *16)
-; 		620.1  LET y(i)=4{00 00 04 00 00 }+ INT ( RND *16{00 00 10 00 00 })
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,5
-	CALL runtimeMult16bit
-	PUSH HL
-	LD HL,FLOAT_9	;4
-	CALL runtimePushFloatVar
-; INT
-; RND
-	CALL runtimeRND
-	LD HL,FLOAT_21	;16
-	CALL runtimePushFloatVar
-; *
-	RST $28
-	DB $04	;MULT
-	DB $38	;END CALC
-	CALL runtimeFloatToInt
-; +
-	CALL runtimeIntToFloat
-	CALL runtimePlusFloat
-	POP HL
-	LD BC,ZXBASIC_VAR_y_array
-	ADD HL,BC
-	CALL runtimeStoreFloat
-ZXBASIC_LINE_630:
-; 630  IF s(y(i),x(i)) THEN  GOTO 610
-; 		630.1  IF s(y(i),x(i)) THEN  GOTO 610{00 00 62 02 00 }
-; Array-Access
-; Array-Access
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,5
-	CALL runtimeMult16bit
-	LD DE, ZXBASIC_VAR_y_array
-	ADD HL,DE
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,22
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,5
-	CALL runtimeMult16bit
-	LD DE, ZXBASIC_VAR_x_array
-	ADD HL,DE
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	ADD HL,DE
-	LD DE,5
-	CALL runtimeMult16bit
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
+ZXBASIC_LINE_210:
+; 210  IF a>18 THEN  LET a=2: LET b=0: PRINT  AT 18,0; PAPER 0;,,: LET i= INT ( RND *7)+1: LET h=h+5: PLOT 255,3: DRAW  INK 2;-h,0: BEEP 0.05,-20.0
+	LD HL,210
+	LD (23621),HL
+; 		210.1  IF a>18{00 00 12 00 00 } THEN  LET a=2{00 00 02 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,210
+	LD A,1
+	CALL runtimeDebug
+	LD DE,(ZXBASIC_VAR_a)
+	LD HL,18
+; >
+	CALL runtimeCmpHlGtDE
 	LD A,L
 	CP 0
 	JP Z,ZXB_LABEL_3
-; 		630.2  GOTO 610{00 00 62 02 00 }
-	CALL runtimeCheckBreak
-	JP ZXBASIC_LINE_610
-ZXB_LABEL_3:
-ZXBASIC_LINE_640:
-; 640  LET s(y(i),x(i))=i
-; 		640.1  LET s(y(i),x(i))=i
-; Array-Access
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,5
-	CALL runtimeMult16bit
-	LD DE, ZXBASIC_VAR_y_array
-	ADD HL,DE
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,22
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,5
-	CALL runtimeMult16bit
-	LD DE, ZXBASIC_VAR_x_array
-	ADD HL,DE
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	ADD HL,DE
-	LD DE,5
-	CALL runtimeMult16bit
-	PUSH HL
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-	POP HL
-	LD BC,ZXBASIC_VAR_s_array
-	ADD HL,BC
-	CALL runtimeStoreFloat
-ZXBASIC_LINE_650:
-; 650  LET c$(i)="\145": LET c(i)=7: PRINT  AT y(i),x(i); INK 7; BRIGHT 0;"\145"
-; 		650.1  LET c$(i)="\145"
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,HL
-	LD HL,ZXBASIC_VAR_c_string
-	ADD HL,DE
-	LD DE,HL
-	LD HL,STRING_29	;\91
-	LD BC,1
-	CALL runtimeStoreStringVarFix
-; 		650.2  LET c(i)=7{00 00 07 00 00 }
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,5
-	CALL runtimeMult16bit
-	PUSH HL
-	LD HL,FLOAT_2	;7
-	CALL runtimePushFloatVar
-	POP HL
-	LD BC,ZXBASIC_VAR_c_array
-	ADD HL,BC
-	CALL runtimeStoreFloat
-; 		650.3  PRINT  AT y(i),x(i); INK 7{00 00 07 00 00 }; BRIGHT 0{00 00 00 00 00 };"\145"
+; 		210.2  LET a=2{00 00 02 00 00 }
+	LD A,2
+	LD (23623),a
+	LD HL,210
+	LD A,2
+	CALL runtimeDebug
+	LD HL,2
+	LD (ZXBASIC_VAR_a),HL
+; 		210.3  LET b=0{00 00 00 00 00 }
+	LD A,3
+	LD (23623),a
+	LD HL,210
+	LD A,3
+	CALL runtimeDebug
+	LD HL,0
+	LD (ZXBASIC_VAR_b),HL
+; 		210.4  PRINT  AT 18{00 00 12 00 00 },0{00 00 00 00 00 }; PAPER 0{00 00 00 00 00 };,,
+	LD A,4
+	LD (23623),a
+	LD HL,210
+	LD A,4
+	CALL runtimeDebug
 	LD A,2
 	CALL $1601	;Open Channel
 	LD A,(ZX_P_FLAG)
 	PUSH AF
-; Array-Access
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,5
-	CALL runtimeMult16bit
-	LD DE, ZXBASIC_VAR_y_array
-	ADD HL,DE
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-; Array-Access
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,5
-	CALL runtimeMult16bit
-	LD DE, ZXBASIC_VAR_x_array
-	ADD HL,DE
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
+	LD DE,18
+	LD HL,0
 	CALL runtimePrintAt
-	LD HL,FLOAT_2	;7
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalInk
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalBright
-	LD HL,STRING_29	;\91
-	CALL runtimePrintString
-	CALL runtimePrintNewline
+	LD HL,0
+	CALL runtimeLocalPaper
+	CALL runtimePrintTab
+	CALL runtimePrintTab
 	LD A,(ZX_ATTR_P)
 	LD (ZX_ATTR_T),A
 	POP AF
 	LD (ZX_P_FLAG),A
-ZXBASIC_LINE_660:
-; 660  IF  RND <za THEN  LET d$(i)="\147": LET d(i)=4: GOTO 700
-; 		660.1  IF  RND <za THEN  LET d$(i)="\147"
+; 		210.5  LET i= INT ( RND *7{00 00 07 00 00 })+1{00 00 01 00 00 }
+	LD A,5
+	LD (23623),a
+	LD HL,210
+	LD A,5
+	CALL runtimeDebug
+; INT
 ; RND
 	CALL runtimeRND
-	LD HL,ZXBASIC_VAR_za
+	LD HL,7
+; *
+	CALL runtimeIntToFloat
+	RST $28
+	DB $04	;MULT
+	DB $38	;END CALC
+	CALL runtimeFloatToInt
+	INC HL
+; +
+	LD (ZXBASIC_VAR_i),HL
+; 		210.6  LET h=h+5{00 00 05 00 00 }
+	LD A,6
+	LD (23623),a
+	LD HL,210
+	LD A,6
+	CALL runtimeDebug
+	LD DE,(ZXBASIC_VAR_h)
+	LD HL,5
+; +
+	ADD HL,DE
+	LD (ZXBASIC_VAR_h),HL
+; 		210.7  PLOT 255{00 00 ff 00 00 },3{00 00 03 00 00 }
+	LD A,7
+	LD (23623),a
+	LD HL,210
+	LD A,7
+	CALL runtimeDebug
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,255
+	LD HL,3
+	CALL runtimePlot
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		210.8  DRAW  INK 2{00 00 02 00 00 };-h,0{00 00 00 00 00 }
+	LD A,8
+	LD (23623),a
+	LD HL,210
+	LD A,8
+	CALL runtimeDebug
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD HL,2
+	CALL runtimeLocalInk
+	LD HL,(ZXBASIC_VAR_h)
+	LD BC,HL
+; -
+	LD HL,0
+	SUB HL,BC
+	LD DE,HL
+	LD HL,0
+	LD B,L
+	LD C,E
+	CALL runtimeDraw
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		210.9  BEEP 0.05{7c 4c cc cc cc },-20.0{00 00 14 00 00 }
+	LD A,9
+	LD (23623),a
+	LD HL,210
+	LD A,9
+	CALL runtimeDebug
+	LD HL,FLOAT_1	;0.05
 	CALL runtimePushFloatVar
+	LD HL,FLOAT_2	;20.0
+	CALL runtimePushFloatVar
+; -
+	CALL runtimeNegFloat
+	CALL $03F8
+ZXB_LABEL_3:
+ZXBASIC_LINE_230:
+; 230  LET x=x-(k=189 OR j=2)+(k=190 OR j=1)
+	LD HL,230
+	LD (23621),HL
+; 		230.1  LET x=x-(k=189{00 00 bd 00 00 } OR j=2{00 00 02 00 00 })+(k=190{00 00 be 00 00 } OR j=1{00 00 01 00 00 })
+	LD A,1
+	LD (23623),a
+	LD HL,230
+	LD A,1
+	CALL runtimeDebug
+	LD HL,(ZXBASIC_VAR_x)
+	PUSH HL
+; (
+	LD DE,(ZXBASIC_VAR_k)
+	LD HL,189
+; =
+	CALL runtimeCmpHLEqDE
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_j)
+	LD HL,2
+; =
+	CALL runtimeCmpHLEqDE
+; OR
+	POP DE
+	call runtimeOrHLDE
+; )
+; -
+	POP DE
+	EX HL,DE
+	SUB HL,DE
+	PUSH HL
+; (
+	LD DE,(ZXBASIC_VAR_k)
+	LD HL,190
+; =
+	CALL runtimeCmpHLEqDE
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_j)
+	LD HL,1
+; =
+	CALL runtimeCmpHLEqDE
+; OR
+	POP DE
+	call runtimeOrHLDE
+; )
+; +
+	POP DE
+	ADD HL,DE
+	LD (ZXBASIC_VAR_x),HL
+ZXBASIC_LINE_240:
+; 240  IF x<0 THEN  LET x=31
+	LD HL,240
+	LD (23621),HL
+; 		240.1  IF x<0{00 00 00 00 00 } THEN  LET x=31{00 00 1f 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,240
+	LD A,1
+	CALL runtimeDebug
+	LD DE,(ZXBASIC_VAR_x)
+	LD HL,0
 ; <
-	CALL runtimeSmallerFloat
+	CALL runtimeCmpHLltDE
 	LD A,L
 	CP 0
 	JP Z,ZXB_LABEL_4
-; 		660.2  LET d$(i)="\147"
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,HL
-	LD HL,ZXBASIC_VAR_d_string
-	ADD HL,DE
-	LD DE,HL
-	LD HL,STRING_11	;\93
-	LD BC,1
-	CALL runtimeStoreStringVarFix
-; 		660.3  LET d(i)=4{00 00 04 00 00 }
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,5
-	CALL runtimeMult16bit
-	PUSH HL
-	LD HL,FLOAT_9	;4
-	CALL runtimePushFloatVar
-	POP HL
-	LD BC,ZXBASIC_VAR_d_array
-	ADD HL,BC
-	CALL runtimeStoreFloat
-; 		660.4  GOTO 700{00 00 bc 02 00 }
-	CALL runtimeCheckBreak
-	JP ZXBASIC_LINE_700
+; 		240.2  LET x=31{00 00 1f 00 00 }
+	LD A,2
+	LD (23623),a
+	LD HL,240
+	LD A,2
+	CALL runtimeDebug
+	LD HL,31
+	LD (ZXBASIC_VAR_x),HL
 ZXB_LABEL_4:
-ZXBASIC_LINE_670:
-; 670  IF  RND <zb THEN  LET d$(i)="\148": LET d(i)=5: GOTO 700
-; 		670.1  IF  RND <zb THEN  LET d$(i)="\148"
-; RND
-	CALL runtimeRND
-	LD HL,ZXBASIC_VAR_zb
-	CALL runtimePushFloatVar
-; <
-	CALL runtimeSmallerFloat
+ZXBASIC_LINE_250:
+; 250  IF x>31 THEN  LET x=1
+	LD HL,250
+	LD (23621),HL
+; 		250.1  IF x>31{00 00 1f 00 00 } THEN  LET x=1{00 00 01 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,250
+	LD A,1
+	CALL runtimeDebug
+	LD DE,(ZXBASIC_VAR_x)
+	LD HL,31
+; >
+	CALL runtimeCmpHlGtDE
 	LD A,L
 	CP 0
 	JP Z,ZXB_LABEL_5
-; 		670.2  LET d$(i)="\148"
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,HL
-	LD HL,ZXBASIC_VAR_d_string
-	ADD HL,DE
-	LD DE,HL
-	LD HL,STRING_13	;\94
-	LD BC,1
-	CALL runtimeStoreStringVarFix
-; 		670.3  LET d(i)=5{00 00 05 00 00 }
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,5
-	CALL runtimeMult16bit
-	PUSH HL
-	LD HL,FLOAT_8	;5
-	CALL runtimePushFloatVar
-	POP HL
-	LD BC,ZXBASIC_VAR_d_array
-	ADD HL,BC
-	CALL runtimeStoreFloat
-; 		670.4  GOTO 700{00 00 bc 02 00 }
-	CALL runtimeCheckBreak
-	JP ZXBASIC_LINE_700
+; 		250.2  LET x=1{00 00 01 00 00 }
+	LD A,2
+	LD (23623),a
+	LD HL,250
+	LD A,2
+	CALL runtimeDebug
+	LD HL,1
+	LD (ZXBASIC_VAR_x),HL
 ZXB_LABEL_5:
-ZXBASIC_LINE_680:
-; 680  IF  RND <zc THEN  LET d$(i)="\149": LET d(i)=6
-; 		680.1  IF  RND <zc THEN  LET d$(i)="\149"
-; RND
-	CALL runtimeRND
-	LD HL,ZXBASIC_VAR_zc
-	CALL runtimePushFloatVar
-; <
-	CALL runtimeSmallerFloat
+ZXBASIC_LINE_260:
+; 260  PRINT  AT a-1,b;d$;
+	LD HL,260
+	LD (23621),HL
+; 		260.1  PRINT  AT a-1{00 00 01 00 00 },b;d$;
+	LD A,1
+	LD (23623),a
+	LD HL,260
+	LD A,1
+	CALL runtimeDebug
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD HL,(ZXBASIC_VAR_a)
+	LD DE,1
+; -
+	SUB HL,DE
+	LD DE,HL
+	LD HL,(ZXBASIC_VAR_b)
+	CALL runtimePrintAt
+	LD HL,ZXBASIC_VAR_d_string
+	LD BC,32
+	CALL runtimePrintFixString
+	POP AF
+	LD (ZX_P_FLAG),A
+ZXBASIC_LINE_265:
+; 265  IF l >= 4 THEN  LET sp=1: PRINT  AT 0,0; BRIGHT 1; INK 6;e$; BRIGHT 0
+	LD HL,265
+	LD (23621),HL
+; 		265.1  IF l >= 4{00 00 04 00 00 } THEN  LET sp=1{00 00 01 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,265
+	LD A,1
+	CALL runtimeDebug
+	LD DE,(ZXBASIC_VAR_l)
+	LD HL,4
+; >=
+	CALL runtimeCmpHLGeDE
 	LD A,L
 	CP 0
 	JP Z,ZXB_LABEL_6
-; 		680.2  LET d$(i)="\149"
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,HL
-	LD HL,ZXBASIC_VAR_d_string
-	ADD HL,DE
-	LD DE,HL
-	LD HL,STRING_15	;\95
-	LD BC,1
-	CALL runtimeStoreStringVarFix
-; 		680.3  LET d(i)=6{00 00 06 00 00 }
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,5
-	CALL runtimeMult16bit
-	PUSH HL
-	LD HL,FLOAT_7	;6
-	CALL runtimePushFloatVar
-	POP HL
-	LD BC,ZXBASIC_VAR_d_array
-	ADD HL,BC
-	CALL runtimeStoreFloat
-ZXB_LABEL_6:
-ZXBASIC_LINE_690:
-; 690  REM LET c$(i)="\150": LET c(i)=7: PRINT AT y(i),x(i); PAPER 2; INK 7; BRIGHT 1;"\150"
-ZXBASIC_LINE_700:
-; 700  PRINT  AT 1,19; INK 1;i;"/";nz: BEEP 0.005,i-12
-; 		700.1  PRINT  AT 1{00 00 01 00 00 },19{00 00 13 00 00 }; INK 1{00 00 01 00 00 };i;"/";nz
+; 		265.2  LET sp=1{00 00 01 00 00 }
+	LD A,2
+	LD (23623),a
+	LD HL,265
+	LD A,2
+	CALL runtimeDebug
+	LD HL,1
+	LD (ZXBASIC_VAR_sp),HL
+; 		265.3  PRINT  AT 0{00 00 00 00 00 },0{00 00 00 00 00 }; BRIGHT 1{00 00 01 00 00 }; INK 6{00 00 06 00 00 };e$; BRIGHT 0{00 00 00 00 00 }
+	LD A,3
+	LD (23623),a
+	LD HL,265
+	LD A,3
+	CALL runtimeDebug
 	LD A,2
 	CALL $1601	;Open Channel
 	LD A,(ZX_P_FLAG)
 	PUSH AF
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,FLOAT_13	;19
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
+	LD DE,0
+	LD HL,0
 	CALL runtimePrintAt
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
+	LD HL,1
+	CALL runtimeLocalBright
+	LD HL,6
 	CALL runtimeLocalInk
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-	CALL runtimePrintFloat
-	LD HL,STRING_8	;/
-	CALL runtimePrintString
-	LD HL,ZXBASIC_VAR_nz
-	CALL runtimePushFloatVar
-	CALL runtimePrintFloat
-	CALL runtimePrintNewline
+	LD HL,ZXBASIC_VAR_e_string
+	LD BC,32
+	CALL runtimePrintFixString
+	LD HL,0
+	CALL runtimeLocalBright
 	LD A,(ZX_ATTR_P)
 	LD (ZX_ATTR_T),A
 	POP AF
 	LD (ZX_P_FLAG),A
-; 		700.2  BEEP 0.005{79 23 d7 0a 3d },i-12{00 00 0c 00 00 }
-	LD HL,FLOAT_32	;0.005
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_4	;12
-	CALL runtimePushFloatVar
-; -
-	RST $28
-	DB $03	;SUB
-	DB $38	;END CALC
-	CALL $03F8
-ZXBASIC_LINE_710:
-; 710  NEXT i
-; 		710.1  NEXT i
-	CALL runtimeCheckBreak
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-	RST $28
-	DB zxcalc_stack_one	;STACK ONE
-	DB zxcalc_addition	;ADD
-	DB zxcalc_end_calc	;END CALC
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimeStoreFloat
-	LD HL,ZXBASIC_VAR_for_i
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-	CALL runtimeSmallerFloat
-	LD A,L
-	CP 0
-	JP Z,FOR_2
-ZXBASIC_LINE_720:
-; 720  PRINT  AT 1,10;"              "
-; 		720.1  PRINT  AT 1{00 00 01 00 00 },10{00 00 0a 00 00 };"              "
+ZXB_LABEL_6:
+ZXBASIC_LINE_270:
+; 270  PRINT  AT a,b; INK i;a$; AT y,z;" " AND z <> x; AT y,x; INK 7;c$;
+	LD HL,270
+	LD (23621),HL
+; 		270.1  PRINT  AT a,b; INK i;a$; AT y,z;" " AND z <> x; AT y,x; INK 7{00 00 07 00 00 };c$;
+	LD A,1
+	LD (23623),a
+	LD HL,270
+	LD A,1
+	CALL runtimeDebug
 	LD A,2
 	CALL $1601	;Open Channel
 	LD A,(ZX_P_FLAG)
 	PUSH AF
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,FLOAT_19	;10
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
+	LD DE,(ZXBASIC_VAR_a)
+	LD HL,(ZXBASIC_VAR_b)
 	CALL runtimePrintAt
-	LD HL,STRING_30	;              
+	LD HL,(ZXBASIC_VAR_i)
+	CALL runtimeLocalInk
+	LD HL,ZXBASIC_VAR_a_string
+	LD BC,32
+	CALL runtimePrintFixString
+	LD DE,(ZXBASIC_VAR_y)
+	LD HL,(ZXBASIC_VAR_z)
+	CALL runtimePrintAt
+	LD HL,STRING_0	; 
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_z)
+	LD HL,(ZXBASIC_VAR_x)
+; <>
+	CALL runtimeCmpHlNeDE
+	LD DE,HL
+; AND
+	POP HL
+	CALL runtimeVarStrAndInt
 	CALL runtimePrintString
-	CALL runtimePrintNewline
+	LD DE,(ZXBASIC_VAR_y)
+	LD HL,(ZXBASIC_VAR_x)
+	CALL runtimePrintAt
+	LD HL,7
+	CALL runtimeLocalInk
+	LD HL,(ZXBASIC_VAR_c_string)
+	CALL runtimePrintString
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
 	POP AF
 	LD (ZX_P_FLAG),A
-ZXBASIC_LINE_730:
-; 730  GOSUB 1120
-; 		730.1  GOSUB 1120{00 00 60 04 00 }
-	CALL runtimeCheckBreak
-	CALL ZXBASIC_LINE_1120
-ZXBASIC_LINE_740:
-; 740  REM ---------Setup framrate
-ZXBASIC_LINE_750:
-; 750  LET t=65536* PEEK 23674+256* PEEK 23673+ PEEK 23672+50: LET f=0
-; 		750.1  LET t=65536{91 00 00 00 00 }* PEEK 23674{00 00 7a 5c 00 }+256{00 00 00 01 00 }* PEEK 23673{00 00 79 5c 00 }+ PEEK 23672{00 00 78 5c 00 }+50{00 00 32 00 00 }
-	LD HL,FLOAT_34	;65536
-	CALL runtimePushFloatVar
-; PEEK
-	LD HL,FLOAT_35	;23674
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD L,(HL)
+	CALL ZXFreeTempCompact
+ZXBASIC_LINE_280:
+; 280  IF ( IN 32766=187 OR j=16) THEN  GOSUB f
+	LD HL,280
+	LD (23621),HL
+; 		280.1  IF ( IN 32766{00 00 fe 7f 00 }=187{00 00 bb 00 00 } OR j=16{00 00 10 00 00 }) THEN  GOSUB f
+	LD A,1
+	LD (23623),a
+	LD HL,280
+	LD A,1
+	CALL runtimeDebug
+; (
+; IN
+	LD HL,32766
+	LD BC,HL
+	IN A,(C)
+	LD L,A
 	LD H,0
-; *
-	CALL runtimeIntToFloat
-	RST $28
-	DB $04	;MULT
-	DB $38	;END CALC
-	LD HL,FLOAT_36	;256
-	CALL runtimePushFloatVar
-; PEEK
-	LD HL,FLOAT_37	;23673
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD L,(HL)
-	LD H,0
-; *
-	CALL runtimeIntToFloat
-	RST $28
-	DB $04	;MULT
-; END CALC
-; +
-	DB $0f	;ADD
-	DB $38	;END CALC
-; PEEK
-	LD HL,FLOAT_38	;23672
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD L,(HL)
-	LD H,0
-; +
-	CALL runtimeIntToFloat
-	CALL runtimePlusFloat
-	LD HL,FLOAT_39	;50
-	CALL runtimePushFloatVar
-; +
-	RST $28
-	DB $0f	;ADD
-	DB $38	;END CALC
-	LD HL,ZXBASIC_VAR_t
-	CALL runtimeStoreFloat
-; 		750.2  LET f=0{00 00 00 00 00 }
-	LD HL,FLOAT_1	;0
-	LD DE,ZXBASIC_VAR_f
-	LD BC,5
-	LDIR
-ZXBASIC_LINE_760:
-; 760  REM \134\134\134\134\134\134\134\134\134\134\134\134\134 Game loop
-ZXBASIC_LINE_770:
-; 770  REM ----------Update player
-ZXBASIC_LINE_780:
-; 780  LET inkey= CODE  INKEY$ 
-; 		780.1  LET inkey= CODE  INKEY$ 
-; CODE
-; INKEY$
-	CALL runtimeInkey
-	CALL runtimeCode
-	CALL runtimeIntToFloat
-	LD HL,ZXBASIC_VAR_inkey
-	CALL runtimeStoreFloat
-ZXBASIC_LINE_782:
-; 782  LET dy=(inkey=10 AND  y<20)-(inkey=11 AND y>3): LET ny=y+dy
-; 		782.1  LET dy=(inkey=10{00 00 0a 00 00 } AND  y<20{00 00 14 00 00 })-(inkey=11{00 00 0b 00 00 } AND y>3{00 00 03 00 00 })
-; (
-	LD HL,ZXBASIC_VAR_inkey
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_19	;10
-	CALL runtimePushFloatVar
+	LD DE,HL
+	LD HL,187
 ; =
-	CALL runtimeEqualFloat
+	CALL runtimeCmpHLEqDE
 	PUSH HL
-	LD HL,ZXBASIC_VAR_y
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_17	;20
-	CALL runtimePushFloatVar
-; <
-	CALL runtimeSmallerFloat
-; AND
-	POP DE
-	call runtimeAndHLDE
-	PUSH HL
-; )
-; (
-	LD HL,ZXBASIC_VAR_inkey
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_40	;11
-	CALL runtimePushFloatVar
+	LD DE,(ZXBASIC_VAR_j)
+	LD HL,16
 ; =
-	CALL runtimeEqualFloat
-	PUSH HL
-	LD HL,ZXBASIC_VAR_y
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_6	;3
-	CALL runtimePushFloatVar
-; >
-	CALL runtimeBiggerFloat
-; AND
-	POP DE
-	call runtimeAndHLDE
-; )
-; -
-	POP DE
-	EX HL,DE
-	SUB HL,DE
-	CALL runtimeIntToFloat
-	LD HL,ZXBASIC_VAR_dy
-	CALL runtimeStoreFloat
-; 		782.2  LET ny=y+dy
-	LD HL,ZXBASIC_VAR_y
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_dy
-	CALL runtimePushFloatVar
-; +
-	RST $28
-	DB $0f	;ADD
-	DB $38	;END CALC
-	LD HL,ZXBASIC_VAR_ny
-	CALL runtimeStoreFloat
-ZXBASIC_LINE_783:
-; 783  LET dx=(inkey=9  AND x<30)-( inkey = 8 AND x>1): LET nx=x+dx
-; 		783.1  LET dx=(inkey=9 {00 00 09 00 00 } AND x<30{00 00 1e 00 00 })-( inkey = 8{00 00 08 00 00 } AND x>1{00 00 01 00 00 })
-; (
-	LD HL,ZXBASIC_VAR_inkey
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_12	;9 
-	CALL runtimePushFloatVar
-; =
-	CALL runtimeEqualFloat
-	PUSH HL
-	LD HL,ZXBASIC_VAR_x
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_41	;30
-	CALL runtimePushFloatVar
-; <
-	CALL runtimeSmallerFloat
-; AND
-	POP DE
-	call runtimeAndHLDE
-	PUSH HL
-; )
-; (
-	LD HL,ZXBASIC_VAR_inkey
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_10	;8
-	CALL runtimePushFloatVar
-; =
-	CALL runtimeEqualFloat
-	PUSH HL
-	LD HL,ZXBASIC_VAR_x
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-; >
-	CALL runtimeBiggerFloat
-; AND
-	POP DE
-	call runtimeAndHLDE
-; )
-; -
-	POP DE
-	EX HL,DE
-	SUB HL,DE
-	CALL runtimeIntToFloat
-	LD HL,ZXBASIC_VAR_dx
-	CALL runtimeStoreFloat
-; 		783.2  LET nx=x+dx
-	LD HL,ZXBASIC_VAR_x
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_dx
-	CALL runtimePushFloatVar
-; +
-	RST $28
-	DB $0f	;ADD
-	DB $38	;END CALC
-	LD HL,ZXBASIC_VAR_nx
-	CALL runtimeStoreFloat
-ZXBASIC_LINE_784:
-; 784  IF dx OR dy THEN  GOTO 810
-; 		784.1  IF dx OR dy THEN  GOTO 810{00 00 2a 03 00 }
-	LD HL,ZXBASIC_VAR_dx
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_dy
-	CALL runtimePushFloatVar
+	CALL runtimeCmpHLEqDE
 ; OR
-	CALL runtimeOrFloat
+	POP DE
+	call runtimeOrHLDE
+; )
 	LD A,L
 	CP 0
 	JP Z,ZXB_LABEL_7
-; 		784.2  GOTO 810{00 00 2a 03 00 }
-	CALL runtimeCheckBreak
-	JP ZXBASIC_LINE_810
+; 		280.2  GOSUB f
+	LD A,2
+	LD (23623),a
+	LD HL,280
+	LD A,2
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	LD DE,(ZXBASIC_VAR_f)
+	LD HL,ZXLINES
+	CALL runtimeFindLine
+	CALL runtimeVarCall
 ZXB_LABEL_7:
-ZXBASIC_LINE_789:
-; 789  LET dy=( IN 65022=190 AND y<20)-( IN 64510=190 AND y>3): LET ny=y+dy
-; 		789.1  LET dy=( IN 65022{00 00 fe fd 00 }=190{00 00 be 00 00 } AND y<20{00 00 14 00 00 })-( IN 64510{00 00 fe fb 00 }=190{00 00 be 00 00 } AND y>3{00 00 03 00 00 })
-; (
-; IN
-	LD HL,FLOAT_43	;65022
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD BC,HL
-	IN A,(C)
-	LD L,A
-	LD H,0
+ZXBASIC_LINE_290:
+; 290  LET z=x: LET a=a+0.725
+	LD HL,290
+	LD (23621),HL
+; 		290.1  LET z=x
+	LD A,1
+	LD (23623),a
+	LD HL,290
+	LD A,1
+	CALL runtimeDebug
+	LD HL,(ZXBASIC_VAR_x)
+	LD (ZXBASIC_VAR_z),HL
+; 		290.2  LET a=a+0.725{80 39 99 99 99 }
+	LD A,2
+	LD (23623),a
+	LD HL,290
+	LD A,2
+	CALL runtimeDebug
+	LD HL,(ZXBASIC_VAR_a)
 	PUSH HL
-	LD HL,FLOAT_44	;190
-	CALL runtimePushFloatVar
-; =
-	POP HL
-	CALL runtimeIntToFloat
-	CALL runtimeEqualFloat
-	PUSH HL
-	LD HL,ZXBASIC_VAR_y
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_17	;20
-	CALL runtimePushFloatVar
-; <
-	CALL runtimeSmallerFloat
-; AND
-	POP DE
-	call runtimeAndHLDE
-	PUSH HL
-; )
-; (
-; IN
-	LD HL,FLOAT_45	;64510
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD BC,HL
-	IN A,(C)
-	LD L,A
-	LD H,0
-	PUSH HL
-	LD HL,FLOAT_44	;190
-	CALL runtimePushFloatVar
-; =
-	POP HL
-	CALL runtimeIntToFloat
-	CALL runtimeEqualFloat
-	PUSH HL
-	LD HL,ZXBASIC_VAR_y
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_6	;3
-	CALL runtimePushFloatVar
-; >
-	CALL runtimeBiggerFloat
-; AND
-	POP DE
-	call runtimeAndHLDE
-; )
-; -
-	POP DE
-	EX HL,DE
-	SUB HL,DE
-	CALL runtimeIntToFloat
-	LD HL,ZXBASIC_VAR_dy
-	CALL runtimeStoreFloat
-; 		789.2  LET ny=y+dy
-	LD HL,ZXBASIC_VAR_y
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_dy
+	LD HL,FLOAT_3	;0.725
 	CALL runtimePushFloatVar
 ; +
-	RST $28
-	DB $0f	;ADD
-	DB $38	;END CALC
-	LD HL,ZXBASIC_VAR_ny
-	CALL runtimeStoreFloat
-ZXBASIC_LINE_790:
-; 790  LET dx=( IN 57342=190 AND x<30)-( IN 57342=189 AND x>1): LET nx=x+dx
-; 		790.1  LET dx=( IN 57342{00 00 fe df 00 }=190{00 00 be 00 00 } AND x<30{00 00 1e 00 00 })-( IN 57342{00 00 fe df 00 }=189{00 00 bd 00 00 } AND x>1{00 00 01 00 00 })
-; (
-; IN
-	LD HL,FLOAT_46	;57342
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD BC,HL
-	IN A,(C)
-	LD L,A
-	LD H,0
-	PUSH HL
-	LD HL,FLOAT_44	;190
-	CALL runtimePushFloatVar
-; =
 	POP HL
 	CALL runtimeIntToFloat
-	CALL runtimeEqualFloat
-	PUSH HL
-	LD HL,ZXBASIC_VAR_x
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_41	;30
-	CALL runtimePushFloatVar
-; <
-	CALL runtimeSmallerFloat
-; AND
-	POP DE
-	call runtimeAndHLDE
-	PUSH HL
-; )
-; (
-; IN
-	LD HL,FLOAT_46	;57342
-	CALL runtimePushFloatVar
+	CALL runtimePlusFloat
 	CALL runtimeFloatToInt
-	LD BC,HL
-	IN A,(C)
-	LD L,A
-	LD H,0
+	LD (ZXBASIC_VAR_a),HL
+ZXBASIC_LINE_300:
+; 300  IF p/3= INT (p/3) THEN  GOSUB 440
+	LD HL,300
+	LD (23621),HL
+; 		300.1  IF p/3{00 00 03 00 00 }= INT (p/3{00 00 03 00 00 }) THEN  GOSUB 440{00 00 b8 01 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,300
+	LD A,1
+	CALL runtimeDebug
+	LD DE,(ZXBASIC_VAR_p)
+	LD HL,3
+; /
+	call runtimeDiv16bit
 	PUSH HL
-	LD HL,FLOAT_47	;189
-	CALL runtimePushFloatVar
+; INT
+	LD DE,(ZXBASIC_VAR_p)
+	LD HL,3
+; /
+	call runtimeDiv16bit
 ; =
-	POP HL
-	CALL runtimeIntToFloat
-	CALL runtimeEqualFloat
-	PUSH HL
-	LD HL,ZXBASIC_VAR_x
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-; >
-	CALL runtimeBiggerFloat
-; AND
 	POP DE
-	call runtimeAndHLDE
-; )
-; -
-	POP DE
-	EX HL,DE
-	SUB HL,DE
-	CALL runtimeIntToFloat
-	LD HL,ZXBASIC_VAR_dx
-	CALL runtimeStoreFloat
-; 		790.2  LET nx=x+dx
-	LD HL,ZXBASIC_VAR_x
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_dx
-	CALL runtimePushFloatVar
-; +
-	RST $28
-	DB $0f	;ADD
-	DB $38	;END CALC
-	LD HL,ZXBASIC_VAR_nx
-	CALL runtimeStoreFloat
-ZXBASIC_LINE_800:
-; 800  IF  NOT (dx OR dy) THEN  GOTO 840
-; 		800.1  IF  NOT (dx OR dy) THEN  GOTO 840{00 00 48 03 00 }
-; NOT
-	LD HL,ZXBASIC_VAR_dx
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_dy
-	CALL runtimePushFloatVar
-; OR
-	CALL runtimeOrFloat
-	CALL runtimeNotHL
+	CALL runtimeCmpHLEqDE
 	LD A,L
 	CP 0
 	JP Z,ZXB_LABEL_8
-; 		800.2  GOTO 840{00 00 48 03 00 }
-	CALL runtimeCheckBreak
-	JP ZXBASIC_LINE_840
+; 		300.2  GOSUB 440{00 00 b8 01 00 }
+	LD A,2
+	LD (23623),a
+	LD HL,300
+	LD A,2
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	CALL ZXBASIC_LINE_440
 ZXB_LABEL_8:
-ZXBASIC_LINE_805:
-; 805  
-ZXBASIC_LINE_810:
-; 810  IF (inkey <> 0 OR  IN 32766=191) AND s(ny,nx)=0 THEN  LET s(y,x)=0: PRINT  AT y,x;" ": LET x=nx: LET y=ny: LET s(y,x)=-1: PRINT  AT y,x; INK 3; BRIGHT 1;"\144": BEEP 0.001,24: GOTO 840
-; 		810.1  IF (inkey <> 0{00 00 00 00 00 } OR  IN 32766{00 00 fe 7f 00 }=191{00 00 bf 00 00 }) AND s(ny,nx)=0{00 00 00 00 00 } THEN  LET s(y,x)=0{00 00 00 00 00 }
+ZXBASIC_LINE_310:
+; 310  PRINT  AT pp,p1;"   " AND (p1 <> p); AT pp,p; INK 5;f$;
+	LD HL,310
+	LD (23621),HL
+; 		310.1  PRINT  AT pp,p1;"   " AND (p1 <> p); AT pp,p; INK 5{00 00 05 00 00 };f$;
+	LD A,1
+	LD (23623),a
+	LD HL,310
+	LD A,1
+	CALL runtimeDebug
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,(ZXBASIC_VAR_pp)
+	LD HL,(ZXBASIC_VAR_p1)
+	CALL runtimePrintAt
+	LD HL,STRING_1	;   
+	PUSH HL
 ; (
-	LD HL,ZXBASIC_VAR_inkey
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
+	LD DE,(ZXBASIC_VAR_p1)
+	LD HL,(ZXBASIC_VAR_p)
 ; <>
-	CALL runtimeUnequalFloat
-	PUSH HL
-; IN
-	LD HL,FLOAT_49	;32766
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD BC,HL
-	IN A,(C)
-	LD L,A
-	LD H,0
-	PUSH HL
-	LD HL,FLOAT_50	;191
-	CALL runtimePushFloatVar
-; =
-	POP HL
-	CALL runtimeIntToFloat
-	CALL runtimeEqualFloat
-; OR
-	POP DE
-	call runtimeOrHLDE
-	PUSH HL
+	CALL runtimeCmpHlNeDE
+	LD DE,HL
 ; )
-; Array-Access
-	LD HL,ZXBASIC_VAR_ny
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,22
-	CALL runtimeMult16bit
-	PUSH HL
-	LD HL,ZXBASIC_VAR_nx
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	ADD HL,DE
-	LD DE,5
-	CALL runtimeMult16bit
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-; =
-	CALL runtimeEqualFloat
 ; AND
-	POP DE
-	call runtimeAndHLDE
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_9
-; 		810.2  LET s(y,x)=0{00 00 00 00 00 }
-	LD HL,ZXBASIC_VAR_y
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,22
-	CALL runtimeMult16bit
-	PUSH HL
-	LD HL,ZXBASIC_VAR_x
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	ADD HL,DE
-	LD DE,5
-	CALL runtimeMult16bit
-	PUSH HL
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
 	POP HL
-	LD BC,ZXBASIC_VAR_s_array
-	ADD HL,BC
-	CALL runtimeStoreFloat
-; 		810.3  PRINT  AT y,x;" "
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,ZXBASIC_VAR_y
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,ZXBASIC_VAR_x
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,STRING_31	; 
+	CALL runtimeVarStrAndInt
 	CALL runtimePrintString
-	CALL runtimePrintNewline
-	POP AF
-	LD (ZX_P_FLAG),A
-; 		810.4  LET x=nx
-	LD HL,ZXBASIC_VAR_nx
-	LD DE,ZXBASIC_VAR_x
-	LD BC,5
-	LDIR
-; 		810.5  LET y=ny
-	LD HL,ZXBASIC_VAR_ny
-	LD DE,ZXBASIC_VAR_y
-	LD BC,5
-	LDIR
-; 		810.6  LET s(y,x)=-1{00 00 01 00 00 }
-	LD HL,ZXBASIC_VAR_y
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,22
-	CALL runtimeMult16bit
-	PUSH HL
-	LD HL,ZXBASIC_VAR_x
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	ADD HL,DE
-	LD DE,5
-	CALL runtimeMult16bit
-	PUSH HL
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-; -
-	CALL runtimeNegFloat
-	POP HL
-	LD BC,ZXBASIC_VAR_s_array
-	ADD HL,BC
-	CALL runtimeStoreFloat
-; 		810.7  PRINT  AT y,x; INK 3{00 00 03 00 00 }; BRIGHT 1{00 00 01 00 00 };"\144"
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,ZXBASIC_VAR_y
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,ZXBASIC_VAR_x
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
+	LD DE,(ZXBASIC_VAR_pp)
+	LD HL,(ZXBASIC_VAR_p)
 	CALL runtimePrintAt
-	LD HL,FLOAT_6	;3
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
+	LD HL,5
 	CALL runtimeLocalInk
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalBright
-	LD HL,STRING_9	;\90
+	LD HL,(ZXBASIC_VAR_f_string)
 	CALL runtimePrintString
-	CALL runtimePrintNewline
 	LD A,(ZX_ATTR_P)
 	LD (ZX_ATTR_T),A
 	POP AF
 	LD (ZX_P_FLAG),A
-; 		810.8  BEEP 0.001{77 03 12 6e 97 },24{00 00 18 00 00 }
-	LD HL,FLOAT_51	;0.001
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_52	;24
-	CALL runtimePushFloatVar
-	CALL $03F8
-; 		810.9  GOTO 840{00 00 48 03 00 }
-	CALL runtimeCheckBreak
-	JP ZXBASIC_LINE_840
-ZXB_LABEL_9:
-ZXBASIC_LINE_820:
-; 820  IF (inkey <> 0 OR  IN 32766=191) AND s(ny,nx)>0 THEN  IF c$(s(ny,nx))>"\146" THEN  GOSUB 1180: IF lives=0 THEN  GOTO 1060
-; 		820.1  IF (inkey <> 0{00 00 00 00 00 } OR  IN 32766{00 00 fe 7f 00 }=191{00 00 bf 00 00 }) AND s(ny,nx)>0{00 00 00 00 00 } THEN  IF c$(s(ny,nx))>"\146" THEN  GOSUB 1180{00 00 9c 04 00 }
-; (
-	LD HL,ZXBASIC_VAR_inkey
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-; <>
-	CALL runtimeUnequalFloat
-	PUSH HL
-; IN
-	LD HL,FLOAT_49	;32766
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD BC,HL
-	IN A,(C)
-	LD L,A
-	LD H,0
-	PUSH HL
-	LD HL,FLOAT_50	;191
-	CALL runtimePushFloatVar
-; =
-	POP HL
-	CALL runtimeIntToFloat
-	CALL runtimeEqualFloat
-; OR
-	POP DE
-	call runtimeOrHLDE
-	PUSH HL
-; )
-; Array-Access
-	LD HL,ZXBASIC_VAR_ny
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,22
-	CALL runtimeMult16bit
-	PUSH HL
-	LD HL,ZXBASIC_VAR_nx
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	ADD HL,DE
-	LD DE,5
-	CALL runtimeMult16bit
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-; >
-	CALL runtimeBiggerFloat
-; AND
-	POP DE
-	call runtimeAndHLDE
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_10
-; 		820.2  IF c$(s(ny,nx))>"\146" THEN  GOSUB 1180{00 00 9c 04 00 }
-; Array-Access
-	LD HL,ZXBASIC_VAR_ny
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,22
-	CALL runtimeMult16bit
-	PUSH HL
-	LD HL,ZXBASIC_VAR_nx
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	ADD HL,DE
-	LD DE,5
-	CALL runtimeMult16bit
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,HL
-	LD HL,ZXBASIC_VAR_c_string
-	ADD HL,DE
-	PUSH HL
-	LD HL,STRING_32	;\92
-; >
-	POP IX
-	LD DE,1
-	CALL runtimeBiggerStringVarFix
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_11
-; 		820.3  GOSUB 1180{00 00 9c 04 00 }
-	CALL runtimeCheckBreak
-	CALL ZXBASIC_LINE_1180
-; 		820.4  IF lives=0{00 00 00 00 00 } THEN  GOTO 1060{00 00 24 04 00 }
-	LD HL,ZXBASIC_VAR_lives
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-; =
-	CALL runtimeEqualFloat
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_12
-; 		820.5  GOTO 1060{00 00 24 04 00 }
-	CALL runtimeCheckBreak
-	JP ZXBASIC_LINE_1060
-ZXB_LABEL_12:
-ZXB_LABEL_11:
-ZXB_LABEL_10:
-ZXBASIC_LINE_830:
-; 830  IF (inkey <> 0 OR  IN 32766=190 OR  IN 32766=187) AND s(ny,nx)>0 THEN  IF c$(s(ny,nx))>"\146" THEN  PRINT  AT ny,nx; INK 2; OVER 1;"*": BEEP 0.01,36: BEEP 0.01,30: LET score=score+ (10 AND c$(s(ny,nx))="\147")+(20 AND c$(s(ny,nx))="\148")+(30 AND c$(s(ny,nx))="\149"): LET c$(s(ny,nx))="\146": PRINT  AT ny,nx; INK c(s(ny,nx)); BRIGHT 0;"\146": GOSUB 1210: LET kz=kz+1: IF kz=nz THEN  GOTO 1000
-; 		830.1  IF (inkey <> 0{00 00 00 00 00 } OR  IN 32766{00 00 fe 7f 00 }=190{00 00 be 00 00 } OR  IN 32766{00 00 fe 7f 00 }=187{00 00 bb 00 00 }) AND s(ny,nx)>0{00 00 00 00 00 } THEN  IF c$(s(ny,nx))>"\146" THEN  PRINT  AT ny,nx; INK 2{00 00 02 00 00 }; OVER 1{00 00 01 00 00 };"*"
-; (
-	LD HL,ZXBASIC_VAR_inkey
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-; <>
-	CALL runtimeUnequalFloat
-	PUSH HL
-; IN
-	LD HL,FLOAT_49	;32766
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD BC,HL
-	IN A,(C)
-	LD L,A
-	LD H,0
-	PUSH HL
-	LD HL,FLOAT_44	;190
-	CALL runtimePushFloatVar
-; =
-	POP HL
-	CALL runtimeIntToFloat
-	CALL runtimeEqualFloat
-; OR
-	POP DE
-	call runtimeOrHLDE
-	PUSH HL
-; IN
-	LD HL,FLOAT_49	;32766
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD BC,HL
-	IN A,(C)
-	LD L,A
-	LD H,0
-	PUSH HL
-	LD HL,FLOAT_55	;187
-	CALL runtimePushFloatVar
-; =
-	POP HL
-	CALL runtimeIntToFloat
-	CALL runtimeEqualFloat
-; OR
-	POP DE
-	call runtimeOrHLDE
-	PUSH HL
-; )
-; Array-Access
-	LD HL,ZXBASIC_VAR_ny
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,22
-	CALL runtimeMult16bit
-	PUSH HL
-	LD HL,ZXBASIC_VAR_nx
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	ADD HL,DE
-	LD DE,5
-	CALL runtimeMult16bit
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-; >
-	CALL runtimeBiggerFloat
-; AND
-	POP DE
-	call runtimeAndHLDE
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_13
-; 		830.2  IF c$(s(ny,nx))>"\146" THEN  PRINT  AT ny,nx; INK 2{00 00 02 00 00 }; OVER 1{00 00 01 00 00 };"*"
-; Array-Access
-	LD HL,ZXBASIC_VAR_ny
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,22
-	CALL runtimeMult16bit
-	PUSH HL
-	LD HL,ZXBASIC_VAR_nx
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	ADD HL,DE
-	LD DE,5
-	CALL runtimeMult16bit
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,HL
-	LD HL,ZXBASIC_VAR_c_string
-	ADD HL,DE
-	PUSH HL
-	LD HL,STRING_32	;\92
-; >
-	POP IX
-	LD DE,1
-	CALL runtimeBiggerStringVarFix
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_14
-; 		830.3  PRINT  AT ny,nx; INK 2{00 00 02 00 00 }; OVER 1{00 00 01 00 00 };"*"
+	CALL ZXFreeTempCompact
+ZXBASIC_LINE_320:
+; 320  LET p1=p: LET p=p+iv
+	LD HL,320
+	LD (23621),HL
+; 		320.1  LET p1=p
+	LD A,1
+	LD (23623),a
+	LD HL,320
+	LD A,1
+	CALL runtimeDebug
+	LD HL,(ZXBASIC_VAR_p)
+	LD (ZXBASIC_VAR_p1),HL
+; 		320.2  LET p=p+iv
 	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,ZXBASIC_VAR_ny
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,ZXBASIC_VAR_nx
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,FLOAT_5	;2
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalInk
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalOver
-	LD HL,STRING_33	;*
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
-	POP AF
-	LD (ZX_P_FLAG),A
-; 		830.4  BEEP 0.01{7a 23 d7 0a 3d },36{00 00 24 00 00 }
-	LD HL,FLOAT_56	;0.01
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_57	;36
-	CALL runtimePushFloatVar
-	CALL $03F8
-; 		830.5  BEEP 0.01{7a 23 d7 0a 3d },30{00 00 1e 00 00 }
-	LD HL,FLOAT_56	;0.01
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_41	;30
-	CALL runtimePushFloatVar
-	CALL $03F8
-; 		830.6  LET score=score+ (10{00 00 0a 00 00 } AND c$(s(ny,nx))="\147")+(20{00 00 14 00 00 } AND c$(s(ny,nx))="\148")+(30{00 00 1e 00 00 } AND c$(s(ny,nx))="\149")
-	LD HL,ZXBASIC_VAR_score
-	CALL runtimePushFloatVar
-; (
-	LD HL,FLOAT_19	;10
-	CALL runtimePushFloatVar
-; Array-Access
-	LD HL,ZXBASIC_VAR_ny
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,22
-	CALL runtimeMult16bit
-	PUSH HL
-	LD HL,ZXBASIC_VAR_nx
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	ADD HL,DE
-	LD DE,5
-	CALL runtimeMult16bit
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,HL
-	LD HL,ZXBASIC_VAR_c_string
-	ADD HL,DE
-	PUSH HL
-	LD HL,STRING_11	;\93
-; =
-	POP IX
-	LD DE,1
-	CALL runtimeEqualStringVarFix
-; AND
-	CALL runtimeIntToFloat
-	CALL runtimeAndFloat
-; )
-; +
-	CALL runtimeIntToFloat
-	CALL runtimePlusFloat
-; (
-	LD HL,FLOAT_17	;20
-	CALL runtimePushFloatVar
-; Array-Access
-	LD HL,ZXBASIC_VAR_ny
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,22
-	CALL runtimeMult16bit
-	PUSH HL
-	LD HL,ZXBASIC_VAR_nx
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	ADD HL,DE
-	LD DE,5
-	CALL runtimeMult16bit
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,HL
-	LD HL,ZXBASIC_VAR_c_string
-	ADD HL,DE
-	PUSH HL
-	LD HL,STRING_13	;\94
-; =
-	POP IX
-	LD DE,1
-	CALL runtimeEqualStringVarFix
-; AND
-	CALL runtimeIntToFloat
-	CALL runtimeAndFloat
-; )
-; +
-	CALL runtimeIntToFloat
-	CALL runtimePlusFloat
-; (
-	LD HL,FLOAT_41	;30
-	CALL runtimePushFloatVar
-; Array-Access
-	LD HL,ZXBASIC_VAR_ny
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,22
-	CALL runtimeMult16bit
-	PUSH HL
-	LD HL,ZXBASIC_VAR_nx
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	ADD HL,DE
-	LD DE,5
-	CALL runtimeMult16bit
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,HL
-	LD HL,ZXBASIC_VAR_c_string
-	ADD HL,DE
-	PUSH HL
-	LD HL,STRING_15	;\95
-; =
-	POP IX
-	LD DE,1
-	CALL runtimeEqualStringVarFix
-; AND
-	CALL runtimeIntToFloat
-	CALL runtimeAndFloat
-; )
-; +
-	CALL runtimeIntToFloat
-	CALL runtimePlusFloat
-	LD HL,ZXBASIC_VAR_score
-	CALL runtimeStoreFloat
-; 		830.7  LET c$(s(ny,nx))="\146"
-; Array-Access
-	LD HL,ZXBASIC_VAR_ny
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,22
-	CALL runtimeMult16bit
-	PUSH HL
-	LD HL,ZXBASIC_VAR_nx
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	ADD HL,DE
-	LD DE,5
-	CALL runtimeMult16bit
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,HL
-	LD HL,ZXBASIC_VAR_c_string
-	ADD HL,DE
-	LD DE,HL
-	LD HL,STRING_32	;\92
-	LD BC,1
-	CALL runtimeStoreStringVarFix
-; 		830.8  PRINT  AT ny,nx; INK c(s(ny,nx)); BRIGHT 0{00 00 00 00 00 };"\146"
+	LD (23623),a
+	LD HL,320
 	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,ZXBASIC_VAR_ny
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,ZXBASIC_VAR_nx
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-; Array-Access
-; Array-Access
-	LD HL,ZXBASIC_VAR_ny
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,22
-	CALL runtimeMult16bit
-	PUSH HL
-	LD HL,ZXBASIC_VAR_nx
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	ADD HL,DE
-	LD DE,5
-	CALL runtimeMult16bit
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,5
-	CALL runtimeMult16bit
-	LD DE, ZXBASIC_VAR_c_array
-	ADD HL,DE
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalInk
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalBright
-	LD HL,STRING_32	;\92
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
-	POP AF
-	LD (ZX_P_FLAG),A
-; 		830.9  GOSUB 1210{00 00 ba 04 00 }
-	CALL runtimeCheckBreak
-	CALL ZXBASIC_LINE_1210
-; 		830.10  LET kz=kz+1{00 00 01 00 00 }
-	LD HL,ZXBASIC_VAR_kz
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
+	CALL runtimeDebug
+	LD DE,(ZXBASIC_VAR_p)
+	LD HL,(ZXBASIC_VAR_iv)
 ; +
-	RST $28
-	DB $0f	;ADD
-	DB $38	;END CALC
-	LD HL,ZXBASIC_VAR_kz
-	CALL runtimeStoreFloat
-; 		830.11  IF kz=nz THEN  GOTO 1000{00 00 e8 03 00 }
-	LD HL,ZXBASIC_VAR_kz
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_nz
-	CALL runtimePushFloatVar
-; =
-	CALL runtimeEqualFloat
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_15
-; 		830.12  GOTO 1000{00 00 e8 03 00 }
-	CALL runtimeCheckBreak
-	JP ZXBASIC_LINE_1000
-ZXB_LABEL_15:
-ZXB_LABEL_14:
-ZXB_LABEL_13:
-ZXBASIC_LINE_840:
-; 840  REM ---------Update zombies
-ZXBASIC_LINE_850:
-; 850  LET zx=x(zi): LET zy=y(zi)
-; 		850.1  LET zx=x(zi)
-; Array-Access
-	LD HL,ZXBASIC_VAR_zi
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,5
-	CALL runtimeMult16bit
-	LD DE, ZXBASIC_VAR_x_array
 	ADD HL,DE
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_zx
-	CALL runtimeStoreFloat
-; 		850.2  LET zy=y(zi)
-; Array-Access
-	LD HL,ZXBASIC_VAR_zi
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,5
-	CALL runtimeMult16bit
-	LD DE, ZXBASIC_VAR_y_array
-	ADD HL,DE
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_zy
-	CALL runtimeStoreFloat
-ZXBASIC_LINE_860:
-; 860  IF c$(zi)="\145" THEN  GOTO 930
-; 		860.1  IF c$(zi)="\145" THEN  GOTO 930{00 00 a2 03 00 }
-	LD HL,ZXBASIC_VAR_zi
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,HL
-	LD HL,ZXBASIC_VAR_c_string
-	ADD HL,DE
+	LD (ZXBASIC_VAR_p),HL
+ZXBASIC_LINE_330:
+; 330  LET iv=iv+(p<2)-(p>28)
+	LD HL,330
+	LD (23621),HL
+; 		330.1  LET iv=iv+(p<2{00 00 02 00 00 })-(p>28{00 00 1c 00 00 })
+	LD A,1
+	LD (23623),a
+	LD HL,330
+	LD A,1
+	CALL runtimeDebug
+	LD HL,(ZXBASIC_VAR_iv)
 	PUSH HL
-	LD HL,STRING_29	;\91
-; =
-	POP IX
-	LD DE,1
-	CALL runtimeEqualStringVarFix
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_16
-; 		860.2  GOTO 930{00 00 a2 03 00 }
-	CALL runtimeCheckBreak
-	JP ZXBASIC_LINE_930
-ZXB_LABEL_16:
-ZXBASIC_LINE_870:
-; 870  IF c$(zi)="\146" THEN  GOTO 950
-; 		870.1  IF c$(zi)="\146" THEN  GOTO 950{00 00 b6 03 00 }
-	LD HL,ZXBASIC_VAR_zi
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,HL
-	LD HL,ZXBASIC_VAR_c_string
-	ADD HL,DE
-	PUSH HL
-	LD HL,STRING_32	;\92
-; =
-	POP IX
-	LD DE,1
-	CALL runtimeEqualStringVarFix
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_17
-; 		870.2  GOTO 950{00 00 b6 03 00 }
-	CALL runtimeCheckBreak
-	JP ZXBASIC_LINE_950
-ZXB_LABEL_17:
-ZXBASIC_LINE_880:
-; 880  LET dx= SGN (x-zx): LET dy= SGN (y-zy): LET nx=zx+dx: LET ny=zy+dy
-; 		880.1  LET dx= SGN (x-zx)
-; SGN
-	LD HL,ZXBASIC_VAR_x
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_zx
-	CALL runtimePushFloatVar
-; -
-	RST $28
-	DB $03	;SUB
-; END CALC
-	db zxcalc_sgn
-	db zxcalc_end_calc
-	LD HL,ZXBASIC_VAR_dx
-	CALL runtimeStoreFloat
-; 		880.2  LET dy= SGN (y-zy)
-; SGN
-	LD HL,ZXBASIC_VAR_y
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_zy
-	CALL runtimePushFloatVar
-; -
-	RST $28
-	DB $03	;SUB
-; END CALC
-	db zxcalc_sgn
-	db zxcalc_end_calc
-	LD HL,ZXBASIC_VAR_dy
-	CALL runtimeStoreFloat
-; 		880.3  LET nx=zx+dx
-	LD HL,ZXBASIC_VAR_zx
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_dx
-	CALL runtimePushFloatVar
-; +
-	RST $28
-	DB $0f	;ADD
-	DB $38	;END CALC
-	LD HL,ZXBASIC_VAR_nx
-	CALL runtimeStoreFloat
-; 		880.4  LET ny=zy+dy
-	LD HL,ZXBASIC_VAR_zy
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_dy
-	CALL runtimePushFloatVar
-; +
-	RST $28
-	DB $0f	;ADD
-	DB $38	;END CALC
-	LD HL,ZXBASIC_VAR_ny
-	CALL runtimeStoreFloat
-ZXBASIC_LINE_890:
-; 890  IF s(ny,nx)=0 THEN  LET s(zy,zx)=0: PRINT  AT zy,zx;" ": LET x(zi)=nx: LET y(zi)=ny: LET s(ny,nx)=zi: PRINT  AT ny,nx; INK c(zi); BRIGHT 1;c$(zi): BEEP 0.001,12: GOTO 950
-; 		890.1  IF s(ny,nx)=0{00 00 00 00 00 } THEN  LET s(zy,zx)=0{00 00 00 00 00 }
-; Array-Access
-	LD HL,ZXBASIC_VAR_ny
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,22
-	CALL runtimeMult16bit
-	PUSH HL
-	LD HL,ZXBASIC_VAR_nx
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	ADD HL,DE
-	LD DE,5
-	CALL runtimeMult16bit
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-; =
-	CALL runtimeEqualFloat
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_18
-; 		890.2  LET s(zy,zx)=0{00 00 00 00 00 }
-	LD HL,ZXBASIC_VAR_zy
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,22
-	CALL runtimeMult16bit
-	PUSH HL
-	LD HL,ZXBASIC_VAR_zx
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	ADD HL,DE
-	LD DE,5
-	CALL runtimeMult16bit
-	PUSH HL
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	POP HL
-	LD BC,ZXBASIC_VAR_s_array
-	ADD HL,BC
-	CALL runtimeStoreFloat
-; 		890.3  PRINT  AT zy,zx;" "
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,ZXBASIC_VAR_zy
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,ZXBASIC_VAR_zx
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,STRING_31	; 
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	POP AF
-	LD (ZX_P_FLAG),A
-; 		890.4  LET x(zi)=nx
-	LD HL,ZXBASIC_VAR_zi
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,5
-	CALL runtimeMult16bit
-	PUSH HL
-	LD HL,ZXBASIC_VAR_nx
-	CALL runtimePushFloatVar
-	POP HL
-	LD BC,ZXBASIC_VAR_x_array
-	ADD HL,BC
-	CALL runtimeStoreFloat
-; 		890.5  LET y(zi)=ny
-	LD HL,ZXBASIC_VAR_zi
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,5
-	CALL runtimeMult16bit
-	PUSH HL
-	LD HL,ZXBASIC_VAR_ny
-	CALL runtimePushFloatVar
-	POP HL
-	LD BC,ZXBASIC_VAR_y_array
-	ADD HL,BC
-	CALL runtimeStoreFloat
-; 		890.6  LET s(ny,nx)=zi
-	LD HL,ZXBASIC_VAR_ny
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,22
-	CALL runtimeMult16bit
-	PUSH HL
-	LD HL,ZXBASIC_VAR_nx
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	ADD HL,DE
-	LD DE,5
-	CALL runtimeMult16bit
-	PUSH HL
-	LD HL,ZXBASIC_VAR_zi
-	CALL runtimePushFloatVar
-	POP HL
-	LD BC,ZXBASIC_VAR_s_array
-	ADD HL,BC
-	CALL runtimeStoreFloat
-; 		890.7  PRINT  AT ny,nx; INK c(zi); BRIGHT 1{00 00 01 00 00 };c$(zi)
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,ZXBASIC_VAR_ny
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,ZXBASIC_VAR_nx
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-; Array-Access
-	LD HL,ZXBASIC_VAR_zi
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,5
-	CALL runtimeMult16bit
-	LD DE, ZXBASIC_VAR_c_array
-	ADD HL,DE
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalInk
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalBright
-	LD HL,ZXBASIC_VAR_zi
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,HL
-	LD HL,ZXBASIC_VAR_c_string
-	ADD HL,DE
-	LD BC,1
-	CALL runtimePrintFixString
-	CALL runtimePrintNewline
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
-	POP AF
-	LD (ZX_P_FLAG),A
-; 		890.8  BEEP 0.001{77 03 12 6e 97 },12{00 00 0c 00 00 }
-	LD HL,FLOAT_51	;0.001
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_4	;12
-	CALL runtimePushFloatVar
-	CALL $03F8
-; 		890.9  GOTO 950{00 00 b6 03 00 }
-	CALL runtimeCheckBreak
-	JP ZXBASIC_LINE_950
-ZXB_LABEL_18:
-ZXBASIC_LINE_900:
-; 900  IF s(ny,nx)>0 THEN  GOTO 950
-; 		900.1  IF s(ny,nx)>0{00 00 00 00 00 } THEN  GOTO 950{00 00 b6 03 00 }
-; Array-Access
-	LD HL,ZXBASIC_VAR_ny
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,22
-	CALL runtimeMult16bit
-	PUSH HL
-	LD HL,ZXBASIC_VAR_nx
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	ADD HL,DE
-	LD DE,5
-	CALL runtimeMult16bit
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-; >
-	CALL runtimeBiggerFloat
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_19
-; 		900.2  GOTO 950{00 00 b6 03 00 }
-	CALL runtimeCheckBreak
-	JP ZXBASIC_LINE_950
-ZXB_LABEL_19:
-ZXBASIC_LINE_910:
-; 910  GOSUB 1180: IF lives=0 THEN  GOTO 1060
-; 		910.1  GOSUB 1180{00 00 9c 04 00 }
-	CALL runtimeCheckBreak
-	CALL ZXBASIC_LINE_1180
-; 		910.2  IF lives=0{00 00 00 00 00 } THEN  GOTO 1060{00 00 24 04 00 }
-	LD HL,ZXBASIC_VAR_lives
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-; =
-	CALL runtimeEqualFloat
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_20
-; 		910.3  GOTO 1060{00 00 24 04 00 }
-	CALL runtimeCheckBreak
-	JP ZXBASIC_LINE_1060
-ZXB_LABEL_20:
-ZXBASIC_LINE_920:
-; 920  GOTO 950
-; 		920.1  GOTO 950{00 00 b6 03 00 }
-	CALL runtimeCheckBreak
-	JP ZXBASIC_LINE_950
-ZXBASIC_LINE_930:
-; 930  IF  RND <1/2 THEN  GOTO 950
-; 		930.1  IF  RND <1{00 00 01 00 00 }/2{00 00 02 00 00 } THEN  GOTO 950{00 00 b6 03 00 }
-; RND
-	CALL runtimeRND
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_5	;2
-	CALL runtimePushFloatVar
-; /
-	RST $28
-	DB $05	;DIV
-	DB $38	;END CALC
+; (
+	LD DE,(ZXBASIC_VAR_p)
+	LD HL,2
 ; <
-	CALL runtimeSmallerFloat
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_21
-; 		930.2  GOTO 950{00 00 b6 03 00 }
-	CALL runtimeCheckBreak
-	JP ZXBASIC_LINE_950
-ZXB_LABEL_21:
-ZXBASIC_LINE_940:
-; 940  LET c$(zi)=d$(zi): LET c(zi)=d(zi): PRINT  AT zy,zx; INK c(zi); BRIGHT 1;c$(zi): BEEP 0.01,-12: BEEP 0.01,-13: BEEP 0.01,-14
-; 		940.1  LET c$(zi)=d$(zi)
-	LD HL,ZXBASIC_VAR_zi
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,HL
-	LD HL,ZXBASIC_VAR_c_string
-	ADD HL,DE
-	PUSH HL
-	LD HL,ZXBASIC_VAR_zi
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,HL
-	LD HL,ZXBASIC_VAR_d_string
-	ADD HL,DE
-	PUSH HL
-	LD BC,1
-	PUSH BC
-	LD BC,1
-	PUSH BC
-	CALL runtimeSetFixedString
-; 		940.2  LET c(zi)=d(zi)
-	LD HL,ZXBASIC_VAR_zi
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,5
-	CALL runtimeMult16bit
-	PUSH HL
-; Array-Access
-	LD HL,ZXBASIC_VAR_zi
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,5
-	CALL runtimeMult16bit
-	LD DE, ZXBASIC_VAR_d_array
-	ADD HL,DE
-	CALL runtimePushFloatVar
-	POP HL
-	LD BC,ZXBASIC_VAR_c_array
-	ADD HL,BC
-	CALL runtimeStoreFloat
-; 		940.3  PRINT  AT zy,zx; INK c(zi); BRIGHT 1{00 00 01 00 00 };c$(zi)
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,ZXBASIC_VAR_zy
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,ZXBASIC_VAR_zx
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-; Array-Access
-	LD HL,ZXBASIC_VAR_zi
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,5
-	CALL runtimeMult16bit
-	LD DE, ZXBASIC_VAR_c_array
-	ADD HL,DE
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalInk
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalBright
-	LD HL,ZXBASIC_VAR_zi
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,HL
-	LD HL,ZXBASIC_VAR_c_string
-	ADD HL,DE
-	LD BC,1
-	CALL runtimePrintFixString
-	CALL runtimePrintNewline
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
-	POP AF
-	LD (ZX_P_FLAG),A
-; 		940.4  BEEP 0.01{7a 23 d7 0a 3d },-12{00 00 0c 00 00 }
-	LD HL,FLOAT_56	;0.01
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_4	;12
-	CALL runtimePushFloatVar
-; -
-	CALL runtimeNegFloat
-	CALL $03F8
-; 		940.5  BEEP 0.01{7a 23 d7 0a 3d },-13{00 00 0d 00 00 }
-	LD HL,FLOAT_56	;0.01
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_26	;13
-	CALL runtimePushFloatVar
-; -
-	CALL runtimeNegFloat
-	CALL $03F8
-; 		940.6  BEEP 0.01{7a 23 d7 0a 3d },-14{00 00 0e 00 00 }
-	LD HL,FLOAT_56	;0.01
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_20	;14
-	CALL runtimePushFloatVar
-; -
-	CALL runtimeNegFloat
-	CALL $03F8
-ZXBASIC_LINE_950:
-; 950  LET zi=zi+1: IF zi>nz THEN  LET zi=1
-; 		950.1  LET zi=zi+1{00 00 01 00 00 }
-	LD HL,ZXBASIC_VAR_zi
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
+	CALL runtimeCmpHLltDE
+; )
 ; +
-	RST $28
-	DB $0f	;ADD
-	DB $38	;END CALC
-	LD HL,ZXBASIC_VAR_zi
-	CALL runtimeStoreFloat
-; 		950.2  IF zi>nz THEN  LET zi=1{00 00 01 00 00 }
-	LD HL,ZXBASIC_VAR_zi
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_nz
-	CALL runtimePushFloatVar
+	POP DE
+	ADD HL,DE
+	PUSH HL
+; (
+	LD DE,(ZXBASIC_VAR_p)
+	LD HL,28
 ; >
-	CALL runtimeBiggerFloat
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_22
-; 		950.3  LET zi=1{00 00 01 00 00 }
-	LD HL,FLOAT_3	;1
-	LD DE,ZXBASIC_VAR_zi
-	LD BC,5
-	LDIR
-ZXB_LABEL_22:
-ZXBASIC_LINE_960:
-; 960  REM -------Update framerate
-ZXBASIC_LINE_970:
-; 970  GOTO 760
-; 		970.1  GOTO 760{00 00 f8 02 00 }
-	CALL runtimeCheckBreak
-	JP ZXBASIC_LINE_760
-ZXBASIC_LINE_980:
-; 980  LET dt=65536* PEEK 23674+256* PEEK 23673+ PEEK 23672: LET f=f+1: IF dt >= t THEN  PRINT  AT 1,14; INK 1; BRIGHT 0;f: LET t=dt+50: LET f=0
-; 		980.1  LET dt=65536{91 00 00 00 00 }* PEEK 23674{00 00 7a 5c 00 }+256{00 00 00 01 00 }* PEEK 23673{00 00 79 5c 00 }+ PEEK 23672{00 00 78 5c 00 }
-	LD HL,FLOAT_34	;65536
-	CALL runtimePushFloatVar
-; PEEK
-	LD HL,FLOAT_35	;23674
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD L,(HL)
-	LD H,0
-; *
-	CALL runtimeIntToFloat
-	RST $28
-	DB $04	;MULT
-	DB $38	;END CALC
-	LD HL,FLOAT_36	;256
-	CALL runtimePushFloatVar
-; PEEK
-	LD HL,FLOAT_37	;23673
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD L,(HL)
-	LD H,0
-; *
-	CALL runtimeIntToFloat
-	RST $28
-	DB $04	;MULT
-; END CALC
-; +
-	DB $0f	;ADD
-	DB $38	;END CALC
-; PEEK
-	LD HL,FLOAT_38	;23672
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD L,(HL)
-	LD H,0
-; +
-	CALL runtimeIntToFloat
-	CALL runtimePlusFloat
-	LD HL,ZXBASIC_VAR_dt
-	CALL runtimeStoreFloat
-; 		980.2  LET f=f+1{00 00 01 00 00 }
-	LD HL,ZXBASIC_VAR_f
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-; +
-	RST $28
-	DB $0f	;ADD
-	DB $38	;END CALC
-	LD HL,ZXBASIC_VAR_f
-	CALL runtimeStoreFloat
-; 		980.3  IF dt >= t THEN  PRINT  AT 1{00 00 01 00 00 },14{00 00 0e 00 00 }; INK 1{00 00 01 00 00 }; BRIGHT 0{00 00 00 00 00 };f
-	LD HL,ZXBASIC_VAR_dt
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_t
-	CALL runtimePushFloatVar
-; >=
-	CALL runtimeBiggerEqualFloat
-	LD A,L
-	CP 0
-	JP Z,ZXB_LABEL_23
-; 		980.4  PRINT  AT 1{00 00 01 00 00 },14{00 00 0e 00 00 }; INK 1{00 00 01 00 00 }; BRIGHT 0{00 00 00 00 00 };f
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,FLOAT_20	;14
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
+	CALL runtimeCmpHlGtDE
+; )
+; -
 	POP DE
-	CALL runtimePrintAt
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalInk
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalBright
-	LD HL,ZXBASIC_VAR_f
-	CALL runtimePushFloatVar
-	CALL runtimePrintFloat
-	CALL runtimePrintNewline
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
-	POP AF
-	LD (ZX_P_FLAG),A
-; 		980.5  LET t=dt+50{00 00 32 00 00 }
-	LD HL,ZXBASIC_VAR_dt
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_39	;50
-	CALL runtimePushFloatVar
-; +
-	RST $28
-	DB $0f	;ADD
-	DB $38	;END CALC
-	LD HL,ZXBASIC_VAR_t
-	CALL runtimeStoreFloat
-; 		980.6  LET f=0{00 00 00 00 00 }
-	LD HL,FLOAT_1	;0
-	LD DE,ZXBASIC_VAR_f
-	LD BC,5
-	LDIR
-ZXB_LABEL_23:
-ZXBASIC_LINE_990:
-; 990  GOTO 760
-; 		990.1  GOTO 760{00 00 f8 02 00 }
-	CALL runtimeCheckBreak
-	JP ZXBASIC_LINE_760
-ZXBASIC_LINE_1000:
-; 1000  REM \134\134\134\134\134\134\134\134\134 Wave complete
-ZXBASIC_LINE_1010:
-; 1010  PRINT  AT 1,9;"WAVE COMPLETE!": BEEP 0.1,0: BEEP 0.05,0: BEEP 0.05,0: BEEP 0.2,12
-; 		1010.1  PRINT  AT 1{00 00 01 00 00 },9{00 00 09 00 00 };"WAVE COMPLETE!"
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
+	EX HL,DE
+	SUB HL,DE
+	LD (ZXBASIC_VAR_iv),HL
+ZXBASIC_LINE_348:
+; 348  GOTO 180
+	LD HL,348
+	LD (23621),HL
+; 		348.1  GOTO 180{00 00 b4 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,348
+	LD A,1
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	JP ZXBASIC_LINE_180
+ZXBASIC_LINE_350:
+; 350  REM *** SHOOT ***
+	LD HL,350
+	LD (23621),HL
+	LD A,1
+	LD (23623),a
+	LD HL,350
+	LD A,1
+	CALL runtimeDebug
+ZXBASIC_LINE_360:
+; 360  IF a$(x+1)="\148" THEN  FOR u=1 TO 4: BEEP 0.002,35-u: NEXT u: LET sc=sc+5: LET l=l+1
+	LD HL,360
+	LD (23621),HL
+; 		360.1  IF a$(x+1{00 00 01 00 00 })="\148" THEN  FOR u=1{00 00 01 00 00 } TO 4{00 00 04 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,360
+	LD A,1
+	CALL runtimeDebug
+	LD HL,ZXBASIC_VAR_a_string
 	PUSH HL
-	LD HL,FLOAT_12	;9
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,STRING_34	;WAVE COMPLETE!
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	POP AF
-	LD (ZX_P_FLAG),A
-; 		1010.2  BEEP 0.1{7d 4c cc cc cc },0{00 00 00 00 00 }
-	LD HL,FLOAT_62	;0.1
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL $03F8
-; 		1010.3  BEEP 0.05{7c 4c cc cc cc },0{00 00 00 00 00 }
-	LD HL,FLOAT_63	;0.05
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL $03F8
-; 		1010.4  BEEP 0.05{7c 4c cc cc cc },0{00 00 00 00 00 }
-	LD HL,FLOAT_63	;0.05
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL $03F8
-; 		1010.5  BEEP 0.2{7e 4c cc cc cc },12{00 00 0c 00 00 }
-	LD HL,FLOAT_64	;0.2
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_4	;12
-	CALL runtimePushFloatVar
-	CALL $03F8
-ZXBASIC_LINE_1020:
-; 1020  FOR i=1 TO nz: PRINT  AT y(i),x(i);" ": BEEP 0.01,i: NEXT i: PRINT  AT y,x;" "
-; 		1020.1  FOR i=1{00 00 01 00 00 } TO nz
-	CALL runtimeCheckBreak
-	LD HL,FLOAT_3	;1
-	LD DE,ZXBASIC_VAR_i
-	LD BC,5
-	LDIR
-	LD HL,ZXBASIC_VAR_nz
-	LD DE,ZXBASIC_VAR_for_i
-	LD BC,5
-	LDIR
-FOR_3:
-; 		1020.2  PRINT  AT y(i),x(i);" "
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-; Array-Access
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,5
-	CALL runtimeMult16bit
-	LD DE, ZXBASIC_VAR_y_array
+	LD DE,(ZXBASIC_VAR_x)
+	LD HL,1
+; +
 	ADD HL,DE
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
 	PUSH HL
-; Array-Access
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,5
-	CALL runtimeMult16bit
-	LD DE, ZXBASIC_VAR_x_array
-	ADD HL,DE
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
+	LD BC,HL
 	POP DE
-	CALL runtimePrintAt
-	LD HL,STRING_31	; 
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	POP AF
-	LD (ZX_P_FLAG),A
-; 		1020.3  BEEP 0.01{7a 23 d7 0a 3d },i
-	LD HL,FLOAT_56	;0.01
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-	CALL $03F8
-; 		1020.4  NEXT i
-	CALL runtimeCheckBreak
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-	RST $28
-	DB zxcalc_stack_one	;STACK ONE
-	DB zxcalc_addition	;ADD
-	DB zxcalc_end_calc	;END CALC
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimeStoreFloat
-	LD HL,ZXBASIC_VAR_for_i
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_i
-	CALL runtimePushFloatVar
-	CALL runtimeSmallerFloat
-	LD A,L
-	CP 0
-	JP Z,FOR_3
-; 		1020.5  PRINT  AT y,x;" "
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,ZXBASIC_VAR_y
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,ZXBASIC_VAR_x
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,STRING_31	; 
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	POP AF
-	LD (ZX_P_FLAG),A
-ZXBASIC_LINE_1030:
-; 1030  PRINT  AT 1,9;"              "
-; 		1030.1  PRINT  AT 1{00 00 01 00 00 },9{00 00 09 00 00 };"              "
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,FLOAT_12	;9
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,STRING_30	;              
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	POP AF
-	LD (ZX_P_FLAG),A
-ZXBASIC_LINE_1040:
-; 1040  LET wave=wave+1: GOSUB 1240
-; 		1040.1  LET wave=wave+1{00 00 01 00 00 }
-	LD HL,ZXBASIC_VAR_wave
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-; +
-	RST $28
-	DB $0f	;ADD
-	DB $38	;END CALC
-	LD HL,ZXBASIC_VAR_wave
-	CALL runtimeStoreFloat
-; 		1040.2  GOSUB 1240{00 00 d8 04 00 }
-	CALL runtimeCheckBreak
-	CALL ZXBASIC_LINE_1240
-ZXBASIC_LINE_1050:
-; 1050  GOTO 460
-; 		1050.1  GOTO 460{00 00 cc 01 00 }
-	CALL runtimeCheckBreak
-	JP ZXBASIC_LINE_460
-ZXBASIC_LINE_1060:
-; 1060  REM \134\134\134\134\134\134\134\134\134\134\134\134\134 Game Over
-ZXBASIC_LINE_1070:
-; 1070  FOR j=1 TO 10: PRINT  AT 1,j;" GAME"; AT 1,26-j;"OVER! ": BEEP 0.02,-11-j: BEEP 0.02,-8-j: NEXT j
-; 		1070.1  FOR j=1{00 00 01 00 00 } TO 10{00 00 0a 00 00 }
-	CALL runtimeCheckBreak
-	LD HL,FLOAT_3	;1
-	LD DE,ZXBASIC_VAR_j
-	LD BC,5
-	LDIR
-	LD HL,FLOAT_19	;10
-	LD DE,ZXBASIC_VAR_for_j
-	LD BC,5
-	LDIR
-FOR_4:
-; 		1070.2  PRINT  AT 1{00 00 01 00 00 },j;" GAME"; AT 1{00 00 01 00 00 },26{00 00 1a 00 00 }-j;"OVER! "
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,ZXBASIC_VAR_j
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,STRING_35	; GAME
-	CALL runtimePrintString
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,FLOAT_66	;26
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_j
-	CALL runtimePushFloatVar
-; -
-	RST $28
-	DB $03	;SUB
-	DB $38	;END CALC
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,STRING_36	;OVER! 
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	POP AF
-	LD (ZX_P_FLAG),A
-; 		1070.3  BEEP 0.02{7b 23 d7 0a 3d },-11{00 00 0b 00 00 }-j
-	LD HL,FLOAT_67	;0.02
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_40	;11
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_j
-	CALL runtimePushFloatVar
-; -
-	RST $28
-	DB $03	;SUB
-	DB $38	;END CALC
-; -
-	CALL runtimeNegFloat
-	CALL $03F8
-; 		1070.4  BEEP 0.02{7b 23 d7 0a 3d },-8{00 00 08 00 00 }-j
-	LD HL,FLOAT_67	;0.02
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_10	;8
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_j
-	CALL runtimePushFloatVar
-; -
-	RST $28
-	DB $03	;SUB
-	DB $38	;END CALC
-; -
-	CALL runtimeNegFloat
-	CALL $03F8
-; 		1070.5  NEXT j
-	CALL runtimeCheckBreak
-	LD HL,ZXBASIC_VAR_j
-	CALL runtimePushFloatVar
-	RST $28
-	DB zxcalc_stack_one	;STACK ONE
-	DB zxcalc_addition	;ADD
-	DB zxcalc_end_calc	;END CALC
-	LD HL,ZXBASIC_VAR_j
-	CALL runtimeStoreFloat
-	LD HL,ZXBASIC_VAR_for_j
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_j
-	CALL runtimePushFloatVar
-	CALL runtimeSmallerFloat
-	LD A,L
-	CP 0
-	JP Z,FOR_4
-ZXBASIC_LINE_1080:
-; 1080  PRINT  AT 1,0; INK 7; FLASH 1;"    Press any key to continue   "
-; 		1080.1  PRINT  AT 1{00 00 01 00 00 },0{00 00 00 00 00 }; INK 7{00 00 07 00 00 }; FLASH 1{00 00 01 00 00 };"    Press any key to continue   "
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,FLOAT_2	;7
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalInk
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalFlash
-	LD HL,STRING_37	;    Press any key to continue   
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
-	POP AF
-	LD (ZX_P_FLAG),A
-ZXBASIC_LINE_1090:
-; 1090  IF  INKEY$ ="" THEN  GOTO 1090
-; 		1090.1  IF  INKEY$ ="" THEN  GOTO 1090{00 00 42 04 00 }
-; INKEY$
-	CALL runtimeInkey
+	POP HL
+	CALL runtimePushFixedSubString
 	LD DE,HL
-	LD HL,STRING_21	;
+	LD HL,STRING_2	;\94
 ; =
 	CALL runtimeEqualString
 	LD A,L
 	CP 0
-	JP Z,ZXB_LABEL_24
-; 		1090.2  GOTO 1090{00 00 42 04 00 }
-	CALL runtimeCheckBreak
-	JP ZXBASIC_LINE_1090
-ZXB_LABEL_24:
-ZXBASIC_LINE_1100:
-; 1100  GOTO 50
-; 		1100.1  GOTO 50{00 00 32 00 00 }
-	CALL runtimeCheckBreak
-	JP ZXBASIC_LINE_50
-ZXBASIC_LINE_1110:
-; 1110  REM \134\134\134\134\134\134\134\134\134\134\134 Subroutines
-ZXBASIC_LINE_1120:
-; 1120  REM -----------Spawn player
-ZXBASIC_LINE_1130:
-; 1130  LET x=2+ INT ( RND *28)
-; 		1130.1  LET x=2{00 00 02 00 00 }+ INT ( RND *28{00 00 1c 00 00 })
-	LD HL,FLOAT_5	;2
+	JP Z,ZXB_LABEL_9
+; 		360.2  FOR u=1{00 00 01 00 00 } TO 4{00 00 04 00 00 }
+	LD A,2
+	LD (23623),a
+	LD HL,360
+	LD A,2
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	LD HL,1
+	LD (ZXBASIC_VAR_u),HL
+	LD HL,4
+	LD (ZXBASIC_VAR_for_u),HL
+FOR_0:
+; 		360.3  BEEP 0.002{78 03 12 6e 97 },35{00 00 23 00 00 }-u
+	LD A,3
+	LD (23623),a
+	LD HL,360
+	LD A,3
+	CALL runtimeDebug
+	LD HL,FLOAT_4	;0.002
 	CALL runtimePushFloatVar
-; INT
-; RND
-	CALL runtimeRND
-	LD HL,FLOAT_29	;28
-	CALL runtimePushFloatVar
-; *
-	RST $28
-	DB $04	;MULT
-	DB $38	;END CALC
-	CALL runtimeFloatToInt
-; +
+	LD HL,35
+	LD DE,(ZXBASIC_VAR_u)
+; -
+	SUB HL,DE
 	CALL runtimeIntToFloat
-	CALL runtimePlusFloat
-	LD HL,ZXBASIC_VAR_x
-	CALL runtimeStoreFloat
-ZXBASIC_LINE_1140:
-; 1140  LET y=4+ INT ( RND *16)
-; 		1140.1  LET y=4{00 00 04 00 00 }+ INT ( RND *16{00 00 10 00 00 })
-	LD HL,FLOAT_9	;4
-	CALL runtimePushFloatVar
-; INT
-; RND
-	CALL runtimeRND
-	LD HL,FLOAT_21	;16
-	CALL runtimePushFloatVar
-; *
-	RST $28
-	DB $04	;MULT
-	DB $38	;END CALC
-	CALL runtimeFloatToInt
+	CALL $03F8
+; 		360.4  NEXT u
+	LD A,4
+	LD (23623),a
+	LD HL,360
+	LD A,4
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	LD HL,(ZXBASIC_VAR_u)
+	INC HL
+	LD (ZXBASIC_VAR_u),HL
+	LD DE,(ZXBASIC_VAR_for_u)
+	EX HL,DE
+	SUB HL,DE
+	JP NC,FOR_0
+; 		360.5  LET sc=sc+5{00 00 05 00 00 }
+	LD A,5
+	LD (23623),a
+	LD HL,360
+	LD A,5
+	CALL runtimeDebug
+	LD DE,(ZXBASIC_VAR_sc)
+	LD HL,5
 ; +
-	CALL runtimeIntToFloat
-	CALL runtimePlusFloat
-	LD HL,ZXBASIC_VAR_y
-	CALL runtimeStoreFloat
-ZXBASIC_LINE_1150:
-; 1150  IF s(y,x) THEN  GOTO 1130
-; 		1150.1  IF s(y,x) THEN  GOTO 1130{00 00 6a 04 00 }
-; Array-Access
-	LD HL,ZXBASIC_VAR_y
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,22
-	CALL runtimeMult16bit
+	ADD HL,DE
+	LD (ZXBASIC_VAR_sc),HL
+; 		360.6  LET l=l+1{00 00 01 00 00 }
+	LD A,6
+	LD (23623),a
+	LD HL,360
+	LD A,6
+	CALL runtimeDebug
+	LD HL,(ZXBASIC_VAR_l)
+	INC HL
+; +
+	LD (ZXBASIC_VAR_l),HL
+ZXB_LABEL_9:
+ZXBASIC_LINE_365:
+; 365  IF e$(x+1)="\144" THEN  FOR u=1 TO 4: BEEP 0.02,35+u: NEXT u: LET sc=sc+20: LET sh=sh+1
+	LD HL,365
+	LD (23621),HL
+; 		365.1  IF e$(x+1{00 00 01 00 00 })="\144" THEN  FOR u=1{00 00 01 00 00 } TO 4{00 00 04 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,365
+	LD A,1
+	CALL runtimeDebug
+	LD HL,ZXBASIC_VAR_e_string
 	PUSH HL
-	LD HL,ZXBASIC_VAR_x
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
+	LD DE,(ZXBASIC_VAR_x)
+	LD HL,1
+; +
+	ADD HL,DE
+	PUSH HL
+	LD BC,HL
 	POP DE
-	ADD HL,DE
-	LD DE,5
-	CALL runtimeMult16bit
-	LD DE, ZXBASIC_VAR_s_array
-	ADD HL,DE
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
+	POP HL
+	CALL runtimePushFixedSubString
+	LD DE,HL
+	LD HL,STRING_3	;\90
+; =
+	CALL runtimeEqualString
 	LD A,L
 	CP 0
-	JP Z,ZXB_LABEL_25
-; 		1150.2  GOTO 1130{00 00 6a 04 00 }
-	CALL runtimeCheckBreak
-	JP ZXBASIC_LINE_1130
-ZXB_LABEL_25:
-ZXBASIC_LINE_1160:
-; 1160  LET s(y,x)=-1: FOR j=1 TO 10 STEP 2: PRINT  AT y,x;" ": BEEP 0.01,j+12: PRINT  AT y,x; INK 3; BRIGHT 1;"\144": BEEP 0.01,j+13: NEXT j
-; 		1160.1  LET s(y,x)=-1{00 00 01 00 00 }
-	LD HL,ZXBASIC_VAR_y
+	JP Z,ZXB_LABEL_10
+; 		365.2  FOR u=1{00 00 01 00 00 } TO 4{00 00 04 00 00 }
+	LD A,2
+	LD (23623),a
+	LD HL,365
+	LD A,2
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	LD HL,1
+	LD (ZXBASIC_VAR_u),HL
+	LD HL,4
+	LD (ZXBASIC_VAR_for_u),HL
+FOR_1:
+; 		365.3  BEEP 0.02{7b 23 d7 0a 3d },35{00 00 23 00 00 }+u
+	LD A,3
+	LD (23623),a
+	LD HL,365
+	LD A,3
+	CALL runtimeDebug
+	LD HL,FLOAT_5	;0.02
 	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,22
-	CALL runtimeMult16bit
-	PUSH HL
-	LD HL,ZXBASIC_VAR_x
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
+	LD DE,35
+	LD HL,(ZXBASIC_VAR_u)
+; +
 	ADD HL,DE
-	LD DE,5
-	CALL runtimeMult16bit
+	CALL runtimeIntToFloat
+	CALL $03F8
+; 		365.4  NEXT u
+	LD A,4
+	LD (23623),a
+	LD HL,365
+	LD A,4
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	LD HL,(ZXBASIC_VAR_u)
+	INC HL
+	LD (ZXBASIC_VAR_u),HL
+	LD DE,(ZXBASIC_VAR_for_u)
+	EX HL,DE
+	SUB HL,DE
+	JP NC,FOR_1
+; 		365.5  LET sc=sc+20{00 00 14 00 00 }
+	LD A,5
+	LD (23623),a
+	LD HL,365
+	LD A,5
+	CALL runtimeDebug
+	LD DE,(ZXBASIC_VAR_sc)
+	LD HL,20
+; +
+	ADD HL,DE
+	LD (ZXBASIC_VAR_sc),HL
+; 		365.6  LET sh=sh+1{00 00 01 00 00 }
+	LD A,6
+	LD (23623),a
+	LD HL,365
+	LD A,6
+	CALL runtimeDebug
+	LD HL,(ZXBASIC_VAR_sh)
+	INC HL
+; +
+	LD (ZXBASIC_VAR_sh),HL
+ZXB_LABEL_10:
+ZXBASIC_LINE_366:
+; 366  IF sh=6 AND h >= 175 THEN  BEEP 0.2,25: PLOT 50,3: DRAW  INK 4;75,0: LET sh=0: LET h=120
+	LD HL,366
+	LD (23621),HL
+; 		366.1  IF sh=6{00 00 06 00 00 } AND h >= 175{00 00 af 00 00 } THEN  BEEP 0.2{7e 4c cc cc cc },25{00 00 19 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,366
+	LD A,1
+	CALL runtimeDebug
+	LD DE,(ZXBASIC_VAR_sh)
+	LD HL,6
+; =
+	CALL runtimeCmpHLEqDE
 	PUSH HL
-	LD HL,FLOAT_3	;1
+	LD DE,(ZXBASIC_VAR_h)
+	LD HL,175
+; >=
+	CALL runtimeCmpHLGeDE
+; AND
+	POP DE
+	call runtimeAndHLDE
+	LD A,L
+	CP 0
+	JP Z,ZXB_LABEL_11
+; 		366.2  BEEP 0.2{7e 4c cc cc cc },25{00 00 19 00 00 }
+	LD A,2
+	LD (23623),a
+	LD HL,366
+	LD A,2
+	CALL runtimeDebug
+	LD HL,FLOAT_6	;0.2
 	CALL runtimePushFloatVar
+	LD HL,25
+	CALL runtimeIntToFloat
+	CALL $03F8
+; 		366.3  PLOT 50{00 00 32 00 00 },3{00 00 03 00 00 }
+	LD A,3
+	LD (23623),a
+	LD HL,366
+	LD A,3
+	CALL runtimeDebug
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,50
+	LD HL,3
+	CALL runtimePlot
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		366.4  DRAW  INK 4{00 00 04 00 00 };75{00 00 4b 00 00 },0{00 00 00 00 00 }
+	LD A,4
+	LD (23623),a
+	LD HL,366
+	LD A,4
+	CALL runtimeDebug
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD HL,4
+	CALL runtimeLocalInk
+	LD DE,75
+	LD HL,0
+	LD B,L
+	LD C,E
+	CALL runtimeDraw
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		366.5  LET sh=0{00 00 00 00 00 }
+	LD A,5
+	LD (23623),a
+	LD HL,366
+	LD A,5
+	CALL runtimeDebug
+	LD HL,0
+	LD (ZXBASIC_VAR_sh),HL
+; 		366.6  LET h=120{00 00 78 00 00 }
+	LD A,6
+	LD (23623),a
+	LD HL,366
+	LD A,6
+	CALL runtimeDebug
+	LD HL,120
+	LD (ZXBASIC_VAR_h),HL
+ZXB_LABEL_11:
+ZXBASIC_LINE_370:
+; 370  PLOT x*8+4,49: DRAW  OVER 1; INK 4;0,125: DRAW  OVER 1; INK 0;0,-125
+	LD HL,370
+	LD (23621),HL
+; 		370.1  PLOT x*8{00 00 08 00 00 }+4{00 00 04 00 00 },49{00 00 31 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,370
+	LD A,1
+	CALL runtimeDebug
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,(ZXBASIC_VAR_x)
+	LD HL,8
+; *
+	call runtimeMult16bit
+	LD DE,HL
+	LD HL,4
+; +
+	ADD HL,DE
+	LD DE,HL
+	LD HL,49
+	CALL runtimePlot
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		370.2  DRAW  OVER 1{00 00 01 00 00 }; INK 4{00 00 04 00 00 };0{00 00 00 00 00 },125{00 00 7d 00 00 }
+	LD A,2
+	LD (23623),a
+	LD HL,370
+	LD A,2
+	CALL runtimeDebug
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD HL,1
+	CALL runtimeLocalOver
+	LD HL,4
+	CALL runtimeLocalInk
+	LD DE,0
+	LD HL,125
+	LD B,L
+	LD C,E
+	CALL runtimeDraw
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		370.3  DRAW  OVER 1{00 00 01 00 00 }; INK 0{00 00 00 00 00 };0{00 00 00 00 00 },-125{00 00 7d 00 00 }
+	LD A,3
+	LD (23623),a
+	LD HL,370
+	LD A,3
+	CALL runtimeDebug
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD HL,1
+	CALL runtimeLocalOver
+	LD HL,0
+	CALL runtimeLocalInk
+	LD HL,0
+	PUSH HL
+	LD HL,125
+	LD BC,HL
 ; -
-	CALL runtimeNegFloat
-	POP HL
-	LD BC,ZXBASIC_VAR_s_array
-	ADD HL,BC
-	CALL runtimeStoreFloat
-; 		1160.2  FOR j=1{00 00 01 00 00 } TO 10{00 00 0a 00 00 } STEP 2{00 00 02 00 00 }
-	CALL runtimeCheckBreak
-	LD HL,FLOAT_3	;1
-	LD DE,ZXBASIC_VAR_j
+	LD HL,0
+	SUB HL,BC
+	POP DE
+	LD B,L
+	LD C,E
+	CALL runtimeDraw
+	POP AF
+	LD (ZX_P_FLAG),A
+ZXBASIC_LINE_375:
+; 375  IF  ATTR (pp,p1+1)=0 OR  ATTR (pp,p1)=0 OR  ATTR (pp,p1+2)=0 THEN  FOR w=1 TO 2: LET i= INT ( RND *7)+1: BEEP 0.01,45-w: NEXT w: LET sc=sc+15: LET sh=sh+1
+	LD HL,375
+	LD (23621),HL
+; 		375.1  IF  ATTR (pp,p1+1{00 00 01 00 00 })=0{00 00 00 00 00 } OR  ATTR (pp,p1)=0{00 00 00 00 00 } OR  ATTR (pp,p1+2{00 00 02 00 00 })=0{00 00 00 00 00 } THEN  FOR w=1{00 00 01 00 00 } TO 2{00 00 02 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,375
+	LD A,1
+	CALL runtimeDebug
+; ATTR
+	LD HL,(ZXBASIC_VAR_pp)
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_p1)
+	LD HL,1
+; +
+	ADD HL,DE
+	POP DE
+	CALL runtimeAttr
+	LD DE,HL
+	LD HL,0
+; =
+	CALL runtimeCmpHLEqDE
+	PUSH HL
+; ATTR
+	LD DE,(ZXBASIC_VAR_pp)
+	LD HL,(ZXBASIC_VAR_p1)
+	CALL runtimeAttr
+	LD DE,HL
+	LD HL,0
+; =
+	CALL runtimeCmpHLEqDE
+; OR
+	POP DE
+	call runtimeOrHLDE
+	PUSH HL
+; ATTR
+	LD HL,(ZXBASIC_VAR_pp)
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_p1)
+	LD HL,2
+; +
+	ADD HL,DE
+	POP DE
+	CALL runtimeAttr
+	LD DE,HL
+	LD HL,0
+; =
+	CALL runtimeCmpHLEqDE
+; OR
+	POP DE
+	call runtimeOrHLDE
+	LD A,L
+	CP 0
+	JP Z,ZXB_LABEL_12
+; 		375.2  FOR w=1{00 00 01 00 00 } TO 2{00 00 02 00 00 }
+	LD A,2
+	LD (23623),a
+	LD HL,375
+	LD A,2
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	LD HL,1
+	LD (ZXBASIC_VAR_w),HL
+	LD HL,2
+	LD (ZXBASIC_VAR_for_w),HL
+FOR_2:
+; 		375.3  LET i= INT ( RND *7{00 00 07 00 00 })+1{00 00 01 00 00 }
+	LD A,3
+	LD (23623),a
+	LD HL,375
+	LD A,3
+	CALL runtimeDebug
+; INT
+; RND
+	CALL runtimeRND
+	LD HL,7
+; *
+	CALL runtimeIntToFloat
+	RST $28
+	DB $04	;MULT
+	DB $38	;END CALC
+	CALL runtimeFloatToInt
+	INC HL
+; +
+	LD (ZXBASIC_VAR_i),HL
+; 		375.4  BEEP 0.01{7a 23 d7 0a 3d },45{00 00 2d 00 00 }-w
+	LD A,4
+	LD (23623),a
+	LD HL,375
+	LD A,4
+	CALL runtimeDebug
+	LD HL,FLOAT_7	;0.01
+	CALL runtimePushFloatVar
+	LD HL,45
+	LD DE,(ZXBASIC_VAR_w)
+; -
+	SUB HL,DE
+	CALL runtimeIntToFloat
+	CALL $03F8
+; 		375.5  NEXT w
+	LD A,5
+	LD (23623),a
+	LD HL,375
+	LD A,5
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	LD HL,(ZXBASIC_VAR_w)
+	INC HL
+	LD (ZXBASIC_VAR_w),HL
+	LD DE,(ZXBASIC_VAR_for_w)
+	EX HL,DE
+	SUB HL,DE
+	JP NC,FOR_2
+; 		375.6  LET sc=sc+15{00 00 0f 00 00 }
+	LD A,6
+	LD (23623),a
+	LD HL,375
+	LD A,6
+	CALL runtimeDebug
+	LD DE,(ZXBASIC_VAR_sc)
+	LD HL,15
+; +
+	ADD HL,DE
+	LD (ZXBASIC_VAR_sc),HL
+; 		375.7  LET sh=sh+1{00 00 01 00 00 }
+	LD A,7
+	LD (23623),a
+	LD HL,375
+	LD A,7
+	CALL runtimeDebug
+	LD HL,(ZXBASIC_VAR_sh)
+	INC HL
+; +
+	LD (ZXBASIC_VAR_sh),HL
+ZXB_LABEL_12:
+ZXBASIC_LINE_380:
+; 380  LET a$(x+1)=" "
+	LD HL,380
+	LD (23621),HL
+; 		380.1  LET a$(x+1{00 00 01 00 00 })=" "
+	LD A,1
+	LD (23623),a
+	LD HL,380
+	LD A,1
+	CALL runtimeDebug
+	LD HL,ZXBASIC_VAR_a_string
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_x)
+	LD HL,1
+; +
+	ADD HL,DE
+	PUSH HL
+	PUSH HL
+	LD HL,STRING_0	; 
+	CALL runtimeStoreFixedStringWithRangeFromBstr
+ZXBASIC_LINE_385:
+; 385  LET e$(x+1)=" "
+	LD HL,385
+	LD (23621),HL
+; 		385.1  LET e$(x+1{00 00 01 00 00 })=" "
+	LD A,1
+	LD (23623),a
+	LD HL,385
+	LD A,1
+	CALL runtimeDebug
+	LD HL,ZXBASIC_VAR_e_string
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_x)
+	LD HL,1
+; +
+	ADD HL,DE
+	PUSH HL
+	PUSH HL
+	LD HL,STRING_0	; 
+	CALL runtimeStoreFixedStringWithRangeFromBstr
+ZXBASIC_LINE_390:
+; 390  PRINT  AT 20,6; INK 6; BRIGHT 1; PAPER 2;sc;
+	LD HL,390
+	LD (23621),HL
+; 		390.1  PRINT  AT 20{00 00 14 00 00 },6{00 00 06 00 00 }; INK 6{00 00 06 00 00 }; BRIGHT 1{00 00 01 00 00 }; PAPER 2{00 00 02 00 00 };sc;
+	LD A,1
+	LD (23623),a
+	LD HL,390
+	LD A,1
+	CALL runtimeDebug
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,20
+	LD HL,6
+	CALL runtimePrintAt
+	LD HL,6
+	CALL runtimeLocalInk
+	LD HL,1
+	CALL runtimeLocalBright
+	LD HL,2
+	CALL runtimeLocalPaper
+	LD HL,(ZXBASIC_VAR_sc)
+	CALL runtimePrintInt
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
+ZXBASIC_LINE_400:
+; 400  BEEP 0.002,10
+	LD HL,400
+	LD (23621),HL
+; 		400.1  BEEP 0.002{78 03 12 6e 97 },10{00 00 0a 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,400
+	LD A,1
+	CALL runtimeDebug
+	LD HL,FLOAT_4	;0.002
+	CALL runtimePushFloatVar
+	LD HL,10
+	CALL runtimeIntToFloat
+	CALL $03F8
+ZXBASIC_LINE_405:
+; 405  PRINT  INK 3; AT 0,20;"L=";l
+	LD HL,405
+	LD (23621),HL
+; 		405.1  PRINT  INK 3{00 00 03 00 00 }; AT 0{00 00 00 00 00 },20{00 00 14 00 00 };"L=";l
+	LD A,1
+	LD (23623),a
+	LD HL,405
+	LD A,1
+	CALL runtimeDebug
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD HL,3
+	CALL runtimeLocalInk
+	LD DE,0
+	LD HL,20
+	CALL runtimePrintAt
+	LD HL,STRING_4	;L=
+	CALL runtimePrintString
+	LD HL,(ZXBASIC_VAR_l)
+	CALL runtimePrintInt
+	CALL runtimePrintNewline
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
+ZXBASIC_LINE_410:
+; 410  IF l<6 THEN  RETURN 
+	LD HL,410
+	LD (23621),HL
+; 		410.1  IF l<6{00 00 06 00 00 } THEN  RETURN 
+	LD A,1
+	LD (23623),a
+	LD HL,410
+	LD A,1
+	CALL runtimeDebug
+	LD DE,(ZXBASIC_VAR_l)
+	LD HL,6
+; <
+	CALL runtimeCmpHLltDE
+	LD A,L
+	CP 0
+	JP Z,ZXB_LABEL_13
+; 		410.2  RETURN 
+	LD A,2
+	LD (23623),a
+	LD HL,410
+	LD A,2
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	RET
+ZXB_LABEL_13:
+ZXBASIC_LINE_420:
+; 420  FOR t=30 TO 40: BEEP 0.004,t: NEXT t: LET a=2: FOR c=0 TO 17: PRINT  AT c,0; PAPER 0;,,,,: NEXT c: BEEP 0.03,35: LET sc=sc+50: GOSUB 780
+	LD HL,420
+	LD (23621),HL
+; 		420.1  FOR t=30{00 00 1e 00 00 } TO 40{00 00 28 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,420
+	LD A,1
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	LD HL,30
+	LD (ZXBASIC_VAR_t),HL
+	LD HL,40
+	LD (ZXBASIC_VAR_for_t),HL
+FOR_3:
+; 		420.2  BEEP 0.004{79 03 12 6e 97 },t
+	LD A,2
+	LD (23623),a
+	LD HL,420
+	LD A,2
+	CALL runtimeDebug
+	LD HL,FLOAT_8	;0.004
+	CALL runtimePushFloatVar
+	LD HL,(ZXBASIC_VAR_t)
+	CALL runtimeIntToFloat
+	CALL $03F8
+; 		420.3  NEXT t
+	LD A,3
+	LD (23623),a
+	LD HL,420
+	LD A,3
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	LD HL,(ZXBASIC_VAR_t)
+	INC HL
+	LD (ZXBASIC_VAR_t),HL
+	LD DE,(ZXBASIC_VAR_for_t)
+	EX HL,DE
+	SUB HL,DE
+	JP NC,FOR_3
+; 		420.4  LET a=2{00 00 02 00 00 }
+	LD A,4
+	LD (23623),a
+	LD HL,420
+	LD A,4
+	CALL runtimeDebug
+	LD HL,2
+	LD (ZXBASIC_VAR_a),HL
+; 		420.5  FOR c=0{00 00 00 00 00 } TO 17{00 00 11 00 00 }
+	LD A,5
+	LD (23623),a
+	LD HL,420
+	LD A,5
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	LD HL,0
+	LD (ZXBASIC_VAR_c),HL
+	LD HL,17
+	LD (ZXBASIC_VAR_for_c),HL
+FOR_4:
+; 		420.6  PRINT  AT c,0{00 00 00 00 00 }; PAPER 0{00 00 00 00 00 };,,,,
+	LD A,6
+	LD (23623),a
+	LD HL,420
+	LD A,6
+	CALL runtimeDebug
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,(ZXBASIC_VAR_c)
+	LD HL,0
+	CALL runtimePrintAt
+	LD HL,0
+	CALL runtimeLocalPaper
+	CALL runtimePrintTab
+	CALL runtimePrintTab
+	CALL runtimePrintTab
+	CALL runtimePrintTab
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		420.7  NEXT c
+	LD A,7
+	LD (23623),a
+	LD HL,420
+	LD A,7
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	LD HL,(ZXBASIC_VAR_c)
+	INC HL
+	LD (ZXBASIC_VAR_c),HL
+	LD DE,(ZXBASIC_VAR_for_c)
+	EX HL,DE
+	SUB HL,DE
+	JP NC,FOR_4
+; 		420.8  BEEP 0.03{7b 75 c2 8f 5c },35{00 00 23 00 00 }
+	LD A,8
+	LD (23623),a
+	LD HL,420
+	LD A,8
+	CALL runtimeDebug
+	LD HL,FLOAT_9	;0.03
+	CALL runtimePushFloatVar
+	LD HL,35
+	CALL runtimeIntToFloat
+	CALL $03F8
+; 		420.9  LET sc=sc+50{00 00 32 00 00 }
+	LD A,9
+	LD (23623),a
+	LD HL,420
+	LD A,9
+	CALL runtimeDebug
+	LD DE,(ZXBASIC_VAR_sc)
+	LD HL,50
+; +
+	ADD HL,DE
+	LD (ZXBASIC_VAR_sc),HL
+; 		420.10  GOSUB 780{00 00 0c 03 00 }
+	LD A,10
+	LD (23623),a
+	LD HL,420
+	LD A,10
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	CALL ZXBASIC_LINE_780
+ZXBASIC_LINE_430:
+; 430  RETURN 
+	LD HL,430
+	LD (23621),HL
+; 		430.1  RETURN 
+	LD A,1
+	LD (23623),a
+	LD HL,430
+	LD A,1
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	RET
+ZXBASIC_LINE_440:
+; 440  PLOT p1*8+12,159: DRAW  OVER 1; INK 2;0,-141: DRAW  OVER 1; INK 2;0,141
+	LD HL,440
+	LD (23621),HL
+; 		440.1  PLOT p1*8{00 00 08 00 00 }+12{00 00 0c 00 00 },159{00 00 9f 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,440
+	LD A,1
+	CALL runtimeDebug
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,(ZXBASIC_VAR_p1)
+	LD HL,8
+; *
+	call runtimeMult16bit
+	LD DE,HL
+	LD HL,12
+; +
+	ADD HL,DE
+	LD DE,HL
+	LD HL,159
+	CALL runtimePlot
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		440.2  DRAW  OVER 1{00 00 01 00 00 }; INK 2{00 00 02 00 00 };0{00 00 00 00 00 },-141{00 00 8d 00 00 }
+	LD A,2
+	LD (23623),a
+	LD HL,440
+	LD A,2
+	CALL runtimeDebug
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD HL,1
+	CALL runtimeLocalOver
+	LD HL,2
+	CALL runtimeLocalInk
+	LD HL,0
+	PUSH HL
+	LD HL,141
+	LD BC,HL
+; -
+	LD HL,0
+	SUB HL,BC
+	POP DE
+	LD B,L
+	LD C,E
+	CALL runtimeDraw
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		440.3  DRAW  OVER 1{00 00 01 00 00 }; INK 2{00 00 02 00 00 };0{00 00 00 00 00 },141{00 00 8d 00 00 }
+	LD A,3
+	LD (23623),a
+	LD HL,440
+	LD A,3
+	CALL runtimeDebug
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD HL,1
+	CALL runtimeLocalOver
+	LD HL,2
+	CALL runtimeLocalInk
+	LD DE,0
+	LD HL,141
+	LD B,L
+	LD C,E
+	CALL runtimeDraw
+	POP AF
+	LD (ZX_P_FLAG),A
+ZXBASIC_LINE_450:
+; 450  OUT 254,16: OUT 254,8
+	LD HL,450
+	LD (23621),HL
+; 		450.1  OUT 254{00 00 fe 00 00 },16{00 00 10 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,450
+	LD A,1
+	CALL runtimeDebug
+	LD HL,254
+	PUSH HL
+	LD HL,16
+	POP BC
+	LD A,L
+	OUT (C),A
+; 		450.2  OUT 254{00 00 fe 00 00 },8{00 00 08 00 00 }
+	LD A,2
+	LD (23623),a
+	LD HL,450
+	LD A,2
+	CALL runtimeDebug
+	LD HL,254
+	PUSH HL
+	LD HL,8
+	POP BC
+	LD A,L
+	OUT (C),A
+ZXBASIC_LINE_455:
+; 455  IF l>0 THEN  IF  ATTR (y,x)=2 THEN  FOR d=10.0 TO 20.0:  BEEP 0.025,0-d: NEXT d: LET h=h+25: PLOT 255,3: DRAW  INK 2;-h,0
+	LD HL,455
+	LD (23621),HL
+; 		455.1  IF l>0{00 00 00 00 00 } THEN  IF  ATTR (y,x)=2{00 00 02 00 00 } THEN  FOR d=10.0{00 00 0a 00 00 } TO 20.0{00 00 14 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,455
+	LD A,1
+	CALL runtimeDebug
+	LD DE,(ZXBASIC_VAR_l)
+	LD HL,0
+; >
+	CALL runtimeCmpHlGtDE
+	LD A,L
+	CP 0
+	JP Z,ZXB_LABEL_14
+; 		455.2  IF  ATTR (y,x)=2{00 00 02 00 00 } THEN  FOR d=10.0{00 00 0a 00 00 } TO 20.0{00 00 14 00 00 }
+	LD A,2
+	LD (23623),a
+	LD HL,455
+	LD A,2
+	CALL runtimeDebug
+; ATTR
+	LD DE,(ZXBASIC_VAR_y)
+	LD HL,(ZXBASIC_VAR_x)
+	CALL runtimeAttr
+	LD DE,HL
+	LD HL,2
+; =
+	CALL runtimeCmpHLEqDE
+	LD A,L
+	CP 0
+	JP Z,ZXB_LABEL_15
+; 		455.3  FOR d=10.0{00 00 0a 00 00 } TO 20.0{00 00 14 00 00 }
+	LD A,3
+	LD (23623),a
+	LD HL,455
+	LD A,3
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	LD HL,FLOAT_10	;10.0
+	LD DE,ZXBASIC_VAR_d
 	LD BC,5
 	LDIR
-	LD HL,FLOAT_19	;10
-	LD DE,ZXBASIC_VAR_for_j
-	LD BC,5
-	LDIR
-	LD HL,FLOAT_5	;2
-	LD DE,ZXBASIC_VAR_for_j_step
+	LD HL,FLOAT_2	;20.0
+	LD DE,ZXBASIC_VAR_for_d
 	LD BC,5
 	LDIR
 FOR_5:
-; 		1160.3  PRINT  AT y,x;" "
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,ZXBASIC_VAR_y
+; 		455.4  BEEP 0.025{7b 4c cc cc cc },0{00 00 00 00 00 }-d
+	LD A,4
+	LD (23623),a
+	LD HL,455
+	LD A,4
+	CALL runtimeDebug
+	LD HL,FLOAT_11	;0.025
 	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
+	LD HL,0
 	PUSH HL
-	LD HL,ZXBASIC_VAR_x
+	LD HL,ZXBASIC_VAR_d
 	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,STRING_31	; 
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	POP AF
-	LD (ZX_P_FLAG),A
-; 		1160.4  BEEP 0.01{7a 23 d7 0a 3d },j+12{00 00 0c 00 00 }
-	LD HL,FLOAT_56	;0.01
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_j
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_4	;12
-	CALL runtimePushFloatVar
-; +
-	RST $28
-	DB $0f	;ADD
-	DB $38	;END CALC
-	CALL $03F8
-; 		1160.5  PRINT  AT y,x; INK 3{00 00 03 00 00 }; BRIGHT 1{00 00 01 00 00 };"\144"
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,ZXBASIC_VAR_y
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,ZXBASIC_VAR_x
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,FLOAT_6	;3
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalInk
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalBright
-	LD HL,STRING_9	;\90
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
-	POP AF
-	LD (ZX_P_FLAG),A
-; 		1160.6  BEEP 0.01{7a 23 d7 0a 3d },j+13{00 00 0d 00 00 }
-	LD HL,FLOAT_56	;0.01
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_j
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_26	;13
-	CALL runtimePushFloatVar
-; +
-	RST $28
-	DB $0f	;ADD
-	DB $38	;END CALC
-	CALL $03F8
-; 		1160.7  NEXT j
-	CALL runtimeCheckBreak
-	LD HL,ZXBASIC_VAR_for_j
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_j
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_for_j_step
-	CALL runtimePushFloatVar
-	RST $28
-	DB zxcalc_addition	;ADD
-	DB zxcalc_duplicate	;DUPLICATE
-	DB $38	;END CALC
-	LD HL,ZXBASIC_VAR_j
-	CALL runtimeStoreFloat
-	RST $28
-	db zxcalc_subtract
-	db zxcalc_end_calc
-	LD HL,ZXBASIC_VAR_for_j_step
-	CALL runtimePushFloatVar
-	CALL runtimeNextFloat
-	CP 0
-	JP Z,FOR_5
-ZXBASIC_LINE_1170:
-; 1170  RETURN 
-; 		1170.1  RETURN 
-	CALL runtimeCheckBreak
-	RET
-ZXBASIC_LINE_1180:
-; 1180  REM ------------Kill player
-ZXBASIC_LINE_1190:
-; 1190  PRINT  AT y,x; INK 2; OVER 1;"*": BEEP 0.01,24: BEEP 0.01,18: LET s(y,x)=0: PRINT  AT y,x; INK 3; BRIGHT 0;"\146": FOR j=1 TO 6 STEP 2: PRINT  AT 0,28+lives; INK 3; BRIGHT 1;"\144": BEEP 0.01,0-j: PRINT  AT 0,28+lives; INK 1; BRIGHT 0;"\144": BEEP 0.01,0-j-1: NEXT j: LET lives=lives-1: IF lives>0 THEN  PRINT  AT y,x;" ": GOSUB 1130
-; 		1190.1  PRINT  AT y,x; INK 2{00 00 02 00 00 }; OVER 1{00 00 01 00 00 };"*"
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,ZXBASIC_VAR_y
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,ZXBASIC_VAR_x
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,FLOAT_5	;2
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalInk
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalOver
-	LD HL,STRING_33	;*
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
-	POP AF
-	LD (ZX_P_FLAG),A
-; 		1190.2  BEEP 0.01{7a 23 d7 0a 3d },24{00 00 18 00 00 }
-	LD HL,FLOAT_56	;0.01
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_52	;24
-	CALL runtimePushFloatVar
-	CALL $03F8
-; 		1190.3  BEEP 0.01{7a 23 d7 0a 3d },18{00 00 12 00 00 }
-	LD HL,FLOAT_56	;0.01
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_11	;18
-	CALL runtimePushFloatVar
-	CALL $03F8
-; 		1190.4  LET s(y,x)=0{00 00 00 00 00 }
-	LD HL,ZXBASIC_VAR_y
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD DE,22
-	CALL runtimeMult16bit
-	PUSH HL
-	LD HL,ZXBASIC_VAR_x
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	ADD HL,DE
-	LD DE,5
-	CALL runtimeMult16bit
-	PUSH HL
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
+; -
 	POP HL
-	LD BC,ZXBASIC_VAR_s_array
-	ADD HL,BC
-	CALL runtimeStoreFloat
-; 		1190.5  PRINT  AT y,x; INK 3{00 00 03 00 00 }; BRIGHT 0{00 00 00 00 00 };"\146"
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,ZXBASIC_VAR_y
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,ZXBASIC_VAR_x
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,FLOAT_6	;3
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalInk
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalBright
-	LD HL,STRING_32	;\92
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
-	POP AF
-	LD (ZX_P_FLAG),A
-; 		1190.6  FOR j=1{00 00 01 00 00 } TO 6{00 00 06 00 00 } STEP 2{00 00 02 00 00 }
-	CALL runtimeCheckBreak
-	LD HL,FLOAT_3	;1
-	LD DE,ZXBASIC_VAR_j
-	LD BC,5
-	LDIR
-	LD HL,FLOAT_7	;6
-	LD DE,ZXBASIC_VAR_for_j
-	LD BC,5
-	LDIR
-	LD HL,FLOAT_5	;2
-	LD DE,ZXBASIC_VAR_for_j_step
-	LD BC,5
-	LDIR
-FOR_6:
-; 		1190.7  PRINT  AT 0{00 00 00 00 00 },28{00 00 1c 00 00 }+lives; INK 3{00 00 03 00 00 }; BRIGHT 1{00 00 01 00 00 };"\144"
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,FLOAT_29	;28
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_lives
-	CALL runtimePushFloatVar
-; +
-	RST $28
-	DB $0f	;ADD
-	DB $38	;END CALC
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,FLOAT_6	;3
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalInk
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalBright
-	LD HL,STRING_9	;\90
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
-	POP AF
-	LD (ZX_P_FLAG),A
-; 		1190.8  BEEP 0.01{7a 23 d7 0a 3d },0{00 00 00 00 00 }-j
-	LD HL,FLOAT_56	;0.01
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_j
-	CALL runtimePushFloatVar
-; -
-	RST $28
-	DB $03	;SUB
-	DB $38	;END CALC
+	CALL runtimeIntToFloat
+	CALL runtimeSwapFloat
+	CALL runtimeMinusFloat
 	CALL $03F8
-; 		1190.9  PRINT  AT 0{00 00 00 00 00 },28{00 00 1c 00 00 }+lives; INK 1{00 00 01 00 00 }; BRIGHT 0{00 00 00 00 00 };"\144"
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,FLOAT_29	;28
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_lives
-	CALL runtimePushFloatVar
-; +
-	RST $28
-	DB $0f	;ADD
-	DB $38	;END CALC
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalInk
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalBright
-	LD HL,STRING_9	;\90
-	CALL runtimePrintString
-	CALL runtimePrintNewline
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
-	POP AF
-	LD (ZX_P_FLAG),A
-; 		1190.10  BEEP 0.01{7a 23 d7 0a 3d },0{00 00 00 00 00 }-j-1{00 00 01 00 00 }
-	LD HL,FLOAT_56	;0.01
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_j
-	CALL runtimePushFloatVar
-; -
-	RST $28
-	DB $03	;SUB
-	DB $38	;END CALC
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-; -
-	RST $28
-	DB $03	;SUB
-	DB $38	;END CALC
-	CALL $03F8
-; 		1190.11  NEXT j
-	CALL runtimeCheckBreak
-	LD HL,ZXBASIC_VAR_for_j
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_j
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_for_j_step
+; 		455.5  NEXT d
+	LD A,5
+	LD (23623),a
+	LD HL,455
+	LD A,5
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	LD HL,ZXBASIC_VAR_d
 	CALL runtimePushFloatVar
 	RST $28
+	DB zxcalc_stack_one	;STACK ONE
 	DB zxcalc_addition	;ADD
-	DB zxcalc_duplicate	;DUPLICATE
-	DB $38	;END CALC
-	LD HL,ZXBASIC_VAR_j
+	DB zxcalc_end_calc	;END CALC
+	LD HL,ZXBASIC_VAR_d
 	CALL runtimeStoreFloat
-	RST $28
-	db zxcalc_subtract
-	db zxcalc_end_calc
-	LD HL,ZXBASIC_VAR_for_j_step
+	LD HL,ZXBASIC_VAR_for_d
 	CALL runtimePushFloatVar
-	CALL runtimeNextFloat
-	CP 0
-	JP Z,FOR_6
-; 		1190.12  LET lives=lives-1{00 00 01 00 00 }
-	LD HL,ZXBASIC_VAR_lives
+	LD HL,ZXBASIC_VAR_d
 	CALL runtimePushFloatVar
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-; -
-	RST $28
-	DB $03	;SUB
-	DB $38	;END CALC
-	LD HL,ZXBASIC_VAR_lives
-	CALL runtimeStoreFloat
-; 		1190.13  IF lives>0{00 00 00 00 00 } THEN  PRINT  AT y,x;" "
-	LD HL,ZXBASIC_VAR_lives
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-; >
-	CALL runtimeBiggerFloat
+	CALL runtimeSmallerFloat
 	LD A,L
 	CP 0
-	JP Z,ZXB_LABEL_26
-; 		1190.14  PRINT  AT y,x;" "
+	JP Z,FOR_5
+; 		455.6  LET h=h+25{00 00 19 00 00 }
+	LD A,6
+	LD (23623),a
+	LD HL,455
+	LD A,6
+	CALL runtimeDebug
+	LD DE,(ZXBASIC_VAR_h)
+	LD HL,25
+; +
+	ADD HL,DE
+	LD (ZXBASIC_VAR_h),HL
+; 		455.7  PLOT 255{00 00 ff 00 00 },3{00 00 03 00 00 }
+	LD A,7
+	LD (23623),a
+	LD HL,455
+	LD A,7
+	CALL runtimeDebug
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,255
+	LD HL,3
+	CALL runtimePlot
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		455.8  DRAW  INK 2{00 00 02 00 00 };-h,0{00 00 00 00 00 }
+	LD A,8
+	LD (23623),a
+	LD HL,455
+	LD A,8
+	CALL runtimeDebug
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD HL,2
+	CALL runtimeLocalInk
+	LD HL,(ZXBASIC_VAR_h)
+	LD BC,HL
+; -
+	LD HL,0
+	SUB HL,BC
+	LD DE,HL
+	LD HL,0
+	LD B,L
+	LD C,E
+	CALL runtimeDraw
+	POP AF
+	LD (ZX_P_FLAG),A
+ZXB_LABEL_15:
+ZXB_LABEL_14:
+ZXBASIC_LINE_470:
+; 470  RETURN 
+	LD HL,470
+	LD (23621),HL
+; 		470.1  RETURN 
+	LD A,1
+	LD (23623),a
+	LD HL,470
+	LD A,1
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	RET
+ZXBASIC_LINE_480:
+; 480  REM ** GAME OVER **
+	LD HL,480
+	LD (23621),HL
+	LD A,1
+	LD (23623),a
+	LD HL,480
+	LD A,1
+	CALL runtimeDebug
+ZXBASIC_LINE_490:
+; 490  PRINT  AT 10,8; FLASH 1; INK 2;"G A M E  O V E R"\020\001
+	LD HL,490
+	LD (23621),HL
+; 		490.1  PRINT  AT 10{00 00 0a 00 00 },8{00 00 08 00 00 }; FLASH 1{00 00 01 00 00 }; INK 2{00 00 02 00 00 };"G A M E  O V E R"\020\001
+	LD A,1
+	LD (23623),a
+	LD HL,490
+	LD A,1
+	CALL runtimeDebug
 	LD A,2
 	CALL $1601	;Open Channel
 	LD A,(ZX_P_FLAG)
 	PUSH AF
-	LD HL,ZXBASIC_VAR_y
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,ZXBASIC_VAR_x
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
+	LD DE,10
+	LD HL,8
 	CALL runtimePrintAt
-	LD HL,STRING_31	; 
+	LD HL,1
+	CALL runtimeLocalFlash
+	LD HL,2
+	CALL runtimeLocalInk
+	LD HL,STRING_5	;G A M E  O V E R
+	CALL runtimePrintString
+	LD HL,STRING_5	;G A M E  O V E R
+	CALL runtimePrintString
+	LD HL,STRING_5	;G A M E  O V E R
 	CALL runtimePrintString
 	CALL runtimePrintNewline
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
 	POP AF
 	LD (ZX_P_FLAG),A
-; 		1190.15  GOSUB 1130{00 00 6a 04 00 }
-	CALL runtimeCheckBreak
-	CALL ZXBASIC_LINE_1130
-ZXB_LABEL_26:
-ZXBASIC_LINE_1200:
-; 1200  RETURN 
-; 		1200.1  RETURN 
-	CALL runtimeCheckBreak
-	RET
-ZXBASIC_LINE_1210:
-; 1210  REM -----------Update score
-ZXBASIC_LINE_1220:
-; 1220  PRINT  AT 0,6; INK 7; BRIGHT 1;score
-; 		1220.1  PRINT  AT 0{00 00 00 00 00 },6{00 00 06 00 00 }; INK 7{00 00 07 00 00 }; BRIGHT 1{00 00 01 00 00 };score
+ZXBASIC_LINE_495:
+; 495  PRINT  AT 21,0; FLASH 1; PAPER 2; INK 0;"SHIELD"; FLASH 0
+	LD HL,495
+	LD (23621),HL
+; 		495.1  PRINT  AT 21{00 00 15 00 00 },0{00 00 00 00 00 }; FLASH 1{00 00 01 00 00 }; PAPER 2{00 00 02 00 00 }; INK 0{00 00 00 00 00 };"SHIELD"; FLASH 0{00 00 00 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,495
+	LD A,1
+	CALL runtimeDebug
 	LD A,2
 	CALL $1601	;Open Channel
 	LD A,(ZX_P_FLAG)
 	PUSH AF
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,FLOAT_7	;6
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
+	LD DE,21
+	LD HL,0
 	CALL runtimePrintAt
-	LD HL,FLOAT_2	;7
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
+	LD HL,1
+	CALL runtimeLocalFlash
+	LD HL,2
+	CALL runtimeLocalPaper
+	LD HL,0
 	CALL runtimeLocalInk
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalBright
-	LD HL,ZXBASIC_VAR_score
-	CALL runtimePushFloatVar
-	CALL runtimePrintFloat
-	CALL runtimePrintNewline
+	LD HL,STRING_6	;SHIELD
+	CALL runtimePrintString
+	LD HL,0
+	CALL runtimeLocalFlash
 	LD A,(ZX_ATTR_P)
 	LD (ZX_ATTR_T),A
 	POP AF
 	LD (ZX_P_FLAG),A
-ZXBASIC_LINE_1230:
-; 1230  RETURN 
-; 		1230.1  RETURN 
-	CALL runtimeCheckBreak
-	RET
-ZXBASIC_LINE_1240:
-; 1240  REM ------------Update wave
-ZXBASIC_LINE_1250:
-; 1250  PRINT  AT 0,18; BRIGHT 1;wave
-; 		1250.1  PRINT  AT 0{00 00 00 00 00 },18{00 00 12 00 00 }; BRIGHT 1{00 00 01 00 00 };wave
-	LD A,2
-	CALL $1601	;Open Channel
-	LD A,(ZX_P_FLAG)
-	PUSH AF
-	LD HL,FLOAT_1	;0
+ZXBASIC_LINE_500:
+; 500  FOR t=1 TO 5
+	LD HL,500
+	LD (23621),HL
+; 		500.1  FOR t=1{00 00 01 00 00 } TO 5{00 00 05 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,500
+	LD A,1
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	LD HL,1
+	LD (ZXBASIC_VAR_t),HL
+	LD HL,5
+	LD (ZXBASIC_VAR_for_t),HL
+FOR_6:
+ZXBASIC_LINE_510:
+; 510  FOR o=-30.0 TO -20.0: BEEP 0.015,o: NEXT o
+	LD HL,510
+	LD (23621),HL
+; 		510.1  FOR o=-30.0{00 00 1e 00 00 } TO -20.0{00 00 14 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,510
+	LD A,1
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	LD HL,FLOAT_12	;30.0
 	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,FLOAT_11	;18
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
-	CALL runtimePrintAt
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalBright
-	LD HL,ZXBASIC_VAR_wave
-	CALL runtimePushFloatVar
-	CALL runtimePrintFloat
-	CALL runtimePrintNewline
-	LD A,(ZX_ATTR_P)
-	LD (ZX_ATTR_T),A
-	POP AF
-	LD (ZX_P_FLAG),A
-ZXBASIC_LINE_1260:
-; 1260  RETURN 
-; 		1260.1  RETURN 
-	CALL runtimeCheckBreak
-	RET
-ZXBASIC_LINE_1270:
-; 1270  REM -------------Extra life
-ZXBASIC_LINE_1280:
-; 1280  LET lives=lives+1
-; 		1280.1  LET lives=lives+1{00 00 01 00 00 }
-	LD HL,ZXBASIC_VAR_lives
-	CALL runtimePushFloatVar
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-; +
-	RST $28
-	DB $0f	;ADD
-	DB $38	;END CALC
-	LD HL,ZXBASIC_VAR_lives
+; -
+	CALL runtimeNegFloat
+	LD HL,ZXBASIC_VAR_o
 	CALL runtimeStoreFloat
-ZXBASIC_LINE_1290:
-; 1290  PRINT  AT 0,28+lives; INK 3; BRIGHT 1;"\144"
-; 		1290.1  PRINT  AT 0{00 00 00 00 00 },28{00 00 1c 00 00 }+lives; INK 3{00 00 03 00 00 }; BRIGHT 1{00 00 01 00 00 };"\144"
+	LD HL,FLOAT_2	;20.0
+	CALL runtimePushFloatVar
+; -
+	CALL runtimeNegFloat
+	LD HL,ZXBASIC_VAR_for_o
+	CALL runtimeStoreFloat
+FOR_7:
+; 		510.2  BEEP 0.015{7a 75 c2 8f 5c },o
+	LD A,2
+	LD (23623),a
+	LD HL,510
+	LD A,2
+	CALL runtimeDebug
+	LD HL,FLOAT_13	;0.015
+	CALL runtimePushFloatVar
+	LD HL,ZXBASIC_VAR_o
+	CALL runtimePushFloatVar
+	CALL $03F8
+; 		510.3  NEXT o
+	LD A,3
+	LD (23623),a
+	LD HL,510
+	LD A,3
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	LD HL,ZXBASIC_VAR_o
+	CALL runtimePushFloatVar
+	RST $28
+	DB zxcalc_stack_one	;STACK ONE
+	DB zxcalc_addition	;ADD
+	DB zxcalc_end_calc	;END CALC
+	LD HL,ZXBASIC_VAR_o
+	CALL runtimeStoreFloat
+	LD HL,ZXBASIC_VAR_for_o
+	CALL runtimePushFloatVar
+	LD HL,ZXBASIC_VAR_o
+	CALL runtimePushFloatVar
+	CALL runtimeSmallerFloat
+	LD A,L
+	CP 0
+	JP Z,FOR_7
+ZXBASIC_LINE_520:
+; 520  NEXT t
+	LD HL,520
+	LD (23621),HL
+; 		520.1  NEXT t
+	LD A,1
+	LD (23623),a
+	LD HL,520
+	LD A,1
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	LD HL,(ZXBASIC_VAR_t)
+	INC HL
+	LD (ZXBASIC_VAR_t),HL
+	LD DE,(ZXBASIC_VAR_for_t)
+	EX HL,DE
+	SUB HL,DE
+	JP NC,FOR_6
+ZXBASIC_LINE_530:
+; 530  IF sc >= hs THEN  LET hs=sc
+	LD HL,530
+	LD (23621),HL
+; 		530.1  IF sc >= hs THEN  LET hs=sc
+	LD A,1
+	LD (23623),a
+	LD HL,530
+	LD A,1
+	CALL runtimeDebug
+	LD DE,(ZXBASIC_VAR_sc)
+	LD HL,(ZXBASIC_VAR_hs)
+; >=
+	CALL runtimeCmpHLGeDE
+	LD A,L
+	CP 0
+	JP Z,ZXB_LABEL_16
+; 		530.2  LET hs=sc
+	LD A,2
+	LD (23623),a
+	LD HL,530
+	LD A,2
+	CALL runtimeDebug
+	LD HL,(ZXBASIC_VAR_sc)
+	LD (ZXBASIC_VAR_hs),HL
+ZXB_LABEL_16:
+ZXBASIC_LINE_540:
+; 540  FOR a=1 TO 320: NEXT a: CLS : GOTO 50
+	LD HL,540
+	LD (23621),HL
+; 		540.1  FOR a=1{00 00 01 00 00 } TO 320{00 00 40 01 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,540
+	LD A,1
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	LD HL,1
+	LD (ZXBASIC_VAR_a),HL
+	LD HL,320
+	LD (ZXBASIC_VAR_for_a),HL
+FOR_8:
+; 		540.2  NEXT a
+	LD A,2
+	LD (23623),a
+	LD HL,540
+	LD A,2
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	LD HL,(ZXBASIC_VAR_a)
+	INC HL
+	LD (ZXBASIC_VAR_a),HL
+	LD DE,(ZXBASIC_VAR_for_a)
+	EX HL,DE
+	SUB HL,DE
+	JP NC,FOR_8
+; 		540.3  CLS 
+	LD A,3
+	LD (23623),a
+	LD HL,540
+	LD A,3
+	CALL runtimeDebug
+	CALL runtimeCls
+; 		540.4  GOTO 50{00 00 32 00 00 }
+	LD A,4
+	LD (23623),a
+	LD HL,540
+	LD A,4
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	JP ZXBASIC_LINE_50
+ZXBASIC_LINE_550:
+; 550  REM ** UDG **
+	LD HL,550
+	LD (23621),HL
+	LD A,1
+	LD (23623),a
+	LD HL,550
+	LD A,1
+	CALL runtimeDebug
+ZXBASIC_LINE_560:
+; 560  RESTORE 900: FOR g=0 TO 95
+	LD HL,560
+	LD (23621),HL
+; 		560.1  RESTORE 900{00 00 84 03 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,560
+	LD A,1
+	CALL runtimeDebug
+	LD HL,DATA_900
+	LD (DATAPTR),HL
+; 		560.2  FOR g=0{00 00 00 00 00 } TO 95{00 00 5f 00 00 }
+	LD A,2
+	LD (23623),a
+	LD HL,560
+	LD A,2
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	LD HL,0
+	LD (ZXBASIC_VAR_g),HL
+	LD HL,95
+	LD (ZXBASIC_VAR_for_g),HL
+FOR_9:
+ZXBASIC_LINE_570:
+; 570  READ dat
+	LD HL,570
+	LD (23621),HL
+; 		570.1  READ dat
+	LD A,1
+	LD (23623),a
+	LD HL,570
+	LD A,1
+	CALL runtimeDebug
+	LD HL,(DATAPTR)
+	LD DE,(HL)
+	INC HL
+	INC HL
+	LD (DATAPTR),HL
+	LD (ZXBASIC_VAR_dat),DE
+ZXBASIC_LINE_580:
+; 580  POKE  USR "a"+g,dat
+	LD HL,580
+	LD (23621),HL
+; 		580.1  POKE  USR "a"+g,dat
+	LD A,1
+	LD (23623),a
+	LD HL,580
+	LD A,1
+	CALL runtimeDebug
+; USR
+	LD HL,STRING_7	;a
+	CALL runtimeUsrUDG
+	LD DE,HL
+	LD HL,(ZXBASIC_VAR_g)
+; +
+	ADD HL,DE
+	LD DE,(ZXBASIC_VAR_dat)
+	LD (HL),E
+ZXBASIC_LINE_590:
+; 590  NEXT g
+	LD HL,590
+	LD (23621),HL
+; 		590.1  NEXT g
+	LD A,1
+	LD (23623),a
+	LD HL,590
+	LD A,1
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	LD HL,(ZXBASIC_VAR_g)
+	INC HL
+	LD (ZXBASIC_VAR_g),HL
+	LD DE,(ZXBASIC_VAR_for_g)
+	EX HL,DE
+	SUB HL,DE
+	JP NC,FOR_9
+ZXBASIC_LINE_600:
+; 600  RETURN 
+	LD HL,600
+	LD (23621),HL
+; 		600.1  RETURN 
+	LD A,1
+	LD (23623),a
+	LD HL,600
+	LD A,1
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	RET
+ZXBASIC_LINE_700:
+; 700  REM ** SCREEN SET UP **
+	LD HL,700
+	LD (23621),HL
+	LD A,1
+	LD (23623),a
+	LD HL,700
+	LD A,1
+	CALL runtimeDebug
+ZXBASIC_LINE_705:
+; 705  PRINT  AT 5,8; INK 6;"\143\143\143\143   \143\143   \143\143\143\143                   \143  \143  \143  \143   \143                 \143   \143  \143  \143   \143                \143    \143\143\143\143  \143\143\143\143                \143     \143  \143  \143                   \143\143\143\143  \143  \143  \143 "
+	LD HL,705
+	LD (23621),HL
+; 		705.1  PRINT  AT 5{00 00 05 00 00 },8{00 00 08 00 00 }; INK 6{00 00 06 00 00 };"\143\143\143\143   \143\143   \143\143\143\143                   \143  \143  \143  \143   \143                 \143   \143  \143  \143   \143                \143    \143\143\143\143  \143\143\143\143                \143     \143  \143  \143                   \143\143\143\143  \143  \143  \143 "
+	LD A,1
+	LD (23623),a
+	LD HL,705
+	LD A,1
+	CALL runtimeDebug
 	LD A,2
 	CALL $1601	;Open Channel
 	LD A,(ZX_P_FLAG)
 	PUSH AF
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,FLOAT_29	;28
-	CALL runtimePushFloatVar
-	LD HL,ZXBASIC_VAR_lives
-	CALL runtimePushFloatVar
-; +
-	RST $28
-	DB $0f	;ADD
-	DB $38	;END CALC
-	CALL runtimeFloatToInt
-	POP DE
+	LD DE,5
+	LD HL,8
 	CALL runtimePrintAt
-	LD HL,FLOAT_6	;3
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
+	LD HL,6
 	CALL runtimeLocalInk
-	LD HL,FLOAT_3	;1
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	CALL runtimeLocalBright
-	LD HL,STRING_9	;\90
+	LD HL,STRING_8	;\8f\8f\8f\8f   \8f\8f   \8f\8f\8f\8f                   \8f  \8f  \8f  \8f   \8f                 \8f   \8f  \8f  \8f   \8f                \8f    \8f\8f\8f\8f  \8f\8f\8f\8f                \8f     \8f  \8f  \8f                   \8f\8f\8f\8f  \8f  \8f  \8f 
 	CALL runtimePrintString
 	CALL runtimePrintNewline
 	LD A,(ZX_ATTR_P)
 	LD (ZX_ATTR_T),A
 	POP AF
 	LD (ZX_P_FLAG),A
-ZXBASIC_LINE_1300:
-; 1300  RETURN 
-; 		1300.1  RETURN 
-	CALL runtimeCheckBreak
+ZXBASIC_LINE_710:
+; 710  PRINT  AT 12,4; INK 2;"KEYS:O,P & M or KEMPSTON"; AT 14,10; FLASH 1; INK 1;"PRESS A KEY"; FLASH 0; INK 3; AT 21,8;"By Animated ALex"
+	LD HL,710
+	LD (23621),HL
+; 		710.1  PRINT  AT 12{00 00 0c 00 00 },4{00 00 04 00 00 }; INK 2{00 00 02 00 00 };"KEYS
+	LD A,1
+	LD (23623),a
+	LD HL,710
+	LD A,1
+	CALL runtimeDebug
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,12
+	LD HL,4
+	CALL runtimePrintAt
+	LD HL,2
+	CALL runtimeLocalInk
+	LD HL,STRING_9	;KEYS:O,P & M or KEMPSTON
+	CALL runtimePrintString
+	LD DE,14
+	LD HL,10
+	CALL runtimePrintAt
+	LD HL,1
+	CALL runtimeLocalFlash
+	LD HL,1
+	CALL runtimeLocalInk
+	LD HL,STRING_10	;PRESS A KEY
+	CALL runtimePrintString
+	LD HL,0
+	CALL runtimeLocalFlash
+	LD HL,3
+	CALL runtimeLocalInk
+	LD DE,21
+	LD HL,8
+	CALL runtimePrintAt
+	LD HL,STRING_11	;By Animated ALex
+	CALL runtimePrintString
+	CALL runtimePrintNewline
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
+ZXBASIC_LINE_715:
+; 715  IF  INKEY$  <> "" OR  IN 31=16 THEN  CLS : GOTO 718
+	LD HL,715
+	LD (23621),HL
+; 		715.1  IF  INKEY$  <> "" OR  IN 31{00 00 1f 00 00 }=16{00 00 10 00 00 } THEN  CLS 
+	LD A,1
+	LD (23623),a
+	LD HL,715
+	LD A,1
+	CALL runtimeDebug
+; INKEY$
+	CALL runtimeInkey
+	LD DE,HL
+	LD HL,STRING_12	;
+; <>
+	CALL runtimeUnequalString
+	PUSH HL
+; IN
+	LD HL,31
+	LD BC,HL
+	IN A,(C)
+	LD L,A
+	LD H,0
+	LD DE,HL
+	LD HL,16
+; =
+	CALL runtimeCmpHLEqDE
+; OR
+	POP DE
+	call runtimeOrHLDE
+	LD A,L
+	CP 0
+	JP Z,ZXB_LABEL_17
+; 		715.2  CLS 
+	LD A,2
+	LD (23623),a
+	LD HL,715
+	LD A,2
+	CALL runtimeDebug
+	CALL runtimeCls
+; 		715.3  GOTO 718{00 00 ce 02 00 }
+	LD A,3
+	LD (23623),a
+	LD HL,715
+	LD A,3
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	JP ZXBASIC_LINE_718
+ZXB_LABEL_17:
+ZXBASIC_LINE_717:
+; 717  GOTO 715
+	LD HL,717
+	LD (23621),HL
+; 		717.1  GOTO 715{00 00 cb 02 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,717
+	LD A,1
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	JP ZXBASIC_LINE_715
+ZXBASIC_LINE_718:
+; 718  PRINT  AT 20,0; BRIGHT 1; PAPER 2;,,
+	LD HL,718
+	LD (23621),HL
+; 		718.1  PRINT  AT 20{00 00 14 00 00 },0{00 00 00 00 00 }; BRIGHT 1{00 00 01 00 00 }; PAPER 2{00 00 02 00 00 };,,
+	LD A,1
+	LD (23623),a
+	LD HL,718
+	LD A,1
+	CALL runtimeDebug
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,20
+	LD HL,0
+	CALL runtimePrintAt
+	LD HL,1
+	CALL runtimeLocalBright
+	LD HL,2
+	CALL runtimeLocalPaper
+	CALL runtimePrintTab
+	CALL runtimePrintTab
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
+ZXBASIC_LINE_720:
+; 720  PRINT  AT 19,0; PAPER 0; INK 2; BRIGHT 0;"\149\150\151\155\149\150\155\154\155\149\150\153\149\155\153\154\153\152\154\152\151\155\149\153\155\155\149\150\149\152\153\154";
+	LD HL,720
+	LD (23621),HL
+; 		720.1  PRINT  AT 19{00 00 13 00 00 },0{00 00 00 00 00 }; PAPER 0{00 00 00 00 00 }; INK 2{00 00 02 00 00 }; BRIGHT 0{00 00 00 00 00 };"\149\150\151\155\149\150\155\154\155\149\150\153\149\155\153\154\153\152\154\152\151\155\149\153\155\155\149\150\149\152\153\154";
+	LD A,1
+	LD (23623),a
+	LD HL,720
+	LD A,1
+	CALL runtimeDebug
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,19
+	LD HL,0
+	CALL runtimePrintAt
+	LD HL,0
+	CALL runtimeLocalPaper
+	LD HL,2
+	CALL runtimeLocalInk
+	LD HL,0
+	CALL runtimeLocalBright
+	LD HL,STRING_13	;\95\96\97\9b\95\96\9b\9a\9b\95\96\99\95\9b\99\9a\99\98\9a\98\97\9b\95\99\9b\9b\95\96\95\98\99\9a
+	CALL runtimePrintString
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
+ZXBASIC_LINE_725:
+; 725  FOR d=1 TO 5: PLOT 0,d: DRAW  INK 4;255,0: NEXT d
+	LD HL,725
+	LD (23621),HL
+; 		725.1  FOR d=1{00 00 01 00 00 } TO 5{00 00 05 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,725
+	LD A,1
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	LD HL,1
+	CALL runtimeIntToFloat
+	LD HL,ZXBASIC_VAR_d
+	CALL runtimeStoreFloat
+	LD HL,5
+	CALL runtimeIntToFloat
+	LD HL,ZXBASIC_VAR_for_d
+	CALL runtimeStoreFloat
+FOR_10:
+; 		725.2  PLOT 0{00 00 00 00 00 },d
+	LD A,2
+	LD (23623),a
+	LD HL,725
+	LD A,2
+	CALL runtimeDebug
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD HL,0
+	PUSH HL
+	LD HL,ZXBASIC_VAR_d
+	CALL runtimePushFloatVar
+	CALL runtimeFloatToInt
+	POP DE
+	CALL runtimePlot
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		725.3  DRAW  INK 4{00 00 04 00 00 };255{00 00 ff 00 00 },0{00 00 00 00 00 }
+	LD A,3
+	LD (23623),a
+	LD HL,725
+	LD A,3
+	CALL runtimeDebug
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD HL,4
+	CALL runtimeLocalInk
+	LD DE,255
+	LD HL,0
+	LD B,L
+	LD C,E
+	CALL runtimeDraw
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		725.4  NEXT d
+	LD A,4
+	LD (23623),a
+	LD HL,725
+	LD A,4
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	LD HL,ZXBASIC_VAR_d
+	CALL runtimePushFloatVar
+	RST $28
+	DB zxcalc_stack_one	;STACK ONE
+	DB zxcalc_addition	;ADD
+	DB zxcalc_end_calc	;END CALC
+	LD HL,ZXBASIC_VAR_d
+	CALL runtimeStoreFloat
+	LD HL,ZXBASIC_VAR_for_d
+	CALL runtimePushFloatVar
+	LD HL,ZXBASIC_VAR_d
+	CALL runtimePushFloatVar
+	CALL runtimeSmallerFloat
+	LD A,L
+	CP 0
+	JP Z,FOR_10
+ZXBASIC_LINE_730:
+; 730  PRINT  AT 21,0; INK 4; INVERSE 1;"SHIELD"
+	LD HL,730
+	LD (23621),HL
+; 		730.1  PRINT  AT 21{00 00 15 00 00 },0{00 00 00 00 00 }; INK 4{00 00 04 00 00 }; INVERSE 1{00 00 01 00 00 };"SHIELD"
+	LD A,1
+	LD (23623),a
+	LD HL,730
+	LD A,1
+	CALL runtimeDebug
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,21
+	LD HL,0
+	CALL runtimePrintAt
+	LD HL,4
+	CALL runtimeLocalInk
+	LD HL,1
+	CALL runtimeLocalInverse
+	LD HL,STRING_6	;SHIELD
+	CALL runtimePrintString
+	CALL runtimePrintNewline
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
+ZXBASIC_LINE_740:
+; 740  REM ** VARIABLES **
+	LD HL,740
+	LD (23621),HL
+	LD A,1
+	LD (23623),a
+	LD HL,740
+	LD A,1
+	CALL runtimeDebug
+ZXBASIC_LINE_750:
+; 750  LET iv=1: LET pp=1: LET p=7: LET p1=p: LET i=2: LET f=350: LET sc=0: LET y=16: LET x=10: LET z=x: LET a=2: LET b=0
+	LD HL,750
+	LD (23621),HL
+; 		750.1  LET iv=1{00 00 01 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,750
+	LD A,1
+	CALL runtimeDebug
+	LD HL,1
+	LD (ZXBASIC_VAR_iv),HL
+; 		750.2  LET pp=1{00 00 01 00 00 }
+	LD A,2
+	LD (23623),a
+	LD HL,750
+	LD A,2
+	CALL runtimeDebug
+	LD HL,1
+	LD (ZXBASIC_VAR_pp),HL
+; 		750.3  LET p=7{00 00 07 00 00 }
+	LD A,3
+	LD (23623),a
+	LD HL,750
+	LD A,3
+	CALL runtimeDebug
+	LD HL,7
+	LD (ZXBASIC_VAR_p),HL
+; 		750.4  LET p1=p
+	LD A,4
+	LD (23623),a
+	LD HL,750
+	LD A,4
+	CALL runtimeDebug
+	LD HL,(ZXBASIC_VAR_p)
+	LD (ZXBASIC_VAR_p1),HL
+; 		750.5  LET i=2{00 00 02 00 00 }
+	LD A,5
+	LD (23623),a
+	LD HL,750
+	LD A,5
+	CALL runtimeDebug
+	LD HL,2
+	LD (ZXBASIC_VAR_i),HL
+; 		750.6  LET f=350{00 00 5e 01 00 }
+	LD A,6
+	LD (23623),a
+	LD HL,750
+	LD A,6
+	CALL runtimeDebug
+	LD HL,350
+	LD (ZXBASIC_VAR_f),HL
+; 		750.7  LET sc=0{00 00 00 00 00 }
+	LD A,7
+	LD (23623),a
+	LD HL,750
+	LD A,7
+	CALL runtimeDebug
+	LD HL,0
+	LD (ZXBASIC_VAR_sc),HL
+; 		750.8  LET y=16{00 00 10 00 00 }
+	LD A,8
+	LD (23623),a
+	LD HL,750
+	LD A,8
+	CALL runtimeDebug
+	LD HL,16
+	LD (ZXBASIC_VAR_y),HL
+; 		750.9  LET x=10{00 00 0a 00 00 }
+	LD A,9
+	LD (23623),a
+	LD HL,750
+	LD A,9
+	CALL runtimeDebug
+	LD HL,10
+	LD (ZXBASIC_VAR_x),HL
+; 		750.10  LET z=x
+	LD A,10
+	LD (23623),a
+	LD HL,750
+	LD A,10
+	CALL runtimeDebug
+	LD HL,(ZXBASIC_VAR_x)
+	LD (ZXBASIC_VAR_z),HL
+; 		750.11  LET a=2{00 00 02 00 00 }
+	LD A,11
+	LD (23623),a
+	LD HL,750
+	LD A,11
+	CALL runtimeDebug
+	LD HL,2
+	LD (ZXBASIC_VAR_a),HL
+; 		750.12  LET b=0{00 00 00 00 00 }
+	LD A,12
+	LD (23623),a
+	LD HL,750
+	LD A,12
+	CALL runtimeDebug
+	LD HL,0
+	LD (ZXBASIC_VAR_b),HL
+ZXBASIC_LINE_760:
+; 760  DIM a$(32): DIM d$(32): DIM e$(32)
+	LD HL,760
+	LD (23621),HL
+; 		760.1  DIM a$(32{00 00 20 00 00 })
+	LD A,1
+	LD (23623),a
+	LD HL,760
+	LD A,1
+	CALL runtimeDebug
+	LD HL,ZXBASIC_VAR_a_string
+	LD BC,33
+	CALL runtimeClearStringArray
+; 		760.2  DIM d$(32{00 00 20 00 00 })
+	LD A,2
+	LD (23623),a
+	LD HL,760
+	LD A,2
+	CALL runtimeDebug
+	LD HL,ZXBASIC_VAR_d_string
+	LD BC,33
+	CALL runtimeClearStringArray
+; 		760.3  DIM e$(32{00 00 20 00 00 })
+	LD A,3
+	LD (23623),a
+	LD HL,760
+	LD A,3
+	CALL runtimeDebug
+	LD HL,ZXBASIC_VAR_e_string
+	LD BC,33
+	CALL runtimeClearStringArray
+ZXBASIC_LINE_765:
+; 765  PRINT  AT 20,0; BRIGHT 1; PAPER 2; INK 6;"SCORE:";sc; AT 20,15;"HI-SCORE:";hs
+	LD HL,765
+	LD (23621),HL
+; 		765.1  PRINT  AT 20{00 00 14 00 00 },0{00 00 00 00 00 }; BRIGHT 1{00 00 01 00 00 }; PAPER 2{00 00 02 00 00 }; INK 6{00 00 06 00 00 };"SCORE
+	LD A,1
+	LD (23623),a
+	LD HL,765
+	LD A,1
+	CALL runtimeDebug
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,20
+	LD HL,0
+	CALL runtimePrintAt
+	LD HL,1
+	CALL runtimeLocalBright
+	LD HL,2
+	CALL runtimeLocalPaper
+	LD HL,6
+	CALL runtimeLocalInk
+	LD HL,STRING_14	;SCORE:
+	CALL runtimePrintString
+	LD HL,(ZXBASIC_VAR_sc)
+	CALL runtimePrintInt
+	LD DE,20
+	LD HL,15
+	CALL runtimePrintAt
+	LD HL,STRING_15	;HI-SCORE:
+	CALL runtimePrintString
+	LD HL,(ZXBASIC_VAR_hs)
+	CALL runtimePrintInt
+	CALL runtimePrintNewline
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
+ZXBASIC_LINE_770:
+; 770  LET h=10
+	LD HL,770
+	LD (23621),HL
+; 		770.1  LET h=10{00 00 0a 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,770
+	LD A,1
+	CALL runtimeDebug
+	LD HL,10
+	LD (ZXBASIC_VAR_h),HL
+ZXBASIC_LINE_780:
+; 780  LET a$=" \148   \148   \148   \148   \148   \148          " 
+	LD HL,780
+	LD (23621),HL
+; 		780.1  LET a$=" \148   \148   \148   \148   \148   \148          " 
+	LD A,1
+	LD (23623),a
+	LD HL,780
+	LD A,1
+	CALL runtimeDebug
+	LD DE,ZXBASIC_VAR_a_string
+	LD HL,STRING_16	; \94   \94   \94   \94   \94   \94          
+	LD BC,32
+	CALL runtimeStoreStringVarFix
+ZXBASIC_LINE_790:
+; 790  LET sh=0: LET ii=6: LET l=0
+	LD HL,790
+	LD (23621),HL
+; 		790.1  LET sh=0{00 00 00 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,790
+	LD A,1
+	CALL runtimeDebug
+	LD HL,0
+	LD (ZXBASIC_VAR_sh),HL
+; 		790.2  LET ii=6{00 00 06 00 00 }
+	LD A,2
+	LD (23623),a
+	LD HL,790
+	LD A,2
+	CALL runtimeDebug
+	LD HL,6
+	LD (ZXBASIC_VAR_ii),HL
+; 		790.3  LET l=0{00 00 00 00 00 }
+	LD A,3
+	LD (23623),a
+	LD HL,790
+	LD A,3
+	CALL runtimeDebug
+	LD HL,0
+	LD (ZXBASIC_VAR_l),HL
+ZXBASIC_LINE_795:
+; 795  LET f$="\147\144\146"
+	LD HL,795
+	LD (23621),HL
+; 		795.1  LET f$="\147\144\146"
+	LD A,1
+	LD (23623),a
+	LD HL,795
+	LD A,1
+	CALL runtimeDebug
+	LD DE,STRING_17	;\93\90\92
+	LD HL,ZXBASIC_VAR_f_string
+	CALL runtimeStoreString
+ZXBASIC_LINE_800:
+; 800  LET c$="\145": LET d$=" "
+	LD HL,800
+	LD (23621),HL
+; 		800.1  LET c$="\145"
+	LD A,1
+	LD (23623),a
+	LD HL,800
+	LD A,1
+	CALL runtimeDebug
+	LD DE,STRING_18	;\91
+	LD HL,ZXBASIC_VAR_c_string
+	CALL runtimeStoreString
+; 		800.2  LET d$=" "
+	LD A,2
+	LD (23623),a
+	LD HL,800
+	LD A,2
+	CALL runtimeDebug
+	LD DE,ZXBASIC_VAR_d_string
+	LD HL,STRING_0	; 
+	LD BC,32
+	CALL runtimeStoreStringVarFix
+ZXBASIC_LINE_805:
+; 805  LET e$="    \144          \144         \144      "
+	LD HL,805
+	LD (23621),HL
+; 		805.1  LET e$="    \144          \144         \144      "
+	LD A,1
+	LD (23623),a
+	LD HL,805
+	LD A,1
+	CALL runtimeDebug
+	LD DE,ZXBASIC_VAR_e_string
+	LD HL,STRING_19	;    \90          \90         \90      
+	LD BC,32
+	CALL runtimeStoreStringVarFix
+ZXBASIC_LINE_850:
+; 850  RETURN 
+	LD HL,850
+	LD (23621),HL
+; 		850.1  RETURN 
+	LD A,1
+	LD (23623),a
+	LD HL,850
+	LD A,1
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	RET
+ZXBASIC_LINE_900:
+; 900  DATA 126,219,153,255,195,189,90,165
+	LD HL,900
+	LD (23621),HL
+; 		900.1  DATA 126{00 00 7e 00 00 },219{00 00 db 00 00 },153{00 00 99 00 00 },255{00 00 ff 00 00 },195{00 00 c3 00 00 },189{00 00 bd 00 00 },90{00 00 5a 00 00 },165{00 00 a5 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,900
+	LD A,1
+	CALL runtimeDebug
+ZXBASIC_LINE_910:
+; 910  DATA 24,24,153,153,219,255,255,102
+	LD HL,910
+	LD (23621),HL
+; 		910.1  DATA 24{00 00 18 00 00 },24{00 00 18 00 00 },153{00 00 99 00 00 },153{00 00 99 00 00 },219{00 00 db 00 00 },255{00 00 ff 00 00 },255{00 00 ff 00 00 },102{00 00 66 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,910
+	LD A,1
+	CALL runtimeDebug
+ZXBASIC_LINE_920:
+; 920  DATA 140,198,194,255,255,130,134,140
+	LD HL,920
+	LD (23621),HL
+; 		920.1  DATA 140{00 00 8c 00 00 },198{00 00 c6 00 00 },194{00 00 c2 00 00 },255{00 00 ff 00 00 },255{00 00 ff 00 00 },130{00 00 82 00 00 },134{00 00 86 00 00 },140{00 00 8c 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,920
+	LD A,1
+	CALL runtimeDebug
+ZXBASIC_LINE_930:
+; 930  DATA 49,99,67,255,255,65,97,49
+	LD HL,930
+	LD (23621),HL
+; 		930.1  DATA 49{00 00 31 00 00 },99{00 00 63 00 00 },67{00 00 43 00 00 },255{00 00 ff 00 00 },255{00 00 ff 00 00 },65{00 00 41 00 00 },97{00 00 61 00 00 },49{00 00 31 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,930
+	LD A,1
+	CALL runtimeDebug
+ZXBASIC_LINE_950:
+; 950  DATA 126,219,153,255,195,126,60,102
+	LD HL,950
+	LD (23621),HL
+; 		950.1  DATA 126{00 00 7e 00 00 },219{00 00 db 00 00 },153{00 00 99 00 00 },255{00 00 ff 00 00 },195{00 00 c3 00 00 },126{00 00 7e 00 00 },60{00 00 3c 00 00 },102{00 00 66 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,950
+	LD A,1
+	CALL runtimeDebug
+ZXBASIC_LINE_960:
+; 960  DATA 0,0,1,7,15,59,119,223
+	LD HL,960
+	LD (23621),HL
+; 		960.1  DATA 0{00 00 00 00 00 },0{00 00 00 00 00 },1{00 00 01 00 00 },7{00 00 07 00 00 },15{00 00 0f 00 00 },59{00 00 3b 00 00 },119{00 00 77 00 00 },223{00 00 df 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,960
+	LD A,1
+	CALL runtimeDebug
+ZXBASIC_LINE_970:
+; 970  DATA 0,0,128,224,252,255,239,251
+	LD HL,970
+	LD (23621),HL
+; 		970.1  DATA 0{00 00 00 00 00 },0{00 00 00 00 00 },128{00 00 80 00 00 },224{00 00 e0 00 00 },252{00 00 fc 00 00 },255{00 00 ff 00 00 },239{00 00 ef 00 00 },251{00 00 fb 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,970
+	LD A,1
+	CALL runtimeDebug
+ZXBASIC_LINE_980:
+; 980  DATA 0,34,22,12,30,55,7,255
+	LD HL,980
+	LD (23621),HL
+; 		980.1  DATA 0{00 00 00 00 00 },34{00 00 22 00 00 },22{00 00 16 00 00 },12{00 00 0c 00 00 },30{00 00 1e 00 00 },55{00 00 37 00 00 },7{00 00 07 00 00 },255{00 00 ff 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,980
+	LD A,1
+	CALL runtimeDebug
+ZXBASIC_LINE_990:
+; 990  DATA 0,0,128,224,120,236,222,255
+	LD HL,990
+	LD (23621),HL
+; 		990.1  DATA 0{00 00 00 00 00 },0{00 00 00 00 00 },128{00 00 80 00 00 },224{00 00 e0 00 00 },120{00 00 78 00 00 },236{00 00 ec 00 00 },222{00 00 de 00 00 },255{00 00 ff 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,990
+	LD A,1
+	CALL runtimeDebug
+ZXBASIC_LINE_1000:
+; 1000  DATA 60,60,102,255,211,255,153,255
+	LD HL,1000
+	LD (23621),HL
+; 		1000.1  DATA 60{00 00 3c 00 00 },60{00 00 3c 00 00 },102{00 00 66 00 00 },255{00 00 ff 00 00 },211{00 00 d3 00 00 },255{00 00 ff 00 00 },153{00 00 99 00 00 },255{00 00 ff 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,1000
+	LD A,1
+	CALL runtimeDebug
+ZXBASIC_LINE_1010:
+; 1010  DATA 8,8,12,255,247,255,187,255
+	LD HL,1010
+	LD (23621),HL
+; 		1010.1  DATA 8{00 00 08 00 00 },8{00 00 08 00 00 },12{00 00 0c 00 00 },255{00 00 ff 00 00 },247{00 00 f7 00 00 },255{00 00 ff 00 00 },187{00 00 bb 00 00 },255{00 00 ff 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,1010
+	LD A,1
+	CALL runtimeDebug
+ZXBASIC_LINE_1020:
+; 1020  DATA 4,4,4,132,236,254,183,255
+	LD HL,1020
+	LD (23621),HL
+; 		1020.1  DATA 4{00 00 04 00 00 },4{00 00 04 00 00 },4{00 00 04 00 00 },132{00 00 84 00 00 },236{00 00 ec 00 00 },254{00 00 fe 00 00 },183{00 00 b7 00 00 },255{00 00 ff 00 00 }
+	LD A,1
+	LD (23623),a
+	LD HL,1020
+	LD A,1
+	CALL runtimeDebug
+ZXBASIC_LINE_1030:
+; 1030  REM END OF PROGRAM
+	LD HL,1030
+	LD (23621),HL
+	LD A,1
+	LD (23623),a
+	LD HL,1030
+	LD A,1
+	CALL runtimeDebug
+ZXBASIC_LINE_1040:
+; 1040  RETURN 
+	LD HL,1040
+	LD (23621),HL
+; 		1040.1  RETURN 
+	LD A,1
+	LD (23623),a
+	LD HL,1040
+	LD A,1
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
 	RET
 ZXBASIC_LINE_9000:
-; 9000  PRINT  AT 0,0;"57342="; IN 57342;" 32766="; IN 32766;" 65022= "; IN 65022;" 64510="; IN 64510;
-; 		9000.1  PRINT  AT 0{00 00 00 00 00 },0{00 00 00 00 00 };"57342="; IN 57342{00 00 fe df 00 };" 32766="; IN 32766{00 00 fe 7f 00 };" 65022= "; IN 65022{00 00 fe fd 00 };" 64510="; IN 64510{00 00 fe fb 00 };
+; 9000  PRINT  PAPER 7; INK 0; AT 1,0;"a$=(";a$;")"
+	LD HL,9000
+	LD (23621),HL
+; 		9000.1  PRINT  PAPER 7{00 00 07 00 00 }; INK 0{00 00 00 00 00 }; AT 1{00 00 01 00 00 },0{00 00 00 00 00 };"a$=(";a$;")"
+	LD A,1
+	LD (23623),a
+	LD HL,9000
+	LD A,1
+	CALL runtimeDebug
 	LD A,2
 	CALL $1601	;Open Channel
 	LD A,(ZX_P_FLAG)
 	PUSH AF
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	PUSH HL
-	LD HL,FLOAT_1	;0
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	POP DE
+	LD HL,7
+	CALL runtimeLocalPaper
+	LD HL,0
+	CALL runtimeLocalInk
+	LD DE,1
+	LD HL,0
 	CALL runtimePrintAt
-	LD HL,STRING_38	;57342=
+	LD HL,STRING_20	;a$=(
 	CALL runtimePrintString
-; IN
-	LD HL,FLOAT_46	;57342
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD BC,HL
-	IN A,(C)
-	LD L,A
-	LD H,0
-	CALL runtimePrintInt
-	LD HL,STRING_39	; 32766=
+	LD HL,ZXBASIC_VAR_a_string
+	LD BC,32
+	CALL runtimePrintFixString
+	LD HL,STRING_21	;)
 	CALL runtimePrintString
-; IN
-	LD HL,FLOAT_49	;32766
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD BC,HL
-	IN A,(C)
-	LD L,A
-	LD H,0
-	CALL runtimePrintInt
-	LD HL,STRING_40	; 65022= 
-	CALL runtimePrintString
-; IN
-	LD HL,FLOAT_43	;65022
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD BC,HL
-	IN A,(C)
-	LD L,A
-	LD H,0
-	CALL runtimePrintInt
-	LD HL,STRING_41	; 64510=
-	CALL runtimePrintString
-; IN
-	LD HL,FLOAT_45	;64510
-	CALL runtimePushFloatVar
-	CALL runtimeFloatToInt
-	LD BC,HL
-	IN A,(C)
-	LD L,A
-	LD H,0
-	CALL runtimePrintInt
+	CALL runtimePrintNewline
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
 	POP AF
 	LD (ZX_P_FLAG),A
 ZXBASIC_LINE_9010:
-; 9010  GOTO 9000
-; 		9010.1  GOTO 9000{00 00 28 23 00 }
-	CALL runtimeCheckBreak
-	JP ZXBASIC_LINE_9000
-ZXBASIC_LINE_9990:
-; 9990  STOP 
-ZXBASIC_VAR_UDG:	defs 5
-ZXBASIC_VAR_b:	defs 5
-ZXBASIC_VAR_c_array:	defs 505
-ZXBASIC_VAR_c_string:	defs 404
-ZXBASIC_VAR_d_array:	defs 505
-ZXBASIC_VAR_d_string:	defs 404
-ZXBASIC_VAR_dt:	defs 5
-ZXBASIC_VAR_dx:	defs 5
-ZXBASIC_VAR_dy:	defs 5
-ZXBASIC_VAR_f:	defs 5
-ZXBASIC_VAR_for_i:	defs 5
-ZXBASIC_VAR_for_j:	defs 5
-ZXBASIC_VAR_for_j_step:	defs 5
-ZXBASIC_VAR_i:	defs 5
-ZXBASIC_VAR_inkey:	defs 5
-ZXBASIC_VAR_j:	defs 5
-ZXBASIC_VAR_kz:	defs 5
-ZXBASIC_VAR_lives:	defs 5
-ZXBASIC_VAR_n:	defs 5
-ZXBASIC_VAR_nx:	defs 5
-ZXBASIC_VAR_ny:	defs 5
-ZXBASIC_VAR_nz:	defs 5
-ZXBASIC_VAR_s_array:	defs 2645
-ZXBASIC_VAR_score:	defs 5
-ZXBASIC_VAR_t:	defs 5
-ZXBASIC_VAR_wave:	defs 5
-ZXBASIC_VAR_x:	defs 5
-ZXBASIC_VAR_x_array:	defs 505
-ZXBASIC_VAR_y:	defs 5
-ZXBASIC_VAR_y_array:	defs 505
-ZXBASIC_VAR_za:	defs 5
-ZXBASIC_VAR_zb:	defs 5
-ZXBASIC_VAR_zc:	defs 5
-ZXBASIC_VAR_zi:	defs 5
-ZXBASIC_VAR_zx:	defs 5
-ZXBASIC_VAR_zy:	defs 5
-FLOAT_1:	db $00, $00, $00, $00, $00	;0
-FLOAT_10:	db $00, $00, $08, $00, $00	;8
-FLOAT_11:	db $00, $00, $12, $00, $00	;18
-FLOAT_12:	db $00, $00, $09, $00, $00	;9
-FLOAT_13:	db $00, $00, $13, $00, $00	;19
-FLOAT_14:	db $00, $00, $e6, $00, $00	;230
-FLOAT_15:	db $00, $00, $15, $00, $00	;21
-FLOAT_16:	db $00, $00, $8c, $00, $00	;140
-FLOAT_17:	db $00, $00, $14, $00, $00	;20
-FLOAT_18:	db $78, $03, $12, $6e, $97	;0.002
-FLOAT_19:	db $00, $00, $0a, $00, $00	;10
-FLOAT_2:	db $00, $00, $07, $00, $00	;7
-FLOAT_20:	db $00, $00, $0e, $00, $00	;14
-FLOAT_21:	db $00, $00, $10, $00, $00	;16
-FLOAT_22:	db $00, $00, $36, $01, $00	;310
-FLOAT_23:	db $00, $00, $1f, $00, $00	;31
-FLOAT_24:	db $00, $00, $ba, $04, $00	;1210
-FLOAT_25:	db $00, $00, $17, $00, $00	;23
-FLOAT_26:	db $00, $00, $0d, $00, $00	;13
-FLOAT_27:	db $00, $00, $d8, $04, $00	;1240
-FLOAT_28:	db $00, $00, $19, $00, $00	;25
-FLOAT_29:	db $00, $00, $1c, $00, $00	;28
-FLOAT_3:	db $00, $00, $01, $00, $00	;1
-FLOAT_30:	db $00, $00, $62, $02, $00	;610
-FLOAT_31:	db $00, $00, $bc, $02, $00	;700
-FLOAT_32:	db $79, $23, $d7, $0a, $3d	;0.005
-FLOAT_33:	db $00, $00, $60, $04, $00	;1120
-FLOAT_34:	db $91, $00, $00, $00, $00	;65536
-FLOAT_35:	db $00, $00, $7a, $5c, $00	;23674
-FLOAT_36:	db $00, $00, $00, $01, $00	;256
-FLOAT_37:	db $00, $00, $79, $5c, $00	;23673
-FLOAT_38:	db $00, $00, $78, $5c, $00	;23672
-FLOAT_39:	db $00, $00, $32, $00, $00	;50
-FLOAT_4:	db $00, $00, $0c, $00, $00	;12
-FLOAT_40:	db $00, $00, $0b, $00, $00	;11
-FLOAT_41:	db $00, $00, $1e, $00, $00	;30
-FLOAT_42:	db $00, $00, $2a, $03, $00	;810
-FLOAT_43:	db $00, $00, $fe, $fd, $00	;65022
-FLOAT_44:	db $00, $00, $be, $00, $00	;190
-FLOAT_45:	db $00, $00, $fe, $fb, $00	;64510
-FLOAT_46:	db $00, $00, $fe, $df, $00	;57342
-FLOAT_47:	db $00, $00, $bd, $00, $00	;189
-FLOAT_48:	db $00, $00, $48, $03, $00	;840
-FLOAT_49:	db $00, $00, $fe, $7f, $00	;32766
-FLOAT_5:	db $00, $00, $02, $00, $00	;2
-FLOAT_50:	db $00, $00, $bf, $00, $00	;191
-FLOAT_51:	db $77, $03, $12, $6e, $97	;0.001
-FLOAT_52:	db $00, $00, $18, $00, $00	;24
-FLOAT_53:	db $00, $00, $9c, $04, $00	;1180
-FLOAT_54:	db $00, $00, $24, $04, $00	;1060
-FLOAT_55:	db $00, $00, $bb, $00, $00	;187
-FLOAT_56:	db $7a, $23, $d7, $0a, $3d	;0.01
-FLOAT_57:	db $00, $00, $24, $00, $00	;36
-FLOAT_58:	db $00, $00, $e8, $03, $00	;1000
-FLOAT_59:	db $00, $00, $a2, $03, $00	;930
-FLOAT_6:	db $00, $00, $03, $00, $00	;3
-FLOAT_60:	db $00, $00, $b6, $03, $00	;950
-FLOAT_61:	db $00, $00, $f8, $02, $00	;760
-FLOAT_62:	db $7d, $4c, $cc, $cc, $cc	;0.1
-FLOAT_63:	db $7c, $4c, $cc, $cc, $cc	;0.05
-FLOAT_64:	db $7e, $4c, $cc, $cc, $cc	;0.2
-FLOAT_65:	db $00, $00, $cc, $01, $00	;460
-FLOAT_66:	db $00, $00, $1a, $00, $00	;26
-FLOAT_67:	db $7b, $23, $d7, $0a, $3d	;0.02
-FLOAT_68:	db $00, $00, $42, $04, $00	;1090
-FLOAT_69:	db $00, $00, $6a, $04, $00	;1130
-FLOAT_7:	db $00, $00, $06, $00, $00	;6
-FLOAT_70:	db $00, $00, $28, $23, $00	;9000
-FLOAT_8:	db $00, $00, $05, $00, $00	;5
-FLOAT_9:	db $00, $00, $04, $00, $00	;4
-STRING_0:	dw 9
-	db	"ZXombies!"
-STRING_1:	dw 26
-	db	"It's 1983 and the dead are"
-STRING_10:	dw 26
-	db	" MAGENTA       100% badass"
-STRING_11:	dw 1
-	db	$93
-STRING_12:	dw 26
-	db	" DAWDLER        +10 points"
-STRING_13:	dw 1
-	db	$94
-STRING_14:	dw 26
-	db	" WHINGER        +20 points"
-STRING_15:	dw 1
-	db	$95
-STRING_16:	dw 26
-	db	" GUZZLER        +30 points"
-STRING_17:	dw 1
-	db	$96
-STRING_18:	dw 26
-	db	" PLASTER           +1 life"
-STRING_19:	dw 27
-	db	"QAOP to move + M to attack!"
-STRING_2:	dw 22
-	db	"rising from the grave."
-STRING_20:	dw 32
-	db	"     Press any key to start     "
-STRING_21:	dw 0
-STRING_22:	dw 33
-	db	"+++++++++++++++++++++++++++++++++"
-STRING_23:	dw 2
-	db	"++"
-STRING_24:	dw 6
-	db	"Score:"
-STRING_25:	dw 6
-	db	"Lives:"
-STRING_26:	dw 3
-	db	$90, $90, $90
-STRING_27:	dw 5
-	db	"Wave:"
-STRING_28:	dw 8
-	db	"Exhuming"
-STRING_29:	dw 1
-	db	$91
-STRING_3:	dw 16
-	db	"Who can save us?"
-STRING_30:	dw 14
-	db	"              "
-STRING_31:	dw 1
+; 9010  PRINT  PAPER 7; INK 0;"e$=(";e$;")"
+	LD HL,9010
+	LD (23621),HL
+; 		9010.1  PRINT  PAPER 7{00 00 07 00 00 }; INK 0{00 00 00 00 00 };"e$=(";e$;")"
+	LD A,1
+	LD (23623),a
+	LD HL,9010
+	LD A,1
+	CALL runtimeDebug
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD HL,7
+	CALL runtimeLocalPaper
+	LD HL,0
+	CALL runtimeLocalInk
+	LD HL,STRING_22	;e$=(
+	CALL runtimePrintString
+	LD HL,ZXBASIC_VAR_e_string
+	LD BC,32
+	CALL runtimePrintFixString
+	LD HL,STRING_21	;)
+	CALL runtimePrintString
+	CALL runtimePrintNewline
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
+ZXBASIC_LINE_9020:
+; 9020  PRINT  PAPER 7; INK 0;"l=";l;" h=";h;" a=";a
+	LD HL,9020
+	LD (23621),HL
+; 		9020.1  PRINT  PAPER 7{00 00 07 00 00 }; INK 0{00 00 00 00 00 };"l=";l;" h=";h;" a=";a
+	LD A,1
+	LD (23623),a
+	LD HL,9020
+	LD A,1
+	CALL runtimeDebug
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD HL,7
+	CALL runtimeLocalPaper
+	LD HL,0
+	CALL runtimeLocalInk
+	LD HL,STRING_23	;l=
+	CALL runtimePrintString
+	LD HL,(ZXBASIC_VAR_l)
+	CALL runtimePrintInt
+	LD HL,STRING_24	; h=
+	CALL runtimePrintString
+	LD HL,(ZXBASIC_VAR_h)
+	CALL runtimePrintInt
+	LD HL,STRING_25	; a=
+	CALL runtimePrintString
+	LD HL,(ZXBASIC_VAR_a)
+	CALL runtimePrintInt
+	CALL runtimePrintNewline
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
+ZXBASIC_LINE_9500:
+; 9500  RETURN 
+	LD HL,9500
+	LD (23621),HL
+; 		9500.1  RETURN 
+	LD A,1
+	LD (23623),a
+	LD HL,9500
+	LD A,1
+	CALL runtimeDebug
+	CALL runtimeCheckBreakDebug
+	RET
+ZXBASIC_LINE_9998:
+; 9998  STOP 
+	LD HL,9998
+	LD (23621),HL
+ZXBASIC_VAR_a:	dw 0
+ZXBASIC_VAR_a_string:	defs 66
+ZXBASIC_VAR_b:	dw 0
+ZXBASIC_VAR_c:	dw 0
+ZXBASIC_VAR_c_string:	dw 0
+ZXBASIC_VAR_d:	defs 5
+ZXBASIC_VAR_d_string:	defs 66
+ZXBASIC_VAR_dat:	dw 0
+ZXBASIC_VAR_e_string:	defs 66
+ZXBASIC_VAR_f:	dw 0
+ZXBASIC_VAR_f_string:	dw 0
+ZXBASIC_VAR_for_a:	dw 0
+ZXBASIC_VAR_for_c:	dw 0
+ZXBASIC_VAR_for_d:	defs 5
+ZXBASIC_VAR_for_g:	dw 0
+ZXBASIC_VAR_for_o:	defs 5
+ZXBASIC_VAR_for_t:	dw 0
+ZXBASIC_VAR_for_u:	dw 0
+ZXBASIC_VAR_for_w:	dw 0
+ZXBASIC_VAR_g:	dw 0
+ZXBASIC_VAR_h:	dw 0
+ZXBASIC_VAR_hs:	dw 0
+ZXBASIC_VAR_i:	dw 0
+ZXBASIC_VAR_ii:	dw 0
+ZXBASIC_VAR_iv:	dw 0
+ZXBASIC_VAR_j:	dw 0
+ZXBASIC_VAR_k:	dw 0
+ZXBASIC_VAR_l:	dw 0
+ZXBASIC_VAR_o:	defs 5
+ZXBASIC_VAR_p:	dw 0
+ZXBASIC_VAR_p1:	dw 0
+ZXBASIC_VAR_pp:	dw 0
+ZXBASIC_VAR_sc:	dw 0
+ZXBASIC_VAR_sh:	dw 0
+ZXBASIC_VAR_sp:	dw 0
+ZXBASIC_VAR_t:	dw 0
+ZXBASIC_VAR_u:	dw 0
+ZXBASIC_VAR_w:	dw 0
+ZXBASIC_VAR_x:	dw 0
+ZXBASIC_VAR_y:	dw 0
+ZXBASIC_VAR_z:	dw 0
+FLOAT_1:	db $7c, $4c, $cc, $cc, $cc	;0.05
+FLOAT_10:	db $00, $00, $0a, $00, $00	;10.0
+FLOAT_11:	db $7b, $4c, $cc, $cc, $cc	;0.025
+FLOAT_12:	db $00, $00, $1e, $00, $00	;30.0
+FLOAT_13:	db $7a, $75, $c2, $8f, $5c	;0.015
+FLOAT_2:	db $00, $00, $14, $00, $00	;20.0
+FLOAT_3:	db $80, $39, $99, $99, $99	;0.725
+FLOAT_4:	db $78, $03, $12, $6e, $97	;0.002
+FLOAT_5:	db $7b, $23, $d7, $0a, $3d	;0.02
+FLOAT_6:	db $7e, $4c, $cc, $cc, $cc	;0.2
+FLOAT_7:	db $7a, $23, $d7, $0a, $3d	;0.01
+FLOAT_8:	db $79, $03, $12, $6e, $97	;0.004
+FLOAT_9:	db $7b, $75, $c2, $8f, $5c	;0.03
+STRING_0:	dw 1
 	db	" "
-STRING_32:	dw 1
-	db	$92
-STRING_33:	dw 1
-	db	"*"
-STRING_34:	dw 14
-	db	"WAVE COMPLETE!"
-STRING_35:	dw 5
-	db	" GAME"
-STRING_36:	dw 6
-	db	"OVER! "
-STRING_37:	dw 32
-	db	"    Press any key to continue   "
-STRING_38:	dw 6
-	db	"57342="
-STRING_39:	dw 7
-	db	" 32766="
-STRING_4:	dw 15
-	db	"2017 @xenopunk"
-STRING_40:	dw 8
-	db	" 65022= "
-STRING_41:	dw 7
-	db	" 64510="
-STRING_5:	dw 19
-	db	"#zxspectrumbasicjam"
-STRING_6:	dw 11
-	db	"Decomposing"
+STRING_1:	dw 3
+	db	"   "
+STRING_10:	dw 11
+	db	"PRESS A KEY"
+STRING_11:	dw 16
+	db	"By Animated ALex"
+STRING_12:	dw 0
+STRING_13:	dw 32
+	db	$95, $96, $97, $9b, $95, $96, $9b, $9a, $9b, $95, $96, $99, $95, $9b, $99, $9a, $99, $98, $9a, $98, $97, $9b, $95, $99, $9b, $9b, $95, $96, $95, $98, $99, $9a
+STRING_14:	dw 6
+	db	"SCORE:"
+STRING_15:	dw 9
+	db	"HI-SCORE:"
+STRING_16:	dw 32
+	db	" ", $94, "   ", $94, "   ", $94, "   ", $94, "   ", $94, "   ", $94, "          "
+STRING_17:	dw 3
+	db	$93, $90, $92
+STRING_18:	dw 1
+	db	$91
+STRING_19:	dw 32
+	db	"    ", $90, "          ", $90, "         ", $90, "      "
+STRING_2:	dw 1
+	db	$94
+STRING_20:	dw 4
+	db	"a$=("
+STRING_21:	dw 1
+	db	")"
+STRING_22:	dw 4
+	db	"e$=("
+STRING_23:	dw 2
+	db	"l="
+STRING_24:	dw 3
+	db	" h="
+STRING_25:	dw 3
+	db	" a="
+STRING_3:	dw 1
+	db	$90
+STRING_4:	dw 2
+	db	"L="
+STRING_5:	dw 16
+	db	"G A M E  O V E R"
+STRING_6:	dw 6
+	db	"SHIELD"
 STRING_7:	dw 1
 	db	"a"
-STRING_8:	dw 1
-	db	"/"
-STRING_9:	dw 1
-	db	$90
+STRING_8:	dw 174
+	db	$8f, $8f, $8f, $8f, "   ", $8f, $8f, "   ", $8f, $8f, $8f, $8f, "                   ", $8f, "  ", $8f, "  ", $8f, "  ", $8f, "   ", $8f, "                 ", $8f, "   ", $8f, "  ", $8f, "  ", $8f, "   ", $8f, "                ", $8f, "    ", $8f
+	db $8f, $8f, $8f, "  ", $8f, $8f, $8f, $8f, "                ", $8f, "     ", $8f, "  ", $8f, "  ", $8f, "                   ", $8f, $8f, $8f, $8f, "  ", $8f, "  ", $8f, "  ", $8f, " "
+STRING_9:	dw 24
+	db	"KEYS:O,P & M or KEMPSTON"
+ZXLINES:
+	dw 10, ZXBASIC_LINE_10
+	dw 20, ZXBASIC_LINE_20
+	dw 30, ZXBASIC_LINE_30
+	dw 40, ZXBASIC_LINE_40
+	dw 50, ZXBASIC_LINE_50
+	dw 170, ZXBASIC_LINE_170
+	dw 180, ZXBASIC_LINE_180
+	dw 185, ZXBASIC_LINE_185
+	dw 190, ZXBASIC_LINE_190
+	dw 200, ZXBASIC_LINE_200
+	dw 202, ZXBASIC_LINE_202
+	dw 203, ZXBASIC_LINE_203
+	dw 205, ZXBASIC_LINE_205
+	dw 210, ZXBASIC_LINE_210
+	dw 230, ZXBASIC_LINE_230
+	dw 240, ZXBASIC_LINE_240
+	dw 250, ZXBASIC_LINE_250
+	dw 260, ZXBASIC_LINE_260
+	dw 265, ZXBASIC_LINE_265
+	dw 270, ZXBASIC_LINE_270
+	dw 280, ZXBASIC_LINE_280
+	dw 290, ZXBASIC_LINE_290
+	dw 300, ZXBASIC_LINE_300
+	dw 310, ZXBASIC_LINE_310
+	dw 320, ZXBASIC_LINE_320
+	dw 330, ZXBASIC_LINE_330
+	dw 348, ZXBASIC_LINE_348
+	dw 350, ZXBASIC_LINE_350
+	dw 360, ZXBASIC_LINE_360
+	dw 365, ZXBASIC_LINE_365
+	dw 366, ZXBASIC_LINE_366
+	dw 370, ZXBASIC_LINE_370
+	dw 375, ZXBASIC_LINE_375
+	dw 380, ZXBASIC_LINE_380
+	dw 385, ZXBASIC_LINE_385
+	dw 390, ZXBASIC_LINE_390
+	dw 400, ZXBASIC_LINE_400
+	dw 405, ZXBASIC_LINE_405
+	dw 410, ZXBASIC_LINE_410
+	dw 420, ZXBASIC_LINE_420
+	dw 430, ZXBASIC_LINE_430
+	dw 440, ZXBASIC_LINE_440
+	dw 450, ZXBASIC_LINE_450
+	dw 455, ZXBASIC_LINE_455
+	dw 470, ZXBASIC_LINE_470
+	dw 480, ZXBASIC_LINE_480
+	dw 490, ZXBASIC_LINE_490
+	dw 495, ZXBASIC_LINE_495
+	dw 500, ZXBASIC_LINE_500
+	dw 510, ZXBASIC_LINE_510
+	dw 520, ZXBASIC_LINE_520
+	dw 530, ZXBASIC_LINE_530
+	dw 540, ZXBASIC_LINE_540
+	dw 550, ZXBASIC_LINE_550
+	dw 560, ZXBASIC_LINE_560
+	dw 570, ZXBASIC_LINE_570
+	dw 580, ZXBASIC_LINE_580
+	dw 590, ZXBASIC_LINE_590
+	dw 600, ZXBASIC_LINE_600
+	dw 700, ZXBASIC_LINE_700
+	dw 705, ZXBASIC_LINE_705
+	dw 710, ZXBASIC_LINE_710
+	dw 715, ZXBASIC_LINE_715
+	dw 717, ZXBASIC_LINE_717
+	dw 718, ZXBASIC_LINE_718
+	dw 720, ZXBASIC_LINE_720
+	dw 725, ZXBASIC_LINE_725
+	dw 730, ZXBASIC_LINE_730
+	dw 740, ZXBASIC_LINE_740
+	dw 750, ZXBASIC_LINE_750
+	dw 760, ZXBASIC_LINE_760
+	dw 765, ZXBASIC_LINE_765
+	dw 770, ZXBASIC_LINE_770
+	dw 780, ZXBASIC_LINE_780
+	dw 790, ZXBASIC_LINE_790
+	dw 795, ZXBASIC_LINE_795
+	dw 800, ZXBASIC_LINE_800
+	dw 805, ZXBASIC_LINE_805
+	dw 850, ZXBASIC_LINE_850
+	dw 900, ZXBASIC_LINE_900
+	dw 910, ZXBASIC_LINE_910
+	dw 920, ZXBASIC_LINE_920
+	dw 930, ZXBASIC_LINE_930
+	dw 950, ZXBASIC_LINE_950
+	dw 960, ZXBASIC_LINE_960
+	dw 970, ZXBASIC_LINE_970
+	dw 980, ZXBASIC_LINE_980
+	dw 990, ZXBASIC_LINE_990
+	dw 1000, ZXBASIC_LINE_1000
+	dw 1010, ZXBASIC_LINE_1010
+	dw 1020, ZXBASIC_LINE_1020
+	dw 1030, ZXBASIC_LINE_1030
+	dw 1040, ZXBASIC_LINE_1040
+	dw 9000, ZXBASIC_LINE_9000
+	dw 9010, ZXBASIC_LINE_9010
+	dw 9020, ZXBASIC_LINE_9020
+	dw 9500, ZXBASIC_LINE_9500
+	dw 9998, ZXBASIC_LINE_9998
+	dw 0, 0
 DATAPTR:	DW 0
-DATA_140:
-	db $00,$00,$38,$00,$00	;56
-DATA_150:
-	db $00,$00,$18,$00,$00	;24
-	db $00,$00,$18,$00,$00	;24
-	db $00,$00,$10,$00,$00	;16
-	db $00,$00,$3c,$00,$00	;60
-	db $00,$00,$5a,$00,$00	;90
-	db $00,$00,$18,$00,$00	;24
-	db $00,$00,$24,$00,$00	;36
-	db $00,$00,$44,$00,$00	;68
-DATA_160:
-	db $00,$00,$00,$00,$00	;0
-	db $00,$00,$3c,$00,$00	;60
-	db $00,$00,$7e,$00,$00	;126
-	db $00,$00,$42,$00,$00	;66
-	db $00,$00,$7e,$00,$00	;126
-	db $00,$00,$42,$00,$00	;66
-	db $00,$00,$7e,$00,$00	;126
-	db $00,$00,$7e,$00,$00	;126
-DATA_170:
-	db $00,$00,$00,$00,$00	;0
-	db $00,$00,$08,$00,$00	;8
-	db $00,$00,$10,$00,$00	;16
-	db $00,$00,$df,$00,$00	;223
-	db $00,$00,$fc,$00,$00	;252
-	db $00,$00,$22,$00,$00	;34
-	db $00,$00,$41,$00,$00	;65
-	db $00,$00,$00,$00,$00	;0
-DATA_180:
-	db $00,$00,$18,$00,$00	;24
-	db $00,$00,$18,$00,$00	;24
-	db $00,$00,$10,$00,$00	;16
-	db $00,$00,$1e,$00,$00	;30
-	db $00,$00,$18,$00,$00	;24
-	db $00,$00,$18,$00,$00	;24
-	db $00,$00,$14,$00,$00	;20
-	db $00,$00,$24,$00,$00	;36
-DATA_190:
-	db $00,$00,$18,$00,$00	;24
-	db $00,$00,$18,$00,$00	;24
-	db $00,$00,$52,$00,$00	;82
-	db $00,$00,$3c,$00,$00	;60
-	db $00,$00,$18,$00,$00	;24
-	db $00,$00,$18,$00,$00	;24
-	db $00,$00,$14,$00,$00	;20
-	db $00,$00,$14,$00,$00	;20
-DATA_200:
-	db $00,$00,$18,$00,$00	;24
-	db $00,$00,$18,$00,$00	;24
-	db $00,$00,$10,$00,$00	;16
-	db $00,$00,$38,$00,$00	;56
-	db $00,$00,$7c,$00,$00	;124
-	db $00,$00,$ba,$00,$00	;186
-	db $00,$00,$28,$00,$00	;40
-	db $00,$00,$44,$00,$00	;68
-DATA_210:
-	db $00,$00,$00,$00,$00	;0
-	db $00,$00,$18,$00,$00	;24
-	db $00,$00,$18,$00,$00	;24
-	db $00,$00,$7e,$00,$00	;126
-	db $00,$00,$7e,$00,$00	;126
-	db $00,$00,$18,$00,$00	;24
-	db $00,$00,$18,$00,$00	;24
-	db $00,$00,$00,$00,$00	;0
+DATA_900:
+	dw 126
+	dw 219
+	dw 153
+	dw 255
+	dw 195
+	dw 189
+	dw 90
+	dw 165
+DATA_910:
+	dw 24
+	dw 24
+	dw 153
+	dw 153
+	dw 219
+	dw 255
+	dw 255
+	dw 102
+DATA_920:
+	dw 140
+	dw 198
+	dw 194
+	dw 255
+	dw 255
+	dw 130
+	dw 134
+	dw 140
+DATA_930:
+	dw 49
+	dw 99
+	dw 67
+	dw 255
+	dw 255
+	dw 65
+	dw 97
+	dw 49
+DATA_950:
+	dw 126
+	dw 219
+	dw 153
+	dw 255
+	dw 195
+	dw 126
+	dw 60
+	dw 102
+DATA_960:
+	dw 0
+	dw 0
+	dw 1
+	dw 7
+	dw 15
+	dw 59
+	dw 119
+	dw 223
+DATA_970:
+	dw 0
+	dw 0
+	dw 128
+	dw 224
+	dw 252
+	dw 255
+	dw 239
+	dw 251
+DATA_980:
+	dw 0
+	dw 34
+	dw 22
+	dw 12
+	dw 30
+	dw 55
+	dw 7
+	dw 255
+DATA_990:
+	dw 0
+	dw 0
+	dw 128
+	dw 224
+	dw 120
+	dw 236
+	dw 222
+	dw 255
+DATA_1000:
+	dw 60
+	dw 60
+	dw 102
+	dw 255
+	dw 211
+	dw 255
+	dw 153
+	dw 255
+DATA_1010:
+	dw 8
+	dw 8
+	dw 12
+	dw 255
+	dw 247
+	dw 255
+	dw 187
+	dw 255
+DATA_1020:
+	dw 4
+	dw 4
+	dw 4
+	dw 132
+	dw 236
+	dw 254
+	dw 183
+	dw 255
 
+ZX_VARIABLES:
+	db 1,"a",1,0
+	dw ZXBASIC_VAR_a
+	db 2,"a$",3,1,32
+	dw ZXBASIC_VAR_a_string
+	db 1,"b",1,0
+	dw ZXBASIC_VAR_b
+	db 1,"c",1,0
+	dw ZXBASIC_VAR_c
+	db 2,"c$",3,0
+	dw ZXBASIC_VAR_c_string
+	db 1,"d",2,0
+	dw ZXBASIC_VAR_d
+	db 2,"d$",3,1,32
+	dw ZXBASIC_VAR_d_string
+	db 3,"dat",1,0
+	dw ZXBASIC_VAR_dat
+	db 2,"e$",3,1,32
+	dw ZXBASIC_VAR_e_string
+	db 1,"f",1,0
+	dw ZXBASIC_VAR_f
+	db 2,"f$",3,0
+	dw ZXBASIC_VAR_f_string
+	db 5,"for_a",1,0
+	dw ZXBASIC_VAR_for_a
+	db 5,"for_c",1,0
+	dw ZXBASIC_VAR_for_c
+	db 5,"for_d",2,0
+	dw ZXBASIC_VAR_for_d
+	db 5,"for_g",1,0
+	dw ZXBASIC_VAR_for_g
+	db 5,"for_o",2,0
+	dw ZXBASIC_VAR_for_o
+	db 5,"for_t",1,0
+	dw ZXBASIC_VAR_for_t
+	db 5,"for_u",1,0
+	dw ZXBASIC_VAR_for_u
+	db 5,"for_w",1,0
+	dw ZXBASIC_VAR_for_w
+	db 1,"g",1,0
+	dw ZXBASIC_VAR_g
+	db 1,"h",1,0
+	dw ZXBASIC_VAR_h
+	db 2,"hs",1,0
+	dw ZXBASIC_VAR_hs
+	db 1,"i",1,0
+	dw ZXBASIC_VAR_i
+	db 2,"ii",1,0
+	dw ZXBASIC_VAR_ii
+	db 2,"iv",1,0
+	dw ZXBASIC_VAR_iv
+	db 1,"j",1,0
+	dw ZXBASIC_VAR_j
+	db 1,"k",1,0
+	dw ZXBASIC_VAR_k
+	db 1,"l",1,0
+	dw ZXBASIC_VAR_l
+	db 1,"o",2,0
+	dw ZXBASIC_VAR_o
+	db 1,"p",1,0
+	dw ZXBASIC_VAR_p
+	db 2,"p1",1,0
+	dw ZXBASIC_VAR_p1
+	db 2,"pp",1,0
+	dw ZXBASIC_VAR_pp
+	db 2,"sc",1,0
+	dw ZXBASIC_VAR_sc
+	db 2,"sh",1,0
+	dw ZXBASIC_VAR_sh
+	db 2,"sp",1,0
+	dw ZXBASIC_VAR_sp
+	db 1,"t",1,0
+	dw ZXBASIC_VAR_t
+	db 1,"u",1,0
+	dw ZXBASIC_VAR_u
+	db 1,"w",1,0
+	dw ZXBASIC_VAR_w
+	db 1,"x",1,0
+	dw ZXBASIC_VAR_x
+	db 1,"y",1,0
+	dw ZXBASIC_VAR_y
+	db 1,"z",1,0
+	dw ZXBASIC_VAR_z
+	db 0
 
     DISPLAY "Compiled Basic = ", /D, $-CBASIC_START,  " bytes"

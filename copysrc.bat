@@ -1,0 +1,1 @@
+copy C:\workspaces\ZXCompiler\ZXCompiler\src\zxcompiler Artikel2

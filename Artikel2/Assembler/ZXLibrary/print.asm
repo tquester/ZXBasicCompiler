@@ -22,11 +22,11 @@ printA:
 	PUSH	DE
 	PUSH	HL
 	cp		8
-	jr		z,	printTab
+	jp		z,	printTab
 	cp		9
 	jr		z,	printTab
 	cp		10
-	jr		z,	printNewline
+	jp		z,	printNewline
 	cp		13
 	jp		z,  printCarriageReturn 
 	LD		L,	A
@@ -35,6 +35,19 @@ printA:
 	ADD		HL, HL
 	ADD		HL, HL
 	LD		DE, CHARSET
+	cp      144
+	jr      c,printACharset
+	cp      144+20
+	jr      nc,printACharset
+	ld      de,(ZX_UDG) 
+	LD		L,	A
+	LD		H,  0
+	ld      bc,144
+	sub     hl,bc
+	ADD		HL, HL
+	ADD		HL, HL
+	ADD		HL, HL
+printACharset:	
 	ADD		HL, DE
 	LD		IX, HL			; ix points to the charmap of ascii A
 
