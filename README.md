@@ -13,6 +13,8 @@ Since the compiler does not run on the ZX Spectrum, the entire usable memory can
 Slow Maniac Willy running under Dezog in Assembler. Thanks to Animated Alex (https://animatedal.itch.io/slow-manic-willy)
 
 
+
+
 # Download
 
 https://github.com/tquester/ZXBasicCompiler/blob/main/Download.md 
@@ -21,6 +23,8 @@ https://github.com/tquester/ZXBasicCompiler/blob/main/Download.md
 https://github.com/tquester/ZXBasicCompiler/blob/main/DifferencesGer.md
 
 # Status
+
+## 07/21/2025 Compiler compiles some games without error. More Tests are to come
 
   | Step | Status |
  |-----------------------|----------------|
