@@ -57,6 +57,7 @@ Translated with DeepL.com (free version)
 - Inclusion of optimized program parts via REM asm. e.g. REM asm include "code.asm" and REM asm call
 - The original routine can be skipped. REM stop and REM continue a part of the code is excluded from compilation so that an assembler version can be used instead.
 - Separate heap for string processing
+- BASIC Debugger (https://github.com/tquester/ZXBasicCompiler/blob/main/debugger.md)
 
 Later, the functions of the BASIC extension will be added and there will be a separate editor
 
