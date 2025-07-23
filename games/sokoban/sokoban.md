@@ -1,6 +1,6 @@
 # Sokoban by simonsnake
 
-https://github.com/tquester/ZXBasicCompiler/blob/main/games/sokoban/sokoban.gif
+![Sokoban](https://github.com/tquester/ZXBasicCompiler/blob/main/games/sokoban/sokoban.gif)
 
 ## Original 
 https://itch.io/jam/zx-spectrum-basic-jam/rate/151300
