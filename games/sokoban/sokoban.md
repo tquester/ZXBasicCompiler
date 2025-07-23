@@ -1,6 +1,7 @@
 # Sokoban by Simon Ferré
 
 ![Sokoban](https://github.com/tquester/ZXBasicCompiler/blob/main/games/sokoban/sokoban.gif)
+(Some colors are different in this GIF)
 
 ## Original 
 https://itch.io/jam/zx-spectrum-basic-jam/rate/151300
