@@ -1,4 +1,4 @@
-# Sokoban by simonsnake
+# Sokoban by Simon Ferré
 
 ![Sokoban](https://github.com/tquester/ZXBasicCompiler/blob/main/games/sokoban/sokoban.gif)
 
@@ -15,12 +15,11 @@ For the compiled Version I made a few changes:
   160 LET k$ = INKEY$ : IF K$ <> "" THEN GOTO 160
 * added support for normal cursor keys: SHIFT-5, SHIFT-6, SHIFT-7 and SHIFT-8 because many Emulators and newer ZX Spectrums as well as add-on keyboards have separate cursor keys and we modern people are used to use them.
 * added some speed improvements, for example adding ";" after PRINT at because printing the newline also costs cycles.
-* The number of undo-moves have been reduced to 1000 so that the integrated BASIC debugger fits into memory
+* The number of undo-moves have been reduced to 1000 so that the integrated BASIC debugger fits into memory.
 
 ## Bugs
-* Currently defining keys does not work in the compiled version
-
+* Currently defining keys does not work in the compiled version (to be fixed)
 ## Thanks
-Thanks simonsnake for this nice game. It helped my finding lots of bugs in my compiler, especially in string processing
-
+Thanks Simon Ferré for this excellent game. 372 lins of finest BASIC code have been converted to 6487 lines of Assembler.
+I found lots of errors and improvements in my compiler just from this game, especially I have had to re-write my string handling.
 
