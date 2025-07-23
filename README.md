@@ -43,7 +43,8 @@ Stil Missing:
 * Currently the compiler gets tested with BASIC games from the internet. See https://itch.io/jam/zx-spectrum-basic-jam
 * QBasic-Functions
 
-Some games have been successfully compiled, but not all games profit, this one runs far too fast, so we have to add some PAUSE into the code. In this case there must be a slow pause after the enemies moved, otherwise they are mostly invisible. In some cases we also must take care of input, for example waiting for key release or pause otherwise the game becomes hard to control
+Some games have been successfully compiled, but not all games profit, this one runs far too fast, so we have to add some PAUSE into the code. In this case there must be a slow pause after the enemies moved, otherwise they are mostly invisible. In some cases we also must take care of input, for example waiting for key release or pause otherwise the game becomes hard to control. With some small modifications, we get a game that is very responsive.
+
 ![ufo_compiled](https://github.com/user-attachments/assets/6d7b285c-91c5-404d-9bd7-03460c353e53)
 
 Thanks  Animated Alex for your games, it showed my lots of errors in my compiler and I discovered aspects of BASIC I did not know. Breathing pure Assembler
