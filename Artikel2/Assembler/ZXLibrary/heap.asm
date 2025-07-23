@@ -172,7 +172,8 @@ ZXHeapWalkPrint:
                     db    "----------- heap ----------/n"
                     db    "addr ty back back size/n",0
                     ld ix, (ZXHeapStart)
-ZXHeapWalk1:        ld hl, ix
+ZXHeapWalk1:       call ZXHeapWalkCls 
+                   ld hl, ix
                     call printHex4Hl
                     ld   a,' '
                     call printA
@@ -180,8 +181,9 @@ ZXHeapWalk1:        ld hl, ix
                     call printHex2
                     ld   a,' '
                     call printA
-                    ld   hl,(ix+ZXBLockBacklink)                    
-                    call printHex4Hl
+                    ld   hl,(ix+ZXBLockBacklink)  
+                    call printBacklinkHL                  
+                    ;call printHex4Hl
                     ld   a,' '
                     call printA
                     ld   a,h
@@ -245,6 +247,7 @@ ZXHeapPrintContents5:
                     djnz   ZXHeapPrintContents
 ZXHeapPrintContents3:                    
                     call newline
+                    call ZXHeapWalkCls
                     ld   hl,(ix+ZXBlockSize)
                     ld   bc,5
                     add  hl,bc
@@ -257,12 +260,74 @@ ZXHeapPrintContents3:
                     jr  nc, ZXHeapWalk4
                     jr   z, ZXHeapWalk4
                     jp  ZXHeapWalk1
+ZXHeapWalkCls:
+                   ld   a,(charY)
+                   cp   19
+                   ret  c
+ZXHeapWalkCls0:
+                  call rtGetKey
+                  cp   0
+                  jr   nz, ZXHeapWalkCls0
+ZXHeapWalkCls1:      call rtGetKey
+                  cp   0
+                  jr   z, ZXHeapWalkCls1               
+                  ld   a,0
+                  ld   (charX),a
+                  ld   (charY),a
+                  jp   runtimeCls
 ZXHeapWalk4:        ld  hl,ix
                     call printHex4Hl
                     call newline                    
                     endif
                     POPA
                     ret
+                  if DEBUG=1
+printBacklinkHL:   push hl    
+                   push ix
+                   ld   de,hl
+                   ld   hl,ZX_VARIABLES
+printBackLinkLoop:
+                   push hl
+                   pop  ix                ; ix points to the start of the block                   
+                   ld   a,(hl)                    
+                   cp   0
+                   jr   z,printBackLinkLoopNotFound
+                   ld   c,a
+                   ld   b,0
+                   add  hl,bc
+                   inc  hl
+                   inc  hl
+                   ld   c,(hl)            ; number of types
+                   add  hl,bc         
+                   inc  hl    ; skip type
+                   push hl                ; hl now points to the variable
+                   push de
+                   ld   de,(hl)
+                   ld   hl,de
+                   pop  de
+                   sub  hl,de             
+                   jr   z,printBackLinkFound
+                   pop  hl
+                   inc  hl
+                   inc  hl
+                   jr   printBackLinkLoop
+printBackLinkLoopNotFound:
+                  pop  ix
+                  pop hl
+                  call printHex4Hl
+                  ret
+printBackLinkFound: POP HL
+                  push ix
+                  pop hl
+                  ld c,(hl)
+                  ld b,0
+                  inc  hl
+                  call rtDebugPrintFixString
+                  pop ix
+                  pop hl
+                  ret   
+                  endif               
+
 
 ZXHeapTest:        if DEBUG=1 
                    call cls                
@@ -527,11 +592,16 @@ ZXFreeStringVar:        push hl
                         push de
                         ld   de,(hl)
                         ld   hl,de
+                        ld   a,h
+                        or   l
+                        jr   z,ZXFreeStringVar1
                         call ZXFree
+ZXFreeStringVar1:                        
                         pop  de
                         pop  hl
                         ret                        
-ZXFree:                 call ZXCheckIfHlisHeapBlock
+ZXFree:                
+                         call ZXCheckIfHlisHeapBlock
                         ret  z
                         push bc
                         ld   bc,5                       ; Subtract block size
@@ -545,13 +615,20 @@ ZXFree:                 call ZXCheckIfHlisHeapBlock
                         ret
 
 ; HL points to a memory block. If the block is in the heap, set the type to used
+; HL = Address in Heap (or not in heap, than we do nothing)
+; DE = Address of Variable (Backlink)
 ZXClaim:                call ZXCheckIfHlisHeapBlock
                         ret  z
                         push hl
                         push de
-                        ld   de,ZXHeapHeaderSize
-                        sub  hl,de
+                        push bc
+                        ld  bc,ZXHeapHeaderSize
+                        sub  hl,bc
                         ld   (hl),ZXHeapTypeUsed ; Mark as used
+                        inc  hl 
+                        ld   (hl),de            ; Store backlink
+              
+                        pop  bc
                         pop  de
                         pop  hl
                         ret
@@ -563,6 +640,7 @@ ZXAllocNotFound:        if DEBUG=1
                         endif
                         ld   hl,error_no_heap
                         call runtimePrintString
+                        call ZXHeapWalk
                         ld   sp,(runtimeSaveSP)
                         ret
                         ld   hl,0

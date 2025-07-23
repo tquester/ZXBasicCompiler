@@ -639,7 +639,7 @@ runtimeCheckBreak:      call    $1F54
 
 runtimeCheckBreakDebug: call    $1F54
                         ret c
-                        if DEBUG=1
+                        if DEBUGGER=1
                         ld a,1
                         ld (rtStopped),a
                         endif
@@ -772,15 +772,22 @@ runtimeCopyStringToHeapEnd:
 ; HL = Adress of variable
 ; DE = Adress of string to store
 runtimeStoreString:
-    call ZXFreeStringVar ; Free old string if it is a heap string
     push hl
-    ld   l,e
-    ld   h,d
+    push de
+    call ZXFreeStringVar ; Free old string if it is a heap string
+    pop de
+    pop hl
+    push hl
+  ;  ld   l,e
+  ;  ld   h,d
+    ex hl,de
     call ZXClaim ; Claim memory for the string
+    ex hl,de
     pop  hl
     ld   (hl),de
     call ZXFreeTemp
     call ZXHeapCompactFree
+    
 
     ret
 ; BC = String
@@ -2177,50 +2184,51 @@ runtimeCmpHLltDE:
     ex hl,de
     or a
     sbc hl,de
-    jp c, runtimeReturnTrue
-    jp runtimeReturnFalse
+    jr c, runtimeReturnTrue
+    jr runtimeReturnFalse
 
 ; --- HL <= DE ---
 runtimeCmpHLLeDE:
     ex hl,de
     or a
     sbc hl,de
-    jp z, runtimeReturnTrue
-    jp c, runtimeReturnTrue
-    jp runtimeReturnFalse
+    jr z, runtimeReturnTrue
+    jr c, runtimeReturnTrue
+    jr runtimeReturnFalse
 
 ; --- HL > DE ---
 runtimeCmpHlGtDE:
     ex hl,de
     or a
     sbc hl,de
-    jp nc, .check
-    jp runtimeReturnFalse
+    jr nc, .check
+    jr runtimeReturnFalse
 .check:
-    jp z, runtimeReturnFalse
-    jp runtimeReturnTrue
+    jr z, runtimeReturnFalse
+    jr runtimeReturnTrue
 
 ; --- HL >= DE ---
 runtimeCmpHLGeDE:
     ex hl,de
     or a
     sbc hl,de
-    jp nc, runtimeReturnTrue
-    jp runtimeReturnFalse
+    jr nc, runtimeReturnTrue
+    jr runtimeReturnFalse
 
 ; --- HL = DE ---
 runtimeCmpHLEqDE:
     or a
     sbc hl,de
-    jp z, runtimeReturnTrue
-    jp runtimeReturnFalse
+    jr z, runtimeReturnTrue
+    ld hl,0
+    ret
 
 ; --- HL ≠ DE ---
 runtimeCmpHlNeDE:
     or a
     sbc hl,de
-    jp nz, runtimeReturnTrue
-    jp runtimeReturnFalse
+    jr nz, runtimeReturnTrue
+    jr runtimeReturnFalse
 
 ; =======================================================================
 ; String compare fixed string convention
@@ -2433,11 +2441,12 @@ runtimeBiggerEqualString
 
 
 runtimeDebug:   
-    if DEBUG=0
+    if DEBUGGER=0
     ret
     endif
 
-    if DEBUG=1
+    if DEBUGGER=1
+    call runtimeCheckBreakDebug
     ld (rtDebugStmt),a
     ld (rtDebugLine),hl
 
@@ -2736,8 +2745,8 @@ rtDebugVarPrintFoundDimLoop:
     ld de,(ix)
     jr rtDebugVarPrintFound1:
 rtDebugVarPrintFound0:    
-    inc ix
-    ld de,(ix)
+    inc hl
+    ld de,(hl)
 
 rtDebugVarPrintFound1:
     ex  hl,de
@@ -2795,7 +2804,7 @@ rtStopped:    db 1
 rtDebugMsgBp: db "BP:",0
 rtDebugMsg:  db "(B)reakpt (R)un (S)tep (W)atch",0
 rtDebugInputBuf: defs 32,0
-rtDebugWatchBuf: db "a$",0
+rtDebugWatchBuf: db "y$",0
                 defs 32,0
 
 rtSaveScreen:
@@ -2853,12 +2862,15 @@ rtDebugPrintBASICString:
     PUSHA
     push hl
     call printf
-    db  "Länge=",0
+    db  "LEN=",0
     pop  hl
     push hl
     ld   de,(hl)
     ex   hl,de
     call printDezHL
+    ld   a,h
+    or   l
+    jr   z,rtDebugPrintBasicStringEmpty
     ld   a,32
     call printA
     pop  hl
@@ -2868,7 +2880,22 @@ rtDebugPrintBASICString:
     call rtDebugPrintFixString    
     POPA
     ret
+rtDebugPrintBasicStringEmpty:
+    pop hl
+    POPA 
+    ret
 
+
+    endif
+
+    if DEBUG=1
+rtDebugPrintAHex:
+    ld a,'$'
+    call printA
+    ld   a,b
+    call printHex2
+    pop  bc
+    ret    
 rtDebugPrintFixString
     PUSHA
 rtDebugPrintFixStringLoop:
@@ -2897,15 +2924,7 @@ rtDebugPrintA:
     call printA
     pop bc
     ret
-rtDebugPrintAHex:
-    ld a,'$'
-    call printA
-    ld   a,b
-    call printHex2
-    pop  bc
-    ret    
-
-endif
+    endif
 
 
 
