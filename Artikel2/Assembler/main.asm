@@ -2,7 +2,7 @@
 ;===========================================================================
 ; main.asm
 ;===========================================================================
-DEBUG                       equ 0		; Enables debug mode. Used to test so new functions. Compiled BASIC runs with custom PRINT command
+DEBUG                       equ 1		; Enables debug mode. Used to test so new functions. Compiled BASIC runs with custom PRINT command
 DEBUGGER					equ 0
 DEBUGBASIC                  equ 1		; Initializes the ZX Spectrum using a copy of the startup, then starts the compiled BASIC program.
 											; Rom routines are allowed

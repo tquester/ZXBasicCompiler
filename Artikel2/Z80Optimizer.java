@@ -392,6 +392,8 @@ private void remove(int cmd) {
 	private boolean check(int icmd, String cmd, String par1) {
 		Z80Command z80 = mCommands.get(icmd);
 		if (z80.command == null) return false;
+		if (z80.par1 == null) return false;
+		if (z80.par1 == null) return false;
 		return (z80.command.compareToIgnoreCase(cmd) == 0) &&
 			   (z80.par1.compareToIgnoreCase(par1) == 0);
 	}

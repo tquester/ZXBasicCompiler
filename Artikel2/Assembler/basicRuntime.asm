@@ -781,15 +781,23 @@ runtimeStoreString:
   ;  ld   l,e
   ;  ld   h,d
     ex hl,de
+    ld   bc,(hl)
+    ld   a,b
+    or   c
+    jr   z,runtimeStoreEmptyString
     call ZXClaim ; Claim memory for the string
     ex hl,de
     pop  hl
     ld   (hl),de
     call ZXFreeTemp
     call ZXHeapCompactFree
-    
-
     ret
+runtimeStoreEmptyString:
+    ex hl,de
+    ld bc,0
+    ld (hl),0
+    pop hl
+    ret    
 ; BC = String
 ; DE = von                  ;   1 = erste Position
 ; HL = bis    
@@ -1619,6 +1627,14 @@ runtimeStrIntU:
         ld de,0 ; len
         ld a,0
         push af
+        ld  a,h
+        or  l
+        jr  nz,runtimeStrIntUIntLoop
+        ld  a,'0'
+        ld (ix),a
+        inc ix
+        inc de
+        jr runtimeStrIntUIntEnd
 runtimeStrIntUIntLoop:        
         ld a,h
         or l
@@ -1854,7 +1870,7 @@ runtimeRND:
 	DEFB $0F	; addition: The 'last value' is now SEED+1.
 	DEFB $34	; stk_data: Put the number 75 on the calculator stack.
 	DEFB $37,$16
-	DEFB $04	; multiply: 'last value' (SEED+1)*75.
+	DEFB $04	; multiply: 'las1t value' (SEED+1)*75.
 	DEFB $34	; stk_data: Put the number 65537 on the calculator stack.
 	DEFB $80,$41,$00,$00,$80
 	DEFB $32	; n_mod_m: Divide (SEED+1)*75 by 65537 to give a 'remainder' and an 'answer'.
@@ -1878,7 +1894,38 @@ ZX_KTEST: equ $031E
 ZX_SCANKEY: equ $028E
 ZX_K_DECODE: equ $0333
 
-rtGetKey:
+runtimeJoystickmap:    db 8, 9, 10, 11, 32,0
+runtimeJoystickBits:   db 1,2,4,8,16,0
+runtimeUseJoystick:     db 0
+
+rtGetKey:       ld a,(runtimeUseJoystick)
+                cp 0
+                jr z,rtGetKeyNoStick
+                ld bc,31
+                in (c)
+                cp 0
+                jr z,rtGetKeyNoStick
+                ld hl,runtimeJoystickBits
+                ld de,runtimeJoystickmap
+                ld b,a
+rtGetKeyStick:  ld  a,(hl)
+                cp  0
+                jr  z,rtGetKeyRetJoystick
+                cp  b
+                jr  z,rtGetKeyRetJoystickMap
+                inc hl
+                inc de
+                jr rtGetKeyStick
+
+
+rtGetKeyRetJoystickMap:
+                ld   a,b
+                ret
+rtGetKeyRetJoystick:
+                ld   a,(de)
+                ret
+
+rtGetKeyNoStick:                
                 LD HL,$5C3B	;This is FLAGS.
             	RES 6,(HL)	;Reset bit 6 for a string result.
                 call ZX_SCANKEY

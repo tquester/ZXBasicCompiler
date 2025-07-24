@@ -112,6 +112,7 @@ public class Z80Emitter {
 	private int mFloatNr = 1;
 	private String mNextComment;
 	public boolean mSettingDebug;
+	private boolean mSettingsInline=true;
 
 	Variable getVariable(String name) {
 		if (name.endsWith("$"))
@@ -782,7 +783,11 @@ public class Z80Emitter {
 		emitCommand("POP", "HL");
 		emitCommand("POP", "DE");
 		emitCommand("CALL", "runtimePrintAt");
-
+	}
+	
+	public void emitTab() {
+		emitCommand("POP", "HL");
+		emitCommand("CALL", "runtimeTab");
 	}
 	/*
 	 * ZX Colors 128 If the character position is flashing, 0 if it is steady 64 if
@@ -1192,12 +1197,18 @@ public class Z80Emitter {
 	
 
 	public void emitReadInt(String literal) {
-		emitCommand("LD", "HL", "(DATAPTR)");
-		emitCommand("LD", "DE", "(HL)");
-		emitCommand("INC", "HL");
-		emitCommand("INC", "HL");
-		emitCommand("LD", "(DATAPTR)", "HL");
-		emitCommand("LD", String.format("(ZXBASIC_VAR_%s)", literal), "DE");
+		if (mSettingsInline) {
+			emitCommand("LD", "HL", "(DATAPTR)");
+			emitCommand("LD", "DE", "(HL)");
+			emitCommand("INC", "HL");
+			emitCommand("INC", "HL");
+			emitCommand("LD", "(DATAPTR)", "HL");
+			emitCommand("LD", String.format("(ZXBASIC_VAR_%s)", literal), "DE");
+		} else {
+			emitCommand("LD", String.format("ZXBASIC_VAR_%s", literal), "DE");
+			emitCommand("CALL","runtimeReadInt");
+			
+		}
 	}
 
 	public void emitReadString(String literal) {
@@ -1211,23 +1222,45 @@ public class Z80Emitter {
 	}
 	
 	// reads (BASCIC READ) a string, pushes the BASIC String to the stack
-	public void emitReadString() {
-		emitCommand("LD", "HL", "(DATAPTR)");
-		emitCommand("PUSH","HL");
-		emitCommand("LD", "BC","(HL)");
-		emitCommand("INC", "HL");
-		emitCommand("INC", "HL");
-		emitCommand("ADD","HL","BC");
-		emitCommand("LD", "(DATAPTR)", "HL");
+	public void emitReadString(String name, boolean isArray, Variable var) {
+		if (isArray == false) {
+			if (mSettingsInline) {
+				emitCommand("LD","HL",String.format("ZXBASIC_VAR_%s", name));
+				emitCommand("CALL","ZXFreeStringVar");
+				emitCommand("LD", "HL", "(DATAPTR)");
+				emitCommand("LD", String.format("(ZXBASIC_VAR_%s)", name), "HL");
+				emitCommand("LD", "BC","(HL)");
+				emitCommand("INC", "HL");
+				emitCommand("INC", "HL");
+				emitCommand("ADD","HL","BC");
+				emitCommand("LD", "(DATAPTR)", "HL");
+			} else {
+				emitCommand("LD","HL",String.format("ZXBASIC_VAR_%s", name));
+				emitCommand("CALL","runtimeReadVarString");
+			}
+				
+		} else {
+			emitCommand("LD", "HL", "(DATAPTR)"); 
+			emitStoreStringVar(name, isArray, VARTYP.TYPE_STRING, 0);
+			emitCommand("LD", "HL", "(DATAPTR)");
+			emitCommand("INC", "HL");
+			emitCommand("INC", "HL");
+			emitCommand("LD", "(DATAPTR)", "HL");
+		}
 	}
 	
 
-	public void emitReadFloat(String literal) {
-		emitCommand("LD", "HL", "(DATAPTR)");
-		emitCommand("LD", "DE", String.format("ZXBASIC_VAR_%s", literal));
-		emitCommand("LD", "BC","5");
-		emitCommand("LDIR", null);
-		emitCommand("LD", "(DATAPTR)", "HL");
+	public void emitReadFloat(String literal, boolean isArray) {
+		if (mSettingsInline) {
+			emitCommand("LD", "HL", "(DATAPTR)");
+			emitCommand("LD", "DE", String.format("ZXBASIC_VAR_%s", literal));
+			emitCommand("LD", "BC","5");
+			emitCommand("LDIR", null);
+			emitCommand("LD", "(DATAPTR)", "HL");
+		} else {
+			emitCommand("LD", "DE", String.format("ZXBASIC_VAR_%s", literal));
+			emitCommand("CALL","runtimeReadFloat");
+		}
 		
 	}
 
@@ -1398,11 +1431,15 @@ public class Z80Emitter {
 	}
 
 	public void emitStartInput() {
-		emitCommand("LD", "A", "$01");// Open channel 'K'.
-		emitCommand("CALL", "$1601");
-		emitCommand("CALL", "$0D6E");
-		emitCommand("LD", "A", "1");
-		emitCommand("LD", "($5C3A)", "A");
+		if (mSettingsInline) {
+			emitCommand("LD", "A", "$01");// Open channel 'K'.
+			emitCommand("CALL", "$1601");
+			emitCommand("CALL", "$0D6E");
+			emitCommand("LD", "A", "1");
+			emitCommand("LD", "($5C3A)", "A");
+		} else {
+			emitCommand("CALL","runtimeStartInput");
+		}
 
 	}
 
@@ -1461,16 +1498,22 @@ public class Z80Emitter {
 	}
 
 	public void emitPushAddFloat() {
-		emitCommand("RST", "$28");
-		emitCommand("DB", "$0f", null, "ADD");
-		emitCommand("DB", "$38", null, "END CALC");
-		// emitCommand("CALL","runtimePlusFloat");
+		if (mSettingsInline) {
+			emitCommand("RST", "$28");
+			emitCommand("DB", "$0f", null, "ADD");
+			emitCommand("DB", "$38", null, "END CALC");
+		} else {
+			emitCommand("CALL","runtimePlusFloat");
+		}
 	}
 
 	public void emitPushSubFloat() {
-		emitCommand("RST", "$28");
-		emitCommand("DB", "$03", null, "SUB");
-		emitCommand("DB", "$38", null, "END CALC");
+		if (mSettingsInline) {		
+			emitCommand("RST", "$28");
+			emitCommand("DB", "$03", null, "SUB");
+			emitCommand("DB", "$38", null, "END CALC");
+		} else
+			emitCommand("CALL","runtimeMinusFloat");
 
 	}
 
@@ -1792,7 +1835,20 @@ public class Z80Emitter {
 		emitCommand("POP","DE");
 		emitCommand("CALL","runtimeAttr");
 		emitCommand("PUSH","HL");
-		
+	}
+
+	public void emitPoint() {
+		emitCommand("POP","HL");
+		emitCommand("POP","DE");
+		emitCommand("CALL","runtimePoint");
+		emitCommand("PUSH","HL");
+	}
+
+	public void emitScreen() {
+		emitCommand("POP","HL");
+		emitCommand("POP","DE");
+		emitCommand("CALL","runtimeScreen");
+		emitCommand("PUSH","HL");
 	}
 
 	public void emitDebug(int line, int stmt) {
@@ -2053,6 +2109,10 @@ public class Z80Emitter {
 		mBasicLines.add(bline);
 		
 	}
+
+
+
+
 
 	
 }

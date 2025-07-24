@@ -456,10 +456,12 @@ ZXClearHeap:         push   ix
 ; A = 1 : OK
 ; --------------------------------------------------------
 
+zxAllocSize:             dw 0
 ZXAlloc:                push ix
                         push bc
                         push de
                         push af
+                        ld   (zxAllocSize),bc
                         
 ;                        CALL ZXFreeTempCompact
                         pop af
@@ -638,13 +640,20 @@ ZXAllocNotFound:        if DEBUG=1
                         call runtimeCls
 ;                        call ZXHeapWalk
                         endif
+                        
                         ld   hl,error_no_heap
                         call runtimePrintString
+                        ld   hl,(zxAllocSize)
+                        call runtimePrintInt
+                        ld  hl,0
+                        call runtimePause
                         call ZXHeapWalk
+ZXAllocNotFoundEndless: jr ZXAllocNotFoundEndless                                               
                         ld   sp,(runtimeSaveSP)
                         ret
                         ld   hl,0
                         ld   a,$ff
+
                         pop  de
                         pop  bc
                         pop ix
@@ -652,7 +661,7 @@ ZXAllocNotFound:        if DEBUG=1
 
                    
 error_no_heap:          dw error_no_heap1-$-2
-                        db "No memory left in heap"
+                        db "No memory left in heap alloc size="
 error_no_heap1          equ $                        
 
 
