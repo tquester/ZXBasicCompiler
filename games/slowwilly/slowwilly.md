@@ -9,6 +9,10 @@ Game | Assembler
 ## Original
 https://animatedal.itch.io/slow-manic-willy
 
+## Making of
+https://www.youtube.com/watch?v=JDasUpPmeX4
+
+
 ## Changes
 * The STOP statement has been added in line 9998 followed by the save statement
 * Since the compiled version runs about 10-20 times faster some pause needed to be added
