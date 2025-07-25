@@ -13,7 +13,7 @@ https://animatedal.itch.io/slow-manic-willy
 * The STOP statement has been added in line 9998 followed by the save statement
 * Since the compiled version runs about 10-20 times faster some pause needed to be added
 * The first PAUSE is in line 100 the main game loop
-* A second pause has been added in line 205, otherwise it would be impossible to see willy walk
+* A second pause has been added in line 205.  In line 205, Willy is drawn with his legs open. Without the pause, it would be immediately overwritten and it would look as if he were teleporting.
 
 ## Compiling
 361 fine BASIC lines have been compiled into 4483 lines of assembler
