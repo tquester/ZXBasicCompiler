@@ -2487,6 +2487,100 @@ runtimeBiggerEqualString
 
 
 
+runtimePoint
+    ret
+	LD B,L
+	LD C,E
+    CALL $22AA      ; PIXEL_ADD	Pixel address to HL.
+	LD B,A	        ; B will count A+1 loops to get the wanted bit of (HL) to location 0.
+	INC B
+	LD A,(HL)
+POINT_LP	
+	RLCA	        ; The shifts.
+	DJNZ POINT_LP
+	AND $01
+    LD  L,A
+    LD  H,0
+    ret
+runtimeScreen
+	LD HL,($5C36)	;CHARS plus +0100 gives HL pointing to the character set.
+	LD DE,$0100
+	ADD HL,DE
+	LD A,C	        ;x is copied to A.
+	RRCA	        ;The number 32*(x mod 8)+y is formed in A and copied to E. This is the low byte of the required screen address.
+	RRCA
+	RRCA
+	AND $E0
+	XOR B
+	LD E,A
+	LD A,C	        ;x is copied to A again.
+	AND $18	        ;Now the number 64+8*INT (x/8) is inserted into D. DE now holds the screen address.
+	XOR $40
+	LD D,A
+	LD B,$60	    ;B counts the 96 characters.
+S_SCRN_LP		    
+    PUSH BC	        ;Save the count.
+	PUSH DE	        ;And the screen pointer.
+	PUSH HL	        ;And the character set pointer.
+	LD A,(DE)	    ;Get first row of screen character.
+	XOR (HL)	    ;Match with row from character set.
+	JR Z,S_SC_MTCH	;Jump if direct match found.
+	INC A	        ;Now test for match with inverse character (get +00 in A from +FF).
+	JR NZ,S_SCR_NXT	;Jump if neither match found.
+	DEC A	        ;Restore +FF to A.
+S_SC_MTCH		
+    LD C,A	        ;Inverse status (+00 or +FF) to C.
+	LD B,$07	    ;B counts through the other 7 rows.
+S_SC_ROWS		
+    INC D	        ;Move DE to next row (add +0100).
+	INC HL	        ;Move HL to next row (i.e. next byte).
+	LD A,(DE)	    ;Get the screen row.
+	XOR (HL)	    ;Match with row from the ROM.
+	XOR C       	;Include the inverse status.
+	JR NZ,S_SCR_NXT	;Jump if row fails to match.
+	DJNZ S_SC_ROWS	;Jump back till all rows done.
+	POP BC	        ;Discard character set pointer.
+	POP BC	        ;And screen pointer.
+	POP BC	        ;Final count to BC.
+	LD A,$80	    ;Last character code in set plus one.
+	SUB B	        ;A now holds required code.
+    LD  BC,3        ;We want to store 1 Character + Length
+    LD  D,A         ;The character
+    LD  A,ZXHeapTypeTemp
+    CALL ZXAlloc
+    DEC  BC
+    DEC  BC
+    LD  (HL),BC
+    inc HL
+    LD (HL),D
+    ret
+S_SCR_NXT		
+    POP HL	        ;Restore character set pointer.
+	LD DE,$0008	    ;Move it on 8 bytes, to the next character in the set.
+	ADD HL,DE
+	POP DE	        ;Restore the screen pointer.
+	POP BC	        ;And the counter.
+	DJNZ S_SCRN_LP	;Loop back for the 96 characters.
+	LD   HL,0       ;Nothing found, String is empty
+    ret
+
+runtimeTab
+    ld a,0
+    ld (iy+2),a
+    ld b,($5C88)
+    ld c,l
+    ld a,24
+    sub b
+    jp  c,runtinePrintAtErr
+    ld b,a
+    ld a,33
+    sub c
+    jp  c,runtinePrintAtErr
+    ld c,a
+    call zxromClSet
+    
+runtimeTabLoop:    
+    ret
 runtimeDebug:   
     if DEBUGGER=0
     ret
