@@ -18,6 +18,7 @@ https://animatedal.itch.io/slow-manic-willy
 Slow Manic Will compiles in integer mode without any compiler instructions
 
 ## Download
+Placed with kind permission below.
 You can download the compiled version heare.
 https://github.com/tquester/ZXBasicCompiler/blob/main/games/slowwilly/slowwilly.tap
 
