@@ -22,7 +22,7 @@ https://www.youtube.com/watch?v=JDasUpPmeX4
 ## Compiling
 361 fine BASIC lines have been compiled into 4483 lines of assembler
 
-Slow Manic Will compiles in integer mode without any compiler instructions
+Slow Manic Willy compiles in integer mode without any compiler instructions
 
 ## Download
 Placed with kind permission below.
