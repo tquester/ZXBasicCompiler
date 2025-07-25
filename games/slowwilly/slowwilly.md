@@ -23,6 +23,7 @@ https://www.youtube.com/watch?v=JDasUpPmeX4
 361 fine BASIC lines have been compiled into 4483 lines of assembler
 
 Slow Manic Willy compiles in integer mode without any compiler instructions. Floating point is used for RND which is multiplied by a factor and stored as an integer. This may cause an overflow if the random number is nearly one and should be modified to INK INT(RND*6)+1 
+```
 ; 		1000.3  INK  INT ( RND *7)+1
 	CALL runtimeRND
 	LD HL,7
@@ -33,7 +34,7 @@ Slow Manic Willy compiles in integer mode without any compiler instructions. Flo
 	CALL runtimeFloatToInt
 	INC HL
 	CALL runtimeInk
-
+```
 
 ## Download
 Placed with kind permission below.
