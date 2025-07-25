@@ -17,5 +17,8 @@ Slow Manic Will compiles in integer mode without any compiler instructions
 
 ## Download
 
+https://github.com/tquester/ZXBasicCompiler/blob/main/games/slowwilly/slowwilly.tap
+
+
 
 
