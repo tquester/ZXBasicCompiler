@@ -37,7 +37,7 @@ Slow Manic Willy compiles in integer mode without any compiler instructions. Flo
 ```
 
 ## Download
-Placed with kind permission below.
+Thanks for permission to puiblish the compiled version
 https://github.com/tquester/ZXBasicCompiler/blob/main/games/slowwilly/slowwilly.tap
 
 The original BASIC-Version can be found on the itch-page (see Original)
