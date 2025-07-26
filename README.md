@@ -94,10 +94,11 @@ Most of the speed comes from optimization with integer numbers, which are proces
 
 Version | Ticks
 ------- | -----
-BASIC   | 
+BASIC   | 7807
 ZXCompiler Integer | 121
-ZXCompiler Float |
+ZXCompiler Float | 2798
 MCoder | 1408
+
 ## Original in Basic:
 ![plot_basic](https://github.com/user-attachments/assets/345013ba-d3f8-418b-8e68-745ea46f87f1)
 
