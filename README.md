@@ -92,6 +92,12 @@ Part of the speed comes from the fact that the lines no longer need to be interp
 
 Most of the speed comes from optimization with integer numbers, which are processed directly by the processor instead of via routines in the ZX Spectrum ROM. In addition, the compiler's optimizer can remove or rearrange many instructions from the code. This is only possible to a limited extent with floating point operations. Among other things, the calls for mathematical operations in the calculator (RST $28) are written directly into the code, after which contiguous blocks are combined into a larger block.
 
+Version | Ticks
+------- | -----
+BASIC   | 
+ZXCompiler Integer | 121
+ZXCompiler Float |
+MCoder | 1408
 ## Original in Basic:
 ![plot_basic](https://github.com/user-attachments/assets/345013ba-d3f8-418b-8e68-745ea46f87f1)
 
