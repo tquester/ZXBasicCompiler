@@ -589,6 +589,15 @@ runtimeCode1:
 runtimeSetStream:
     ret    
 
+runtimePauseAbs
+    halt    
+    dec hl
+    ld  a,h
+    or  l
+    jr  nz,runtimePauseAbs
+    ret
+    
+
 runtimePause:
     ld   BC,HL
     jp   $1F3D;     PAUsE
@@ -2488,7 +2497,7 @@ runtimeBiggerEqualString
 
 
 runtimePoint
-    ret
+
 	LD B,L
 	LD C,E
     CALL $22AA      ; PIXEL_ADD	Pixel address to HL.
@@ -2503,6 +2512,8 @@ POINT_LP
     LD  H,0
     ret
 runtimeScreen
+    ld B,L
+    LD C,E
 	LD HL,($5C36)	;CHARS plus +0100 gives HL pointing to the character set.
 	LD DE,$0100
 	ADD HL,DE
@@ -2552,7 +2563,11 @@ S_SC_ROWS
     DEC  BC
     LD  (HL),BC
     inc HL
+    inc hl
     LD (HL),D
+    dec HL
+    DEC HL
+    
     ret
 S_SCR_NXT		
     POP HL	        ;Restore character set pointer.
