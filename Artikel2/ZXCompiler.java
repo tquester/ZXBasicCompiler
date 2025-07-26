@@ -528,11 +528,11 @@ public class ZXCompiler {
 		int id=0;
 		while (id < words.length) {
 			    String word = words[id++].trim();
-				if (word.compareTo("asm") == 0) {
+			    switch(word.toLowerCase()) {
+			    case "asm":
 					id = compileRemAsm(words, id);
 					return;
-				}
-				else if (word.compareToIgnoreCase("data") == 0) {
+			    case "data":
 					if (id >= words.length) break;
 					word = words[id++].trim();;
 					
@@ -540,14 +540,19 @@ public class ZXCompiler {
 						case "int16": mDefaultDataType = VARTYP.TYPE_INT; break;
 						case "float": mDefaultDataType = VARTYP.TYPE_FLOAT; break;
 					}
-				}
-				else if (word.compareToIgnoreCase("float") == 0) { 
+					break;
+			    case "float":
 					typ = VARTYP.TYPE_FLOAT;
 					id = compileRemVarsToType(typ, words, id);
-				}
-				else if (word.compareToIgnoreCase("int16") == 0) {
+					break;
+			    case "int16":
 					typ = VARTYP.TYPE_INT;
 					id = compileRemVarsToType(typ, words, id);
+					break;
+			    case "pause":
+			    	mEmitter.emitPushInteger(words[id]);
+			    	mEmitter.emitPauseAbs();
+			    	break;
 				}
 			}
 		
@@ -1064,24 +1069,15 @@ public class ZXCompiler {
 		   match(ZXTokenTyp.ZX_Closebracket);
 		} else
 			mEmitter.emitPushVarAddress(var);
-		mEmitter.emitReadString(var.name);
+		mEmitter.emitReadString();
 
 		VARTYP typ = VARTYP.TYPE_STRING;
-		if (!isStringTyp(typ)) {
-			error("Expeced String");
-			return;
-		}
 		if (bSetSubstring) {
 			if (typ == VARTYP.TYPE_STRING)
 				mEmitter.emitAssignFixedStringWithRange();
-			if (typ == VARTYP.TYPE_FIXSTRING)
-				mEmitter.emitAssignFixedStringFixStringWithRange(mPopSize);
 		} else {
 			if (typ == VARTYP.TYPE_STRING) {
 				mEmitter.emitAssignFixedString(stringSize);
-			}
-			if (typ == VARTYP.TYPE_FIXSTRING) {
-				mEmitter.emitAssignFixedFixedString(stringSize, mPopSize);
 			}
 		}
 	}

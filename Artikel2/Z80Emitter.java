@@ -1221,7 +1221,17 @@ public class Z80Emitter {
 		emitCommand("LD", "(DATAPTR)", "HL");
 	}
 	
-	// reads (BASCIC READ) a string, pushes the BASIC String to the stack
+
+	public void emitReadString() {
+		emitCommand("LD", "HL", "(DATAPTR)");
+		emitCommand("PUSH","HL");
+		emitCommand("LD", "BC","(HL)");
+		emitCommand("INC", "HL");
+		emitCommand("INC", "HL");
+		emitCommand("ADD","HL","BC");
+		emitCommand("LD", "(DATAPTR)", "HL");
+	}
+// reads (BASCIC READ) a string, pushes the BASIC String to the stack
 	public void emitReadString(String name, boolean isArray, Variable var) {
 		if (isArray == false) {
 			if (mSettingsInline) {
@@ -1328,6 +1338,7 @@ public class Z80Emitter {
 				emitCommand("AND", "$80");
 				emitCommand("JR", "Z", lbl + "_1");
 				emitCommand("SUB", "HL", "DE");
+				emitCommand("JP", "Z", lbl + "_2");
 				emitCommand("JP", "NC", lbl);
 				emitCommand("JR", lbl + "_2");
 				emitCommandLabel(lbl + "_1");
@@ -1412,6 +1423,12 @@ public class Z80Emitter {
 		emitCommand("PUSH","HL");
 	}
 	public void emitPause() {
+		emitCommand("POP", "HL");
+		emitCommand("CALL", "runtimePause");
+
+	}
+
+	public void emitPauseAbs() {
 		emitCommand("POP", "HL");
 		emitCommand("CALL", "runtimePause");
 
