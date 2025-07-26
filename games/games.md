@@ -6,7 +6,7 @@ Sokoban bx Simon Ferré|
 Slow willy by Animated Alex |
 ![slowwilly](https://github.com/user-attachments/assets/535b40b7-1255-4903-9c47-6b1ebb2f7f78) | <b>Is it possible to write Manic Miner in BASIC?</b><br> Animated Alex did the impossible [Details](https://github.com/tquester/ZXBasicCompiler/blob/main/games/slowwilly/slowwilly.md)
 ----- | ----
-Sinclair BASIC by Animated Ales
+Sinclair BASIC by Animated Alex
 ![sinclair](https://github.com/tquester/ZXBasicCompiler/blob/main/games/sinclairbasic/sbasic.gif) | <b>Save the BASIC</b><br>[detaill](https://github.com/tquester/ZXBasicCompiler/blob/main/games/sinclairbasic/sbasic.md)
 
 
