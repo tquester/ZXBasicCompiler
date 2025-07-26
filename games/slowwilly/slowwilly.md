@@ -18,6 +18,7 @@ https://www.youtube.com/watch?v=JDasUpPmeX4
 * Since the compiled version runs about 10-20 times faster some pause needed to be added
 * The first PAUSE is in line 100 the main game loop
 * A second pause has been added in line 205.  In line 205, Willy is drawn with his legs open. Without the pause, it would be immediately overwritten and it would look as if he were teleporting.
+* Changed line 2000 to 2000  BEEP 0.05,p, so that the first argument is treated as float. 
 
 ## Compiling
 361 fine BASIC lines have been compiled into 4483 lines of assembler
