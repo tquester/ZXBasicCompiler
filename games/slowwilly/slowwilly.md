@@ -3,7 +3,8 @@ by Animated Alex
 
 Game | Assembler
 -----|-----
-![slowwilly](https://github.com/user-attachments/assets/535b40b7-1255-4903-9c47-6b1ebb2f7f78) | <img width="328" height="348" alt="image" src="https://github.com/user-attachments/assets/e89a5ddd-ab9f-48f7-b833-3622fdb8a25c" />
+![slowwilly](https://github.com/user-attachments/assets/535b40b7-1255-4903-9c47-6b1ebb2f7f78) | <img width="327" height="278" alt="image" src="https://github.com/user-attachments/assets/ff37e46b-921b-40a8-be77-297fe5ac9d03" />
+
 
 
 ## Original
