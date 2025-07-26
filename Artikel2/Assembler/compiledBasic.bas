@@ -1,305 +1,363 @@
-2  CLEAR 65329
-3  LET start=65330
-4  LET errsp= PEEK 23613+256* PEEK 23614
-5  REM  POKE errsp,start-256* INT (start/256)
-6  REM  POKE errsp+1, INT (start/256)
-7  READ n
-8  FOR j=start TO start+n-1
-9  READ a
-10  NEXT j
-11  DATA 33,33,3,19,58,58,92,254,20,40,4,254,12,32,15,33
-12  DATA start-256* INT (start/256), INT (start/256)
-13  DATA 229,253,54,0,255,253,203,1,174,195,125,27,229,195,3,19
-20  REM *** SINCLAIR BASIC ***
-25  RESTORE 1030
-30  DIM a$(2,9)
-40  GOSUB 1030
-50  GOSUB 590
-60  GOSUB 790
-70  GOSUB 890
-80  REM ===== LOOP =====
-90  GOSUB 390
-100  LET k$= INKEY$ :
-     LET k= IN 57342:
-     LET k1= IN 64510:
-     LET jj= IN 31
-101  REM pause 9
-105  IF r=1 THEN  LET x=x+(k=190 AND x<25)-(k=189 AND x>6):
-     LET y=y+(k$="" AND y<20)-(k1=190 AND y>1)
-110  IF r=2 THEN  LET x=x+(jj=1 AND x<25)-(jj=2 AND x>6):
-     LET y=y+(jj=0 AND y<20)-(jj=8 AND y>1)
-120  IF  POINT (x*8,8*(21-y))=1 THEN  LET x=ox:
+1  REM ** SLOW MANIC WILLY **
+2  REM  * by Animated ALex *
+3  REM MUSIC - Damien Redmond
+4  REM * LINE 1880 48k only *
+5  REM 
+10  PAPER 0:
+     CLS :
+     PAPER 0:
+     INK 7:
+     BORDER 2
+20  LET win=0
+30  RESTORE 1460
+50  GOSUB 1420
+60  GOSUB 1810
+70  GOSUB 840
+80  GOSUB 1100
+90  REM **** GAME LOOP ****
+100  PAUSE 5:
+     LET g= IN 64510:
+     LET i= IN 57342
+101  IF  IN 64510=190 THEN  LET j=1:
+     LET jj=3:
+     LET f=0:
+     GOSUB 815
+102  IF i=190 AND x<30 THEN  LET x=x+1:
+     LET fl=2:
+     LET fr=2:
+     LET fg=1:
+     LET wk=wk+1
+103  IF i=189 AND x>1 THEN  LET x=x-1:
+     LET fl=1:
+     LET fr=1:
+     LET fg=2:
+     LET wk=wk+1
+110  IF hf=11 THEN  GOSUB 822
+112  IF hf <= 10 THEN  IF  ATTR (oy+1,ox-1)=5 THEN  LET hf=hf+15:
+     PRINT  AT oy+1,ox-1;" ":
+     FOR o=30 TO 45:
+     BEEP .03,o:
+     NEXT o:
+     LET ae=0:
+     PRINT  AT 21,9; PAPER 0;"            ":
+     GOSUB 825
+115  GOSUB n
+150  IF  ATTR (y+2,x)=7 THEN  LET y=y+0.925:
+     LET j=0:
+     LET f=f+1
+160  LET j=0
+190  IF  ATTR (oy+2,ox)=32 THEN  GOSUB l
+195  IF  ATTR (y+1,x)=32 THEN  GOSUB l
+200  LET c=c+b
+205  IF wk=1 THEN  PRINT  AT oy+1,ox;d$(fl);:
+     PAUSE 5:
+     LET wk=0
+230  IF  ATTR (oy+2,ox)=16 THEN  PRINT  AT oy+2,ox-1; INK 0; PAPER 2;"\157";:
+     BEEP 0.0003,65:
+     PRINT  AT oy+2,ox-1; PAPER 0;" ":
+     LET f=0
+240  IF k=5 THEN  GOSUB 720
+250  IF  IN 64510=190 THEN  LET j=1:
+     LET jj=3:
+     LET f=0:
+     GOSUB 815
+280  IF y+1=3 THEN  LET jj=2
+285  IF (f=p) OR (hf <= 0) THEN  GOSUB l
+290  IF  ATTR (y+2,x)=132 THEN  LET x=x-1:
+     BEEP 0.0001,65:
+     LET f=0
+300  IF j=1 THEN  IF  ATTR (oy+2,x) <> 7 THEN  LET y=y-jj:
+     LET j=0:
+     LET jj=0:
+     LET hf=hf-1:
+     LET f=0:
+     BEEP .0003,60
+320  IF  ATTR (y-1,x)=48 THEN  BEEP .01,12:
+     PRINT  AT y-1,x;" ":
+     LET k=k+1
+325  IF  ATTR (y+1,x-1)=48 THEN  BEEP .01,12:
+     PRINT  AT y+1,x-1;" ":
+     LET k=k+1
+330  IF  ATTR (y+2,x)=48 THEN  BEEP .01,12:
+     PRINT  AT y+2,x;" ":
+     LET k=k+1
+331  IF  ATTR (y,x)=3 THEN  BEEP .01,12:
+     BEEP .02,35:
+     PRINT  AT y,x;" ":
+     GOSUB l
+335  IF  ATTR (y,x)=48 THEN  BEEP .01,12:
+     PRINT  AT y,x;" ":
+     LET k=k+1
+340  IF oy <> y OR ox <> x THEN  PRINT  AT oy,ox;" "; AT oy+1,ox;" "
+350  PRINT  AT y,x; INK 7;c$(fr); AT y+1,x;e$(fg);:
+     PAUSE 3
+360  LET oy=y:
+     LET ox=x
+365  GOTO 100
+370  REM *** ROBOT MOVEMENT ***
+486  IF  ATTR (y+1,x)=2 THEN  LET y=oy:
+     LET x=ox
+488  IF  ATTR (y,x)=2 THEN  LET x=ox:
      LET y=oy
-130  IF oy <> y OR ox <> x THEN  PRINT  AT oy,ox;" "
-140  IF  ATTR (y,x)=175 THEN  BEEP .01,12:
-     LET q=q+1
-150  GOSUB 190
-160  PRINT  AT y,x; INK 1;g$(1)
-170  LET oy=y:
-     LET ox=x
-180  GOTO 80
-190  REM ==== LETTERS ====
-200  IF q<5 THEN  RETURN 
-210  LET s$= SCREEN (y,x)
-220  IF s$=a$(o,n) THEN  PRINT  AT 21,v;a$(o,n):
-     FOR g=40 TO 50:
-     BEEP .05,g:
-     NEXT g:
-     LET n=n+1:
-     LET v=v+1:
-     GOSUB wall
-230  IF n=9 THEN  LET v=v+1:
-     LET o=o+1:
-     LET n=1
-240  IF q=5 THEN  PRINT  AT 1,15; INK 2;a$(o,n)
-250  RETURN 
-260  REM *** WALL GAPS ***
-270  IF o=2 AND n=6  THEN  GOTO 700
-280  LET q=0:
-     LET y=20:
-     LET x=10
-290  IF q=0 THEN  PRINT  AT 1,15;" "
-300  PRINT  AT 19,7; INK 0;"\143\143\143\143\143\143\143\143\143\143\143\143\143\143\143\143\143\143\143"; AT 16,7; INK 0;"\143\143\143\143\143\143\143\143\143\143\143\143\143\143\143\143\143\143\143"
-310  PRINT  AT 19, INT ( RND *16)+8;" "; AT 16, INT ( RND *10)+10;" "
-320  PRINT  AT 3,7; INK 0;"\143\143\143\143\143\143\143\143\143\143\143\143\143\143\143\143\143\143\143"; AT 5,7; INK 0;"\143\143\143\143\143\143\143\143\143\143\143\143\143\143\143\143\143\143\143"
-330  PRINT  AT 3, INT ( RND *10)+10;" "; AT 5, INT ( RND *16)+8;" "
-340  BEEP .001,10:
-     BEEP .002,20
-350  PRINT  AT 16,4; INK 1;lf
-360  IF lf=0 THEN  PRINT  AT 16,2; INK 2; PAPER 7;"\150":
-     FOR r=1 TO 2:
-     FOR g=60 TO 10 STEP -1:
-     BEEP 0.004,5+g:
-     PRINT  AT 10,12; INK 2; FLASH 1;"GAME OVER"; FLASH 0:
-     NEXT g:
-     NEXT r:
-     CLS :
-     GOTO 20
-370  PRINT  AT 18,24; FLASH 1; INK 7;"\144"; AT 14,7; INK 7;"\144"; AT 12,24; INK 7;"\144"; AT 8,7; INK 7;"\144"; AT 4,24; INK 7;"\144"
-380  RETURN 
-390  LET h=h+j
-400  LET p=p-i
-410  PRINT  AT 7,h; INK 3;" \144\145"; INK 0; CHR$ 143
-420  PRINT  AT 10,p; INK 0; CHR$ 143; INK 3;"\145\144 "
-430  PRINT  AT 13,h; INK 3;" \144\145"; INK 0; CHR$ 143
-440  LET j=j+(h<14)-(h>18)
-450  LET i=i+(p>12)-(p<8)
-460  PRINT  AT 10,p+7;" "; INK 3;"\144\145"; INK 0; CHR$ 143
-470  LET a=a+b:
-     LET d=d-e
-480  LET b=b+(a<8)-(a>17)
-490  LET e=e+(d>17)-(d<8)
-500  PRINT  AT c+1,a;" \144\145\150\145\144 "
-510  PRINT  AT c+6,a;" \144\145\150\145\144 "
-520  PRINT  AT c+12,a;" \144\145\150\145\144 "
-530  PRINT  AT f,d;" \144\145\150\145\144 "
-540  PRINT  AT f+7,d;" \144\145\150\145\144 "
-550  PRINT  AT f+13,d;" \144\145\150\145\144 "
-560  IF  ATTR (y,x)=43 THEN  FOR t=50 TO 45 STEP -1:
-     FOR w=1 TO 5:
-     GOSUB 1000:
-     PRINT  AT y,x; INK w;g$(w):
-     BEEP 0.004,5+t:
-     NEXT w:
-     NEXT t:
-     LET lf=lf-1:
-     GOSUB wall
-580  RETURN 
-590  REM === START UP INTRO ===
-591  LET r=0
-600  PAPER 5:
-     BORDER 5:
-     INK 0:
-     CLS :
-     PAPER 5:
-    
-610  INK 3:
-     PLOT 0,0:
-     DRAW 255,0:
-     DRAW 0,175:
-     DRAW -255,0:
-     DRAW 0,-175:
-     PLOT 6,6:
-     DRAW 242,0:
-     DRAW 0,162:
-     DRAW -242,0:
-     DRAW 0,-162
-615  GOSUB 1090
-620  REM !! LINE 630 48K ONLY !! 
-630  FOR a=0 TO 7:
-     INK 0:
-     POKE 23680,3:
-     POKE 23681,72+a:
-     LPRINT "S I N C L A I R  B A S I C":
-     NEXT a
-640  PRINT  AT 16,7; INK 2;"Retrieve it back"; AT 17,6;"collect the letters"
-650  PRINT  AT 19,6; INK 7; FLASH 1;"\144"; FLASH 0; INK 3;"1=KEYS "; INK 7; FLASH 1;"\144"; FLASH 0; INK 3;"2=KEMPSTON"
-660  PRINT  AT 5,7; INK 2;"The EVIL BOX HEADS"; INK 2; AT 6,4;"have stolen The Spectrum"; INK 2; AT 7,6;"programming language";
-670  PRINT #1; TAB 7;"by Animated ALex"
-675  FOR l=1 TO 5:
-     PRINT  AT 19,4; INK 1;l$(l):
-     PAUSE 1:
-    
-680  BEEP 0.04, INT ( RND *10)+5:
-     BEEP 0.03, INT ( RND *10)+1:
-     NEXT l
-681  IF  INKEY$ ="1" THEN  LET r=1:
-     RETURN 
-682  IF  INKEY$ ="2" THEN  LET r=2:
-     RETURN 
-685  FOR l=1 TO 4:
-     PRINT  AT 19,4; INK 1;l$(l):
-     FOR a=1 TO 5:
-     NEXT a:
-     NEXT l
-690  GOTO 675
-700  REM *** COMPLETE *** 
-710  PRINT  AT 1,15;" "
-720  FOR a=0 TO 7:
-     INK 0:
-     POKE 23680,7:
-     POKE 23681,72+a:
-     LPRINT "C O M P L E T E D":
-     NEXT a
-730   PRINT  AT 16,11; INK  INT ( RND *8)+1;"WELL DONE"
-740  BEEP 0.003, INT ( RND *50)+5:
-     IF  INKEY$  <> "" THEN  CLS :
-     GOTO 20
-750  FOR w=1 TO 5
-760  GOSUB 1000
-770  NEXT w
-780  GOTO 730
-790  REM *** Variables ***
-810  LET q=0:
-     LET a=0:
-     LET b=1:
-     LET c=5
-815  LET lf=5
-820  LET wall=260:
-     LET w=1:
-     LET v=9
-830  LET d=8:
-     LET e=1:
-     LET f=2
-840  LET h=14:
-     LET j=1
-850  LET y=20:
-     LET x=10:
+489  IF  ATTR (y,x)=4 THEN  LET y=oy:
+     LET x=ox
+490  IF  ATTR (y+1,x)=16 THEN  LET x=ox
+510  LET b=b+(c<8)-(c>13)
+520  IF oc <> c THEN  PRINT  AT 9,oc;" "; AT 10,oc;" "
+530  IF b=-1 THEN  PRINT  AT 10,c; INK 6;"\150"; AT 9,c; INK 6;"\148"
+540  IF c=14 THEN  PRINT  AT 10,c; INK 6;"\150"; AT 9,c; INK 6;"\148"
+550  IF b=1 THEN  PRINT  AT 10,c; INK 6;"\156"; AT 9,c; INK 6; PAPER 0;"\149"
+560  IF c=7 THEN  PRINT  AT 10,c; INK 6;"\156"; AT 9,c; INK 6;"\149"
+570  LET oc=c
+580  IF (y>9 AND x>10) THEN  PRINT  AT 11,19; PAPER 4; INK 0;"\155"; AT 11,20; PAPER 4; INK 0; INVERSE 1;"\155"; INVERSE 0; PAPER 0; INK 4; FLASH 1;"\162 TRUM \162 TRUM "; FLASH 0;"\155"
+590  IF (y>4 OR y<8) AND (x>5 OR x<14) THEN  IF  ABSX (y+1-10)<2 AND  ABSX (x-c)<2 THEN  GOSUB l
+610  IF  ATTR (y,x)=6 THEN  GOSUB l
+615  IF (y<7 AND x>4) THEN  PRINT  AT 5,6; INK 2;"\154\154\154\154"; AT 5,14; INK 2;"\154\154\154\154\154\154\154"
+625  IF (y >= 15 AND x >= 29) THEN  LET win=1:
+     GOTO 1760
+700  RETURN 
+720  REM *** Door open ***
+730  IF k<5 THEN  RETURN 
+740  IF k=5 THEN  FOR o=17 TO 16 STEP -1:
+     BEEP .01,o:
+     BEEP .02,10:
+     PRINT  AT o,28; INK 0;"xxx":
+     NEXT o:
+     LET p=11:
+     LET k=6
+770  GOSUB 790
+780  RETURN 
+790  REM *** SCORE REFRESH ***
+800  PRINT  AT 20,0; INK 5;"AIR"
+810   PRINT  AT 20,26; INK 7;"\160"; AT 21,26;"\161"; CHR$ 128;lf;
+815  PRINT  AT 20,4; FLASH ae;hf; FLASH 0; CHR$ 128
+820  RETURN 
+821  REM *** Power Up ***
+822  FOR o=40 TO 45:
+     BEEP 0.04,o:
+     NEXT o:
+     BEEP .05,25:
+     PRINT  AT 10,2; INK 5;" PLAY "
+823  LET hf=10:
+     LET ae=1
+824  PRINT  AT 21,9; INK 5; PAPER 1; FLASH 1;"INCREASE AIR"; FLASH 0
+825  RETURN 
+830  REM **** VARIABLES ****
+840  LET k=0:
+     LET y=15:
      LET oy=y:
+     LET x=3:
      LET ox=x
-860  LET i=1:
-     LET p=8:
-     LET o=1:
-     LET n=1
-870  FOR u=1 TO 2:
-     READ a$(u):
-     NEXT u
-880  RETURN 
-890  PAPER 5:
+845  LET wk=0
+850  INK 7:
+     PAPER 0:
+     BORDER 2
+860  LET n=484:
+     LET l=990
+870  LET t=3:
+     LET ss=1:
+     LET ot=t
+890  LET m=1:
+     LET e=1
+900  LET j=0:
+     LET jj=3
+910  LET d=0:
+     LET c=8:
+     LET b=1
+930  LET lf=3:
+     LET f=0:
+     LET p=7
+940  LET hf=15:
+     LET oc=c
+950  LET c$="\144\160":
+     LET d$="\145\161":
+     LET e$="\146\147"
+960  LET fg=2:
+     LET fl=1:
+     LET fr=1
+970  LET h=0:
+     LET s=0:
+     LET ae=0
+980  RETURN 
+990  REM *** LOST LIFE ***
+1000  FOR k=40 TO 30 STEP -1:
+     BEEP .003,k:
+     INK  INT ( RND *7)+1:
+     PRINT  AT oy,ox;c$(fr); AT oy+1,ox;d$(fl):
+     NEXT k:
+     INK 7
+1020  LET lf=lf-1
+1030  IF lf=0 THEN  GOTO 1680
+1040  IF hf <= 10 THEN  LET hf=15:
+     LET ae=0
+1050  LET y=16:
+     LET x=3:
+     LET f=0
+1060  CLS :
+     PAPER 0:
+     INK 7:
+     BORDER 2
+1070  GOSUB 1100
+1090  RETURN 
+1095  RESTORE 2140
+1100  REM *** LEVEL 1 ***
+1110  INK 7:
+     LET k=0
+1120  GOSUB 790
+1140  PRINT  AT 18,0; INK 2; PAPER 6;"\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154"; AT 16,19; PAPER 0; INK 2;"\133"; INK 2; PAPER 6;"\155\155\155"; INK 2; PAPER 0;"\138"
+1150  FOR a=16 TO 17:
+     PRINT  AT a,28; INK 6;"\159\159\159":
+     NEXT a
+1160  PRINT  AT 15,23; INK 0; PAPER 2;"\154\154\154\154\154"; INK 2; PAPER 0;"\155\155\155"; AT 12,28; INK 2; PAPER 0;"\154\154\154"
+1170  PRINT  AT 17,6; INK 2; INVERSE 0;"\151\157\151\157\151\157\151\157\151\157\151\157\151\157\151\157\151\138"; INK 0; AT 17,18; AT 10,15; INK 2; PAPER 6;"\155\155\155\155\155"
+1180  PRINT  AT 11,7; INK 4; PAPER 0;"\155"; FLASH 1;"\162 TRUM \162 TRUM \162 TRUM "; FLASH 0; INK 4; PAPER 0;"\155"; AT 11,15; PAPER 4; INK 0;"\155\155\155\155\155"; AT 11,1; INK 2; PAPER 0;"\154\154\154\154"
+1190  PRINT  AT 11,20; INK 0; PAPER 4; INVERSE 1;"\155"; PAPER 0; INK 4; FLASH 1; INVERSE 0;"\162 TRUM \162 TRUM "; FLASH 0; PAPER 0; INK 4;"\155"; AT 8,1; PAPER 0; INK 2;"\154\154\154"
+1200  PRINT  AT 5,1; INK 2;"\154\154\154\154\154\154\154\154\154"; PAPER 2; INK 0;"\154\154\154\154"; INK 2; PAPER 0;"\154\154\154\154\154\154\154"; AT 5,21; INK 0; PAPER 2;"\154\154\154"; AT 5,24; INK 2; PAPER 0;"\154\154\154\154\154\154\154"
+1210  PRINT  AT 19,0; PAPER 6; INK 0;"       The BASIC Cavern         "
+1220  FOR w=0 TO 19:
+     PRINT  AT w,0; INK 2; PAPER 6;"\137"; AT w,31; INK 2; PAPER 6;"\134":
+     NEXT w:
+     PAPER 0:
+     PRINT  AT 0,9; PAPER 6; INK 0;"\152"; AT 1,18; PAPER 6; INK 0;"\152"; AT 0,28; PAPER 6; INK 0;"\152"; AT 4,25; PAPER 6; INK 0;"\152"; AT 7,30; PAPER 6; INK 0;"\152"
+1230  PRINT  AT 0,12; INK 3;"\151"; AT 0,17; INK 3;"\151"; AT 16,10; INK 0; PAPER 4;"\153"; AT 10,20; INK 0; PAPER 4;"\153"; AT 4,24; INK 0; PAPER 4;"\153"; AT 4,27; INK 0; PAPER 4;"\153"; PAPER 0
+1240  LET oy=y:
+     LET ox=x
+1250  RETURN 
+1410  REM *** UGDS ***
+1420  FOR g=0 TO 167
+1430  READ dat
+1440  POKE  USR "a"+g,dat
+1450  NEXT g
+1460  DATA 192,252,126,124,92,252,124,124
+1470  DATA 24,62,127,221,28,182,227,71
+1480  DATA 24,56,124,118,126,60,108,126
+1490  DATA 24,28,62,110,126,60,54,126
+1500  DATA 28,190,231,231,190,28,62,255
+1510  DATA 56,125,231,231,125,56,124,255
+1520   DATA 247,14,124,56,24,24,60,255
+1530  DATA 255,255,127,118,54,52,16,16
+1540  DATA 227,221,235,247,247,243,241,247
+1550  DATA 251,251,107,171,166,181,149,193
+1560  DATA 255,255,219,183,255,109,73,146
+1570  DATA 255,255,24,24,255,24,129,255
+1580  DATA 239,112,62,28,24,24,60,255
+1590  DATA 255,255,255,255,182,109,73,146
+1600  DATA 136,248,136,142,137,129,145,255
+1610  DATA 216,168,216,168,216,168,216,168
+1620  DATA 3,63,126,62,58,63,62,62
+1630  DATA 24,124,254,187,56,109,199,226
+1640  DATA 24,24,24,24,231,231,231,231
+1650  DATA 231,231,231,231,24,24,24,24
+1660  DATA 220,223,37,221,223,38,252,120
+1670  RETURN 
+1680  REM *** BOOT CRUSH ***
+1690  CLS :
+     BRIGHT 1:
+     PAPER 1:
+     INK 7:
      CLS :
-     PAPER 5:
-     BORDER 0:
-     INK 0:
+     PAPER 1:
      CLS 
-895  IF r=1 THEN  PRINT  AT 21,6; INK 1; FLASH 1;"O=left P=right Q=up "; FLASH 0
-900  FOR s=1 TO 20:
-     PRINT  AT s,1; INK 5; PAPER 3;"\145\145\145\145\145":
-     NEXT s
-910  FOR s=1 TO 20:
-     PRINT  AT s,26; INK 5; PAPER 3;"\145\145\145\145\145":
-     NEXT s
-920  FOR g=0 TO 31:
-     PRINT  AT 7,g; CHR$ 143:
-     NEXT g
-930  FOR g=31 TO 0 STEP -1:
-     PRINT  AT 13,g; CHR$ 143:
-     NEXT g
-935  IF r=1 THEN  PRINT  AT 21,6; INK 1;"                    "
-940  FOR g=0 TO 21:
-     PRINT  AT g,6; CHR$ 143;:
-     NEXT g:
-     FOR g=0 TO 21:
-     PRINT  AT g,25; CHR$ 143:
-     NEXT g
-950  PRINT  AT 10,18;"\143\143\143\143\143\143\143\143"
-960  INK 3:
-     PLOT 0,0:
-     DRAW 255,0:
-     DRAW 0,175:
-     DRAW -255,0:
-     DRAW 0,-175:
-     PLOT 6,7:
-     DRAW 242,0:
-     DRAW 0,161:
-     DRAW -242,0:
-     DRAW 0,-161
-970  PRINT  AT 8,10;"SKILL LEVEL"; AT 9,12;"1 or 2?"
-990  GOSUB wall
-995  IF  INKEY$ ="1" THEN  PRINT  AT 8,10;"           "; AT 9,12;"       ":
-     LET a=11:
-     GOTO 1000
-996  IF  INKEY$ ="2" THEN  PRINT  AT 8,10;"           "; AT 9,12;"       ":
-     LET a=17:
-     GOTO 1000
-997  GOTO 995
-1000  PRINT  AT 16,2; INK 1;g$(w); AT 17,2; INK 2;"\151"; AT 18,2; INK 1;l$(w)
-1010  PRINT  AT 0,7; OVER 1; INK 3;"\144\144\144\144\144\144\144\144\144\144\144\144\144\144\144\144\144\144"; AT 21,7; INK 3;"\144\144\144\144\144\144\144\144\144\144\144\144\144\144\144\144\144\144"; OVER 0
-1020  RETURN 
-1030  REM *** UDG ***
-1040   FOR l=0 TO 87:
-     READ dat:
-     POKE  USR "a"+l,dat:
-     NEXT l:
-     RETURN :
-     DATA 0,0,60,60,60,60,0,0,0,126,126,126,126,126,126,0,126,195,165,129,189,231,126,60
-1050  DATA 124,198,175,139,139,175,198,124,60,126,231,189,129,165,195,126,62,99,245,209,209,245,99,62,255,153,153,255,231,219,189,255
-1060  DATA 24,126,231,173,165,181,165,60,60,36,36,36,36,36,36,102,60,36,68,132,68,52,36,71,60,36,34,33,34,44,36,226
-1070  REM 
-1080  DATA "SINCLAIR ","BASIC"
-1090  INK 3:
-     REM Draw Box head
-2000  PLOT 110,140:
-     DRAW 20,-3:
-     DRAW 0,20:
-     DRAW -20,3:
-     DRAW 0,-20
-2010  PLOT 95,148:
-     DRAW 10,-3:
-     DRAW 0,10:
-     DRAW -10,3:
-     DRAW 0,-10
-2020  PLOT 135,140:
-     DRAW 10,-3:
-     DRAW 0,10:
-     DRAW -10,3:
-     DRAW 0,-10
-2030  PLOT 150,140:
-     DRAW 5,-3:
-     DRAW 0,5:
-     DRAW -5,3:
-     DRAW 0,-5
-2040  PLOT 86,155:
-     DRAW 5,-3:
-     DRAW 0,5:
-     DRAW -5,3:
-     DRAW 0,-5
-2050  PLOT 115,156:
-     DRAW 3,-1:
-     DRAW 0,-3:
-     DRAW -3,1:
-     DRAW 0,3:
-     PLOT 121,154:
-     DRAW 3,-1:
-     DRAW 0,-3:
-     DRAW -3,1:
-     DRAW 0,3
-2060  PLOT 110,143:
-     DRAW 10,5:
-     DRAW 10,-7
-2070  PRINT  AT 17,4; INK 1;"\146"; AT 18,4; INK 2;"\151";
-2080  LET b$="\144\144\144\144\144":
-     LET g$="\146\147\148\149\146":
-     LET l$="\152\153\152\154\152"
-3000  RETURN 
+1700  PRINT  AT 18,0; INK 2; PAPER 6;"\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154\154"; AT 19,0; PAPER 6; INK 0;"         The Final Step         "
+1705  GOSUB 790
+1710  PRINT  AT 14,15;"\160"; AT 15,15;"\146"; AT 16,15; INK 7;"\155"; AT 17,15; INK 7;"\143"
+1720  FOR b=1 TO 15:
+     FOR a=1 TO 10:
+     NEXT a
+1730  BEEP .006,b*2
+1740  PRINT  AT b-1,15;"\159"; AT b,15;"\158"
+1750  NEXT b
+1760  FOR i=40 TO 30 STEP -1:
+     BEEP .02,i:
+     NEXT i
+1770  FOR u=1 TO 3:
+     FOR p=40 TO 10 STEP -1:
+     BEEP .02,p:
+     BORDER  INT ( RND *5)+1:
+     NEXT p:
+     NEXT u
+1780  IF win=0 THEN  PRINT  AT 10,9; FLASH 1; INK 2;"GAME"; FLASH 0; AT 10,17; FLASH 1;"OVER"; FLASH 0:
+     BORDER 2
+1785  IF win=1 THEN  PRINT  AT 16,9; FLASH 1;"CONGRATULATIONS"; AT 17,5;"MINER WILLY IS NOW FREE"
+1790  IF  INKEY$  <> "" THEN  CLS :
+     BRIGHT 0:
+     GOTO 10
+1800  GOTO 1790
+1810  REM **** START UP ****
+1820  CLS :
+     PAPER 0:
+     BRIGHT 0:
+     INK 7
+1830  LET t=6:
+     LET ot=t:
+     LET ss=1
+1840  LET d=1:
+     LET win=0
+1850  PRINT  AT 14,20;"\160"; AT 15,20;"\146"
+1870  INK 7
+1875  PRINT  AT 14,20;"\160"; AT 15,20;"\146"
+1878  REM !!LINE 1880 48k only!!
+1880  FOR a=0 TO 7:
+     POKE 23680,11:
+     POKE 23681,72+a:
+     LPRINT "M A N I C":
+     NEXT a
+1900  REM .. MUSIC LOOP ..
+1910  LET r=0.05:
+     FOR s=1 TO 180:
+     READ p
+1990  IF  INKEY$  <> "" THEN  CLS :
+     GOTO 3000
+2000  BEEP 0.05,p
+2005  PRINT  AT 8,12; INK ( RND *7);"S L O W"; AT 15,11;"W I L L Y"
+2010  NEXT s
+2020  RESTORE 2050
+2030  GOTO 1900
+2050  DATA 0,-12,5,-12,8,-12
+2060  DATA 0,-12,5,-12,8,-12
+2070  DATA 0,-12,5,-12,8,-12
+2080  DATA 0,-12,5,-12,8,-12
+2090  DATA 0,-12,5,-12,8,-12
+2100  DATA 0,-12,5,-12,8,-12
+2110  DATA 0,-12,5,-12,8,-12
+2120  DATA 0,-12,5,-12,8,-12
+2130  REM bar 9
+2140  DATA 1,11,5,-11,8,-11
+2150  DATA 1,11,5,-11,8,-11
+2160  DATA 1,-11,6,-11,10,-2
+2170  DATA 1,-11,6,-11,10,-2
+2180  DATA 0,-12,4,-12,10,-12
+2190  DATA 0,-12,5,-12,8,-12
+2200  DATA 0,-12,5,-12,7,-12
+2210  DATA 0,-12,5,-12,7,-12
+2220  REM bar 17
+2230  DATA -4,-16,0,-16,5,-16
+2240  DATA 0,-12,5,-12,8,-12
+2250  DATA 0,-12,5,-12,8,-12
+2260  DATA 12,-12,5,-12,12,-12
+2270  DATA 12,-12,5,-12,10,-12
+2280  DATA 5,-12,0,-12,10,-12
+2290  DATA 7,-12,0,-12,10,-12
+2300  DATA 12,-12,7,-12,10,-12
+2310  DATA 12,-12,9,-12,12,-12
+2320  DATA 13,-11,5,-11,10,-11
+2330  DATA 1,-11,5,-11,10,-11
+2340  DATA 0,-12,4,-12,10,-12
+2350  DATA 1,-12,4,-12,16,-12
+2360  DATA 4,-12,7,-12,5,-12
+3000  REM ... Instructions ...
+3010  PRINT  AT 1,6;"Manic Miner in BASIC"
+3020  PRINT  AT 2,8;"Can it be done?"
+3030  PRINT  AT 4,8;"The following is "; AT 5,6;"a version of LEVEL 1"
+3040  PRINT  AT 7,7;"As seen on YouTube"; AT 8,9;"@Animated ALex"
+3050  PRINT  AT 10,4;"Controls:
+     O=Left  P=Right"; AT 11,14;"Q=Jump"
+3060  PRINT  AT 13,5;"Collect all the keys "; PAPER 6; INK 0;"\152"; PAPER 0; INK 7; AT 14,6;"and free Miner Willy"
+3070  PRINT  AT 16,4;"To increase AIR collect "; INK 5;" PLAY "
+3080  PRINT  AT 21,2;"Programmed in Sinclair BASIC"; AT 19,5; INK 7;"By Animated ALex. 2025"; AT 20,2; INK 7;"Intro MUSIC :
+     Damien Redmond"
+3090  IF  INKEY$  <> "" THEN  CLS :
+     GOTO 70
+3095  GOTO 3090
 9998  STOP 
 

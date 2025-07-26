@@ -1395,6 +1395,7 @@ runtimeIntToFloatNeg:
     ld     DE,0
     EX     HL,DE
     SUB    HL,DE
+    LD    BC,HL
     call    $2D2B               ;  2D2B: THE 'STACK-BC' SUBROUTINE
     RST    $28
     db     zxcalc_negate        ; Negate the value on the calculator stack

@@ -226,8 +226,8 @@ NUM   MACRO	value
                 ORG     #5C00
 .bas_start    
 				LINE	
-         				DB      ZXB_CLEAR, ZXB_VAL, '"24500":'
-                DB      ZXB_LET,"codebase=",ZXB_VAL, '"24500":'
+         				DB      ZXB_CLEAR, ZXB_VAL, '"26000":'
+                DB      ZXB_LET,"codebase=",ZXB_VAL, '"26000":'
 				
 				LEND
 				LINE	

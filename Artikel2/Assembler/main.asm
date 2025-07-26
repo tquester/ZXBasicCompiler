@@ -23,7 +23,7 @@ SLOW_SPRITE_COUNT           equ 5
 
 
     include "macros.asm"
-    ORG 24500
+    ORG 26000
 PROGSTART:
 
     SLDOPT COMMENT WPMEM, LOGPOINT, ASSERTION
