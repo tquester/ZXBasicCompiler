@@ -1525,15 +1525,20 @@ public class ZXCompiler {
 			lexan(lookahead);
 			if (lookahead.typ == ZXTokenTyp.ZX_EndOfLine || lookahead.typ == ZXTokenTyp.ZX_Colon)
 				break;
+			String faktor="";
+			if (lookahead.typ == ZXTokenTyp.ZX_Minus) {
+				faktor="-";
+				lexan(lookahead);
+			}
 			if (lookahead.typ == ZXTokenTyp.ZX_Integer) {
 				if (lookahead.floatLiteral != null) {
 					if (lookahead.floatLiteral[0] != 0 || lookahead.literal.indexOf('.') != -1 || datatype == VARTYP.TYPE_FLOAT) {
 						mEmitter.emitDataFloat(lookahead);
 					} else 
-						mEmitter.emitDataInt(lookahead.literal);
+						mEmitter.emitDataInt(faktor+lookahead.literal);
 
 				} else {
-					mEmitter.emitDataInt(lookahead.literal);
+					mEmitter.emitDataInt(faktor+lookahead.literal);
 				}
 			}
 			else if (lookahead.typ == ZXTokenTyp.ZX_String)
