@@ -4,6 +4,7 @@ import java.util.TreeMap;
 
 public class ZXToken {
 	public TreeMap<Integer, String> mMapTokens = new TreeMap<>();
+	public TreeMap<String, Integer> mMapRTokens = new TreeMap<>();
 	public static final int ZX_PRINT = 0XF5;
 	public static final int ZX_STOP = 0XE2;
 	public static final int SPECTRUM = 0XA3;
@@ -116,7 +117,7 @@ public class ZXToken {
 		return gzxtoken;
 	}
 
-	ZXToken() {
+	public ZXToken() {
 		mMapTokens.put(ZXB_GOTO, "GOTO");
 		mMapTokens.put(ZXB_CLEAR, "CLEAR");
 		mMapTokens.put(ZXB_VAL, "VAL");
@@ -201,6 +202,8 @@ public class ZXToken {
 		mMapTokens.put(ZXB_FOR, "FOR");
 		mMapTokens.put(ZXB_GOTO, "GOTO");
 		mMapTokens.put(ZXB_GOSUB, "GOSUB");
+		mMapTokens.put(ZXB_GOTO, "GO TO");
+		mMapTokens.put(ZXB_GOSUB, "GO SUB");
 		mMapTokens.put(ZXB_INPUT, "INPUT");
 		mMapTokens.put(ZXB_LOAD, "LOAD");
 		mMapTokens.put(ZXB_LIST, "LIST");
@@ -224,5 +227,9 @@ public class ZXToken {
 		mMapTokens.put(ZXB_SMALLERTHAN, "<=");
 		mMapTokens.put(ZXB_BIGGERTHAN, ">=");
 		mMapTokens.put(ZXB_UNEQUAL, "<>");
+		for (Integer key: mMapTokens.keySet()) {
+			String t = mMapTokens.get(key);
+			mMapRTokens.put(t, key);
+		}
 	}
 }

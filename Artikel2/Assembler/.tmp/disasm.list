@@ -322,6 +322,15 @@
 0A0D.R1 E5           push hl
 0A0E.R1 C3 03 0B     jp SUB_0B03
 
+0A4F.R1 FD CB 01 4E  bit 1,(iy+1)
+0A53.R1 C2 CD 0E     jp nz,SUB_0ECD
+
+0A56.R1 0E 21        ld c,21h
+0A58.R1 CD 55 0C     call SUB_0C55
+
+0A5B.R1 05           dec b
+0A5C.R1 C3 D9 0D     jp SUB_0DD9
+
 0A69.R1 SUB_0A69:
 0A69.R1 3E 3F        ld a,3Fh
 0A6B.R1 18 6C        jr SUB_0AD9
@@ -1732,71 +1741,6 @@
 1F5E.R1 1F           rra
 1F5F.R1 C9           ret
 
-2244.R1 SUB_2244:
-
-; Note: The address 0008h is in a different bank.
-2244.R1 CF           rst 0008h
-
-2245.R1 13           inc de
-2246.R1 21 8F 5C     ld hl,5C8Fh
-2249.R1 FE 08        cp 08h
-224B.R1 38 0B        jr c,.L2
-
-224D.R1 7E           ld a,(hl)
-224E.R1 28 07        jr z,.L1
-
-2250.R1 B0           or b
-2251.R1 2F           cpl
-2252.R1 E6 24        and 24h
-2254.R1 28 01        jr z,.L1
-
-2256.R1 78           ld a,b
-
-2257.R1 .L1:
-2257.R1 4F           ld c,a
-
-2258.R1 .L2:
-2258.R1 79           ld a,c
-2259.R1 CD 6C 22     call SUB_226C
-
-225C.R1 3E 07        ld a,07h
-225E.R1 BA           cp d
-225F.R1 9F           sbc a,a
-2260.R1 CD 6C 22     call SUB_226C
-
-2263.R1 07           rlca
-2264.R1 07           rlca
-2265.R1 E6 50        and 50h
-2267.R1 47           ld b,a
-2268.R1 3E 08        ld a,08h
-226A.R1 BA           cp d
-226B.R1 9F           sbc a,a
-
-226C.R1 SUB_226C:
-226C.R1 AE           xor (hl)
-226D.R1 A0           and b
-226E.R1 AE           xor (hl)
-226F.R1 77           ld (hl),a
-2270.R1 23           inc hl
-2271.R1 78           ld a,b
-2272.R1 C9           ret
-
-2297.R1 FE 08        cp 08h
-2299.R1 30 A9        jr nc,SUB_2244
-
-229B.R1 D3 FE        out (00FEh),a
-229D.R1 07           rlca
-229E.R1 07           rlca
-229F.R1 07           rlca
-22A0.R1 CB 6F        bit 5,a
-22A2.R1 20 02        jr nz,LBL_22A6
-
-22A4.R1 EE 07        xor 07h
-
-22A6.R1 LBL_22A6:
-22A6.R1 32 48 5C     ld (5C48h),a
-22A9.R1 C9           ret
-
 2AB6.R1 SUB_2AB6:
 2AB6.R1 C5           push bc
 2AB7.R1 CD A9 33     call SUB_33A9
@@ -1815,20 +1759,6 @@
 2AC7.R1 23           inc hl
 2AC8.R1 22 65 5C     ld (5C65h),hl
 2ACB.R1 C9           ret
-
-2C8D.R1 FE 41        cp 41h
-2C8F.R1 3F           ccf
-2C90.R1 D0           ret nc
-
-2C91.R1 FE 5B        cp 5Bh
-2C93.R1 D8           ret c
-
-2C94.R1 FE 61        cp 61h
-2C96.R1 3F           ccf
-2C97.R1 D0           ret nc
-
-2C98.R1 FE 7B        cp 7Bh
-2C9A.R1 C9           ret
 
 2CC5.R1 SUB_2CC5:
 2CC5.R1 1B           dec de
@@ -3061,7 +2991,9 @@
 5C3C.10 65           DEFB 65 ; ASCII: e
 5C3D.10 62 61        DEFB 62 61 ; ASCII: ba
 5C3F.10 73 65        DEFB 73 65 ; ASCII: se
-5C41.10 0D 00 00...  DEFB 0D 00 00 00 00 00 00 ; ASCII: ???????
+5C41.10 0D 00 00 00  DEFB 0D 00 00 00 ; ASCII: ????
+5C45.10 00 00        DEFB 00 00 ; ASCII: ??
+5C47.10 00           DEFB 00 ; ASCII: ?
 5C48.10 00           DEFB 00 ; ASCII: ?
 5C49.10 00 00        DEFB 00 00 ; ASCII: ??
 5C4B.10 00 00 00 00  DEFB 00 00 00 00 ; ASCII: ????
@@ -3105,75 +3037,19 @@
 6952.11 ZXHeapTop:
 6952.11 00 F0        DEFB 00 F0 ; ASCII: ??
 6954.11 ZXHeapEnd:
-6954.11 F0 FF 00...  DEFB F0 FF 00 00 00 00 ; ASCII: ??????
-695A.11 ZXHeapTempNumOfByts:
-695A.11 00 00        DEFB 00 00 ; ASCII: ??
-695C.11 ZXHeapResult:
-695C.11 00 00        DEFB 00 00 ; ASCII: ??
-695E.11 ZXHeapNewType:
-695E.11 01 00        DEFB 01 00 ; ASCII: ??
+6954.11 F0 FF 00...  DEFB F0 FF 00 00 00 00 00 00 ; ASCII: ????????
 
-73AF.11 06 38        ld b,38h
+7A68.11 runtimeSaveSP:
+7A68.11 00 00        DEFB 00 00 ; ASCII: ??
 
-7A38.11 runtimeSaveSP:
-7A38.11 00 00        DEFB 00 00 ; ASCII: ??
-
-9534.4 ZXBASIC_VAR_ae:
-9534.4 00 00        DEFB 00 00 ; ASCII: ??
-9536.4 ZXBASIC_VAR_b:
-9536.4 00 00        DEFB 00 00 ; ASCII: ??
-9538.4 ZXBASIC_VAR_c:
-9538.4 00 00 00...  DEFB 00 00 00 00 00 00 ; ASCII: ??????
-953E.4 ZXBASIC_VAR_d_string:
-953E.4 00 00        DEFB 00 00 ; ASCII: ??
-9540.4 ZXBASIC_VAR_dat:
-9540.4 00 00 00...  DEFB 00 00 00 00 00 00 ; ASCII: ??????
-9546.4 ZXBASIC_VAR_f:
-9546.4 00 00        DEFB 00 00 ; ASCII: ??
-9548.4 ZXBASIC_VAR_fg:
-9548.4 00 00        DEFB 00 00 ; ASCII: ??
-954A.4 ZXBASIC_VAR_fl:
-954A.4 00 00 00...  DEFB 00 00 00 00 00 00 ; ASCII: ??????
-9550.4 ZXBASIC_VAR_for_g:
-9550.4 00 00 00...  DEFB 00 00 00 00 00 00 00 00 ; ASCII: ????????
-955A.4 ZXBASIC_VAR_for_o:
-955A.4 00 00 00...  DEFB 00 00 00 00 00 00 00 00 ; ASCII: ????????
-9568.4 ZXBASIC_VAR_fr:
-9568.4 00 00        DEFB 00 00 ; ASCII: ??
-956A.4 ZXBASIC_VAR_g:
-956A.4 00 00 00 00  DEFB 00 00 00 00 ; ASCII: ????
-956E.4 ZXBASIC_VAR_hf:
-956E.4 00 00        DEFB 00 00 ; ASCII: ??
-9570.4 ZXBASIC_VAR_i:
-9570.4 00 00        DEFB 00 00 ; ASCII: ??
-9572.4 ZXBASIC_VAR_j:
-9572.4 00 00        DEFB 00 00 ; ASCII: ??
-9574.4 ZXBASIC_VAR_jj:
-9574.4 00 00        DEFB 00 00 ; ASCII: ??
-9576.4 ZXBASIC_VAR_k:
-9576.4 00 00        DEFB 00 00 ; ASCII: ??
-9578.4 ZXBASIC_VAR_l:
-9578.4 00 00 00...  DEFB 00 00 00 00 00 00 ; ASCII: ??????
-957E.4 ZXBASIC_VAR_n:
-957E.4 00 00        DEFB 00 00 ; ASCII: ??
-9580.4 ZXBASIC_VAR_o:
-9580.4 00 00 00...  DEFB 00 00 00 00 00 00 ; ASCII: ??????
-9586.4 ZXBASIC_VAR_ox:
-9586.4 00 00        DEFB 00 00 ; ASCII: ??
-9588.4 ZXBASIC_VAR_oy:
-9588.4 00 00        DEFB 00 00 ; ASCII: ??
-958A.4 ZXBASIC_VAR_p:
-958A.4 00 00 00...  DEFB 00 00 00 00 00 00 00 00 ; ASCII: ????????
-9598.4 ZXBASIC_VAR_win:
-9598.4 00 00        DEFB 00 00 ; ASCII: ??
-959A.4 ZXBASIC_VAR_wk:
-959A.4 00 00        DEFB 00 00 ; ASCII: ??
-959C.4 ZXBASIC_VAR_x:
-959C.4 00 00        DEFB 00 00 ; ASCII: ??
-959E.4 ZXBASIC_VAR_y:
-959E.4 00 00 7B...  DEFB 00 00 7B 75 C2 8F 5C 79 ; ASCII: ??{u??\y
-9CC2.4 DATAPTR:
-9CC2.4 00 00 C0...  DEFB 00 00 C0 00 FC 00 7E 00 ; ASCII: ??????~?
+8FC3.4 ZXBASIC_VAR_ai:
+8FC3.4 00 00 00...  DEFB 00 00 00 00 00 00 00 00 ; ASCII: ????????
+8FDC.4 ZXBASIC_VAR_bi:
+8FDC.4 00 00        DEFB 00 00 ; ASCII: ??
+8FDE.4 ZXBASIC_VAR_c_string:
+8FDE.4 00 00        DEFB 00 00 ; ASCII: ??
+8FE0.4 ZXBASIC_VAR_d_string:
+8FE0.4 00 00 01...  DEFB 00 00 01 00 41 01 00 42 ; ASCII: ????A??B
 A10F.5 00 00 00...  DEFB 00 00 00 00 00 00 00 00 ; ASCII: ????????
 A12A.5 00 00 00...  DEFB 00 00 00 00 00 00 00 00 ; ASCII: ????????
 B49F.5 00 00 00...  DEFB 00 00 00 00 00 00 00 00 ; ASCII: ????????

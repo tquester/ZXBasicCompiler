@@ -33,11 +33,13 @@ public class ZXCompiler {
 			return String.format("%s - %d", this.typ.toString(), this.size);
 		}
 	};
+	
+
 
 	ZXTokenizer mTokenizer = new ZXTokenizer();
 	ZXBasicLine mBasicLine = new ZXBasicLine();
-	Z80Emitter mEmitter = new Z80Emitter();
-	StringBuilder mBASICSource = new StringBuilder();
+	public Z80Emitter mEmitter = new Z80Emitter();
+	public StringBuilder mBASICSource = new StringBuilder();
 	boolean mStringUsed=false;
 	
 
@@ -107,36 +109,51 @@ public class ZXCompiler {
 
 		return true;
 	}
+	
 
-	void compile() {
-		mPass = 1;
-		mFirstData = null;
-		compileDim();
-		mPass = 2;
-		mFirstData = null;
-		mListing = true;
-		mEmitter.mLog = true;
-		mTokenizer.init(mZXProgram);
-		
- 		while (true) {
-			if (lexan(lookahead) == false)
-				break;
-			if (lookahead.typ == ZXTokenizer.ParserToken.ZXTokenTyp.ZX_Token &&
-				lookahead.zxToken == ZXToken.ZXB_STOP || lookahead.zxToken == ZXToken.ZXB_ENDOFCODE) break;
-			if (lookahead.typ == ZXTokenizer.ParserToken.ZXTokenTyp.ZX_EndOfLine
-					|| lookahead.typ == ZXTokenizer.ParserToken.ZXTokenTyp.ZX_Colon)
-				continue;
-			compileStmt();
+	public void compile() {
+		try {
+			mEmitter.mSBLog = new StringBuilder();
+			mPass = 1;
+			mFirstData = null;
+			compileDim();
+			mPass = 2;
+			mFirstData = null;
+			mListing = true;
+			mEmitter.mLog = true;
+			mTokenizer.init(mZXProgram);
+			mTokenizer.getLine(mBasicLine);
+			
+	 		while (true) {
+				if (lexan(lookahead) == false)
+					break;
+				if (lookahead.typ == ZXTokenizer.ParserToken.ZXTokenTyp.ZX_Token &&
+					lookahead.zxToken == ZXToken.ZXB_STOP || lookahead.zxToken == ZXToken.ZXB_ENDOFCODE) break;
+				if (lookahead.typ == ZXTokenizer.ParserToken.ZXTokenTyp.ZX_EndOfLine
+						|| lookahead.typ == ZXTokenizer.ParserToken.ZXTokenTyp.ZX_Colon)
+					continue;
+				compileStmt();
+			}
+	 		if (mFirstData != null)
+	 			mEmitter.emitFirstRestore(mFirstData);
+			mEmitter.writeVariables();
+			mEmitter.emitEnd();
 		}
- 		if (mFirstData != null)
- 			mEmitter.emitFirstRestore(mFirstData);
-		mEmitter.writeVariables();
-		mEmitter.emitEnd();
+		catch(Exception e) {
+			e.printStackTrace();
+			mEmitter.log(e.getMessage());
+			mEmitter.log(e.getClass().toString());
+			StackTraceElement[] elems = e.getStackTrace();
+			for (StackTraceElement elem: elems) {
+				mEmitter.log(elem.toString());
+			}
+		}
 		
 	}
 	
 	void compileDim() {
 		mTokenizer.init(mZXProgram);
+		mTokenizer.getLine(mBasicLine);
 		mListing=false;
 		while (true) {
 			if (lexan(lookahead) == false)
@@ -1683,7 +1700,7 @@ public class ZXCompiler {
 	}
 
 	private void error(String string) {
-		System.out.println(string);
+		mEmitter.log(String.format("%d:%d %s",mBasicLine.line, mBasicStmt, string));
 
 	}
 
@@ -2072,6 +2089,31 @@ public class ZXCompiler {
 		factor();
 		while (true) {
 			switch (lookahead.typ) {
+			case ZXTokenizer.ParserToken.ZXTokenTyp.ZX_Power:
+				mIsFactor=false;
+				t.copyFrom(lookahead);
+				match(lookahead);
+				factor();
+				mEmitter.setComment("*");
+				typ1 = popType();
+				typ2 = popType();
+				if (typ1 == VARTYP.TYPE_INT && typ2 == VARTYP.TYPE_INT) {
+					mEmitter.emitPower();
+					pushType(VARTYP.TYPE_INT);
+				} else if (typ1 == VARTYP.TYPE_FLOAT && typ2 == VARTYP.TYPE_FLOAT) {
+					mEmitter.emitPowerFloat();
+					pushType(VARTYP.TYPE_FLOAT);
+				}
+				else if (cvToFloat(typ1, typ2)) {
+					t.copyFrom(lookahead);
+					//match(lookahead);
+					//factor();
+					mEmitter.emitPowerFloat();
+					pushType(VARTYP.TYPE_FLOAT);
+				} else {
+					error("Error in type for mult");
+				}
+				continue;
 			case ZXTokenizer.ParserToken.ZXTokenTyp.ZX_Mult:
 				mIsFactor=false;
 				t.copyFrom(lookahead);
@@ -2708,14 +2750,14 @@ public class ZXCompiler {
 		if (lookahead.typ == token) {
 			lexan(lookahead);
 		} else {
-			print("Nonsense in ZX Compiler");
+			error("Nonsense in ZX Compiler");
 		}
 
 	}
 
 	private void check(ZXTokenizer.ParserToken.ZXTokenTyp token) {
 		if (lookahead.typ == token) return;
-		print("Nonsense in ZX Compiler");
+		error("Nonsense in ZX Compiler");
 
 	}
 
@@ -2723,7 +2765,7 @@ public class ZXCompiler {
 		if (lookahead.typ == token.typ) {
 			lexan(lookahead);
 		} else {
-			print("Nonsense in ZX Compiler");
+			error("Nonsense in ZX Compiler");
 		}
 
 	}

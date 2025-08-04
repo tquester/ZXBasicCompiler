@@ -5,8 +5,13 @@ import java.util.ArrayList;
 public class Z80Optimizer {
 	ArrayList<Z80Command> mCommands;
 	public boolean COMMENTOUT=false; 
+	public Z80Emitter mEmitter;
 	
 	// peep hole optimization
+
+	public Z80Optimizer(Z80Emitter z80Emitter) {
+		mEmitter = z80Emitter;
+	}
 
 	public void optimize(ArrayList<Z80Command> commands) {
 		mCommands = commands;
@@ -17,7 +22,7 @@ public class Z80Optimizer {
 		while (count != 0) {
 			
 			if (runs > 0) {
-				System.out.println(String.format("Optimize run %d, %d optimizations found",runs,count));
+				mEmitter.log(String.format("Optimize run %d, %d optimizations found",runs,count));
 			}
 			runs++;
 			total+=count;
@@ -254,6 +259,14 @@ public class Z80Optimizer {
 						     count++;
 						   
 					}
+				if (check(cmd1,"LD","HL") &&
+						check(cmd2,"LD","BC","HL")) {	
+						    set(cmd1,"LD","BC",par2(cmd1));
+							remove(cmd2);
+							     count++;
+							   
+						}
+				
 					/*
 				if (check(cmd1,"LD","HL","0") &&
 					check(cmd2,"CALL","Z","HL1") &&
@@ -273,7 +286,7 @@ public class Z80Optimizer {
 				icmd++;
 			}		
 		}
-		System.out.println(String.format("Total %d optimizations found",total));
+		mEmitter.log(String.format("Total %d optimizations found",total));
 //		optimizeRegisterBC();
 
 		
@@ -329,19 +342,22 @@ public class Z80Optimizer {
 						break;
 					}
 					if (cmd.compareTo("pop") == 0) {
-						System.out.println(String.format("Optimize line %d", icmd));
+						mEmitter.log(String.format("Optimize line %d", icmd));
 						set(icmd,"LD","BC","HL");
 						set(icmd2,"LD",par1(icmd2),"BC");
 						count++;
 						icmd = icmd2;
 					}
+					
+					
+					
 					icmd2++;
 				}
 			}
 			icmd++;
 		}
 		if (count > 0)
-			System.out.println(String.format("%d PUSH/POP optimiert", count));
+			mEmitter.log(String.format("%d PUSH/POP optimiert", count));
 		
 	}
 

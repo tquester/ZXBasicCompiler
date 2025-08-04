@@ -13,7 +13,7 @@ public class Z80Emitter {
 	static final boolean BlockComments = false;
 	public int mSettingOptimize = 0;
 	public boolean mSettingVerbose = true;
-	Z80Optimizer mOptimizer = new Z80Optimizer();
+	Z80Optimizer mOptimizer = new Z80Optimizer(this);
 	boolean mLog = true;
 
 	// in order to optimize the code, it is stored in machine readable format
@@ -113,6 +113,13 @@ public class Z80Emitter {
 	private String mNextComment;
 	public boolean mSettingDebug;
 	private boolean mSettingsInline=true;
+	public StringBuilder mSBLog = new StringBuilder();
+	
+	void log(String str) {
+		System.out.println(str);
+		mSBLog.append(str+"\n");
+	}
+
 
 	Variable getVariable(String name) {
 		if (name.endsWith("$"))
@@ -204,7 +211,7 @@ public class Z80Emitter {
 			mOptimizer.optimize(mCommands);
 
 		sbCode = new StringBuffer();
-		System.out.println("Writing optimized code");
+		log("Writing optimized code");
 		mLog = false;
 		emitStart();
 		for (Z80Command cmd : mCommands) {
@@ -553,6 +560,17 @@ public class Z80Emitter {
 		emitCommand("PUSH", "HL");
 		emitBlockCommentEnd();
 	}
+
+	public void emitPower() {
+		emitBlockComment("^");
+		emitCommand("POP", "HL");
+		emitCommand("POP", "DE");
+		emitCommand("call", "runtimePower16bit");
+		emitCommand("PUSH", "HL");
+		emitBlockCommentEnd();
+		
+	}
+
 
 	public void emitDiv() {
 		emitBlockComment("/");
@@ -1045,6 +1063,12 @@ public class Z80Emitter {
 	public void emitMultFloat() {
 		emitCommand("RST", "$28");
 		emitCommand("DB", "$04", null, "MULT");
+		emitCommand("DB", "$38", null, "END CALC");
+	}
+
+	public void emitPowerFloat() {
+		emitCommand("RST", "$28");
+		emitCommand("DB", "zxcalc_to_power", null, "Power");
 		emitCommand("DB", "$38", null, "END CALC");
 	}
 
@@ -2126,6 +2150,8 @@ public class Z80Emitter {
 		mBasicLines.add(bline);
 		
 	}
+
+
 
 
 

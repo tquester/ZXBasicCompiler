@@ -114,6 +114,24 @@ runtimeAbsInt:  ld a,h
                 ex hl,de
                 sub hl,de
                 ret                
+
+runtimePower16bit:
+                ld b,l
+                dec b
+                ld a,b
+                cp 0
+                ret z
+                ld  hl,de
+runtimePowerLoop:
+                push bc
+                push de
+                call runtimeMult16bit
+                pop de
+                pop bc
+                djnz runtimePowerLoop
+                ret
+
+
 runtimeMult16bit:
                 ld b,0
                 call sgnabs
@@ -405,6 +423,9 @@ runtimeDraw2:
 
 ; compiled strings start with the length (2 bytes) followed by the string without terminating 0
 runtimePrintString:
+    ld a,h
+    or l
+    ret z
     ld bc,(hl)
     ld  a,b
     or  c
@@ -804,7 +825,7 @@ runtimeStoreString:
 runtimeStoreEmptyString:
     ex hl,de
     ld bc,0
-    ld (hl),0
+    ld (hl),bc
     pop hl
     ret    
 ; BC = String
@@ -1529,10 +1550,16 @@ runtimeCalcFloatNegative2:
     ret
 
 runtimeSmallerEqualFloat:
-    RST $28
-    db  zxcalc_no_l_eql
-    db  zxcalc_end_calc
-    jp  runtimeFloatToInt
+    call runtimeBiggerFloat
+    ld  a,l
+    xor 1
+    ld l,a
+    ret
+
+;    RST $28
+;    db  zxcalc_no_l_eql
+;    db  zxcalc_end_calc
+;    jp  runtimeFloatToInt
 
 
 
@@ -1584,6 +1611,8 @@ runtimeMinusFloat:
     db  $03                     ; SUB
     db  $38                     ; end calc
     ret    
+
+
 
 runtimeMultFloat:
     RST $28
@@ -2362,7 +2391,7 @@ runtimeUnequalStringFixFix
 
 runtimeBiggerStringFixFix
     call runtimeCompareString
-    cp 1
+    cp -1
     jp z, runtimeReturn1
     jp runtimeReturn0
 runtimeSmallerStringFixFix:
@@ -2389,16 +2418,31 @@ runtimeBiggerEqualStringFixFix
 
 
 runtimeVar1ToFix:
+    ld  a,h
+    or   l
+    jr   z,nullStringHL
     ld   bc,(hl)
     inc hl
     inc hl
     ret
 runtimeVar2ToFix:
+    ld  a,d
+    or  e
+    jr  z,nullStringDE
     ld ix,de
     ld   de,(ix)
     inc ix
     inc ix
     ret
+nullStringDE:
+    ld de, nullstr
+    ld bc,0
+    ret    
+nullStringHL:
+    ld hl, nullstr
+    ld bc,0
+    ret    
+nullstr: db 0
 runtimeEqualStringVarFix:
     call runtimeVar1ToFix
     jr  runtimeEqualStringX

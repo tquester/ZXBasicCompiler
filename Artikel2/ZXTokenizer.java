@@ -28,7 +28,7 @@ public class ZXTokenizer {
 			ZX_Semicolon,
 			ZX_EndOfLine,
 			ZX_Token, // LET, PLOT etc.
-			EOS, ZX_Comma, NULL
+			EOS, ZX_Comma, ZX_Exp10, ZX_Power, NULL  
 		};
 
 		public String literal; // either a varible name or a number
@@ -176,6 +176,9 @@ public class ZXTokenizer {
 			case ')':
 				token.typ = ParserToken.ZXTokenTyp.ZX_Closebracket;
 				break;
+			case '^': 
+				token.typ = ParserToken.ZXTokenTyp.ZX_Power;
+				break;
 		
 			case '#':
 				token.typ = ParserToken.ZXTokenTyp.ZX_Hash;
@@ -288,7 +291,7 @@ public class ZXTokenizer {
 		}
 	}
 
-	void init(byte[] basicProgram) {
+	public void init(byte[] basicProgram) {
 		mZxBasic = new byte[basicProgram.length - 5];
 		int pos = 0;
 		for (int i = 5; i < basicProgram.length; i++)
@@ -296,7 +299,7 @@ public class ZXTokenizer {
 		mPos = 0;
 	}
 
-	boolean getLine(ZXBasicLine line) {
+	public boolean getLine(ZXBasicLine line) {
 		if (mPos >= mZxBasic.length)
 			return false;
 		int iLine = b2int(mZxBasic[mPos]) * 256 + b2int(mZxBasic[mPos + 1]);
