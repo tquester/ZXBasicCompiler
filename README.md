@@ -30,17 +30,16 @@ https://github.com/tquester/ZXBasicCompiler/blob/main/DifferencesGer.md
  |-----------------------|----------------|
  | First Basic compiler | OK
  | Strings | OK |
- | Floats | mostly working |
- | All BASIC commands running | In progress |
+ | Floats | OK |
+ | All BASIC commands running | OK |
  | Tests for each command | In progress | 
  | QBasic commands running | In planning |
- | Documentation | In progress |
+ | Documentation | OK |
+ | Compiler-GUI with editor | In Progress |
+ 
 
 Stil Missing: 
 * The program must end with STOP. I did not figure out, how to find the end of the BASIC in a TAP file so it compiles until STOP
-* String compare is incomplete. The compiler handles dynamic strings and fixed length strings as separate types, so it needs 6*4 = 24 different compare operators
-* Some fixed length operations are still missing (Input, USR, VAL, CODE,..) but are working with dynamic strings
-* Currently the compiler gets tested with BASIC games from the internet. See https://itch.io/jam/zx-spectrum-basic-jam
 * QBasic-Functions
 
 Some games have been successfully compiled, but not all games profit, this one runs far too fast, so we have to add some PAUSE into the code. In this case there must be a slow pause after the enemies moved, otherwise they are mostly invisible. In some cases we also must take care of input, for example waiting for key release or pause otherwise the game becomes hard to control. With some small modifications, we get a game that is very responsive.
@@ -53,8 +52,8 @@ https://animatedal.itch.io/
 
 Planned:
 * BASIC Editor with labels and optional line numbers. It will create a BASIC program with line numbers which run in the BASIC interpreter
-* 
-  
+
+ 
 <b>7.5.2025: An update will be made today</b>
 
 Translated with DeepL.com (free version)
@@ -185,6 +184,17 @@ myfunction:
 ```
 
 This should make it possible to develop games that perform similarly to those written in assembler.
+
+# Work on Compiler GUI started
+The GUI allows writing BASIC-Programs in a Window without the emulator. Also you do not need line numbers, can use labels and controls structures such as while.
+
+<img width="865" height="683" alt="image" src="https://github.com/user-attachments/assets/f0d7a0ca-bad8-4e6b-9de7-a915ef667c4a" />
+The GUI converts the BASIC source to a compatible version which can be run on the ZX Spectrum or the compiler.
+<img width="865" height="683" alt="image" src="https://github.com/user-attachments/assets/3922e5f4-1e42-45a5-a39c-4527466f6439" />
+
+Also editors for UDG, Sprites and Tiles are planned.
+
+
 
 # ZXBasic Compiler
 This compiler is an article for the Spectrum User Group.
