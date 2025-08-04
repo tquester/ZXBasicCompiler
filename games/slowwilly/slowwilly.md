@@ -3,7 +3,8 @@ by Animated Alex
 
 Game | Assembler
 -----|-----
-![slowwilly](https://github.com/user-attachments/assets/535b40b7-1255-4903-9c47-6b1ebb2f7f78) | <img width="328" height="348" alt="image" src="https://github.com/user-attachments/assets/e89a5ddd-ab9f-48f7-b833-3622fdb8a25c" />
+![slowwilly](https://github.com/user-attachments/assets/535b40b7-1255-4903-9c47-6b1ebb2f7f78) | <img width="327" height="278" alt="image" src="https://github.com/user-attachments/assets/ff37e46b-921b-40a8-be77-297fe5ac9d03" />
+
 
 
 ## Original
@@ -14,10 +15,13 @@ https://www.youtube.com/watch?v=JDasUpPmeX4
 
 
 ## Changes
+The program compiles with only one problem in integer mode. There have been on fix in line 2000 as the length of the music was treated as 0.
+
 * The STOP statement has been added in line 9998 followed by the save statement
 * Since the compiled version runs about 10-20 times faster some pause needed to be added
 * The first PAUSE is in line 100 the main game loop
 * A second pause has been added in line 205.  In line 205, Willy is drawn with his legs open. Without the pause, it would be immediately overwritten and it would look as if he were teleporting.
+* Changed line 2000 to 2000  BEEP 0.05,p, so that the first argument is treated as float. 
 
 ## Compiling
 361 fine BASIC lines have been compiled into 4483 lines of assembler
