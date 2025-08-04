@@ -190,7 +190,7 @@ The GUI allows writing BASIC-Programs in a Window without the emulator. Also you
 
 <img width="865" height="683" alt="image" src="https://github.com/user-attachments/assets/f0d7a0ca-bad8-4e6b-9de7-a915ef667c4a" />
 The GUI converts the BASIC source to a compatible version which can be run on the ZX Spectrum or the compiler.
-<img width="865" height="683" alt="image" src="https://github.com/user-attachments/assets/3922e5f4-1e42-45a5-a39c-4527466f6439" />
+<img width="865" height="683" alt="image" src="https://github.com/user-attachments/assets/ff21bf41-2753-4a74-8ca8-a487a25e2ce4" />
 
 Also editors for UDG, Sprites and Tiles are planned.
 
