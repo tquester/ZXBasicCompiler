@@ -1,75 +1,34 @@
-1000 rem float af bc
-1010 rem int16 ai bi
-1020 dim a$(8)
-1030 dim b$(8)
-1040 cls
-1050 print "Float: Compare"
-1060 let af=1: let bf=2:go sub 1360
-1070 let af=2: let bf=1:go sub 1360
-1080 let af=2: let bf=2:go sub 1360
-1090 pause 0
-1100 cls
-1110 print "Int16: Compare"
-1120 let ai=1: let bi=2: go sub 1510
-1130 let ai=2: let bi=1: go sub 1510
-1140 let ai=1: let bi=1: go sub 1510
-1150 pause 0
-1160 cls
-1170 print "Float: Math"
-1180 let af=10: let bf=3:go sub 1440
-1190 let af=20: let bf=1:go sub 1440
-1200 let af=2: let bf=10:go sub 1440
-1210 let af=20: let bf=20:go sub 1440
-1220 pause 0
-1230 cls
-1240 print "Int16: Math"
-1250 let ai=10: let bi=3: go sub 1590
-1260 let ai=20: let bi=1: go sub 1590
-1270 let ai=2: let bi=10: go sub 1590
-1280 let ai=10: let bi=10: go sub 1590
-1290 pause 0
-1300 cls
-1310 print "Fix String: compare"
-1320 let a$="A": let b$="B": go sub 1660
-1330 let a$="B": let b$="A": go sub 1660
-1340 let a$="A": let b$="": go sub 1660
-1350 return
-1360 print "--------"
-1370 print af;"> ";bf;" -> ";af>bf
-1380 print af;">=";bf;" -> ";af>=bf
-1390 print af;"< ";bf;" -> ";af<bf
-1400 print af;"<=";bf;" -> ";af<=bf
-1410 print af;"<>";bf;" -> ";af<>bf
-1420 print af;"= ";bf;" -> ";af=bf
-1430 return
-1440 print "--------"
-1450 print af;"+";bf;" -> ";af+bf
-1460 print af;"-";bf;" -> ";af-bf
-1470 print af;"*";bf;" -> ";af*bf
-1480 print af;"/";bf;" -> ";af/bf
-1490 print af;"^";bf;" -> ";af^bf
-1500 return
-1510 print "--------"
-1520 print ai ;"> ";bi;" -> ";ai >bi
-1530 print ai ;">=";bi;" -> ";ai >=bi
-1540 print ai ;"< ";bi;" -> ";ai <bi
-1550 print ai ;"<=";bi;" -> ";ai <=bi
-1560 print ai ;"<>";bi;" -> ";ai <>bi
-1570 print ai ;"= ";bi;" -> ";ai =bi
-1580 return
-1590 print "--------"
-1600 print ai;"+";bi;" -> ";ai+bi
-1610 print ai;"-";bi;" -> ";ai-bi
-1620 print ai;"*";bi;" -> ";ai*bi
-1630 print ai;"/";bi;" -> ";ai/bi
-1640 print ai;"^";bi;" -> ";ai^bi
-1650 return
-1660 print a$;"> ";b$;" -> ";a$>b$
-1670 print a$;"< ";b$;" -> ";a$<b$
-1680 print a$;">=";b$;" -> ";a$>=b$
-1690 print a$;"<=";b$;" -> ";a$<=b$
-1700 print a$;"<>";b$;" -> ";a$<>b$
-1710 print a$;"= ";b$;" -> ";a$=b$
-1720 return
-1730 stop
-9998 stop
+1000 LET a=1
+1010 LET a=1
+1020 IF NOT(a < 10 ) THEN GOTO 1070
+1030 if a > 5 then GOTO 1070
+1040 print "a=";a
+1050 LET a=a+1
+1060 GOTO 1020
+1070 LET key=3
+1080 IF key <> 1 THEN GOTO 1100
+1090 LET contrlFN = 1210: GOTO 1140
+1100 IF key <> 2 THEN GOTO 1120
+1110 LET contrlFN = 1230: GOTO 1140
+1120 IF key <> 3 THEN GOTO 1140
+1130 LET contrlFN = 1250: GOTO 1140
+1140 print "Funktionsaufruf: Key = ";key
+1150 gosub contrlFN
+1160 Print "Funktionsaufruf: ",
+1170 GO SUB 1300
+1180 LET PROCtest0=100:LET PROCtest1=200:GO SUB 1270
+1190 pause 0
+1200 return
+1210 print "game control with keyboard"
+1220 return
+1230 print "game control with kempston"
+1240 return
+1250 print "game control with sinclair"
+1260 return
+1270 print "test proc called with abc=";PROCtest0;" def=";PROCtest1
+1280 print "abc+def=";PROCtest0+PROCtest1
+1290 return
+1300 print "Test2 proc called"
+1310 return
+1320 LET label=1010
+1330 stop

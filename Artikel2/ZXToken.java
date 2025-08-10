@@ -1,5 +1,7 @@
 package zxcompiler;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.TreeMap;
 
 public class ZXToken {
@@ -104,6 +106,21 @@ public class ZXToken {
 	public static final int ZXB_UNEQUAL = 0xc9;
 	public static final int ZXB_ENDOFCODE = 0x80;
 	
+	public static final int ZXB_CALL 		= 1000;
+	public static final int ZXB_PROC 		= 1001;
+	public static final int ZXB_FUNC 		= 1002;
+	public static final int ZXB_WHILE 		= 1003;
+	public static final int ZXB_WEND 		= 1004;
+	public static final int ZXB_EXIT 		= 1005;
+	public static final int ZXB_END 		= 1006;
+	public static final int ZXB_DO 			= 1007;
+	public static final int ZXB_LOOP 		= 1008;
+	public static final int ZXB_UNTIL 		= 1009;
+	public static final int ZXB_SELECT 		= 1010;
+	public static final int ZXB_CASE 		= 1011;
+	public static final int ZXB_DEFAULT 	= 1012;
+	public static final int ZXB_BREAK	 	= 1013;
+	
 	public String tokenToStr(int token) {
 		String s = mMapTokens.get(token);
 		if (s != null) return s;
@@ -118,118 +135,153 @@ public class ZXToken {
 	}
 
 	public ZXToken() {
-		mMapTokens.put(ZXB_GOTO, "GOTO");
-		mMapTokens.put(ZXB_CLEAR, "CLEAR");
-		mMapTokens.put(ZXB_VAL, "VAL");
-		mMapTokens.put(ZXB_INPUT, "INPUT");
-		mMapTokens.put(ZXB_LET, "LET");
-		mMapTokens.put(ZXB_LOAD, "LOAD");
-		mMapTokens.put(ZXB_CODE, "CODE");
-		mMapTokens.put(ZXB_RANDOMIZE, "RANDOMIZE");
-		mMapTokens.put(ZXB_USR, "USR");
-		mMapTokens.put(ZX_PRINT, "RINT");
-		mMapTokens.put(ZX_STOP, "TOP");
-		mMapTokens.put(SPECTRUM, "TRUM");
-		mMapTokens.put(ZXB_PLAY, "PLAY");
-		mMapTokens.put(ZXB_RND, "RND");
-		mMapTokens.put(ZXB_INKEY, "INKEY$");
-		mMapTokens.put(ZXB_PI, "PI");
-		mMapTokens.put(ZXB_FN, "FN");
-		mMapTokens.put(ZXB_POINT, "POINT");
-		mMapTokens.put(ZXB_SCREEN, "SCREEN");
-		mMapTokens.put(ZXB_ATTR, "ATTR");
-		mMapTokens.put(ZXB_AT, "AT");
-		mMapTokens.put(ZXB_TAB, "TAB");
-		mMapTokens.put(ZXB_VALS, "VALS");
-		mMapTokens.put(ZXB_CODE, "CODE");
-		mMapTokens.put(ZXB_VAL, "VAL");
-		mMapTokens.put(ZXB_LEN, "LEN");
-		mMapTokens.put(ZXB_SIN, "SIN");
-		mMapTokens.put(ZXB_COS, "COS");
-		mMapTokens.put(ZXB_TAN, "TAN");
-		mMapTokens.put(ZXB_ASN, "ASN");
-		mMapTokens.put(ZXB_ACS, "ACS");
-		mMapTokens.put(ZXB_ATN, "ATN");
-		mMapTokens.put(ZXB_LN, "LN");
-		mMapTokens.put(ZXB_EXP, "EXP");
-		mMapTokens.put(ZXB_INT, "INT");
-		mMapTokens.put(ZXB_SQR, "SQR");
-		mMapTokens.put(ZXB_SGN, "SGN");
-		mMapTokens.put(ZXB_ABSX, "ABSX");
-		mMapTokens.put(ZXB_PEEK, "PEEK");
-		mMapTokens.put(ZXB_IN, "IN");
-		mMapTokens.put(ZXB_USR, "USR");
-		mMapTokens.put(ZXB_STR, "STR");
-		mMapTokens.put(ZXB_CHR, "CHR$");
-		mMapTokens.put(ZXB_NOTX, "NOT");
-		mMapTokens.put(ZXB_BIN, "BIN");
-		mMapTokens.put(ZXB_ORX, "OR");
-		mMapTokens.put(ZXB_ANDX, "AND");
-		mMapTokens.put(ZXB_LINE, "LINE");
-		mMapTokens.put(ZXB_THEN, "THEN");
-		mMapTokens.put(ZXB_TO, "TO");
-		mMapTokens.put(ZXB_STEP, "STEP");
-		mMapTokens.put(ZXB_DEFFN, "DEFFN");
-		mMapTokens.put(ZXB_CAT, "CAT");
-		mMapTokens.put(ZXB_FORMAT, "FORMAT");
-		mMapTokens.put(ZXB_MOVE, "MOVE");
-		mMapTokens.put(ZXB_ERASE, "ERASE");
-		mMapTokens.put(ZXB_OPEN, "OPEN");
-		mMapTokens.put(ZXB_CLOSE, "CLOSE");
-		mMapTokens.put(ZXB_MERGE, "MERGE");
-		mMapTokens.put(ZXB_VERIFY, "VERIFY");
-		mMapTokens.put(ZXB_BEEP, "BEEP");
-		mMapTokens.put(ZXB_CIRCLE, "CIRCLE");
-		mMapTokens.put(ZXB_INK, "INK");
-		mMapTokens.put(ZXB_PAPER, "PAPER");
-		mMapTokens.put(ZXB_FLASH, "FLASH");
-		mMapTokens.put(ZXB_BRIGHT, "BRIGHT");
-		mMapTokens.put(ZXB_INVERSE, "INVERSE");
-		mMapTokens.put(ZXB_OVER, "OVER");
-		mMapTokens.put(ZXB_OUT, "OUT");
-		mMapTokens.put(ZXB_LPRINT, "LPRINT");
-		mMapTokens.put(ZXB_LLIST, "LLIST");
-		mMapTokens.put(ZXB_STOP, "STOP");
-		mMapTokens.put(ZXB_READ, "READ");
-		mMapTokens.put(ZXB_DATA, "DATA");
-		mMapTokens.put(ZXB_RESTORE, "RESTORE");
-		mMapTokens.put(ZXB_NEW, "NEW");
-		mMapTokens.put(ZXB_BORDER, "BORDER");
-		mMapTokens.put(ZXB_CONT, "CONT");
-		mMapTokens.put(ZXB_CONTINUE, "CONTINUE");
-		mMapTokens.put(ZXB_DIM, "DIM");
-		mMapTokens.put(ZXB_REM, "REM");
-		mMapTokens.put(ZXB_FOR, "FOR");
-		mMapTokens.put(ZXB_GOTO, "GOTO");
-		mMapTokens.put(ZXB_GOSUB, "GOSUB");
-		mMapTokens.put(ZXB_GOTO, "GO TO");
-		mMapTokens.put(ZXB_GOSUB, "GO SUB");
-		mMapTokens.put(ZXB_INPUT, "INPUT");
-		mMapTokens.put(ZXB_LOAD, "LOAD");
-		mMapTokens.put(ZXB_LIST, "LIST");
-		mMapTokens.put(ZXB_LET, "LET");
-		mMapTokens.put(ZXB_PAUSE, "PAUSE");
-		mMapTokens.put(ZXB_NEXT, "NEXT");
-		mMapTokens.put(ZXB_POKE, "POKE");
-		mMapTokens.put(ZXB_PRINT, "PRINT");
-		mMapTokens.put(ZXB_PLOT, "PLOT");
-		mMapTokens.put(ZXB_RUN, "RUN");
-		mMapTokens.put(ZXB_SAVE, "SAVE");
-		mMapTokens.put(ZXB_RAND, "RAND");
-		mMapTokens.put(ZXB_RANDOMIZE, "RANDOMIZE");
-		mMapTokens.put(ZXB_IF, "IF");
-		mMapTokens.put(ZXB_CLS, "CLS");
-		mMapTokens.put(ZXB_DRAW, "DRAW");
-		mMapTokens.put(ZXB_CLEAR, "CLEAR");
-		mMapTokens.put(ZXB_RETURN, "RETURN");
-		mMapTokens.put(ZXB_COPY, "COPY");
-		mMapTokens.put(ZXB_GOTO, "GOTO");
-		mMapTokens.put(ZXB_SMALLERTHAN, "<=");
-		mMapTokens.put(ZXB_BIGGERTHAN, ">=");
-		mMapTokens.put(ZXB_UNEQUAL, "<>");
-		for (Integer key: mMapTokens.keySet()) {
-			String t = mMapTokens.get(key);
-			mMapRTokens.put(t, key);
-		}
+		addToken(ZXB_GOTO, "GOTO");
+		addToken(ZXB_CLEAR, "CLEAR");
+		addToken(ZXB_VAL, "VAL");
+		addToken(ZXB_INPUT, "INPUT");
+		addToken(ZXB_LET, "LET");
+		addToken(ZXB_LOAD, "LOAD");
+		addToken(ZXB_CODE, "CODE");
+		addToken(ZXB_RANDOMIZE, "RANDOMIZE");
+		addToken(ZXB_USR, "USR");
+		addToken(ZX_PRINT, "RINT");
+		addToken(ZX_STOP, "TOP");
+		addToken(SPECTRUM, "TRUM");
+		addToken(ZXB_PLAY, "PLAY");
+		addToken(ZXB_RND, "RND");
+		addToken(ZXB_INKEY, "INKEY$");
+		addToken(ZXB_PI, "PI");
+		addToken(ZXB_FN, "FN");
+		addToken(ZXB_POINT, "POINT");
+		addToken(ZXB_SCREEN, "SCREEN");
+		addToken(ZXB_ATTR, "ATTR");
+		addToken(ZXB_AT, "AT");
+		addToken(ZXB_TAB, "TAB");
+		addToken(ZXB_VALS, "VALS");
+		addToken(ZXB_CODE, "CODE");
+		addToken(ZXB_VAL, "VAL");
+		addToken(ZXB_LEN, "LEN");
+		addToken(ZXB_SIN, "SIN");
+		addToken(ZXB_COS, "COS");
+		addToken(ZXB_TAN, "TAN");
+		addToken(ZXB_ASN, "ASN");
+		addToken(ZXB_ACS, "ACS");
+		addToken(ZXB_ATN, "ATN");
+		addToken(ZXB_LN, "LN");
+		addToken(ZXB_EXP, "EXP");
+		addToken(ZXB_INT, "INT");
+		addToken(ZXB_SQR, "SQR");
+		addToken(ZXB_SGN, "SGN");
+		addToken(ZXB_ABSX, "ABSX");
+		addToken(ZXB_PEEK, "PEEK");
+		addToken(ZXB_IN, "IN");
+		addToken(ZXB_USR, "USR");
+		addToken(ZXB_STR, "STR");
+		addToken(ZXB_CHR, "CHR$");
+		addToken(ZXB_NOTX, "NOT");
+		addToken(ZXB_BIN, "BIN");
+		addToken(ZXB_ORX, "OR");
+		addToken(ZXB_ANDX, "AND");
+		addToken(ZXB_LINE, "LINE");
+		addToken(ZXB_THEN, "THEN");
+		addToken(ZXB_TO, "TO");
+		addToken(ZXB_STEP, "STEP");
+		addToken(ZXB_DEFFN, "DEFFN");
+		addToken(ZXB_CAT, "CAT");
+		addToken(ZXB_FORMAT, "FORMAT");
+		addToken(ZXB_MOVE, "MOVE");
+		addToken(ZXB_ERASE, "ERASE");
+		addToken(ZXB_OPEN, "OPEN");
+		addToken(ZXB_CLOSE, "CLOSE");
+		addToken(ZXB_MERGE, "MERGE");
+		addToken(ZXB_VERIFY, "VERIFY");
+		addToken(ZXB_BEEP, "BEEP");
+		addToken(ZXB_CIRCLE, "CIRCLE");
+		addToken(ZXB_INK, "INK");
+		addToken(ZXB_PAPER, "PAPER");
+		addToken(ZXB_FLASH, "FLASH");
+		addToken(ZXB_BRIGHT, "BRIGHT");
+		addToken(ZXB_INVERSE, "INVERSE");
+		addToken(ZXB_OVER, "OVER");
+		addToken(ZXB_OUT, "OUT");
+		addToken(ZXB_LPRINT, "LPRINT");
+		addToken(ZXB_LLIST, "LLIST");
+		addToken(ZXB_STOP, "STOP");
+		addToken(ZXB_READ, "READ");
+		addToken(ZXB_DATA, "DATA");
+		addToken(ZXB_RESTORE, "RESTORE");
+		addToken(ZXB_NEW, "NEW");
+		addToken(ZXB_BORDER, "BORDER");
+		addToken(ZXB_CONT, "CONT");
+		addToken(ZXB_CONTINUE, "CONTINUE");
+		addToken(ZXB_DIM, "DIM");
+		addToken(ZXB_REM, "REM");
+		addToken(ZXB_FOR, "FOR");
+		addToken(ZXB_GOTO, "GOTO");
+		addToken(ZXB_GOSUB, "GOSUB");
+		addToken(ZXB_GOTO, "GO TO");
+		addToken(ZXB_GOSUB, "GO SUB");
+		addToken(ZXB_INPUT, "INPUT");
+		addToken(ZXB_LOAD, "LOAD");
+		addToken(ZXB_LIST, "LIST");
+		addToken(ZXB_LET, "LET");
+		addToken(ZXB_PAUSE, "PAUSE");
+		addToken(ZXB_NEXT, "NEXT");
+		addToken(ZXB_POKE, "POKE");
+		addToken(ZXB_PRINT, "PRINT");
+		addToken(ZXB_PLOT, "PLOT");
+		addToken(ZXB_RUN, "RUN");
+		addToken(ZXB_SAVE, "SAVE");
+		addToken(ZXB_RAND, "RAND");
+		addToken(ZXB_RANDOMIZE, "RANDOMIZE");
+		addToken(ZXB_IF, "IF");
+		addToken(ZXB_CLS, "CLS");
+		addToken(ZXB_DRAW, "DRAW");
+		addToken(ZXB_CLEAR, "CLEAR");
+		addToken(ZXB_RETURN, "RETURN");
+		addToken(ZXB_COPY, "COPY");
+		addToken(ZXB_GOTO, "GOTO");
+		addToken(ZXB_SMALLERTHAN, "<=");
+		addToken(ZXB_BIGGERTHAN, ">=");
+		addToken(ZXB_UNEQUAL, "<>");
+
+	}
+	
+	public void addToken(int token, String name) {
+		Integer key = Integer.valueOf(token);
+		mMapTokens.put(key, name);
+		mMapRTokens.put(name, key);
+	}
+	
+	public void addExtendTokens() {
+		addToken(ZXB_CALL,"CALL");
+		addToken(ZXB_PROC,"PROC");
+		addToken(ZXB_FUNC,"FUNC");
+		addToken(ZXB_WHILE,"WHILE");
+		addToken(ZXB_WEND,"WEND");
+		addToken(ZXB_EXIT,"EXIT");
+		addToken(ZXB_END,"END");
+		addToken(ZXB_DO,"DO");
+		addToken(ZXB_LOOP,"LOOP");
+		addToken(ZXB_UNTIL,"UNTIL");
+		addToken(ZXB_SELECT,"SELECT");
+		addToken(ZXB_CASE,"CASE");
+		addToken(ZXB_DEFAULT,"DEFAULT");
+		addToken(ZXB_BREAK,"BREAK");
+	}
+
+	public Set<String> createExtendedSet(String[] strings) {
+		addExtendTokens();
+		HashSet<String> result = new HashSet<String>();
+		if (strings != null) for (String s:strings) result.add(s);
+		for (String s:mMapRTokens.keySet()) result.add(s);
+		return result;
+	}
+	public Set<String> createSet(String[] strings) {
+		HashSet<String> result = new HashSet<String>();
+		for (String s:mMapRTokens.keySet()) result.add(s);
+		if (strings != null)
+		for (String s:strings) result.add(s);
+		return result;
 	}
 }

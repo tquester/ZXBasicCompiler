@@ -2,6 +2,8 @@ package main;
 
 import java.awt.font.LineMetrics;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import zxcompiler.ZXToken;
 
@@ -19,6 +21,12 @@ class BasicLine {
 public class BasicPreparser {
     private static final int AUTO_START = 1000;
     private static final int AUTO_STEP = 10;
+    
+    static class Procedure {
+        String name;
+        String[] params;
+        String body;
+    }  
 
     static class LoopContext {
         String type;            // "WHILE" oder "DO"
@@ -28,7 +36,171 @@ public class BasicPreparser {
         int endLine;            // Ziel für EXIT (wird beim WEND/LOOP UNTIL gesetzt)
     }
     
-    public static List<BasicLine> preprocess(List<String> src) {
+    private static class CaseBlock {
+        String value;
+        String label;
+        List<String> codeLines = new ArrayList<>();
+
+        CaseBlock(String value, String code) {
+            this.value = value;
+            this.label = value.replaceAll("[^A-Za-z0-9]", "") + "_" + UUID.randomUUID().toString().substring(0, 4);
+            if (!code.isEmpty()) codeLines.add(code);
+        }
+
+        void addInlineCode(String code) {
+            codeLines.add(code);
+        }
+    }    
+    
+    // --- Innerer Hilfskontext ---
+    private static class SelectContext {
+        String variable;
+        List<CaseBlock> cases = new ArrayList<>();
+        CaseBlock caseElse;
+        String endLabel;
+
+        SelectContext(String variable) {
+            this.variable = variable;
+            this.endLabel = "scEnd_" + UUID.randomUUID().toString().substring(0, 4);
+        }
+
+        void addCase(String value, String code) {
+            cases.add(new CaseBlock(value, code));
+        }
+
+        void setCaseElse(String code) {
+            this.caseElse = new CaseBlock("ELSE", code);
+        }
+
+        void addInlineCode(String code) {
+            if (!cases.isEmpty()) {
+                cases.get(cases.size() - 1).addInlineCode(code);
+            } else if (caseElse != null) {
+                caseElse.addInlineCode(code);
+            }
+        }
+        
+        void addInlineCodeList(List<String> lines) {
+            if (!cases.isEmpty()) {
+                cases.get(cases.size() - 1).codeLines.addAll(lines);
+            } else if (caseElse != null) {
+                caseElse.codeLines.addAll(lines);
+            }
+        }        
+
+        List<String> generateCode() {
+            List<String> out = new ArrayList<>();
+
+            // IF-Zeilen
+            for (CaseBlock c : cases) {
+                out.add("IF " + variable + "=" + c.value + " THEN GOTO #" + c.label);
+            }
+            if (caseElse != null) {
+                    out.addAll(caseElse.codeLines);
+                    out.add("GOTO #" + endLabel);
+            } else {
+                out.add("GOTO #" + endLabel);
+            }
+
+            // CASE Blöcke
+            for (CaseBlock c : cases) {
+                out.add("#" + c.label);
+                out.addAll(c.codeLines);
+                out.add("GOTO #" + endLabel);
+            }
+
+           
+
+            // END SELECT
+            out.add("#" + endLabel);
+            return out;
+        }
+    }    
+    
+    public static List<String> convertSelectCase(List<String> lines) {
+        List<String> result = new ArrayList<>();
+        Stack<SelectContext> stack = new Stack<>();
+
+        for (String rawLine : lines) {
+            String line = rawLine.trim().toUpperCase();
+
+            if (line.startsWith("SELECT ")) {
+                // Variable extrahieren
+                String varName = rawLine.trim().substring(7).trim();
+                stack.push(new SelectContext(varName));
+            }
+            else if (line.startsWith("ELSE")) {
+            	
+                if (!stack.isEmpty()) {
+                    String[] parts = rawLine.split(":", 2);
+                    stack.peek().setCaseElse(parts.length > 1 ? parts[1].trim() : "");
+                }
+            }
+            else if (line.startsWith("CASE ")) {
+                if (!stack.isEmpty()) {
+                    String caseLine = rawLine.trim().substring(5).trim();
+                    String caseValue;
+                    String caseCode = "";
+
+                    if (caseLine.startsWith("\"")) { // String mit Leerzeichen
+                        int endQuote = caseLine.indexOf("\"", 1);
+                        if (endQuote < 0) throw new RuntimeException("Fehlendes schließendes Anführungszeichen: " + rawLine);
+                        caseValue = caseLine.substring(0, endQuote + 1); // inkl. Quotes
+                        if (endQuote + 1 < caseLine.length() && caseLine.charAt(endQuote + 1) == ':') {
+                            caseCode = caseLine.substring(endQuote + 2).trim();
+                        }
+                    } else { // Zahl oder Identifier
+                        String[] parts = caseLine.split(":", 2);
+                        caseValue = parts[0].trim();
+                        if (parts.length > 1) caseCode = parts[1].trim();
+                    }
+                    stack.peek().addCase(caseValue, caseCode);
+                }
+            }
+            else if (line.equals("END SELECT")) {
+                if (!stack.isEmpty()) {
+                    SelectContext ctx = stack.pop();
+                    List<String> generated = ctx.generateCode();
+
+                    if (!stack.isEmpty()) {
+                        // Verschachtelt: Füge generierten Code in aktuellen CASE-Block des übergeordneten SELECT ein
+                        stack.peek().addInlineCodeList(generated);
+                    } else {
+                        // Äußerster SELECT: direkt in Ergebnis
+                        result.addAll(generated);
+                    }
+                }
+            }
+            else {
+                // Normale Zeile wird direkt übernommen, wenn kein aktiver SELECT
+                if (stack.isEmpty()) {
+                    result.add(rawLine);
+                } else {
+                    // Innerhalb eines CASE-Blocks: normalen Code an den aktuellen CASE hängen
+                    stack.peek().addInlineCode(rawLine);
+                }
+            }
+        }
+
+        return result;
+    }
+    
+    public static List<BasicLine> preProcess(String code) {
+    	code = transformProcedureToLabels(code);
+    	ArrayList<String> lcode = new ArrayList<String>();
+    	for (String line: code.split("\n")) {
+    		lcode.add(line);
+    	}
+    	return preprocess(lcode);
+    	
+    }
+
+  
+
+
+    
+    public static List<BasicLine> preprocess(List<String> src2) {
+    	List<String> src = convertSelectCase(src2);
         BasicTokenizer tokenizer = new BasicTokenizer(new TreeMap<String, Integer>());
         List<BasicLine> lines = new ArrayList<>();
         Map<String,Integer> labelMap = new HashMap<>();
@@ -58,7 +230,7 @@ public class BasicPreparser {
                 lineNum = currentNum;
             }
 
-
+/*
             if (upper.startsWith("WHILE ")) {
                 // Neue WHILE-Schleife beginnen
                 String cond = rawLine.substring(6).trim();
@@ -152,7 +324,7 @@ public class BasicPreparser {
             	
                 continue;
             } 
-           
+           */
 
             // Prüfen auf Label-Zeile
             String label = null;
@@ -184,7 +356,6 @@ public class BasicPreparser {
                 autoNum += AUTO_STEP;
                 currentNum = null;
             }
-            //autoNum += AUTO_STEP;
         }
 
         // Phase 2: Sprünge auflösen
@@ -262,5 +433,59 @@ public class BasicPreparser {
             for (String p : parts[1].split(",")) out.add(p.trim());
         }
     }
+    
+    public static String transformProcedureToLabels(String code) {
+        // 1. Prozedur-Definitionen extrahieren
+        List<Procedure> procedures = new ArrayList<>();
+        Pattern procPattern = Pattern.compile("(?i)procedure\\s+(\\w+)\\(([^)]*)\\)(.*?)end\\s+proc", Pattern.DOTALL);
+        Matcher procMatcher = procPattern.matcher(code);
+        
+        while (procMatcher.find()) {
+            Procedure p = new Procedure();
+            p.name = procMatcher.group(1);
+            p.params = Arrays.stream(procMatcher.group(2).split(","))
+                            .map(String::trim)
+                            .toArray(String[]::new);
+            p.body = procMatcher.group(3).trim();
+            procedures.add(p);
+        }
+
+        // 2. Prozedur-Aufrufe ersetzen
+        StringBuffer result = new StringBuffer();
+        Pattern callPattern = Pattern.compile("(?i)(\\w+)\\s*\\(([^)]*)\\)");
+        Matcher callMatcher = callPattern.matcher(procPattern.matcher(code).replaceAll(""));
+        
+        while (callMatcher.find()) {
+            String procName = callMatcher.group(1);
+            String[] args = callMatcher.group(2).split(",");
+            
+            StringBuilder replacement = new StringBuilder();
+            // Parameter-Zuweisungen
+            for (int i = 0; i < args.length; i++) {
+                replacement.append("LET ").append(procName).append("_")
+                          .append(i+1).append("=").append(args[i].trim()).append(":");
+            }
+            // GOSUB mit Label
+            replacement.append("GOSUB #proc_").append(procName);
+            callMatcher.appendReplacement(result, replacement.toString());
+        }
+        callMatcher.appendTail(result);
+        
+        // 3. Prozedur-Definitionen als Labels anhängen
+        for (Procedure p : procedures) {
+            result.append("\n#proc_").append(p.name).append("\n");
+            // Parameter im Body ersetzen
+            String body = p.body;
+            for (int i = 0; i < p.params.length; i++) {
+                body = body.replaceAll("(?i)\\b" + p.params[i] + "\\b", 
+                                      p.name + "_" + (i+1));
+            }
+            result.append(body).append("\nRETURN");
+        }
+        
+        return result.toString();
+    }
+
+  
 }
 

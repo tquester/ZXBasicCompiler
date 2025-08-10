@@ -3,16 +3,17 @@ package main;
 import zxcompiler.ZXToken;
 
 public class CBASICTokenizer {
-	enum BASICTokenTyp {
+	public enum BASICTokenTyp {
 		isKeyword,
 		isString,
 		isNumber,
-		isVariable
+		isVariable, isSpace, isNull
 	}
+	public boolean mbSpaceToken=false;			// return token for spaces
 	
-	class BASICToken {
+	public static class BASICToken {
 		public String literal;
-		BASICTokenTyp typ;
+		public BASICTokenTyp typ;
 		public int token;
 		public String toString() {
 			switch(typ) {
@@ -31,11 +32,15 @@ public class CBASICTokenizer {
 	private String mLine;
 	private int mPos;
 	
-	byte[] tokenize(String basic) throws Exception {
+	public void addExtendedTokens() {
+		zxtoken.addExtendTokens();
+	}
+	
+	byte[] tokenize(String basic, int start) throws Exception {
 		byte[] result;
 		try {
 			mTemp = new byte[basic.length()*2];
-			mLength = 5;
+			mLength = start;
 			String[] lines = basic.split("\n");
 			for (String line:lines) 
 				tokenizeLine(line);
@@ -47,6 +52,11 @@ public class CBASICTokenizer {
 			throw e;
 		}
 		return result;
+	}
+	
+	public void init(String line) {
+		mLine = line;
+		mPos = 0;		
 	}
 
 	private void tokenizeLine(String line) throws Exception {
@@ -164,16 +174,30 @@ public class CBASICTokenizer {
 		mTemp[pos+1] = (byte)(int1/256);
 		mTemp[pos] = (byte)(int1%256);
 	}
+	
+	public boolean peekToken(BASICToken token) {
+		int pos = mPos;
+		boolean r = nextToken(token);
+		mPos = pos;
+		return r;
+	}
 
-	private boolean nextToken(BASICToken token) {
+	public boolean nextToken(BASICToken token) {
 		int len = mLine.length();
 		char c=0;
 		if (mPos >= len) return false;
+		token.typ = BASICTokenTyp.isNull;
+		token.literal = "";
 		while (mPos < len) {
 			c = mLine.charAt(mPos);
 			if (!Character.isSpace(c)) break;
+			token.typ = BASICTokenTyp.isSpace;
+			if (mbSpaceToken) token.literal += c;
 			mPos++;
 		}
+		if (mbSpaceToken && token.typ == BASICTokenTyp.isSpace)
+			return true;
+		
 		if (c >= '0' && c <= '9' || c == '.') {
 			token.typ = BASICTokenTyp.isNumber;
 			token.literal = "" + c;
@@ -225,28 +249,35 @@ public class CBASICTokenizer {
 		case ',':
 		case ':':
 		case ';':
+		case '#':
 		case ')':
 			token.typ = BASICTokenTyp.isKeyword;
 			token.token = c;
+			token.literal = ""+c;
 			mPos++;
 			break;
 		case '<':
+			token.literal = ""+c;
 			token.typ = BASICTokenTyp.isKeyword;
 			mPos++;
 			if (c1 == '=') {
 				mPos++;
+				token.literal += c;
 				token.token = ZXToken.ZXB_SMALLERTHAN;
 			} else if (c1 == '>') {
 				mPos++;
+				token.literal += '>';
 				token.token = ZXToken.ZXB_UNEQUAL;
 			}
 			else
 				token.token = c;
 			break;
 		case '>':
+			token.literal = ""+c;
 			mPos++;
 			token.typ = BASICTokenTyp.isKeyword;
 			if (c1 == '=') {
+				token.literal +=c;
 				mPos++;
 				token.token = ZXToken.ZXB_BIGGERTHAN;
 			} 			else
@@ -266,6 +297,29 @@ public class CBASICTokenizer {
 		
 		
 		return true;
+	}
+
+	public boolean nextNonSpaceToken(BASICToken token) {
+		boolean b;
+		while (true) {
+			b = nextToken(token);
+			if (!b) break;
+			if (token.typ == BASICTokenTyp.isSpace) continue;
+			break;
+		}
+		return b;
+	}
+
+	public void skipSpace(BASICToken token) {
+		while (true) {
+			boolean b = peekToken(token);
+			if (b == false) break;
+			if (token.typ == BASICTokenTyp.isSpace) {
+				nextToken(token);
+				continue;
+			}
+			break;
+		}
 	}
 
 }

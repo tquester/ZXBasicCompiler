@@ -442,7 +442,7 @@ runtimePrntString1:
     PUSH BC
     PUSH HL
     ;rst $10
-    PRINTA
+    call runtimePrintA
     POP HL
     POP BC
     inc hl
@@ -451,6 +451,128 @@ runtimePrntString1:
     or c
     jp nz,runtimePrntString1
     ret
+
+RT_PRINT_INK:       equ $10
+RT_PRINT_PAPER:     equ $11
+RT_PRINT_FLASH:     equ $12
+RT_PRINT_BRIGHT:    equ $13
+RT_PRINT_INVERSE:   equ $14
+RT_PRINT_OVER:      equ $15
+RT_PRINT_AT:        equ $16
+RT_PRINT_TAB:       equ $17
+
+runtimePrintCtrl:       db 0      ; 0 = no control, 1 = ink, 2 = paper, 3 = flash, 4 = bright, 5 = inverse, 6 = over, 7 = at, 8 = tab
+runtimePrintCtrlCount:  db 0      ; params received
+runtimePrintCtrlNeeded: db 0      ; params needed
+runtimePrintCtrl1:      db 0      ; param 1
+runtimePrintCtrl2:      db 0      ; param 2
+runtimePrintA:          rst $10
+                        ret
+
+                        push af
+                        push ix
+                        ld   ix,runtimePrintCtrl
+                        ld   a,(ix)
+                        pop  ix
+                        cp   0
+                        jp   z,runtimePrintACont    ; no continue
+                        pop af
+                        push bc
+                        push ix
+                        ld   b,a
+                        ld   ix,runtimePrintCtrl
+                        ld   a,(ix+0)
+                        cp   a,(ix+runtimePrintCtrlCount-runtimePrintCtrl)
+                        jr   z, runtimePrintCtrlA
+                        push hl
+                        push de
+                        ld   e,a
+                        ld   d,0
+                        ld   hl,runtimePrintCtrl1
+                        add  hl,de
+                        ld   a,b
+                        ld   (hl),a
+                        inc  (ix)
+                        pop   de
+                        pop   hl
+                        pop   ix
+                        pop   bc
+                        ret
+runtimePrintCtrlA:       push hl
+                        ld l,(ix+runtimePrintCtrl1-runtimePrintCtrl)
+                        ld a,(ix)
+                        cp a,RT_PRINT_INK
+                        jr z,runtimePrintCtrlInk
+                        cp a,RT_PRINT_PAPER
+                        jr z,runtimePrintCtrlPaper
+                        cp a,RT_PRINT_FLASH
+                        jr z,runtimePrintCtrlFlash
+                        cp a,RT_PRINT_BRIGHT
+                        jr z,runtimePrintCtrlBright
+                        cp a,RT_PRINT_INVERSE
+                        jr z,runtimePrintCtrlInverse
+                        cp a,RT_PRINT_OVER
+                        jr z,runtimePrintCtrlOver
+                        cp a,RT_PRINT_AT
+                        jr z,runtimePrintCtrlAt
+                        cp a,RT_PRINT_TAB
+                        jr z,runtimePrintCtrlTab
+                        pop hl
+                        pop ix
+                        pop bc
+                        ret
+
+runtimePrintCtrlInk:    call runtimeLocalInk
+runtimePrintCtrlEnd:    pop hl
+                        pop ix
+                        pop bc
+                        ret
+
+runtimePrintCtrlPaper:  call runtimeLocalPaper
+                        jr runtimePrintCtrlEnd
+runtimePrintCtrlFlash:  call runtimeLocalFlash
+                        jr runtimePrintCtrlEnd
+runtimePrintCtrlBright: call runtimeLocalBright
+                        jr runtimePrintCtrlEnd
+runtimePrintCtrlInverse: call runtimeLocalInverse
+                        jr runtimePrintCtrlEnd
+runtimePrintCtrlOver:   call runtimeLocalOver
+                        jr runtimePrintCtrlEnd
+runtimePrintCtrlAt:     push de
+                        ld e,(ix+runtimePrintCtrl2-runtimePrintCtrl)
+                        call runtimePrintAt
+                        pop de     
+                        jr runtimePrintCtrlEnd
+runtimePrintCtrlTab:    call runtimeTab
+                        jr runtimePrintCtrlEnd
+
+
+runtimePrintACont:      pop af
+
+                        cp $18
+                        jp nc, runtimePrintNoControl
+                        cp $11
+                        jr c,runtimePrintNoControl
+                        push bc
+                        ld  b,a
+                        ld  (runtimePrintCtrl),a
+                        ld a,0
+                        ld  (runtimePrintCtrlCount),a
+                        ld  a,1
+                        ld  (runtimePrintCtrlNeeded),a
+                        ld  a,b
+                        pop bc
+                        cp  a,RT_PRINT_AT
+                        ret nz
+                        ld  a,2
+                        ld  (runtimePrintCtrlNeeded),a
+                        ret
+
+
+
+
+runtimePrintNoControl:  rst $10
+                        ret                        
 
 runtimePrintAt:
 

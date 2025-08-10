@@ -2,8 +2,6 @@ package main.spriteed;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-
-
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
@@ -19,10 +17,14 @@ public class CSpriteCanvas extends Composite {
 	
 	
 	public byte[] mBytes=null;
-	public int spriteHeight=8;
+	public int mGridHeight=8;
+	public int mGridWidth=8;
+			
 	public int mOffset=0;
 	public boolean mReadonly=true;
-	public CSpriteCanvasData mSpriteData = null;
+	public ISpriteCanvasData mSpriteCanvasData = null;
+	private ICanvasSpriteMatrixData mMatrixData;
+	
 	
 	/**
 	 * Create the composite.
@@ -45,10 +47,14 @@ public class CSpriteCanvas extends Composite {
 		
 
 	}
-	
-	public void setData(CSpriteCanvasData data) {
-		mSpriteData = data;
+	public void setData(ISpriteCanvasData data) {
+		mSpriteCanvasData= data;
 	}
+	
+	public void setTile(int tile) {			// either an udg or a sprite
+		mBytes = mMatrixData.getFlatData(tile);
+	}
+	
 
 	
 
@@ -64,8 +70,8 @@ public class CSpriteCanvas extends Composite {
 	    Color gray2 = display.getSystemColor(SWT.COLOR_DARK_GRAY);
 	    Color red = display.getSystemColor(SWT.COLOR_RED);
 		
-	    int width = spriteHeight == 0 ? 16 : 8;
-	    int height = spriteHeight == 0 ? 16 : 15;
+	    int width = mGridWidth;
+	    int height = mGridHeight;
 		int x = 0;
 		int y = 0;
 		int dx = bounds.width / width;
@@ -101,31 +107,14 @@ public class CSpriteCanvas extends Composite {
 			e.gc.drawLine(0, y, w, y);
 			y += dy;
 		}
-		int bytepos = mOffset;
+		int bytepos = 0;
 		
 		y = 0;
-		int spheight = spriteHeight == 0 ? 16 : spriteHeight;
+		int spheight = mGridHeight;
 		
 		for (int iy = 0; iy < spheight; iy++) {
 			x = 0;
-			if (spriteHeight == 0) {
-				int word = getSpriteWord(bytepos);
-				bytepos += 2;
-				int mask = 0x8000;
-				for (int ix=0;ix<16;ix++) {
-					if ((word & mask) == 0) {
-						e.gc.setForeground(white);
-						e.gc.setBackground(white);
-					} else {
-						e.gc.setForeground(black);
-						e.gc.setBackground(black);
-					}
-						
-					e.gc.fillRectangle(x+2, y+2, dx-4, dy-4);
-					x += dx;
-					mask >>= 1;
-				}
-			} else {
+			  for (int bx=0;bx<mGridWidth/8;bx++) {
 				int word = getSpriteByte(bytepos);
 				bytepos += 1;
 				int mask = 0x80;
@@ -142,8 +131,9 @@ public class CSpriteCanvas extends Composite {
 					x += dx;
 					mask >>= 1;
 				}
+			  }
 				
-			}
+			
 			y += dy;
 		}
 		
@@ -169,8 +159,8 @@ public class CSpriteCanvas extends Composite {
 		int pos;
 		int x = 0;
 		int y = 0;
-	    int width = spriteHeight == 0 ? 16 : 8;
-	    int height = spriteHeight == 0 ? 16 : 15;
+	    int width = mGridWidth;
+	    int height = mGridHeight;
 		int dx = bounds.width / width;
 		int dy = bounds.height / height;
 		int w = dx * 16;
@@ -180,22 +170,13 @@ public class CSpriteCanvas extends Composite {
 		}
 		x = e.x / dx;
 		y = e.y / dy;
-		if (spriteHeight == 0) {
-			pos = mOffset + y * 2;
-			if (x > 7) {
-				pos++;
-				x -= 8;
-			}
+		System.out.println(String.format("x=%d, y=%d",x,y));
+	
+			pos = mOffset + y*(mGridWidth/8) + x/8;
+			x &= 7;
 			int mask = 0x80 >> x;
 			setSpriteByte(pos, getSpriteByte(pos) ^ mask);
-				 
-		} else {
-			pos = mOffset + y;
-			if (x <= 8) {
-				int mask = 0x80 >> x;
-				setSpriteByte(pos, getSpriteByte(pos) ^ mask);
-			}
-		}
+		
 		redraw();
 		updateText();
 		
@@ -210,14 +191,10 @@ public class CSpriteCanvas extends Composite {
 	 * @return
 	 */
 	public int getSpriteByte(int bytepos) {
-		if (mSpriteData != null) return mSpriteData.getSpriteByte(bytepos);
-		int result=0;
-		if (mBytes != null) {
-			if (bytepos+mOffset < mBytes.length) {
-				result = mBytes[bytepos+mOffset];
-			}
-		}
-		return result;
+		if (bytepos < mBytes.length)
+			return mBytes[bytepos];
+		else 
+			return 255;
 	}
 
 	/**
@@ -228,7 +205,6 @@ public class CSpriteCanvas extends Composite {
 	 * @return
 	 */
 	public int getSpriteWord(int bytepos) {
-		if (mSpriteData != null) return mSpriteData.getSpriteWord(bytepos);
 		int result=0;
 		if (mBytes != null) {
 			if (bytepos+mOffset+1 < mBytes.length) {
@@ -239,7 +215,6 @@ public class CSpriteCanvas extends Composite {
 	}
 	
 	private void setSpriteWord(int bytepos, int word) {
-		if (mSpriteData != null) mSpriteData.setSpriteWord(bytepos, word);
 		int result=0;
 		if (mBytes != null) {
 			if (bytepos+mOffset+1 < mBytes.length) {
@@ -253,7 +228,8 @@ public class CSpriteCanvas extends Composite {
 	 * Called after Bytes have been changed, overwrite if nessary
 	 */
 	public void updateText() {
-		if (mSpriteData != null) mSpriteData.updateText();
+		mMatrixData.setFlatData(mBytes);
+		if (mSpriteCanvasData!= null) mSpriteCanvasData.updateText();
 	}
 
 	/**Sets a byte in memory. Overwrite for own memory management
@@ -262,10 +238,6 @@ public class CSpriteCanvas extends Composite {
 	 * @param newbyte
 	 */
 	public void setSpriteByte(int bytepos, int newbyte) {
-		if (mSpriteData != null) {
-			mSpriteData.setSpriteByte(bytepos, newbyte);
-			return;
-		}
 			
 		if (mBytes != null) {
 			if (bytepos+mOffset < mBytes.length) {
@@ -276,7 +248,7 @@ public class CSpriteCanvas extends Composite {
 	}
 	
 	public void setHeight(int height) {
-		spriteHeight = height;
+		mGridHeight = height;
 		redraw();
 	}
 	
@@ -286,23 +258,21 @@ public class CSpriteCanvas extends Composite {
 	}
 	
 	public void shiftRight() {
-		int i;
-		int word;
-		int pos = mOffset;
-		if (spriteHeight == 0) {
-			for (i=0;i<16;i++) {
-				word = getSpriteWord(pos);
-				word >>= 1;
-				setSpriteWord(pos, word);
-				pos+=2;
+		int line=0;
+		int lineh = mMatrixData.getTileW()/8;
+		int pos = 0;
+		for (int y=0;y<mMatrixData.getTileH();y++) {
+			byte carry = 0;
+			for (int x=0;x<lineh;x++) {
+				int b = mBytes[line+x];	
+				if (b < 0) b+=256;
+				byte carry2 = (byte) ((b & 0x1) == 0 ? 0 : 1);
+				b >>= 1;
+				b += carry<<7;
+				carry = carry2;
+				mBytes[line+x] = (byte)b;
 			}
-		} else {
-			for (i=0;i<spriteHeight;i++) {
-				word = getSpriteByte(pos);
-				word >>= 1;
-				setSpriteByte(pos,word);
-				pos++;
-			}
+			line += lineh;
 		}
 		updateText();
 		redraw();		
@@ -311,33 +281,32 @@ public class CSpriteCanvas extends Composite {
 
 
 	public void shiftLeft() {
-		int i;
-		int word;
-		int pos = mOffset;
-		if (spriteHeight == 0) {
-			for (i=0;i<16;i++) {
-				word = getSpriteWord(pos);
-				word <<= 1;
-				setSpriteWord(pos, word);
-				pos+=2;
+		int line=0;
+		int lineh = mMatrixData.getTileW()/8;
+		for (int y=0;y<mMatrixData.getTileH();y++) {
+			byte carry = 0;
+		    
+			for (int x=lineh-1;x>=0;x--) {
+				byte b = mBytes[line+x];			
+				byte carry2 = (byte) ((b & 0x80) == 0 ? 0 : 1);
+				b <<= 1;
+				b += carry;
+				carry = carry2;
+				mBytes[line+x] = b;
 			}
-		} else {
-			for (i=0;i<spriteHeight;i++) {
-				word = getSpriteByte(pos);
-				word <<= 1;
-				setSpriteByte(pos,word);
-				pos++;
-			}
+			line += lineh;
 		}
+		
 		updateText();
+		
 		redraw();
 		
 	}
 	
 	public void onShiftDown() {
-		int rows = spriteHeight == 0 ? 16 : spriteHeight;
-		int bytes = spriteHeight == 0 ? 2 : 1;
-		int pos1 = mOffset+rows*bytes;
+		int rows = mGridHeight;
+		int bytes = mGridWidth/8;
+		int pos1 = rows*bytes;
 		int pos = pos1-bytes;
 		pos1--;
 		pos--;
@@ -355,10 +324,10 @@ public class CSpriteCanvas extends Composite {
 	}
 
 	public void onShiftUp() {
-		int rows = spriteHeight == 0 ? 16 : spriteHeight;
-		int bytes = spriteHeight == 0 ? 2 : 1;
-		int pos = mOffset;
-		int pos1 = mOffset+bytes;
+		int rows = getGridHeight();
+		int bytes = getGridWidth();
+		int pos = 0;
+		int pos1 = bytes;
 		for (int i=0;i<rows-1;i++) {
 			for (int j=0;j<bytes;j++) {
 				setSpriteByte(pos++, getSpriteByte(pos1++));
@@ -370,10 +339,10 @@ public class CSpriteCanvas extends Composite {
 	}
 
 	public void flipW() {
-		int rows = spriteHeight == 0 ? 16 : spriteHeight;
-		int bytes = spriteHeight == 0 ? 2 : 1;
+		int rows = mGridHeight;
+		int bytes = mGridWidth / 8;
 		int temp[] = new int[bytes];
-		int pos = mOffset;
+		int pos = 0;
 		for (int i=0;i<rows;i++) {
 			int d = bytes-1;
 			for (int j=0;j<bytes;j++) {
@@ -405,8 +374,8 @@ public class CSpriteCanvas extends Composite {
 	}
 
 	public void flipH() {
-		int rows = spriteHeight == 0 ? 16 : spriteHeight;
-		int bytes = spriteHeight == 0 ? 2 : 1;
+		int rows = mGridHeight;
+		int bytes = mGridWidth/8;
 		int temp[] = new int[bytes];
 		int pos = mOffset;
 		int j;
@@ -430,6 +399,41 @@ public class CSpriteCanvas extends Composite {
 	@Override
 	protected void checkSubclass() {
 		// Disable the check that prevents subclassing of SWT components
+	}
+
+	public int getGridHeight() {
+		return mGridHeight;
+	}
+	public int getGridWidth() {
+		return mGridWidth;
+	}
+
+	public int getSpriteSize() {
+		return mGridHeight*mGridWidth/8;
+	}
+
+	public void setColumns(int int1) {
+		mGridWidth = int1;
+		mMatrixData.setTileW(int1);
+		mBytes = mMatrixData.getFlatData(mMatrixData.getTile());
+		
+		redraw();
+		
+	}
+
+	public void setRows(int int1) {
+		mGridHeight = int1;
+		mMatrixData.setTileH(int1);
+		mBytes = mMatrixData.getFlatData(mMatrixData.getTile());
+		redraw();
+		
+	}
+
+	public void setMatrixData(ICanvasSpriteMatrixData matrixData) {
+		mMatrixData = matrixData;
+		if (matrixData != null)
+			mBytes = matrixData.getFlatData(0);
+		
 	}
 }
 

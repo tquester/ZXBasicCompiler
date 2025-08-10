@@ -15,6 +15,7 @@ public class ZXTapWriter {
             // DATABLOCK schreiben
             byte[] datablock = createDataBlock(code);
             writeBlock(out, datablock);
+           
         }
     }
 
@@ -24,10 +25,12 @@ public class ZXTapWriter {
         baos.write(0x00); // Typ 0 = BASIC
 
         // Name (max 10 Zeichen, mit Spaces auffüllen)
+        while (name.length()<10) name += " ";
+        if (name.length() > 10) name = name.substring(0,10);
         byte[] nameBytes = Arrays.copyOf(name.getBytes(StandardCharsets.ISO_8859_1), 10);
         baos.write(nameBytes);
-
-        // Länge des Datenblocks
+        
+              // Länge des Datenblocks
         baos.write(length & 0xFF);
         baos.write((length >> 8) & 0xFF);
 
@@ -36,13 +39,13 @@ public class ZXTapWriter {
         baos.write((autostart >> 8) & 0xFF);
 
         // Unused (für BASIC immer 0)
-        baos.write(0);
-        baos.write(0);
+        baos.write(0x15);
+        baos.write(0x00);
 
         // Checksumme
         byte[] raw = baos.toByteArray();
         baos.write(calcChecksum(raw));
-
+        raw = baos.toByteArray();
         return wrapWithLength(raw);
     }
 
@@ -50,6 +53,7 @@ public class ZXTapWriter {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         baos.write(0xFF); // Daten-Flag
         baos.write(code); // BASIC-Bytes
+        baos.write(0x5e);
         byte[] raw = baos.toByteArray();
         baos.write(calcChecksum(raw));
         return wrapWithLength(raw);
@@ -57,8 +61,9 @@ public class ZXTapWriter {
 
     private static byte[] wrapWithLength(byte[] block) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        baos.write(block.length & 0xFF);
-        baos.write((block.length >> 8) & 0xFF);
+        int length = block.length;
+        baos.write(length & 0xFF);
+        baos.write((length >> 8) & 0xFF);
         baos.write(block);
         return baos.toByteArray();
     }
@@ -73,9 +78,5 @@ public class ZXTapWriter {
         out.write(block);
     }
 
-    // --- Beispielaufruf ---
-    public static void main(String[] args) throws IOException {
-        byte[] code = { 0x00, 0x0A, 0x00, (byte) 0xF9, 0x2A }; // Beispiel-BASIC (z.B. "10 PRINT ...")
-        writeBasicTap("test.tap", "HELLO", code, 10);
-    }
+
 }

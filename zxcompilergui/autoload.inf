@@ -1,7 +1,9 @@
 folder=.
-file=C:\workspaces\github\ZXBasicCompiler\Artikel2\lineside.bas
-file=C:\workspaces\github\ZXBasicCompiler\Artikel2\unittestide.bas
-file=C:\workspaces\github\ZXBasicCompiler\Artikel2\unittestide.bas
 file=emulator.bas
-file=tokenized
 file=C:\workspaces\github\ZXBasicCompiler\Artikel2\udgtestide.bas
+file=C:\workspaces\github\ZXBasicCompiler\Artikel2\testselect.bas
+file=C:\workspaces\github\ZXBasicCompiler\Artikel2\unittestide.bas
+file=C:\workspaces\github\ZXBasicCompiler\Artikel2\helloide.bas
+file=C:\workspaces\github\ZXBasicCompiler\Artikel2\numberguess.bas
+file=compiledBasic.asm
+file=C:\workspaces\github\ZXBasicCompiler\Artikel2\minderide.bas

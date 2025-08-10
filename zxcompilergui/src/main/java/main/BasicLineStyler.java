@@ -71,13 +71,9 @@ public class BasicLineStyler implements LineStyleListener {
 		mColorNumber = display.getSystemColor(SWT.COLOR_DARK_BLUE);
 		mColorComment = display.getSystemColor(SWT.COLOR_DARK_GREEN);
 		mColorLabel = display.getSystemColor(SWT.COLOR_DARK_GRAY);
-		zxTokens.mMapRTokens.put("GO", 0);
-		zxTokens.mMapRTokens.put("SUB", 0);
-		zxTokens.mMapRTokens.put("WHILE", 0);
-		zxTokens.mMapRTokens.put("WEND", 0);
-		zxTokens.mMapRTokens.put("EXIT", 0);
-		zxTokens.mMapRTokens.put("DO", 0);
-		zxTokens.mMapRTokens.put("LOOP", 0);
+		zxTokens.addExtendTokens();
+		zxTokens.addToken(0,"GO");
+		zxTokens.addToken(0,"SUB");
 	}
 	
 	void initializeZ80() {

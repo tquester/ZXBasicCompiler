@@ -658,6 +658,163 @@ ZXAllocNotFoundEndless: jr ZXAllocNotFoundEndless
                         pop  bc
                         pop ix
                         ret
+;------------------------------------------------------------
+; Garbage Collector für ZX Spectrum Heap
+;------------------------------------------------------------
+; Header pro Block:
+;   +0: Typ (1 Byte)
+;   +1: Backlink Low
+;   +2: Backlink High
+;   +3: Größe Low   (nur Nutzdaten)
+;   +4: Größe High
+;------------------------------------------------------------
+
+ZXGarbageCollect:
+    LD   HL,(ZXHeapStart)        ; HL = Ziel (kompakte Front)
+
+GC_Scan:
+    LD   IX,HL                   ; IX = Scanquelle
+
+GC_FindBlock:
+    ; Ende erreicht?
+    LD   DE,(ZXHeapEnd)
+    OR   A
+    SBC  HL,DE
+    JP   NC,GC_FillEmpty         ; HL >= ZXHeapEnd -> fertig
+    ADD  HL,DE
+
+    ; Typ des aktuellen Blocks lesen
+    LD   A,(IX+0)
+    CP   ZXHeapTypeEmpty
+    JR   Z,GC_SkipEmpty
+    CP   ZXHeapTypeTemp
+    JR   Z,GC_KeepTemp
+    JR   GC_MoveUsed             ; Typ 1 -> verschieben
+
+;------------------------------------------------------------
+; Leeren Block überspringen (Typ 0)
+;------------------------------------------------------------
+GC_SkipEmpty:
+    ; Größe lesen
+    LD   E,(IX+3)
+    LD   D,(IX+4)
+    LD   BC,5
+    ADD  DE,BC
+    ADD  IX,DE                   ; IX = nächster Block
+    JR   GC_FindBlock
+
+;------------------------------------------------------------
+; Temporären Block (Typ 2) unverändert belassen
+;------------------------------------------------------------
+GC_KeepTemp:
+    ; Wenn IX != HL, dann bis zu diesem Block mit Leerblock auffüllen
+    LD   A,IXH
+    CP   H
+    LD   A,IXL
+    SBC  A,L
+    JR   Z,GC_TempInPlace
+
+    ; Lücke zwischen HL und IX als leer markieren
+    LD   A,ZXHeapTypeEmpty
+    LD   (HL),A
+    push hl
+    inc  hl
+    inc  hl
+    inc  hl
+    push af
+    xor  a,a
+    LD   (HL),a
+    inc  hl
+    LD   (HL),a
+    pop af
+    pop  hl
+
+GC_TempInPlace:
+    ; HL auf Ende des Temp-Blocks setzen
+    LD   E,(IX+3)
+    LD   D,(IX+4)
+    LD   BC,5
+    ADD  DE,BC
+    ADD  HL,DE
+    ADD  IX,DE
+    JR   GC_FindBlock
+
+;------------------------------------------------------------
+; Benutzten Block verschieben (Typ 1)
+;------------------------------------------------------------
+GC_MoveUsed:
+    ; Größe lesen
+    LD   E,(IX+3)
+    LD   D,(IX+4)
+    LD   BC,5
+    ADD  DE,BC                  ; DE = Blockgröße inkl. Header
+
+    ; Wenn IX == HL -> Block schon richtig
+    LD   A,IXH
+    CP   H
+    LD   A,IXL
+    SBC  A,L
+    JR   Z,GC_BlockInPlace
+
+    ; Block verschieben: DE Bytes von IX -> HL kopieren
+    PUSH DE
+GC_CopyLoop:
+    LD   A,(IX)
+    LD   (HL),A
+    INC  IX
+    INC  HL
+    DEC  DE
+    LD   A,D
+    OR   E
+    JR   NZ,GC_CopyLoop
+    POP  DE
+
+    ; HL zurück zum Start des verschobenen Blocks (HL - Größe)
+    SBC  HL,DE
+
+    ; Backlink aktualisieren
+    push hl
+    inc  hl
+    LD   E,(HL)
+    inc  hl
+    LD   D,(HL)
+    pop  hl
+    ld   a,l
+    LD   (DE),a
+    inc  de
+    ld  a,h
+    LD   (DE),a
+    dec  de
+
+    ; HL ans Ende setzen
+    ADD  HL,DE
+    JR   GC_AfterBlock
+
+GC_BlockInPlace:
+    ; Block steht schon richtig: HL einfach ans Ende setzen
+    ADD  HL,DE
+
+GC_AfterBlock:
+    ; IX ebenfalls ans Ende setzen
+    ADD  IX,DE
+    JP   GC_FindBlock
+
+;------------------------------------------------------------
+; Rest leer machen
+;------------------------------------------------------------
+GC_FillEmpty:
+    LD   A,ZXHeapTypeEmpty
+    LD   (HL),A
+    push hl
+    inc hl
+    inc hl
+    inc hl
+    xor a,a
+    LD   (HL),a
+    inc hl
+    LD   (HL),a
+    pop hl
+    RET
 
                    
 error_no_heap:          dw error_no_heap1-$-2

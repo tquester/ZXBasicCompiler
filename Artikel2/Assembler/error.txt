@@ -1,0 +1,15 @@
+SjASMPlus Z80 Cross-Assembler v1.20.2 (https://github.com/z00m128/sjasmplus)
+Pass 1 complete (0 errors)
+Pass 2 complete (0 errors)
+> ZX Size =418 bytes
+> Heap Size =678 bytes
+> Math Size =236 bytes
+basicRuntime.asm(2630): warning: value 0x5C88 is truncated to 8bit value: 0x88
+> Runtime Size =3464 bytes
+> Compiled Basic = 333 bytes
+> Code size = 5674 bytes
+> EndOfCode =0x7BBA
+main.asm(351): warning: Label has different value in pass 3: previous value 325 not equal 4294954296
+main.asm(355): warning[nexstack]: [SAVENEX] non-zero data are in stackAddress area, may get overwritten by NEXLOAD
+Pass 3 complete
+Errors: 0, warnings: 3, compiled: 4688 lines, work time: 0.078 seconds
