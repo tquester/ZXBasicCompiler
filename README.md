@@ -186,13 +186,20 @@ myfunction:
 This should make it possible to develop games that perform similarly to those written in assembler.
 
 # Work on Compiler GUI started
+
 The GUI allows writing BASIC-Programs in a Window without the emulator. Also you do not need line numbers, can use labels and controls structures such as while.
+See https://github.com/tquester/ZXBasicCompiler/blob/main/richbasic.md 
 
-<img width="865" height="683" alt="image" src="https://github.com/user-attachments/assets/f0d7a0ca-bad8-4e6b-9de7-a915ef667c4a" />
+<img width="1499" height="824" alt="image" src="https://github.com/user-attachments/assets/d5e80844-38a8-415b-9d23-6abc2e316779" />
+
 The GUI converts the BASIC source to a compatible version which can be run on the ZX Spectrum or the compiler.
-<img width="865" height="683" alt="image" src="https://github.com/user-attachments/assets/ff21bf41-2753-4a74-8ca8-a487a25e2ce4" />
+<img width="1049" height="816" alt="image" src="https://github.com/user-attachments/assets/b70b9103-a7f5-475b-9a69-f726092564ba" />
 
-Also editors for UDG, Sprites and Tiles are planned.
+Programs can be compiled with a click of a button or transfered as BASIC source to the emulator. Both will create a TAP file.
+
+
+
+
 
 
 
