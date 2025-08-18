@@ -24,6 +24,11 @@ public class CBASICTokenizer {
 			}
 			return "unknown";
 		}
+		public boolean isKeyword(char tok) {
+			if (typ == BASICTokenTyp.isKeyword && this.token == tok)
+				return true;
+			return false;
+		}
 	}
 	ZXToken zxtoken = new ZXToken();
 	ZX81CalcInputGenerator inputGenerator = new ZX81CalcInputGenerator();

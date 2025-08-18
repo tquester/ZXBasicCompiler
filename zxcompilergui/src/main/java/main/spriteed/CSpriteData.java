@@ -5,13 +5,17 @@ import java.util.ArrayList;
 
 
 public class CSpriteData extends CBinaryData {
+	
 	public String text;
 	public String name = null;
 	public boolean tiles;
 	public int w,h;
 	public boolean isNew = false;
-
-	
+	public void setText(String text) { }
+	public String getText() { return "";}
+	public int[] parse(String text) { return new int[0]; }
+	public void init(int w, int h) {this.w = w; this.h =h; }
+	/*	
 	
 	public String getText() {
 		if (sb != null) {
@@ -110,6 +114,6 @@ public class CSpriteData extends CBinaryData {
 		return result;
 		
 	}
-
+*/
 
 }

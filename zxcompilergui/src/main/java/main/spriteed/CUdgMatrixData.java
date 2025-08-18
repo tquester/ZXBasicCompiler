@@ -10,6 +10,7 @@ public class CUdgMatrixData implements ICanvasSpriteMatrixData {
 	int tileH = 8;
 	private int mTile;
 	CBASICTokenizer tokenizer = new CBASICTokenizer();
+	public String name="";
 	
 	public int getByte(int x, int y) {
 		int bytesPerRow = getTileW() / 8;
@@ -153,6 +154,9 @@ public class CUdgMatrixData implements ICanvasSpriteMatrixData {
 		int iline = 0;
 		while (iline < lines.length) {
 			String line = lines[iline++];
+			int p = line.lastIndexOf("//");
+			if (p != -1) 
+				line = line.substring(0,p);
 			String uline = line.trim().toUpperCase();
 			if (line.startsWith("#UDG")) {
 				while (iline<lines.length) {
@@ -164,12 +168,16 @@ public class CUdgMatrixData implements ICanvasSpriteMatrixData {
 					}
 					if (line.startsWith("DATA")) {
 						line = line.substring(4);
+						p = line.lastIndexOf("//");
+						if (p != -1) 
+							line = line.substring(0,p);						
 						tokenizer.init(line);
 						CBASICTokenizer.BASICToken token = new CBASICTokenizer.BASICToken();
 						while (tokenizer.nextToken(token)) {
 							if (token.typ == CBASICTokenizer.BASICTokenTyp.isNumber) {
 								int nr = Integer.parseInt(token.literal);
-								mData[bpos++] = (byte)nr;
+								if (bpos < mData.length)
+									mData[bpos++] = (byte)nr;
 							}
 						}
 					}

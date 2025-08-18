@@ -11,6 +11,7 @@ public class CSettings {
 	public String mTapFile="C:\\workspaces\\github\\ZXBasicCompiler\\Artikel2\\Assembler\\compiled.tap";
 	public String mMainAsm="C:\\workspaces\\github\\ZXBasicCompiler\\Artikel2\\Assembler\\main.asm";
 	public String mEmulator="C:\\Program Files (x86)\\Spectaculator\\Spectaculator.exe";
+	public String mCompilerOptions="-s1 -o -l";
 	
 	public CSettings() {
 		String text = Tools.loadTextFile("settings.ini");
@@ -27,6 +28,7 @@ public class CSettings {
 			case "asmmain": mMainAsm = val; break;
 			case "tapfile": mTapFile = val; break;
 			case "emulator": mEmulator = val; break;
+			case "options": mCompilerOptions=val; break;
 			}
 		}
 	}
@@ -38,6 +40,7 @@ public class CSettings {
 		sb.append(String.format("asmmain=%s\n",mMainAsm));
 		sb.append(String.format("tapfile=%s\n",mTapFile));
 		sb.append(String.format("emulator=%s\n",mEmulator));
+		sb.append(String.format("options=%s\n",mCompilerOptions));
 		Tools.writeTextFile("settings.ini", sb.toString());
 	}
 	

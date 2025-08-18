@@ -47,7 +47,7 @@ public class CDialogSpriteEditor extends Dialog {
 	//int mBasePos=0;
 	private Text mTextHex;
 	private boolean mParse = true;
-	private CSpriteData mCurSprite;
+	private CUdgMatrixData mCurSprite;
 	private CDialogSpriteEditor mSpriteEditor;
 	Combo comboNumColumns;
 	Combo comboNumRows;
@@ -135,8 +135,8 @@ public class CDialogSpriteEditor extends Dialog {
 			
 			@Override
 			public int getSpriteByte(int bytepos) {
-				mCanvas.mOffset = bytepos;
-				mCanvas.redraw();
+				//mCanvas.mOffset = bytepos;
+				//mCanvas.redraw();
 				updateTitle();
 				return 0;
 			}
@@ -201,27 +201,17 @@ public class CDialogSpriteEditor extends Dialog {
 	}
 
 	protected void onSaveToEditor() {
-		if (mCurSprite != null) {
-			mCurSprite.setText(mTextHex.getText());
-			if (mResources.save(mCurSprite) == false) {
-				CDialogMessage dlg = new CDialogMessage(shell, SWT.TITLE);
-				dlg.text = "Error saving icons\nPlase update source file\nmanually";
-				dlg.open();
-			}
-			
-		}
-		// TODO Auto-generated method stub
 		
 	}
 
 	protected void onComboSpriteSetSelected() {
 		int index = mComboTileset.getSelectionIndex();
 		if (index != -1) {
-			CSpriteData data = mResources.mSprites.get(index);
+			CUdgMatrixData data = mResources.mSprites.get(index);
 			
 			mCurSprite = data;
 			// todo implement
-			mTextHex.setText(data.getText());
+			mTextHex.setText(data.toString());
 			
 		}
 		
@@ -239,8 +229,8 @@ public class CDialogSpriteEditor extends Dialog {
 
 	private void fillCombo() {
 		
-		for (CSpriteData data: mResources.mSprites) {
-			mComboTileset.add(data.toString());
+		for (CUdgMatrixData data: mResources.mSprites) {
+			mComboTileset.add(data.name);
 		}
 		
 	}
@@ -632,12 +622,10 @@ public class CDialogSpriteEditor extends Dialog {
 
 
 	void updateText() {
-		mParse = false;
+		mInUpdate = true;
 		String text = createText(); 
-		if (mCurSprite != null)
-			mCurSprite.setText(text);
 		mTextHex.setText(text);
-		mParse = true;
+		mInUpdate = false;
 	}
 
 	private String toHex(int spriteByte) {

@@ -36,6 +36,7 @@ import org.eclipse.swt.widgets.TreeItem;
 
 import main.CBASICTokenizer.BASICToken;
 import main.spriteed.CDialogSpriteEditor;
+import main.spriteed.CDialogTileEditor;
 import main.spriteed.CUdgMatrixData;
 import zxcompiler.ZXCompiler;
 import zxcompiler.ZXToken;
@@ -70,6 +71,7 @@ public class CDialogIDEMain extends Dialog {
 	private BasicLineStyler mBasicLineStyler = new BasicLineStyler();
 	private String mFilename;
 	private CTabFolder mTabFolder;
+	private FileSystemTreePopulator mFileSystemPopulator;
 	private org.eclipse.swt.widgets.List listNav;
 	 private static final String[] KEYWORDS = {
 	            "REM", "PRINT", "INPUT", "IF", "THEN", "ELSE", "FOR", "NEXT",
@@ -106,11 +108,14 @@ public class CDialogIDEMain extends Dialog {
 		shlZxBasic.layout();
 		display = shlZxBasic.getDisplay();
 
+		
         for (int i = 1; i <= 5; i++) {
             TreeItem item = new TreeItem(tree, 0);
             item.setText("Datei " + i);
         }
         autoload();
+        mFileSystemPopulator = new FileSystemTreePopulator(tree);
+        mFileSystemPopulator.populateTree(System.getProperty("user.dir"));
 		Display display = getParent().getDisplay();
 		while (!shlZxBasic.isDisposed()) {
 			if (!display.readAndDispatch()) {
@@ -251,6 +256,12 @@ public class CDialogIDEMain extends Dialog {
 	        btnSpriteEditor.setText("Sprite Editor");
 	        
 	        Button btnTileEditor = new Button(toolbar, SWT.NONE);
+	        btnTileEditor.addSelectionListener(new SelectionAdapter() {
+	        	@Override
+	        	public void widgetSelected(SelectionEvent e) {
+	        		onTileEditor();
+	        	}
+	        });
 	        btnTileEditor.setText("Tile Editor");
 	        
 	        Button btnNewButton = new Button(toolbar, SWT.NONE);
@@ -307,7 +318,19 @@ public class CDialogIDEMain extends Dialog {
 	        status.setText("Bereit");
 	}
 	
-   protected void onListNavClicked() {
+   protected void onTileEditor() {
+	   
+	   StyledText editor = getEditor();
+	   if (editor != null) {
+		   CDialogTileEditor dlg = new CDialogTileEditor(shlZxBasic, getStyle());
+		   dlg.mSource = editor;
+		   dlg.open();
+	   }
+	   
+		
+	}
+
+protected void onListNavClicked() {
 		int sel = listNav.getSelectionIndex();
 		if (sel == -1) return;
 		String such = listNav.getItem(sel);
@@ -454,6 +477,9 @@ private void createMenu() {
 	protected void onCompiler() {
 		CBASICPreparser pp = new CBASICPreparser();
 		StyledText editor1=getEditor();
+		String filename = (String)editor1.getData();
+		if (filename.toLowerCase().endsWith(".asm")) return;
+
 
 		String text = editor1.getText()+"\r\n stop\r\n";
 		text = pp.preparse(text);
@@ -494,6 +520,7 @@ private void createMenu() {
 			//editLog.setText(compiler.mEmitter.mSBLog.toString());
 			
 			//Tools.executeCommand(String.format("cmd /C \"start %s\"", compileBat), shlZxBasic);
+			System.out.println("Starting "+compileBat);
 			try {
 	            Runtime.getRuntime().exec(String.format("cmd.exe /c \"%s\"", compileBat));
 	        } catch (IOException e) {
@@ -696,34 +723,60 @@ private void createMenu() {
 
 	protected void onEmulator() {
 		try {
+			System.out.println("OnEmulator");
+			StyledText editor1=getEditor();
+			String filename = (String)editor1.getData();
+			if (filename.toLowerCase().endsWith(".asm")) return;
+			
 			CBASICPreparser cpp = new CBASICPreparser();
 			BasicPreparser pp = new BasicPreparser();
-			StyledText editor1=getEditor();
 			String text = editor1.getText();
+			
+			System.out.println("Preparsing");
 			text = cpp.preparse(text);
 			StyledText editor = createStyledText("emulator.bas");
-			/*
-			String[] lines = text.split("\n");
-			ArrayList<String> l = new ArrayList<String>();
-			for (String s: lines) l.add(s);
-			List<BasicLine> result = pp.preprocess(l);
-			List<String> parsedRsult = pp.createBASIC(result);
-			
-			StringBuilder sb = new StringBuilder();
-			for (String line: parsedRsult)
-				sb.append(line+"\n");
-			editor.setText(sb.toString());
-			*/
+			System.out.println("emulator.bas ready");
+
 			editor.setText(text);;
 			 
-			
+			System.out.println("Tokenizing");
 			CBASICTokenizer tokenizer = new CBASICTokenizer();
 			try {
+				CSettings set = CSettings.instance();
+				ZXBasicFileWriter tapWrite= new ZXBasicFileWriter();
 				byte[] code = tokenizer.tokenize(text,0);
-				ZXTapWriter tapWrite = new ZXTapWriter();
-				String filename = (String)editor1.getData();
+				System.out.println("Writing tape");
+				//ZXTapWriter tapWrite = new ZXTapWriter();
+				
+				
 				if (filename == null) filename = "basic.bas";
-				tapWrite.writeBasicTap(filename.trim()+".tap", "hello", code, 128*256);
+				String tapFilename = filename.trim()+".tap";
+				tapWrite.writeZXBasic(tapFilename, "basic", code, 1000);
+				String path = tapFilename;
+				int p = path.lastIndexOf('\\');
+				if (p == -1) p = path.lastIndexOf("/");
+				if (p == -1) return;
+				path = path.substring(0,p);
+				System.out.println("Writing bat");
+				
+				String compileBat = path+"\\runemulator.bat";
+				StringBuilder sbCompileBat = new StringBuilder();
+				sbCompileBat.append(String.format("cd \"%s\"\n",path));
+				sbCompileBat.append(String.format("start \"%s\" \"%s\"\n", set.mEmulator, tapFilename));
+				sbCompileBat.append(String.format("pause\n" ));
+				Tools.writeTextFile(compileBat,  sbCompileBat.toString());
+				//StyledText editLog = createStyledText("log");
+				//editLog.setText(compiler.mEmitter.mSBLog.toString());
+				
+				//Tools.executeCommand(String.format("cmd /C \"start %s\"", compileBat), shlZxBasic);
+				System.out.println("Starting "+compileBat);
+				try {
+		            Runtime.getRuntime().exec(String.format("cmd.exe /c \"%s\"", compileBat));
+		        } catch (IOException e) {
+		            e.printStackTrace();
+		        }
+				
+				//tapWrite.writeBasicTap(filename.trim()+".tap", "hello", code, 128*256);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

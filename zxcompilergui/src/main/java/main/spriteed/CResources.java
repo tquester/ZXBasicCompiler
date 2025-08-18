@@ -9,13 +9,25 @@ import org.eclipse.swt.graphics.Point;
 
 public class CResources {
 	
-	public ArrayList<CSpriteData> mSprites = new ArrayList<>();
+	public ArrayList<CUdgMatrixData> mSprites = new ArrayList<>();
 	public ArrayList<CSpriteData> mTilesets = new ArrayList<>();
 	
 	StyledText mCurrentEditor = null;
 
 	
 	public void readSourcecode(StyledText editor) {
+		String text = editor.getText();
+		String[] lines = text.split("\n");
+		int iline = 0;
+		while (iline < lines.length) {
+			String line = lines[iline++].trim();
+			if (line.isEmpty() || line.startsWith(";") || line.startsWith("//")) continue;
+			if (line.startsWith("#")) {
+				
+			}
+			
+			
+		}
 	
 	}
 

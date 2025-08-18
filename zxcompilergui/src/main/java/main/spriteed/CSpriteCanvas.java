@@ -172,7 +172,7 @@ public class CSpriteCanvas extends Composite {
 		y = e.y / dy;
 		System.out.println(String.format("x=%d, y=%d",x,y));
 	
-			pos = mOffset + y*(mGridWidth/8) + x/8;
+			pos = y*(mGridWidth/8) + x/8;
 			x &= 7;
 			int mask = 0x80 >> x;
 			setSpriteByte(pos, getSpriteByte(pos) ^ mask);
@@ -240,8 +240,8 @@ public class CSpriteCanvas extends Composite {
 	public void setSpriteByte(int bytepos, int newbyte) {
 			
 		if (mBytes != null) {
-			if (bytepos+mOffset < mBytes.length) {
-				mBytes[bytepos+mOffset] = (byte)(newbyte & 0xff);
+			if (bytepos < mBytes.length) {
+				mBytes[bytepos] = (byte)(newbyte & 0xff);
 			}
 		}
 		
@@ -339,8 +339,8 @@ public class CSpriteCanvas extends Composite {
 	}
 
 	public void flipW() {
-		int rows = mGridHeight;
-		int bytes = mGridWidth / 8;
+		int rows = mMatrixData.getTileH();
+		int bytes = mMatrixData.getTileW() / 8;
 		int temp[] = new int[bytes];
 		int pos = 0;
 		for (int i=0;i<rows;i++) {

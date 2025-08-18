@@ -7,6 +7,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import main.CBASICTokenizer.BASICToken;
+import main.CBASICTokenizer.BASICTokenTyp;
 import zxcompiler.ZXToken;
 
 public class CBASICPreparser {
@@ -14,6 +15,8 @@ public class CBASICPreparser {
 	CBASICTokenizer tokenizer = new CBASICTokenizer();
 	StringBuilder sb = new StringBuilder();
 	CBASICTokenizer.BASICToken token = new CBASICTokenizer.BASICToken();
+	TreeSet<String> mProcedures = new TreeSet<String>();
+	TreeSet<String> mCalls = new TreeSet<String>();
 
 	int ilabel = 1;
 
@@ -29,23 +32,40 @@ public class CBASICPreparser {
 		public int count;
 		public TreeMap<String, Integer> params;
 		public String name;
+		public TreeSet<String> mVariables = new TreeSet<String>();
 	}
 
 	Stack<CStackEntry> mStack = new Stack<CBASICPreparser.CStackEntry>();
 	private boolean mError;
 	private CStackEntry mCurrentProcedure = null; // filled if we are in a procedure
 	
-	
-
 	String preparse(String code) {
+		System.out.println("PreparseSub");
+		String code1 = preparseSub(code);
+		System.out.println("Preparse Unused Procedures");
+		String code2 = removeUnsedProcdures(code);
+		if (mProcedures.size() != 0)  {
+			System.out.println("PreparseSub 2");
+			code1 = preparseSub(code2);
+		}
+			
+		code1 = replaceLines(code1);
+		return code1;
+	}
+
+	String preparseSub(String code) {
 		code = code.replaceAll("\r", "\n");
 		String[] lines = code.split("\n");
 		sb = new StringBuilder();
 		mError = false;
 		for (String line : lines) {
+			//System.out.println(line);
 			if (mError)
 				break;
 			String tline = line.trim();
+			int p = line.lastIndexOf("//");
+			if (p != -1) 
+				line = line.substring(0,p).trim();
 			if (tline.startsWith("#")) {
 				sb.append(line+"\n");
 				continue;
@@ -60,7 +80,6 @@ public class CBASICPreparser {
 			sb.append("\n");
 		}
 		code = sb.toString();
-		code = replaceLines(code);
 		return code;
 	}
 
@@ -78,7 +97,8 @@ public class CBASICPreparser {
 			append(token);
 			break;
 		case isVariable:
-			sb.append("LET " + token.literal);
+			sb.append("LET ");
+			append(token);
 			tokenizeEndOfStmt();
 			break;
 		case isNumber: {
@@ -106,14 +126,8 @@ public class CBASICPreparser {
 	private void tokenizeEndOfStmt() {
 		while (tokenizer.nextToken(token)) {
 			
-			if (token.typ == CBASICTokenizer.BASICTokenTyp.isVariable && mCurrentProcedure != null) {
-				Integer repInteger = mCurrentProcedure.params.get(token.literal.toLowerCase());
-				if (repInteger == null)
-					append(token);
-				else 
-					append(String.format("PROC%s%d", mCurrentProcedure.name, repInteger.intValue()));
-			} else 
-				append(token);
+			
+			append(token);
 			if (token.typ == CBASICTokenizer.BASICTokenTyp.isKeyword && token.token == ':')
 				return;
 			if (token.typ == CBASICTokenizer.BASICTokenTyp.isSpace
@@ -123,8 +137,33 @@ public class CBASICPreparser {
 		}
 
 	}
+	
+	private void replaceProcParam(CBASICTokenizer.BASICToken token) {
+		if (mCurrentProcedure != null) {
+			if (token.typ == CBASICTokenizer.BASICTokenTyp.isVariable) {
+				Integer repInteger = mCurrentProcedure.params.get(token.literal);
+				if (repInteger == null) {
+					if (mCurrentProcedure.mVariables.contains(token.literal.toLowerCase()))
+						token.literal =String.format("PROC%s%s",mCurrentProcedure.name, token.literal); 
+				}
+				else 
+					token.literal = String.format("PROC%s%d", mCurrentProcedure.name, repInteger.intValue()); 
+			} 
+		}
+	}
 
 	private void append(BASICToken token) {
+		if (mCurrentProcedure != null) {
+			if (token.typ == CBASICTokenizer.BASICTokenTyp.isVariable) {
+				Integer repInteger = mCurrentProcedure.params.get(token.literal.toLowerCase());
+				if (repInteger == null) {
+					if (mCurrentProcedure.mVariables.contains(token.literal.toLowerCase()))
+						token.literal =String.format("PROC%s%s",mCurrentProcedure.name, token.literal); 
+				}
+				else 
+					token.literal = String.format("PROC%s%d", mCurrentProcedure.name, repInteger.intValue()); 
+			} 
+		}
 		if (token.typ == CBASICTokenizer.BASICTokenTyp.isString)
 			sb.append("\"" + token.literal + "\"");
 		else
@@ -194,7 +233,7 @@ public class CBASICPreparser {
 		case ZXToken.ZXB_IF:
 			append(token);
 			while (tokenizer.nextToken(token)) {
-				append(token.literal);
+				append(token);
 				if (token.typ == CBASICTokenizer.BASICTokenTyp.isKeyword && token.token == ZXToken.ZXB_THEN)
 					break;
 			}
@@ -268,6 +307,17 @@ public class CBASICPreparser {
 				append(String.format("#%s_exit\n", entry.label));
 			}
 			break;
+		case ZXToken.ZXB_VAR:
+			while (tokenizer.nextToken(token)) {
+				if (token.isKeyword(':')) break;
+				if (token.isKeyword(',')) continue;
+				if (token.typ == CBASICTokenizer.BASICTokenTyp.isVariable) {
+					if (mCurrentProcedure != null)
+						mCurrentProcedure.mVariables .add(token.literal.toLowerCase());
+				}
+			}
+			break;
+			
 		case ZXToken.ZXB_PROC:
 			entry = new CStackEntry();
 			entry.token = token.token;
@@ -275,22 +325,32 @@ public class CBASICPreparser {
 			tokenizer.nextNonSpaceToken(token);
 			entry.label = String.format("proc_%s", token.literal.toLowerCase());
 			entry.name = token.literal.toLowerCase();
+			String rem = "REM PROCEDURE "+entry.name; 
+			mProcedures.add(entry.name);
 			entry.count=0;
 			append(String.format("#%s\n", entry.label));
 			mCurrentProcedure = entry;
 			tokenizer.skipSpace(token);
+			boolean firstpar=true;
 			if (tokenizer.peekToken(token)) {
 				if (token.typ == CBASICTokenizer.BASICTokenTyp.isKeyword && token.token == '(') {
+					rem += "(";
 					tokenizer.nextToken(token);					// (
 					boolean bExit=false;
 					while (tokenizer.nextToken(token)) {
 						switch(token.typ) {
 							case isVariable:
-								entry.params.put(token.literal.toLowerCase(), Integer.valueOf(entry.count++));
+								entry.params.put(token.literal.toLowerCase(), Integer.valueOf(entry.count));
+								if (!firstpar) rem += ", ";
+								firstpar = false;
+								rem+=String.format("%d=%s",entry.count, token.literal);
+								entry.count++;
 								break;
 							case isKeyword:
 								//entry.params.put(token.literal.toLowerCase(), Integer.valueOf(entry.count++));
 								if (token.token == ')') {
+									rem += ")";
+									append(rem+"\n");
 									bExit=true;
 								}
 								break;
@@ -303,6 +363,7 @@ public class CBASICPreparser {
 		case ZXToken.ZXB_CALL:
 			tokenizer.nextNonSpaceToken(token);
 			String name = token.literal.toLowerCase();
+			mCalls.add(name);
 			int count=0;
 			tokenizer.skipSpace(token);
 			if (tokenizer.peekToken(token)) {
@@ -324,6 +385,7 @@ public class CBASICPreparser {
 									exprname+=token.literal;
 								break;
 							default:
+								if (token.typ == BASICTokenTyp.isVariable) replaceProcParam(token); 
 								exprname += token.literal;
 						}
 						if (bExit) break;
@@ -368,6 +430,54 @@ public class CBASICPreparser {
 		int number;
 		String line;
 	}
+	
+	String removeUnsedProcdures(String text) {
+		
+		for (String call: mCalls) {
+			mProcedures.remove(call);
+		}
+		if (mProcedures.size() == 0) 
+			return text;
+		
+		StringBuilder sb = new StringBuilder();
+		String[] lines = text.split("\n");
+		
+		int idline=0;
+		while (idline < lines.length) {
+			String line = lines[idline++];
+			if (line.isEmpty() || line.startsWith(";") || line.startsWith("//")) {
+				sb.append(line+"\n");
+				continue;
+			}
+			tokenizer.init(line);
+			if (tokenizer.nextNonSpaceToken(token)) {
+				if (token.typ == BASICTokenTyp.isKeyword && token.token == ZXToken.ZXB_PROC) {
+					tokenizer.nextNonSpaceToken(token);
+					if (mProcedures.contains(token.literal.toLowerCase())) { // remove procedure
+						System.out.println("Removing procedure "+token.literal);
+						while (idline < lines.length) {
+							line = lines[idline++];
+							tokenizer.init(line);
+							if (tokenizer.nextNonSpaceToken(token)) {
+								if (token.typ == BASICTokenTyp.isKeyword && token.token == ZXToken.ZXB_END) 
+									break;
+							}
+						}
+					}
+					else
+						sb.append(line+"\n");
+				}
+				else
+					sb.append(line+"\n");
+			} else
+				sb.append(line+"\n");
+			
+		
+		}
+		return sb.toString();
+		
+	}
+	
 	String replaceLines(String text) {
 		TreeMap<String, Integer> mapLabels = new TreeMap<String, Integer>();
 		ArrayList<CBASICLine> blines = new ArrayList<CBASICPreparser.CBASICLine>();

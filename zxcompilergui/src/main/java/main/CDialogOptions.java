@@ -20,6 +20,7 @@ public class CDialogOptions extends Dialog {
 	private Text textASMFile;
 	private Text textTapeFile;
 	private Text textEmulator;
+	private Text txtOptions;
 
 	/**
 	 * Create the dialog.
@@ -44,25 +45,17 @@ public class CDialogOptions extends Dialog {
 		textTapeFile.setText(set.mTapFile);
 		txtAsmOutput.setText(set.mAsmOutput);
 		txtAssembler.setText(set.mAssembler);
-		textEmulator.setText(set.mEmulator);;
+		textEmulator.setText(set.mEmulator);
+		txtOptions.setText(set.mCompilerOptions);
 		
-		Label lblEmulator = new Label(shlOptionen, SWT.NONE);
-		lblEmulator.setText("Emulator");
-		lblEmulator.setBounds(10, 275, 316, 20);
+		Label lblCompilerOptionen = new Label(shlOptionen, SWT.NONE);
+		lblCompilerOptionen.setBounds(10, 263, 199, 15);
+		lblCompilerOptionen.setText("Compiler Optionen");
 		
-		textEmulator = new Text(shlOptionen, SWT.BORDER);
-		textEmulator.setText("C:\\Program Files (x86)\\Spectaculator\\Spectaculator.exe");
-		textEmulator.setBounds(10, 301, 615, 26);
+		txtOptions = new Text(shlOptionen, SWT.BORDER);
+		txtOptions.setText(".s1 -o -l");
+		txtOptions.setBounds(10, 284, 603, 21);;
 		
-		Button button_1_1_1 = new Button(shlOptionen, SWT.NONE);
-		button_1_1_1.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				onFindEmulator();
-			}
-		});
-		button_1_1_1.setText("...");
-		button_1_1_1.setBounds(640, 299, 40, 30);
 		Display display = getParent().getDisplay();
 		while (!shlOptionen.isDisposed()) {
 			if (!display.readAndDispatch()) {
@@ -124,7 +117,7 @@ public class CDialogOptions extends Dialog {
 				onOK();
 			}
 		});
-		btnOk.setBounds(580, 335, 90, 26);
+		btnOk.setBounds(580, 516, 90, 26);
 		btnOk.setText("OK");
 		
 		Label lblMainAsmFil = new Label(shlOptionen, SWT.NONE);
@@ -162,6 +155,21 @@ public class CDialogOptions extends Dialog {
 		});
 		button_1_1_1.setText("...");
 		button_1_1_1.setBounds(640, 223, 40, 30);
+		Label lblEmulator = new Label(shlOptionen, SWT.NONE);
+		lblEmulator.setText("Emulator");
+		lblEmulator.setBounds(10, 447, 316, 20);
+		
+		textEmulator = new Text(shlOptionen, SWT.BORDER);
+		textEmulator.setText("C:\\Program Files (x86)\\Spectaculator\\Spectaculator.exe");
+		textEmulator.setBounds(10, 473, 615, 26);
+		
+		Button button_1_1_3 = new Button(shlOptionen, SWT.NONE);
+		button_1_1_3.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				onFindEmulator();
+			}
+		});
 
 	}
 
@@ -190,6 +198,7 @@ public class CDialogOptions extends Dialog {
 		settings.mTapFile = textTapeFile.getText();
 		settings.mMainAsm = textASMFile.getText();
 		settings.mEmulator = textEmulator.getText();
+		settings.mCompilerOptions = txtOptions.getText();
 		settings.save();
 		shlOptionen.close();
 	}
