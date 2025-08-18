@@ -80,6 +80,14 @@ Like in C or Java, you should end the case with break. However it will not execu
 # Procedures: proc and call
 
 You can create a procedure with the proc keyword. Also you can pass parameters.
+* Procedures are easy to read
+* You can pass parameters to procedures
+* The compiler is able to find procedures which are never called and is able to remove them
+* Procedures can be in a differnt file and included to your program or game.
+
+
+
+
 ```
 proc test(abc,def)
    print abc+def
@@ -104,6 +112,52 @@ This will be compiled into
 ```
 1200 LET test_0=100:LET test_1=200:GO SUB 1220
 ```
+
+# VAR
+
+In most languages, procedures have local variables. In Sinclair BASIC we can not simulate local variables, however it is bad if a procedure modifies a variable which is used at any other part of the program.
+At least for number variables that are not used in FOR..NEXT, we can simulate this by name mangeling. However this will not work in recursive calls.
+
+In order to use procedures and functions with real local variables, the compatiblity with Sinclair BASIC must be turned off.
+
+```
+PROC readUDG(count, label)
+    VAR adr, byte, ende
+    RESTORE label
+    LET adr=USR "A"
+    LET ende=adr+count*8
+    WHILE adr<ende
+        READ byte
+        POKE adr,byte
+        adr = adr+1
+    WEND
+END
+```
+
+Will be compiled into
+
+```
+1300 restore PROCreadudg1
+1310 let PROCreadudgadr=usr "A"
+1320 let PROCreadudgende=PROCreadudgadr+PROCreadudg0*8
+1330 IF NOT(PROCreadudgadr<PROCreadudgende) THEN GOTO 1380
+1340 read PROCreadudgbyte
+1350 poke PROCreadudgadr,PROCreadudgbyte
+1360 LET PROCreadudgadr = PROCreadudgadr+1
+1370 GOTO 1330
+1380 return
+```
+
+The call to the procedure 
+```
+CALL readUDG(8, #MINER)
+```
+will be compiled into 
+
+```
+1160 LET PROCreadudg0=8:LET PROCreadudg1= 1420:GO SUB 1300
+```
+
 
 
 
