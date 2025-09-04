@@ -50,6 +50,52 @@ will be compiled to
 1050 
 ```
 
+# Do .. loop
+Do loop creates an endless loop, there is no condition but you can exit the loop with the exit command
+
+```
+rem DO LOOP
+a=1
+do
+   print a
+   a=a+1
+   if a > 10 then exit
+loop
+```
+will be compiled to
+
+```
+1060 rem DO LOOP
+1070 LET a=1
+1080 print a
+1090 LET a=a+1
+1100 if a > 10 then GOTO 1120
+1110 GOTO 1080
+```
+
+# Repeat .. until
+This loop has the check at the end
+
+```
+REM Repeat until
+a=1
+REPEAT
+    PRINT a
+    a = a + 1
+UNTIL a = 5
+```
+
+will be compiled to
+
+```
+1000 REM Repeat until
+1010 LET a=1
+1020 PRINT a
+1030 LET a = a + 1
+1040 IF a = 5 THEN GOTO 1060
+1050 GOTO 1020
+```
+
 # Select, case, end
 Let key be the choice the user made to start the game. Later we move our player with
 ```
@@ -157,6 +203,53 @@ will be compiled into
 ```
 1160 LET PROCreadudg0=8:LET PROCreadudg1= 1420:GO SUB 1300
 ```
+
+# Preprocessor
+
+## #define
+
+This defines constants and flags. A constant consists of more than one word
+
+```
+#define blau 1
+#define rot 2
+
+print "Blau=";blau;" rot=";rot
+```
+
+will be compiled into 
+
+```
+1000 print "Blau=";1;" rot=";2
+```
+
+## #if ... #endif
+
+If flag is defined, the code between #if and #endif will be compiled, otherwise it is skipped.
+The IDE defines three constants
+ZXSPECTRUM Always true (later there will be other systems)
+BASIC True if we build for the Emulator
+COMPILER True if we build with the compiler
+
+You can define your own flags
+
+```
+#define Kempston
+
+#if Kempston
+  REM code for Kempston
+#endif
+```
+
+## #include 
+
+Allows you to read a different BASIC program into your main program. Also the include may include other files etc.
+
+Because the pre-compiler is able to remove unused procedures, you can build libraries which can be included into various programs without including unused code.
+
+
+
+
 
 
 
