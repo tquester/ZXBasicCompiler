@@ -466,61 +466,92 @@ runtimePrintCtrlCount:  db 0      ; params received
 runtimePrintCtrlNeeded: db 0      ; params needed
 runtimePrintCtrl1:      db 0      ; param 1
 runtimePrintCtrl2:      db 0      ; param 2
-runtimePrintA:          rst $10
+runtimePrintA:          ;rst $10
+                        ;ret
+                        ld   hl,(runtimePrintVector)
+                        jp   (hl)
+runtimePrintChar        cp   a,$10        ; ink
+                        jr   z,rtPrintSetInkVec
+                        cp   a,$11       ; paper
+                        jr   z,rtPrintSetPaperVec
+                        cp   a,$12        ; paper
+                        jr   z,rtPrintSetFlashVec
+                        cp   a,$13        ; bright
+                        jr   z,rtPrintSetBrightVec
+                        cp   a,$14
+                        jr   z,rtPrintSetInverseVec
+                        cp   a,$15
+                        jr   z,rtPrintSetOverVec
+                        cp   a,$16
+                        jr   z,rtPrintSetAt1Vec
+                        cp   a,$17
+                        jr   z,rtPrintSetInverseVec
+
+                        rst  $10
                         ret
 
-                        push af
-                        push ix
-                        ld   ix,runtimePrintCtrl
-                        ld   a,(ix)
-                        pop  ix
-                        cp   0
-                        jp   z,runtimePrintACont    ; no continue
-                        pop af
-                        push bc
-                        push ix
-                        ld   b,a
-                        ld   ix,runtimePrintCtrl
-                        ld   a,(ix+0)
-                        cp   a,(ix+runtimePrintCtrlCount-runtimePrintCtrl)
-                        jr   z, runtimePrintCtrlA
-                        push hl
-                        push de
-                        ld   e,a
-                        ld   d,0
-                        ld   hl,runtimePrintCtrl1
-                        add  hl,de
-                        ld   a,b
-                        ld   (hl),a
-                        inc  (ix)
-                        pop   de
-                        pop   hl
-                        pop   ix
-                        pop   bc
-                        ret
-runtimePrintCtrlA:       push hl
-                        ld l,(ix+runtimePrintCtrl1-runtimePrintCtrl)
-                        ld a,(ix)
-                        cp a,RT_PRINT_INK
-                        jr z,runtimePrintCtrlInk
-                        cp a,RT_PRINT_PAPER
-                        jr z,runtimePrintCtrlPaper
-                        cp a,RT_PRINT_FLASH
-                        jr z,runtimePrintCtrlFlash
-                        cp a,RT_PRINT_BRIGHT
-                        jr z,runtimePrintCtrlBright
-                        cp a,RT_PRINT_INVERSE
-                        jr z,runtimePrintCtrlInverse
-                        cp a,RT_PRINT_OVER
-                        jr z,runtimePrintCtrlOver
-                        cp a,RT_PRINT_AT
-                        jr z,runtimePrintCtrlAt
-                        cp a,RT_PRINT_TAB
-                        jr z,runtimePrintCtrlTab
-                        pop hl
-                        pop ix
-                        pop bc
-                        ret
+
+rtPrintSetInkVec:       ld   hl,runtimePrintInk 
+rtSetVec:               ld   (runtimePrintVector),hl
+                        ret                        
+rtPrintSetPaperVec:     ld   hl,runtimePrintPaper 
+                        jr   rtSetVec
+
+rtPrintSetFlashVec:     ld   hl,runtimePrintFlash
+                        jr   rtSetVec
+rtPrintSetBrightVec:     ld   hl,runtimePrintBright 
+                        jr   rtSetVec
+rtPrintSetInverseVec:     ld   hl,runtimePrintInverse
+                        jr   rtSetVec
+rtPrintSetOverVec:     ld   hl,runtimePrintOver
+                        jr   rtSetVec
+rtPrintSetAt1Vec:     ld   hl,runtimePrintAt1
+                        jr   rtSetVec
+rtPrintSetAt2Vec:     ld   hl,runtimePrintAt2
+                        jr   rtSetVec
+rtPrintSetTabVec:     ld   hl,runtimePrintTabx
+                        jr   rtSetVec
+
+rtPrintSetCharVec:      ld   hl,runtimePrintChar 
+                        jr   rtSetVec
+
+
+runtimePrintInk:        ld l,a
+                        call runtimeInk
+                        jr  rtPrintSetCharVec
+
+runtimePrintPaper:      ld l,a
+                        call runtimePaper
+                        jr  rtPrintSetCharVec
+runtimePrintInverse:      ld l,a
+                        call runtimeInverse
+                        jr  rtPrintSetCharVec
+runtimePrintOver:      ld l,a
+                        call runtimeOver
+                        jr  rtPrintSetCharVec
+runtimePrintBright:      ld l,a
+                        call runtimeBright
+                        jr  rtPrintSetCharVec
+runtimePrintFlash:      ld l,a
+                        call runtimeFlash
+                        jr  rtPrintSetCharVec
+runtimePrintTabx:        ld l,a
+                        jr  rtPrintSetCharVec
+runtimePrintAt1:        ld (rtAt1),a
+                        ld  hl,rtPrintSetAt2Vec
+                        jr rtSetVec 
+runtimePrintAt2:        ld l,(rtAt1)
+                        ld e,a
+                        call runtimePrintAt
+                        jr  rtPrintSetCharVec
+
+
+
+runtimePrintVector:     dw   runtimePrintChar 
+rtAt1                    db 0
+
+
+
 
 runtimePrintCtrlInk:    call runtimeLocalInk
 runtimePrintCtrlEnd:    pop hl
@@ -551,7 +582,7 @@ runtimePrintACont:      pop af
 
                         cp $18
                         jp nc, runtimePrintNoControl
-                        cp $11
+                        cp $10
                         jr c,runtimePrintNoControl
                         push bc
                         ld  b,a

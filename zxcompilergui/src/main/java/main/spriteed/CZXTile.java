@@ -7,4 +7,5 @@ public class CZXTile {
 	public boolean flash;
 	public boolean inverse;
 	public boolean over;
+	public boolean bright;
 }

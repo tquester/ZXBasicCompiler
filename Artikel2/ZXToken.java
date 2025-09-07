@@ -121,6 +121,11 @@ public class ZXToken {
 	public static final int ZXB_DEFAULT 	= 1012;
 	public static final int ZXB_BREAK	 	= 1013;
 	public static final int ZXB_VAR 		= 1014;
+	public static final int ZXB_AGAIN 		= 1015;
+	public static final int ZXB_REPEAT 		= 1016;
+	public static final int ZXB_WHEN 		= 1017;
+	public static final int ZXB_ELSE 		= 1018;
+	
 	
 	public String tokenToStr(int token) {
 		String s = mMapTokens.get(token);
@@ -272,6 +277,10 @@ public class ZXToken {
 		addToken(ZXB_DEFAULT,"DEFAULT");
 		addToken(ZXB_BREAK,"BREAK");
 		addToken(ZXB_VAR, "VAR");
+		addToken(ZXB_AGAIN, "AGAIN");
+		addToken(ZXB_REPEAT, "REPEAT");
+		addToken(ZXB_WHEN, "WHEN");
+		addToken(ZXB_ELSE, "ELSE");
 	}
 
 	public Set<String> createExtendedSet(String[] strings) {

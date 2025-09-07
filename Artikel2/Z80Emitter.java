@@ -336,11 +336,11 @@ public class Z80Emitter {
 					r += "\"";
 					inString = false;
 				}
-				String d = value.substring(i + 1, i + 3);
+				int d = parseInt(value.substring(i + 1, i + 4));
 				if (count > 0)
 					r += ", ";
-				r += "$" + d;
-				i += 3;
+				r += String.format("%d", d);
+				i += 4;
 				count++;
 				if (count >= 100) {
 					count=0;
@@ -363,6 +363,16 @@ public class Z80Emitter {
 		return r;
 	}
 
+	private int parseInt(String substring) {
+		try  {
+			return Integer.parseInt(substring);
+		}
+		catch(Exception e) {
+			return 0;
+		}
+	}
+
+
 	private int stringToAsmDBLen(String value) {
 		int r = 0;
 
@@ -372,7 +382,7 @@ public class Z80Emitter {
 			char c = value.charAt(i);
 			if (c == '\\') {
 				r++;
-				i += 3;
+				i += 4;
 			} else {
 				r++;
 				i++;
@@ -1215,10 +1225,10 @@ public class Z80Emitter {
 	}
 	public void emitFirstRestore(String literal) {
 		Z80Command cmd;
-		cmd = new Z80Command("LD", "(DATAPTR)", "HL", null);
-		mCommands.addFirst(cmd);
 		cmd = new Z80Command("LD", "HL", literal, null);
-		mCommands.addFirst(cmd);
+		mCommands.add(0,cmd);
+		cmd = new Z80Command("LD", "(DATAPTR)", "HL", null);
+		mCommands.add(0,cmd);
 		
 	}
 	
@@ -2151,6 +2161,20 @@ public class Z80Emitter {
 		bline.stmt = stmt;
 		bline.text = text;
 		mBasicLines.add(bline);
+		
+	}
+
+
+	public void emitRandomize() {
+		emitCommand("LD","HL","($5C78)","Timer lower bytes");
+		emitCommand("LD","($5C76)","HL","Random Seed");
+		
+	}
+
+
+	public void emitRandomizePar() {
+		emitCommand("POP","HL");
+		emitCommand("LD","($5C76)","HL","Random Seed");
 		
 	}
 

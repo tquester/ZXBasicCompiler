@@ -3,7 +3,6 @@ package zxcompiler;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.lang.classfile.attribute.ModuleExportInfo;
 import java.lang.reflect.Member;
 import java.util.ArrayList;
 /* ZX Colors
@@ -241,6 +240,9 @@ public class ZXCompiler {
 			mEmitter.emitInk();
 			popType();
 			break;
+		case ZXToken.ZXB_RANDOMIZE:
+			compileRandomize();
+			break;
 		case ZXToken.ZXB_FLASH:
 			lexan(lookahead);
 			expr();
@@ -407,6 +409,21 @@ public class ZXCompiler {
 		if (mStringUsed) 
 			mEmitter.emitClearTemp();
 			
+	}
+
+	private void compileRandomize() {
+		lexan(lookahead);
+		if (lookahead.typ == ZXTokenTyp.ZX_Colon || lookahead.typ == ZXTokenTyp.ZX_EndOfLine) {
+			mEmitter.emitRandomize();
+		} else {
+			expr();
+			VARTYP typ = popType();
+			cvToType(typ, VARTYP.TYPE_INT);
+			mEmitter.emitRandomizePar();
+			
+		}
+		// TODO Auto-generated method stub
+		
 	}
 
 	private void compileRead() {

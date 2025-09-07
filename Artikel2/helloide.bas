@@ -1,5 +1,20 @@
 ; Variablenzuweisungen ohne LET werden ergänzt
+
+REM Repeat until
 a=1
+REPEAT
+    PRINT a
+    a = a + 1
+UNTIL a = 5
+
+rem DO LOOP
+a=1
+do
+   print a
+   a=a+1
+   if a > 10 then exit
+loop
+
 ; Label
 #LOOP
 ; Teste while 
@@ -15,7 +30,7 @@ SELECT key
     CASE 1: controlFN = #keyboard: BREAK
     CASE 2: controlFN = #kempston: BREAK
     CASE 3: controlFN = #sinclair: BREAK
-    DEFAULT: controlFN = #undef
+        DEFAULT: controlFN = #undef
 END
 #gameloop
 PRINT "Funktionsaufruf: Key = ";key

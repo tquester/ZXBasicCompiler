@@ -7,11 +7,11 @@ import zxcompiler.ZXToken;
 
 public class ZXSpectrumPrettyPrinter {
     private static final Set<String> INDENT_KEYWORDS = new HashSet<>(Arrays.asList(
-        "FOR",  "SELECT","WHILE","DO", "PROC"
+        "FOR",  "SELECT","WHILE","DO", "PROC", "REPEAT","SELECT","WHEN"
     ));
     
     private static final Set<String> OUTDENT_KEYWORDS = new HashSet<>(Arrays.asList(
-        "NEXT", "END","WEND","LOOP"
+        "NEXT", "END","WEND","LOOP","UNTIL"
     ));
     
     private static final Set<String> BASIC_KEYWORDS = new ZXToken().createExtendedSet(new String[] {"GO","SUB"});
@@ -19,10 +19,13 @@ public class ZXSpectrumPrettyPrinter {
     private static final Pattern LINE_NUMBER_PATTERN = Pattern.compile("^\\d+");
     private static final Pattern KEYWORD_PATTERN = Pattern.compile("(?i)\\b(" + String.join("|", BASIC_KEYWORDS) + ")\\b");
     
+    Stack<String> mStack = new Stack<String>();
+    
     public String prettyPrint(String code) {
         String[] lines = code.split("\\r?\\n");
         List<String> formattedLines = new ArrayList<>();
         int indentLevel = 0;
+        boolean inCase=false;
         
         for (String line : lines) {
             String trimmedLine = line.trim();
@@ -56,6 +59,11 @@ public class ZXSpectrumPrettyPrinter {
             if (OUTDENT_KEYWORDS.contains(firstWord) || 
                 (firstWord.equals("END") && trimmedLine.toUpperCase().startsWith("END IF"))) {
                 indentLevel = Math.max(0, indentLevel - 1);
+                String cmd = mStack.pop();
+                if (firstWord.equals("END") && cmd.equals("SELECT")) {
+                	if (inCase) indentLevel--;
+					inCase = false;
+                }
             }
             
             // Baue formatierte Zeile
@@ -65,18 +73,30 @@ public class ZXSpectrumPrettyPrinter {
             if (!lineNumber.isEmpty()) {
                 formattedLine.append(lineNumber).append(" ");
             }
-            
-            // Einrückung hinzufügen
-            formattedLine.append(getIndentation(indentLevel));
+          
+            if (firstWord.compareTo("CASE") == 0) {
+            	if (inCase)
+            		formattedLine.append(getIndentation(indentLevel-1));
+            	else {
+            		formattedLine.append(getIndentation(indentLevel));	            // Einrückung hinzufügen
+            		inCase = true;
+            		indentLevel++;
+            	}
+            		
+            } else
+            	formattedLine.append(getIndentation(indentLevel));	            // Einrückung hinzufügen
+
             
             // Code hinzufügen
             formattedLine.append(trimmedLine);
             
             formattedLines.add(formattedLine.toString());
             
+          
             // Erhöhe Einrückung nach der Zeile wenn nötig
             if (INDENT_KEYWORDS.contains(firstWord)) {
                 indentLevel++;
+                mStack.push(firstWord);
             }
         }
         

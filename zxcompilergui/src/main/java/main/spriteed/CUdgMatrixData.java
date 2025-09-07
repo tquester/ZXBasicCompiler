@@ -1,6 +1,6 @@
 package main.spriteed;
 
-import main.CBASICTokenizer;
+import main.precompiler.CBASICTokenizer;
 import zxcompiler.ZXToken;
 
 public class CUdgMatrixData implements ICanvasSpriteMatrixData {

@@ -67,7 +67,7 @@ public class FileSystemTreePopulator {
             
             // Wurzel-Element erstellen
             TreeItem rootItem = new TreeItem(tree, SWT.NONE);
-            rootItem.setText(rootFile.getName().isEmpty() ? rootFile.getAbsolutePath() : rootFile.getName());
+            rootItem.setText(rootFile.getAbsolutePath() );
             rootItem.setData(rootFile);
             
             if (folderIcon != null) {

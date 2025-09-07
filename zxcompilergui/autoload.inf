@@ -1,10 +1,5 @@
 folder=.
 file=emulator.bas
-file=C:\workspaces\github\ZXBasicCompiler\Artikel2\udgtestide.bas
-file=C:\workspaces\github\ZXBasicCompiler\Artikel2\testselect.bas
-file=C:\workspaces\github\ZXBasicCompiler\Artikel2\unittestide.bas
-file=C:\workspaces\github\ZXBasicCompiler\Artikel2\helloide.bas
-file=C:\workspaces\github\ZXBasicCompiler\Artikel2\numberguess.bas
-file=C:\workspaces\github\ZXBasicCompiler\Artikel2\miniersprite.bas
-file=compiledBasic.asm
-file=C:\workspaces\github\ZXBasicCompiler\Artikel2\minderide.bas
+file=C:\workspaces\basic\games\memory.bas
+file=C:\workspaces\basic\include\keyjoystick.bas
+file=C:\workspaces\basic\halloide.bas

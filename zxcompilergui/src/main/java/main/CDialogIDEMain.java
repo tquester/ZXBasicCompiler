@@ -13,12 +13,15 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.LineStyleListener;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyleRange;
+//import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.custom.StyledText;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,7 +37,10 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
-import main.CBASICTokenizer.BASICToken;
+import main.precompiler.BasicPreparser;
+import main.precompiler.CBASICPreparser;
+import main.precompiler.CBASICTokenizer;
+import main.precompiler.CBASICTokenizer.BASICToken;
 import main.spriteed.CDialogSpriteEditor;
 import main.spriteed.CDialogTileEditor;
 import main.spriteed.CUdgMatrixData;
@@ -64,7 +70,7 @@ public class CDialogIDEMain extends Dialog {
 	protected Object result;
 	protected Shell shlZxBasic;
 	private ZXToken mZXToken = new ZXToken();
-	StyledText editor;
+	BASICSourceViewer editor;
 	  private Display display;
     Tree tree;
     private int lastSearchIndex = 0;
@@ -73,6 +79,7 @@ public class CDialogIDEMain extends Dialog {
 	private CTabFolder mTabFolder;
 	private FileSystemTreePopulator mFileSystemPopulator;
 	private org.eclipse.swt.widgets.List listNav;
+	private TreeMap<String, Integer> mMapLabels = new TreeMap<String, Integer>();
 	 private static final String[] KEYWORDS = {
 	            "REM", "PRINT", "INPUT", "IF", "THEN", "ELSE", "FOR", "NEXT",
 	            "GOTO", "GOSUB", "RETURN", "END", "REM SPRITE"
@@ -107,12 +114,16 @@ public class CDialogIDEMain extends Dialog {
 		createMenu();
 		shlZxBasic.layout();
 		display = shlZxBasic.getDisplay();
+		
+		shlZxBasic.addListener(SWT.Traverse, e -> {
+		    if (e.detail == SWT.TRAVERSE_ESCAPE) {
+		        // Escape ignorieren
+		        e.doit = false;
+		    }
+		});
 
 		
-        for (int i = 1; i <= 5; i++) {
-            TreeItem item = new TreeItem(tree, 0);
-            item.setText("Datei " + i);
-        }
+
         autoload();
         mFileSystemPopulator = new FileSystemTreePopulator(tree);
         mFileSystemPopulator.populateTree(System.getProperty("user.dir"));
@@ -156,7 +167,12 @@ public class CDialogIDEMain extends Dialog {
 	 * Create contents of the dialog.
 	 */
 	private void createContents() {
-		shlZxBasic = new Shell(getParent(), getStyle());
+		
+		//Display display = getParent().getDisplay();
+		shlZxBasic = new Shell(display);
+		//captureParent();
+
+		//shlZxBasic = new Shell(getParent(), getStyle());
 		shlZxBasic.setSize(1013, 564);
 
 		shlZxBasic.setLayout(new GridLayout(1, false));
@@ -224,7 +240,7 @@ public class CDialogIDEMain extends Dialog {
 	        	@Override
 	        	public void widgetSelected(SelectionEvent e) {
 	        		ZXSpectrumPrettyPrinter pp = new ZXSpectrumPrettyPrinter();
-	        		StyledText editor = getEditor();
+	        		BASICSourceViewer editor = getEditor();
 	        		if (editor != null) {
 	        			String text = editor.getText();
 	        			text = pp.prettyPrint(text);
@@ -253,6 +269,11 @@ public class CDialogIDEMain extends Dialog {
 	        btnUdgEditor.setText("UDG Editor");
 	        
 	        Button btnSpriteEditor = new Button(toolbar, SWT.NONE);
+	        btnSpriteEditor.addSelectionListener(new SelectionAdapter() {
+	        	@Override
+	        	public void widgetSelected(SelectionEvent e) {
+	        	}
+	        });
 	        btnSpriteEditor.setText("Sprite Editor");
 	        
 	        Button btnTileEditor = new Button(toolbar, SWT.NONE);
@@ -268,7 +289,8 @@ public class CDialogIDEMain extends Dialog {
 	        btnNewButton.addSelectionListener(new SelectionAdapter() {
 	        	@Override
 	        	public void widgetSelected(SelectionEvent e) {
-	        		CDialogOptions dlg = new CDialogOptions(shlZxBasic, SWT.TITLE|SWT.CLOSE);
+	        		Shell sh = new Shell(display, SWT.DIALOG_TRIM | SWT.MODELESS);
+	        		CDialogOptions dlg = new CDialogOptions(sh, SWT.TITLE|SWT.CLOSE);
 	        		dlg.open();
 	        	}
 	        });
@@ -317,13 +339,18 @@ public class CDialogIDEMain extends Dialog {
 	        status.setLayoutData(new GridData(SWT.FILL, SWT.BOTTOM, true, false));
 	        status.setText("Bereit");
 	}
+ 
+	void captureParent() {
+		shlZxBasic = getParent();
+	}
 	
    protected void onTileEditor() {
 	   
-	   StyledText editor = getEditor();
+	   BASICSourceViewer editor = getEditor();
 	   if (editor != null) {
-		   CDialogTileEditor dlg = new CDialogTileEditor(shlZxBasic, getStyle());
-		   dlg.mSource = editor;
+		   Shell sh = new Shell(display, SWT.DIALOG_TRIM | SWT.MODELESS);
+		   CDialogTileEditor dlg = new CDialogTileEditor(sh, getStyle());
+		   dlg.mSource = editor.getTextWidget();
 		   dlg.open();
 	   }
 	   
@@ -334,18 +361,11 @@ protected void onListNavClicked() {
 		int sel = listNav.getSelectionIndex();
 		if (sel == -1) return;
 		String such = listNav.getItem(sel);
-		StyledText editor = getEditor();
+		BASICSourceViewer editor = getEditor();
 		if (editor == null) return;
-		String text[] = editor.getText().split("\n");
-		int line = 0;
-		for (String s: text) {
-			s = s.trim();
-			if (s.compareTo(such) == 0) {
-				jumpToLine(editor, line);
-				break;
-			}
-			line++;
-		}
+		Integer line = mMapLabels.get(such);
+		if (line != null) 
+			jumpToLine(editor.getTextWidget(), line.intValue());
 	}
    
    public static void jumpToLine(StyledText styledText, int lineNumber) {
@@ -416,6 +436,26 @@ private void createMenu() {
    }
 
 	protected void onTabChanged() {
+		BASICSourceViewer editor=getEditor();
+		String filename = getFilename(editor);
+		Path path = Path.of(filename);
+		try {
+		if (filename == null)
+			tree.removeAll();
+		else 
+			if (path != null) {
+				if (path.getParent() != null) 
+					mFileSystemPopulator.populateTree(path.getParent().toString());
+			}
+			
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		
+		
+		
 		mSetLabels = new TreeSet<String>();
 		updateLabels();
 		listNav.removeAll();
@@ -439,21 +479,42 @@ private void createMenu() {
 		boolean dirty=false;
 		if (mSetLabels == null) 
 			mSetLabels = new TreeSet<String>();
-		StyledText editor = getEditor();
+		mMapLabels.clear();
+		BASICSourceViewer editor = getEditor();
 		if (editor == null) return false;
 		String lines[] = editor.getText().split("\n");
 		TreeSet<String> tempSet = new TreeSet<String>();
 		for (String s: mSetLabels)
 			tempSet.add(s);
 		System.out.println(String.format("set = %d, temp=%d",mSetLabels.size(), tempSet.size()));
+		int iLine=-1;
 		for (String line: lines) {
 			line = line.trim();
+			iLine++;
 			if (line.startsWith("#")) {
 				if (!mSetLabels.contains(line)) {
 					dirty = true;
 					mSetLabels.add(line);
 				}
 				tempSet.remove(line);
+				mMapLabels.put(line, Integer.valueOf(iLine));
+				continue;
+			}
+			if (line.startsWith("PROC ") || line.startsWith("SUB ") || line.startsWith("PROCEDURE ")) {
+				int p = line.indexOf(' ');
+				if (p != -1) {
+					String label = line.substring(p+1);
+					p = label.indexOf('(');
+					if (p != -1) label = label.substring(0,p);
+					if (!mSetLabels.contains(label)) {
+						dirty = true;
+						mSetLabels.add(label);
+					}
+					tempSet.remove(label);
+					mMapLabels.put(label, Integer.valueOf(iLine));
+					continue;
+					
+				}
 			}
 		}
 		if (!tempSet.isEmpty()) {
@@ -465,24 +526,37 @@ private void createMenu() {
 	}
 
 	protected void onUDGEditor() {
-		StyledText editor = getEditor();
+		BASICSourceViewer editor = getEditor();
 		String text="";
 		if (editor != null) text = editor.getText();
-		CDialogSpriteEditor dlg = new CDialogSpriteEditor(shlZxBasic, getStyle());
-		dlg.mText = text;
-		dlg.open(new CUdgMatrixData());
+		CDialogSpriteEditor dlg;
+		try {
+			Shell sh = new Shell(display, SWT.DIALOG_TRIM | SWT.MODELESS);
+			dlg = new CDialogSpriteEditor(sh, getStyle());
+			dlg.mText = text;
+			dlg.open(new CUdgMatrixData());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 
 	protected void onCompiler() {
+		StringBuilder plog = new StringBuilder();
 		CBASICPreparser pp = new CBASICPreparser();
-		StyledText editor1=getEditor();
-		String filename = (String)editor1.getData();
+		BASICSourceViewer editor1=getEditor();
+		String filename = getFilename(editor1);
+		if (filename == null) return;
 		if (filename.toLowerCase().endsWith(".asm")) return;
 
 
 		String text = editor1.getText()+"\r\n stop\r\n";
-		text = pp.preparse(text);
+		TreeSet<String> defines = new TreeSet<String>();
+		defines.add("COMPILER");
+		defines.add("ZXSPECTRUM");
+
+		text = pp.preparse(filename, plog, text,defines);
 		editor = createStyledText("emulator.bas");
 		editor.setText(text);
 		
@@ -493,13 +567,13 @@ private void createMenu() {
 			ZXCompiler compiler = new ZXCompiler();
 			CSettings set = CSettings.instance();
 			compiler.mSettingCompileDebug = false;
-			compiler.mSettingLineNr = true;
+			compiler.mSettingLineNr = false;
 			compiler.mSettingOptimize = 1;
 			compiler.mSettingStop = 2;
 			compiler.start(code);
 			compiler.compile();
 			compiler.writeCode(CSettings.instance().mAsmOutput);
-			StyledText asmEditor=createStyledText("compiledBasic.asm", true);
+			BASICSourceViewer asmEditor=createStyledText("compiledBasic.asm", true);
 			asmEditor.setText(compiler.mEmitter.sbCode.toString());
 			StringBuilder sbbat = new StringBuilder();
 			String path = set.mTapFile;
@@ -527,7 +601,8 @@ private void createMenu() {
 	            e.printStackTrace();
 	        }
 			String log = Tools.loadTextFile(logfile);
-			String clog = compiler.mEmitter.mSBLog.toString();
+			
+			String clog = plog.toString()+"\n"+ compiler.mEmitter.mSBLog.toString();
 			if (log != null)
 				clog += "\n\n"+log;
 			textlog.setText(clog);
@@ -547,19 +622,19 @@ private void createMenu() {
 	}
 
 	protected void onNew() {
-		StyledText edit = createStyledText();
-		edit.setData(null);
+		BASICSourceViewer edit = createStyledText();
+		//edit.setData(null);
 		// TODO Auto-generated method stub
 		
 	}
 	
 	protected void onSave() {
-		StyledText editor=getEditor();
+		BASICSourceViewer editor=getEditor();
 		if (editor == null) {
 			onSavesAs();
 			return;
 		}
-		String filename = (String)editor.getData();
+		String filename = getFilename(editor);
 		if (filename == null) 
 			onSavesAs();
 		else
@@ -569,29 +644,31 @@ private void createMenu() {
 	
 
 	private void save(String filename) {
-		StyledText editor = getEditor();
+		BASICSourceViewer editor = getEditor();
 		String text = editor.getText();
 		Tools.writeTextFile(filename.trim(), text);
 		
 	}
 
-	private StyledText getEditor() {
+	private BASICSourceViewer getEditor() {
 		CTabItem item = mTabFolder.getSelection();
 		Control ctrl = item.getControl();
-		if (ctrl instanceof StyledText)
-			return (StyledText)ctrl;
+		if (ctrl instanceof Composite)
+			return (BASICSourceViewer)ctrl.getData();
 		return null;
 	}
 
 	protected void onSavesAs() {
-		StyledText editor = getEditor();
+		BASICSourceViewer editor = getEditor();
 		if (editor == null) return;
 		String[] filterExt = { "*.bas" };
 		FileDialog fd = new FileDialog(shlZxBasic, SWT.OPEN);
 		fd.setText("Open basic program");
 		fd.setFilterExtensions(filterExt);
 		String filename = fd.open();
-		editor.setData(filename);
+		addFilenameToEditor(editor, filename);
+		setFilename(filename);
+		
 		save(filename);
 		
 		
@@ -615,9 +692,12 @@ private void createMenu() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("folder=" + mFolder + "\n");
 		for (CTabItem item : mTabFolder.getItems()) {
-			String fname = (String) item.getData();
-			if (fname != null)
-				sb.append("file=" + fname + "\n");
+			if (item.getControl() instanceof Composite) {
+				BASICSourceViewer viewer = (BASICSourceViewer)item.getControl().getData();
+				String fname = viewer.getEditManager().getFilename();
+				if (fname != null)
+					sb.append("file=" + fname + "\n");
+			}
 		}
 
 		Tools.writeTextFile("autoload.inf", sb.toString());
@@ -630,25 +710,25 @@ private void createMenu() {
 		if (strSource == null)
 			return;
 		File file = new File(fname);
-		StyledText text = createStyledText(fname);
-		text.setData(fname);
+		BASICSourceViewer text = createStyledText(fname);
+		addFilenameToEditor(text, fname);
 		text.setText(strSource);		
 	}
 	
-	private StyledText createStyledText() {
+	private BASICSourceViewer createStyledText() {
 		return createStyledText("new");
 	}
 
-	private StyledText createStyledText(String fname) {
+	private BASICSourceViewer createStyledText(String fname) {
 		return createStyledText(fname, false);
 	}
-	private StyledText createStyledText(String fname, boolean z80) {
+	private BASICSourceViewer createStyledText(String fname, boolean z80) {
 		CTabItem[] items = mTabFolder.getItems();
 		for (CTabItem item:items) {
 			String name = item.getText().trim();
 			if (name.compareTo(fname) == 0) {
 				Control ctrl = item.getControl();
-				if (ctrl instanceof StyledText)  return (StyledText)ctrl;				
+				if (ctrl instanceof Composite)  return (BASICSourceViewer)ctrl.getData();				
 			}
 		}
 		
@@ -658,8 +738,15 @@ private void createMenu() {
 		 mTabFolder.setSelection(item1);
 		 item1.setData(fname);
 		item1.setText(filenameOf(fname));
-		StyledText text = new StyledText(mTabFolder, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.CANCEL | SWT.MULTI);
-		item1.setControl(text);
+		//StyledText text = new StyledText(mTabFolder, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.CANCEL | SWT.MULTI);
+		Composite composite = new Composite(mTabFolder, SWT.NONE);
+		composite.setLayout(new FillLayout());
+		BASICSourceViewer viewer = new BASICSourceViewer(shlZxBasic,  composite, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.CANCEL | SWT.MULTI, mZXToken);
+		StyledText text = viewer.getTextWidget();
+		
+		composite.setData(viewer);
+		new EditManager(text, fname);
+		item1.setControl(composite);
 		text.addModifyListener(new ModifyListener() {
 			public void modifyText(ModifyEvent e) {
 				onModifyText(e);
@@ -689,7 +776,7 @@ private void createMenu() {
 		text.setFont(font2);
 		text.addListener(SWT.Dispose, e -> font2.dispose());
 		//text.setFont(SWTResourceManager.getFont("Courier New", 9, SWT.NORMAL));
-		return text;
+		return viewer;
 
 	}	
 
@@ -712,6 +799,7 @@ private void createMenu() {
 	}
 
 	
+	/*
 	StyledText newEditor() {
 		
         editor = new StyledText(mTabFolder, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
@@ -720,24 +808,31 @@ private void createMenu() {
 
         return editor;
 	}
+	*/
 
 	protected void onEmulator() {
 		try {
+			
+			StringBuilder plog = new StringBuilder();
 			System.out.println("OnEmulator");
-			StyledText editor1=getEditor();
-			String filename = (String)editor1.getData();
+			BASICSourceViewer editor1=getEditor();
+			String filename = getFilename(editor1);
 			if (filename.toLowerCase().endsWith(".asm")) return;
 			
 			CBASICPreparser cpp = new CBASICPreparser();
-			BasicPreparser pp = new BasicPreparser();
+			//BasicPreparser pp = new BasicPreparser();
 			String text = editor1.getText();
 			
 			System.out.println("Preparsing");
-			text = cpp.preparse(text);
-			StyledText editor = createStyledText("emulator.bas");
+			TreeSet<String> defines = new TreeSet<String>();
+			defines.add("BASIC");
+			defines.add("ZXSPECTRUM");
+			text = cpp.preparse(filename,plog,text,defines);
+			BASICSourceViewer editor = createStyledText("emulator.bas");
 			System.out.println("emulator.bas ready");
 
 			editor.setText(text);;
+			textlog.setText(plog.toString());
 			 
 			System.out.println("Tokenizing");
 			CBASICTokenizer tokenizer = new CBASICTokenizer();
@@ -794,14 +889,35 @@ private void createMenu() {
 	}
 
 	private void setFilename(String string) {
-		StyledText editor=getEditor();
-		if (editor != null)
-			editor.setData(string);
+		BASICSourceViewer editor=getEditor();
+		addFilenameToEditor(editor, string);
 		mTabFolder.getSelection().setText(string);
-		
 	}
 	
-	  private void openSearchDialog(Shell parentShell) {
+	private Path getFilenamePath(BASICSourceViewer editor) {
+		EditManager man = editor.getEditManager();
+		if (man != null) Path.of( man.getFilename());
+		return null;
+	}
+
+	private String getFilename(BASICSourceViewer editor) {
+		EditManager man = editor.getEditManager();
+		if (man != null) return man.getFilename();
+		return null;
+	}
+	
+	  private void addFilenameToEditor(BASICSourceViewer editor, String string) {
+		EditManager man = (EditManager) editor.getEditManager();
+		if (man == null) {
+			man = new EditManager(editor.getTextWidget(), string);
+			editor.setEditManager(man);
+		} else
+			man.setFilename(string);
+		
+		
+	}
+
+	private void openSearchDialog(Shell parentShell) {
 	        Shell dialog = new Shell(parentShell, SWT.RESIZE | SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
 	        dialog.setText("Suchen");
 	        dialog.setLayout(new GridLayout(2, false));
@@ -842,7 +958,7 @@ private void createMenu() {
 	        findButton.addListener(SWT.Selection, e -> {
 	            String searchString = searchText.getText();
 	            boolean matchCase = caseSensitive.getSelection();
-	            findText(getEditor(),searchString, matchCase);
+	            findText(getEditor().getTextWidget(),searchString, matchCase);
 	        });
 	        
 
@@ -852,7 +968,7 @@ private void createMenu() {
 	            String searchStr = searchText.getText();
 	            String replaceStr = replaceText.getText();
 	            boolean matchCase = caseSensitive.getSelection();
-	            replaceText(getEditor(),searchStr, replaceStr, matchCase);
+	            replaceText(getEditor().getTextWidget(),searchStr, replaceStr, matchCase);
 	        });	        
 
 	        cancelButton.addListener(SWT.Selection, e -> dialog.close());
@@ -864,7 +980,7 @@ private void createMenu() {
 	                if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
 	                    String searchString = searchText.getText();
 	                    boolean matchCase = caseSensitive.getSelection();
-	                    findText(getEditor(),searchString, matchCase);
+	                    findText(getEditor().getTextWidget(),searchString, matchCase);
 	                }
 	            }
 	        });

@@ -19,6 +19,7 @@ import java.util.Map;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.graphics.Drawable;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
@@ -173,7 +174,7 @@ public class SWTResourceManager {
 	 * @return the small {@link Image} that can be used as placeholder for missing image.
 	 */
 	private static Image getMissingImage() {
-		Image image = new Image(Display.getCurrent(), MISSING_IMAGE_SIZE, MISSING_IMAGE_SIZE);
+		org.eclipse.swt.graphics.Image image = new Image(Display.getCurrent(), MISSING_IMAGE_SIZE, MISSING_IMAGE_SIZE);
 		//
 		GC gc = new GC(image);
 		gc.setBackground(getColor(SWT.COLOR_RED));

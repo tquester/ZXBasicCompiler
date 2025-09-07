@@ -13,7 +13,10 @@ import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
-
+import main.precompiler.BasicToken;
+import main.precompiler.BasicToken.TokenType;
+import main.precompiler.BasicTokenizer;
+import main.precompiler.Z80Tokens;
 import zxcompiler.ZXToken;
 import zxcompiler.ZXTokenizer;
 
@@ -40,7 +43,7 @@ public class BasicLineStyler implements LineStyleListener {
 		initializeColors();
 		
 	}
-
+  
 	Color getColor(BasicToken token) {
 		if (token == null)
 			return mColorWord;

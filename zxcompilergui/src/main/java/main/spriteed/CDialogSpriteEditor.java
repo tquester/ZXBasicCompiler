@@ -47,7 +47,7 @@ public class CDialogSpriteEditor extends Dialog {
 	//int mBasePos=0;
 	private Text mTextHex;
 	private boolean mParse = true;
-	private CUdgMatrixData mCurSprite;
+	private ArrayList<byte[]> mCurSprite;
 	private CDialogSpriteEditor mSpriteEditor;
 	Combo comboNumColumns;
 	Combo comboNumRows;
@@ -205,15 +205,14 @@ public class CDialogSpriteEditor extends Dialog {
 	}
 
 	protected void onComboSpriteSetSelected() {
-		int index = mComboTileset.getSelectionIndex();
-		if (index != -1) {
-			CUdgMatrixData data = mResources.mSprites.get(index);
+		String name = mComboTileset.getText();
+			ArrayList<byte[]> data = mResources.mMapUdgSets.get(name);
+			if (data == null) return;
 			
 			mCurSprite = data;
 			// todo implement
 			mTextHex.setText(data.toString());
 			
-		}
 		
 		
 	}
@@ -229,8 +228,9 @@ public class CDialogSpriteEditor extends Dialog {
 
 	private void fillCombo() {
 		
-		for (CUdgMatrixData data: mResources.mSprites) {
-			mComboTileset.add(data.name);
+		mComboTileset.removeAll();
+		for (String name: mResources.mMapUdgSets.keySet()) {
+			mComboTileset.add(name);
 		}
 		
 	}
