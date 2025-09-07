@@ -33,6 +33,7 @@ LET A=1
 # Multi line IF ELSE
 For a multi line IF use the keyword WHEN without a THEN
 Remember that WHEN, ELSE and END are needng a separate line
+Normal IF are a bit faster, because WHEN always needs GOTO in order to create the multi lined body.
 
 ```
 CLS
@@ -57,7 +58,7 @@ Will be compiled into
 
 ```
 1000 CLS
-1010 PRINT "Hallo"
+1010 PRINT "WHEN a multi line IF..THEN..ELSE"
 1020 LET a=10
 1030 IF NOT(a=10) THEN GOTO 1060
 1040 PRINT "A=10"
