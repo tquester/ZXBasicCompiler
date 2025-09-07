@@ -30,6 +30,46 @@ will be modified to
 ```
 LET A=1
 ```
+# Multi line IF ELSE
+For a multi line IF use the keyword WHEN without a THEN
+Remember that WHEN, ELSE and END are needng a separate line
+
+```
+CLS
+PRINT "WHEN a multi line IF..THEN..ELSE"
+a=10
+WHEN a=10
+    PRINT "A=10"
+    PRINT "-----"
+ELSE
+    PRINT "a != 10"
+    PRINT "-----"
+END
+
+WHEN a=11
+    PRINT "A=11"
+    PRINT "-----"
+END
+STOP
+```
+
+Will be compiled into
+
+```
+1000 CLS
+1010 PRINT "Hallo"
+1020 LET a=10
+1030 IF NOT(a=10) THEN GOTO 1060
+1040 PRINT "A=10"
+1050 PRINT "-----"
+1060 PRINT "a != 10"
+1070 PRINT "-----"
+1080 IF NOT(a=11) THEN GOTO 1110
+1090 PRINT "A=11"
+1100 PRINT "-----"
+1100 STOP
+```
+
 # While, wend, exit
 
 ```
