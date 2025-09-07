@@ -8,6 +8,9 @@ Slow willy by Animated Alex |
 ----- | ----
 Sinclair BASIC by Animated Alex
 ![sinclair](https://github.com/tquester/ZXBasicCompiler/blob/main/games/sinclairbasic/sbasic.gif) | <b>Save the BASIC</b><br>[Details](https://github.com/tquester/ZXBasicCompiler/blob/main/games/sinclairbasic/sbasic.md)
+----- | ----
+Memory by Thomas Quester
+<img width="511" height="492" alt="image" src="https://github.com/user-attachments/assets/b4163f6d-9e36-4241-b6cc-b2f630f620c3" /> | <b>Memory</b> 
 
 
 
