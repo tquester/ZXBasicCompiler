@@ -274,6 +274,24 @@ COMPILER True if we build with the compiler
 
 You can define your own flags
 
+In games you might write
+```
+#if COMPILER
+ pause 3
+#endif
+```
+while processing the keyboard or joystick so that the player does not move too fast
+
+For debugging you also can write
+```
+#define DEBUG
+
+#if DEBUG
+   print at 0,0;"x=";playerx;" y=";playery
+#endif
+```
+If you remove or comment the #define DEBUG statement, the game will run normally, otherwise it will display some debug information
+
 ```
 #define Kempston
 
