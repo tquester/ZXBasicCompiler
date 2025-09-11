@@ -52,6 +52,7 @@ public class ZXTokenizer {
 
 	public byte[] mZxBasic;
 	private int mPos;
+	private int mSize;
 
 	static public class ZXBasicLine {
 		public int mPos;
@@ -193,10 +194,10 @@ public class ZXTokenizer {
 			case '=':
 				token.typ = ParserToken.ZXTokenTyp.ZX_Equals;
 				break;
-			case ZXToken.ZXB_BIGGERTHAN:
+			case ZXToken.ZXB_BIGGEREQUAL:
 				token.typ = ParserToken.ZXTokenTyp.ZX_BiggerEqual;
 				break;
-			case ZXToken.ZXB_SMALLERTHAN:
+			case ZXToken.ZXB_SMALLEREQUAL:
 				token.typ = ParserToken.ZXTokenTyp.ZX_SmallerEqual;
 				break;
 			case ':':
@@ -295,6 +296,16 @@ public class ZXTokenizer {
 	}
 
 	public void init(byte[] basicProgram) {
+		init(basicProgram,false);		
+	}
+	public void init(byte[] basicProgram, boolean calcSize) {
+		int b1 = b2int(basicProgram[2]);
+		int b2 = b2int(basicProgram[3]);
+		mSize = basicProgram.length;
+		if (calcSize) 
+			mSize = b2*256+b1;
+		mSize -= 7;
+		System.out.println(String.format("Size = %d",mSize));
 		mZxBasic = new byte[basicProgram.length - 5];
 		int pos = 0;
 		for (int i = 5; i < basicProgram.length; i++)
@@ -303,7 +314,7 @@ public class ZXTokenizer {
 	}
 
 	public boolean getLine(ZXBasicLine line) {
-		if (mPos >= mZxBasic.length)
+		if (mPos+1 >= mSize)
 			return false;
 		int iLine = b2int(mZxBasic[mPos]) * 256 + b2int(mZxBasic[mPos + 1]);
 		int iLen = b2int(mZxBasic[mPos + 2]) + b2int(mZxBasic[mPos + 3]) * 256;

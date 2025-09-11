@@ -101,8 +101,8 @@ public class ZXToken {
 	public static final int ZXB_RETURN = 0XFE;
 	public static final int ZXB_COPY = 0XFF;
 	public static final int ZXB_GOTO = 0XEC;
-	public static final int ZXB_SMALLERTHAN = 0xc7;
-	public static final int ZXB_BIGGERTHAN = 0xc8;
+	public static final int ZXB_SMALLEREQUAL = 0xc7;
+	public static final int ZXB_BIGGEREQUAL = 0xc8;
 	public static final int ZXB_UNEQUAL = 0xc9;
 	public static final int ZXB_ENDOFCODE = 0x80;
 	
@@ -247,8 +247,8 @@ public class ZXToken {
 		addToken(ZXB_RETURN, "RETURN");
 		addToken(ZXB_COPY, "COPY");
 		addToken(ZXB_GOTO, "GOTO");
-		addToken(ZXB_SMALLERTHAN, "<=");
-		addToken(ZXB_BIGGERTHAN, ">=");
+		addToken(ZXB_SMALLEREQUAL, "<=");
+		addToken(ZXB_BIGGEREQUAL, ">=");
 		addToken(ZXB_UNEQUAL, "<>");
 
 	}

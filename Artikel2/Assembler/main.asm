@@ -23,7 +23,7 @@ SLOW_SPRITE_COUNT           equ 5
 
 
     include "macros.asm"
-    ORG 26000
+    ORG 27000
 PROGSTART:
 
     SLDOPT COMMENT WPMEM, LOGPOINT, ASSERTION
@@ -51,7 +51,7 @@ main:
 
 
 
-   		ld sp,stack_top
+  		ld sp,stack_top
 		ld hl,EndOfCode
 		ld (ZXHeapStart),hl
 		if DEBUGBASIC=1

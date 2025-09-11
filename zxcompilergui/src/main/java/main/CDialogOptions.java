@@ -48,13 +48,6 @@ public class CDialogOptions extends Dialog {
 		textEmulator.setText(set.mEmulator);
 		txtOptions.setText(set.mCompilerOptions);
 		
-		Label lblCompilerOptionen = new Label(shlOptionen, SWT.NONE);
-		lblCompilerOptionen.setBounds(10, 263, 199, 15);
-		lblCompilerOptionen.setText("Compiler Optionen");
-		
-		txtOptions = new Text(shlOptionen, SWT.BORDER);
-		txtOptions.setText(".s1 -o -l");
-		txtOptions.setBounds(10, 284, 603, 21);;
 		
 		Display display = getParent().getDisplay();
 		while (!shlOptionen.isDisposed()) {
@@ -170,6 +163,15 @@ public class CDialogOptions extends Dialog {
 				onFindEmulator();
 			}
 		});
+		
+		Label lblCompilerOptionen = new Label(shlOptionen, SWT.NONE);
+		lblCompilerOptionen.setBounds(10, 263, 199, 20);
+		lblCompilerOptionen.setText("Compiler Optionen");
+		
+		txtOptions = new Text(shlOptionen, SWT.BORDER);
+		txtOptions.setText(".s1 -o -l");
+		txtOptions.setBounds(10, 302, 603, 21);;
+
 
 	}
 

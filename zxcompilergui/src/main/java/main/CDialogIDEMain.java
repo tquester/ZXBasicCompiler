@@ -212,7 +212,13 @@ public class CDialogIDEMain extends Dialog {
 	        btnSpeichernAls.addSelectionListener(new SelectionAdapter() {
 	        	@Override
 	        	public void widgetSelected(SelectionEvent e) {
-	        		onSavesAs();
+	        		try {
+	        			onSavesAs();
+	        		}
+	        		catch(Exception e1)
+	        		{
+	        			
+	        		}
 	        	}
 	        });
 	        btnSpeichernAls.setText("Speichern Als");
@@ -239,12 +245,18 @@ public class CDialogIDEMain extends Dialog {
 	        btnFormatieren.addSelectionListener(new SelectionAdapter() {
 	        	@Override
 	        	public void widgetSelected(SelectionEvent e) {
+	        		onSaveAll();
 	        		ZXSpectrumPrettyPrinter pp = new ZXSpectrumPrettyPrinter();
 	        		BASICSourceViewer editor = getEditor();
 	        		if (editor != null) {
-	        			String text = editor.getText();
-	        			text = pp.prettyPrint(text);
-	        			editor.setText(text);
+	        			try { 
+	        				String text = editor.getText();
+	        					text = pp.prettyPrint(text);
+	        					editor.setText(text);
+	        			}
+	        			catch(Exception e1) {
+	        				e1.printStackTrace();	        				
+	        			}
 	        		}
 	        	}
 	        });
@@ -408,16 +420,49 @@ private void createMenu() {
 
        Menu editMenu = new Menu(shlZxBasic, SWT.DROP_DOWN);
        editItem.setMenu(editMenu);
+       
+       MenuItem mntmNewItem = new MenuItem(editMenu, SWT.NONE);
+       mntmNewItem.setText("Kopieren");
+       
+       MenuItem mntmNewItem_1 = new MenuItem(editMenu, SWT.NONE);
+       mntmNewItem_1.addSelectionListener(new SelectionAdapter() {
+       	@Override
+       	public void widgetSelected(SelectionEvent e) {
+       		onCreateLabels();
+       	}
+       });
+       mntmNewItem_1.setText("Labels erzeugen");
+       
+       MenuItem mntmSuchen = new MenuItem(editMenu, SWT.NONE);
+       mntmSuchen.addSelectionListener(new SelectionAdapter() {
+       	@Override
+       	public void widgetSelected(SelectionEvent e) {
+       		openSearchDialog(shlZxBasic);
+       	}
+       });
+       mntmSuchen.setText("Suchen\tCtrl+F");
 
        Menu helpMenu = new Menu(shlZxBasic, SWT.DROP_DOWN);
        helpItem.setMenu(helpMenu);
        
        // Menüeinträge für Datei-Menü
        MenuItem openItem = new MenuItem(fileMenu, SWT.PUSH);
+       openItem.addSelectionListener(new SelectionAdapter() {
+       	@Override
+       	public void widgetSelected(SelectionEvent e) {
+       		onOpenFile();
+       	}
+       });
        openItem.setText("Öffnen\tCtrl+O");
   //     openItem.addListener(SWT.Selection, e -> onOpenFile());
        
        MenuItem saveItem = new MenuItem(fileMenu, SWT.PUSH);
+       saveItem.addSelectionListener(new SelectionAdapter() {
+       	@Override
+       	public void widgetSelected(SelectionEvent e) {
+       		onSave();
+       	}
+       });
        saveItem.setText("Speichern\tCtrl+S");
        saveItem.addListener(SWT.Selection, e -> onSave());
        
@@ -435,9 +480,31 @@ private void createMenu() {
        aboutItem.setText("Über...");
    }
 
+	protected void onCreateLabels() {
+		try {
+			BASICSourceViewer editor = getEditor();
+			String filename = getFilename(editor);
+			if (!filename.toLowerCase().endsWith(".bas")) return;
+			String source = editor.getText();
+			CBASICPreparser pp = new CBASICPreparser();
+			source = pp.createLabels(source);
+			editor = createStyledText();
+		    setFilename(filename);
+			editor.setText(source);
+					
+			
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+	// TODO Auto-generated method stub
+	
+}
+
 	protected void onTabChanged() {
 		BASICSourceViewer editor=getEditor();
 		String filename = getFilename(editor);
+		if (filename == null) return;
 		Path path = Path.of(filename);
 		try {
 		if (filename == null)
@@ -543,6 +610,7 @@ private void createMenu() {
 	}
 
 	protected void onCompiler() {
+		onSaveAll();
 		StringBuilder plog = new StringBuilder();
 		CBASICPreparser pp = new CBASICPreparser();
 		BASICSourceViewer editor1=getEditor();
@@ -628,7 +696,11 @@ private void createMenu() {
 		
 	}
 	
+	protected void onSaveAll() {
+		onSave();
+	}
 	protected void onSave() {
+		
 		BASICSourceViewer editor=getEditor();
 		if (editor == null) {
 			onSavesAs();
@@ -675,11 +747,15 @@ private void createMenu() {
 	}
 
 	protected void onOpenFile() {
-		String[] filterExt = { "*.bas" };
+		String[] filterExt = { "*.bas","*.tap" };
 		FileDialog fd = new FileDialog(shlZxBasic, SWT.OPEN);
 		fd.setText("Open basic program");
 		fd.setFilterExtensions(filterExt);
 		mFilename = fd.open();
+		if (mFilename.toLowerCase().endsWith(".tap")) {
+			loadTapFile();
+			return;
+		}
 		if (mFilename == null)
 			return;
 		loadFile(mFilename);
@@ -687,6 +763,17 @@ private void createMenu() {
 		
 	}
 
+
+	private void loadTapFile() {
+		CDialogTape  dlg = new CDialogTape(shlZxBasic, getStyle());
+		dlg.mFilename = mFilename;
+		dlg.open();
+		if (dlg.mSource != null) {
+			BASICSourceViewer editor = createStyledText();
+			editor.setText(dlg.mSource);
+		}
+		
+	}
 
 	private void setAutoload() {
 		StringBuilder sb = new StringBuilder();
@@ -812,7 +899,7 @@ private void createMenu() {
 
 	protected void onEmulator() {
 		try {
-			
+			onSaveAll();
 			StringBuilder plog = new StringBuilder();
 			System.out.println("OnEmulator");
 			BASICSourceViewer editor1=getEditor();
@@ -1034,5 +1121,4 @@ private void createMenu() {
 	            mb.open();
 	        }
 	    }	
-	    
 }

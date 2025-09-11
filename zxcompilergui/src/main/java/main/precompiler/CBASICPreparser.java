@@ -39,7 +39,7 @@ public class CBASICPreparser {
 	class CStackEntry {
 		int token;
 		String label;
-		boolean elseExist=false;
+		boolean elseExist = false;
 		public String variable;
 		public int count;
 		public TreeMap<String, Integer> params;
@@ -98,7 +98,7 @@ public class CBASICPreparser {
 		sb = new StringBuilder();
 		mError = false;
 		for (String line : lines) {
-			// System.out.println(line);
+			System.out.println(line);
 			if (mError)
 				break;
 			String tline = line.trim();
@@ -143,10 +143,19 @@ public class CBASICPreparser {
 			append(token);
 			break;
 		case isVariable:
-			sb.append("LET ");
-			replaceMacros(token);
-			append(token);
-			tokenizeEndOfStmt();
+			try {
+				CProcedure proc = mapProcedures.get(token.literal.toLowerCase());
+				if (proc != null) {
+					compileCall(token.literal);
+				} else {
+					sb.append("LET ");
+					replaceMacros(token);
+					append(token);
+					tokenizeEndOfStmt();
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			break;
 		case isNumber: {
 			append(token);
@@ -233,6 +242,7 @@ public class CBASICPreparser {
 
 	private void tokenizeKeyword(BASICToken token) {
 		CStackEntry entry;
+
 		switch (token.token) {
 		case ZXToken.ZXB_WHILE:
 			entry = new CStackEntry();
@@ -291,7 +301,7 @@ public class CBASICPreparser {
 			entry.token = token.token;
 			entry.label = newLabel("when");
 			mStack.push(entry);
-	
+
 			append("IF NOT(");
 			tokenizer.skipSpace(token);
 			while (tokenizer.nextToken(token)) {
@@ -309,7 +319,8 @@ public class CBASICPreparser {
 				return;
 			}
 			entry = mStack.peek();
-			entry.elseExist=true;
+			entry.elseExist = true;
+			append(String.format("GOTO #%s_else\n", entry.label));
 			append(String.format("#%s_exit", entry.label));
 			break;
 		case ZXToken.ZXB_WEND:
@@ -427,10 +438,12 @@ public class CBASICPreparser {
 			entry = mStack.pop();
 			if (entry.token == ZXToken.ZXB_WHEN) {
 				if (entry.elseExist == false) {
-					append(String.format("#%s_exit", entry.label));
+					append(String.format("#%s_exit\n", entry.label));
+				} else {
+					append(String.format("#%s_else\n", entry.label));
 				}
- 			}
-			else if (entry.token == ZXToken.ZXB_SELECT) {
+
+			} else if (entry.token == ZXToken.ZXB_SELECT) {
 				append(String.format("#%s_%d\n", entry.label, entry.count));
 				append(String.format("#%s_exit\n", entry.label));
 			}
@@ -458,7 +471,6 @@ public class CBASICPreparser {
 			String rem = " REM SUB " + entry.name;
 			mProcedures.add(entry.name);
 			entry.count = 0;
-			append(String.format("#%s\n", entry.label));
 			mCurrentProcedure = entry;
 			tokenizer.skipSpace(token);
 			boolean firstpar = true;
@@ -494,9 +506,11 @@ public class CBASICPreparser {
 			}
 			append(rem + "\n");
 			String rem2 = "REM ";
+
 			while (rem2.length() < rem.length())
 				rem2 += "-";
 			append(rem2 + "\n");
+			append(String.format("#%s\n", entry.label));
 			break;
 		case ZXToken.ZXB_CALL:
 			tokenizer.nextNonSpaceToken(token);
@@ -543,6 +557,44 @@ public class CBASICPreparser {
 			tokenizeEndOfStmt();
 		}
 
+	}
+
+	private void compileCall(String literal) {
+		tokenizer.nextNonSpaceToken(token);
+		String name = token.literal.toLowerCase();
+		mCalls.add(name);
+		int count = 0;
+		tokenizer.skipSpace(token);
+		if (tokenizer.peekToken(token)) {
+			if (token.typ == CBASICTokenizer.BASICTokenTyp.isKeyword && token.token == '(') {
+				tokenizer.nextToken(token); // (
+				boolean bExit = false;
+				String exprname = "";
+				while (tokenizer.nextToken(token)) {
+					switch (token.typ) {
+					case isKeyword:
+						if (token.token == ',') {
+							append(String.format("LET PROC%s%d=%s:", name, count++, exprname));
+							exprname = "";
+						} else if (token.token == ')') {
+							append(String.format("LET PROC%s%d=%s:", name, count++, exprname));
+							bExit = true;
+						} else
+							exprname += token.literal;
+						break;
+					default:
+						if (token.typ == BASICTokenTyp.isVariable)
+							replaceProcParam(token);
+						exprname += token.literal;
+					}
+					if (bExit)
+						break;
+				}
+			}
+			append(String.format("GO SUB #proc_%s", name));
+		} else {
+			append(String.format("GO SUB #proc_%s", name));
+		}
 	}
 
 	private void append(String format) {
@@ -854,7 +906,6 @@ public class CBASICPreparser {
 		TreeSet<String> defines = findDefines(lines);
 		defines.addAll(userdefines);
 
-
 		lines = output;
 		output = new ArrayList<String>();
 		for (int i = 0; i < lines.size(); i++) {
@@ -877,7 +928,7 @@ public class CBASICPreparser {
 		}
 
 		if (conditionStack.size() != 1) {
-			throw new RuntimeException("Unbalanced #IF/#END detected");
+			error("Unbalanced #IF/#END detected");
 		}
 		processProcedures(output);
 		StringBuilder sb = new StringBuilder();
@@ -890,33 +941,85 @@ public class CBASICPreparser {
 
 	private List<String> processIncludes(Path path, List<String> lines) {
 		ArrayList<String> output = new ArrayList<String>();
-			boolean bInclued = false;
-			for (int i = 0; i < lines.size(); i++) {
-				String line = lines.get(i).trim().toUpperCase();
+		boolean bInclued = false;
+		for (int i = 0; i < lines.size(); i++) {
+			String line = lines.get(i).trim().toUpperCase();
 
-				if (line.startsWith("#INCLUDE")) {
-					bInclued = true;
-					String[] parts = line.split("\\s+", 2);
-					Path parent = path.getParent();
+			if (line.startsWith("#INCLUDE")) {
+				bInclued = true;
+				String[] parts = line.split("\\s+", 2);
+				Path parent = path.getParent();
 
-					String fileName = parent + "\\" + parts[1].replace("\"", "").trim();
-					try {
-						List<String> includedLines = Files.readAllLines(Paths.get(fileName));
-						includedLines = processIncludes(Paths.get(fileName), includedLines);
-						for (String s : includedLines)
-							output.add(s);
+				String fileName = parent + "\\" + parts[1].replace("\"", "").trim();
+				try {
+					List<String> includedLines = Files.readAllLines(Paths.get(fileName));
+					includedLines = processIncludes(Paths.get(fileName), includedLines);
+					for (String s : includedLines)
+						output.add(s);
 
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					continue;
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
-				output.add(lines.get(i)); // originale Zeile übernehmen
-
+				continue;
 			}
+			output.add(lines.get(i)); // originale Zeile übernehmen
+
+		}
 
 		return output;
+	}
+
+	public String createLabels(String source) {
+		TreeSet<Integer> setLines = new TreeSet<Integer>();
+		CBASICTokenizer tokenizer = new CBASICTokenizer();
+		BASICToken token = new CBASICTokenizer.BASICToken();
+		StringBuilder output = new StringBuilder();
+		String[] lines = source.split("\n");
+		for (String line : lines) {
+			tokenizer.init(line);
+			while (tokenizer.nextNonSpaceToken(token)) {
+				if (token.typ == BASICTokenTyp.isKeyword) {
+					if (token.token == ZXToken.ZXB_GOSUB || token.token == ZXToken.ZXB_GOTO
+							|| token.token == ZXToken.ZXB_RESTORE) {
+						tokenizer.nextNonSpaceToken(token);
+						if (token.typ == BASICTokenTyp.isNumber)
+							setLines.add(Integer.parseInt(token.literal));
+					}
+				}
+			}
+		}
+
+		for (String line : lines) {
+			tokenizer.init(line);
+			if (tokenizer.nextNonSpaceToken(token)) {
+				if (token.typ == BASICTokenTyp.isNumber) {
+					int linenr = Integer.parseInt(token.literal);
+					if (setLines.contains(linenr)) {
+						output.append(String.format("#L%d\n", linenr));
+					}
+				}
+			}
+			tokenizer.mbSpaceToken = true;
+			while (tokenizer.nextToken(token)) {
+				if (token.typ == BASICTokenTyp.isKeyword) {
+					if (token.literal.compareTo(":") == 0) {
+						output.append(":\n");
+					} else if (token.token == ZXToken.ZXB_GOSUB || token.token == ZXToken.ZXB_GOTO
+							|| token.token == ZXToken.ZXB_RESTORE) {
+						String cmd = token.literal;
+						tokenizer.nextNonSpaceToken(token);
+						int linenr = Integer.parseInt(token.literal);
+						output.append(String.format("%s #L%d", cmd, linenr));
+					} else
+						output.append(token.literal);
+				} else
+					output.append(token.literal);
+			}
+			output.append("\n");
+		}
+
+		return output.toString();
 	}
 
 }

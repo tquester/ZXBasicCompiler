@@ -15,8 +15,8 @@ public class ZXTape {
 		public int    start;
 		public byte[] data;
 	}
-	ArrayList<TapeEntry> mTapeEntries = null;
-	void load(String filename) {
+	public ArrayList<TapeEntry> mTapeEntries = null;
+	public void load(String filename) {
 		File file = new File(filename);
 	    byte[] fileData = new byte[(int) file.length()];
 	    DataInputStream dis;

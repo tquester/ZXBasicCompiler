@@ -911,7 +911,7 @@ public class ZXCompiler {
 					   if (lookahead.typ == ZXTokenTyp.ZX_Token && lookahead.zxToken == ZXToken.ZXB_TO) {
 						   lexan(lookahead);
 						   if (lookahead.typ == ZXTokenTyp.ZX_Closebracket) {
-							   mEmitter.emitPushInteger("-1");
+							   mEmitter.emitPushInteger(String.format("%d",var.getFixStringLen()));
 							   pushType(VARTYP.TYPE_INT);
 						   } else {
 							   expr();
@@ -2717,9 +2717,17 @@ public class ZXCompiler {
 			popType();
 			int faktor=1;
 			if (i < variable.dimen.length ) {
-				for (int j=i+1;j<variable.dimen.length;j++) {
-					faktor *= variable.dimen[j];
+				if (variable.typ == VARTYP.TYPE_STRING || variable.typ == VARTYP.TYPE_FIXSTRING) {
+					for (int j=i+1;j<variable.dimen.length;j++) {
+						faktor *= variable.dimen[j];
+					}
+				} else {
+					for (int j=i;j<variable.dimen.length;j++) {
+						faktor *= variable.dimen[j];
+					}
+
 				}
+					
 			}
 			if (faktor != 1) {
 				mEmitter.emitMultiPlyTopOfStack(faktor);

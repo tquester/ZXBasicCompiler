@@ -7,7 +7,7 @@ import zxcompiler.ZXToken;
 
 public class ZXSpectrumPrettyPrinter {
     private static final Set<String> INDENT_KEYWORDS = new HashSet<>(Arrays.asList(
-        "FOR",  "SELECT","WHILE","DO", "PROC", "REPEAT","SELECT","WHEN"
+        "FOR",  "SELECT","WHILE","DO", "PROC","SUB","PROCEDURE", "REPEAT","SELECT","WHEN"
     ));
     
     private static final Set<String> OUTDENT_KEYWORDS = new HashSet<>(Arrays.asList(
@@ -28,6 +28,7 @@ public class ZXSpectrumPrettyPrinter {
         boolean inCase=false;
         
         for (String line : lines) {
+        	System.out.println(line);
             String trimmedLine = line.trim();
             if (trimmedLine.isEmpty()) {
                 continue;
@@ -57,7 +58,7 @@ public class ZXSpectrumPrettyPrinter {
             
             // Verringere Einrückung vor der Zeile wenn nötig
             if (OUTDENT_KEYWORDS.contains(firstWord) || 
-                (firstWord.equals("END") && trimmedLine.toUpperCase().startsWith("END IF"))) {
+                (firstWord.equals("END"))) {
                 indentLevel = Math.max(0, indentLevel - 1);
                 String cmd = mStack.pop();
                 if (firstWord.equals("END") && cmd.equals("SELECT")) {

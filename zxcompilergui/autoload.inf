@@ -1,5 +1,7 @@
 folder=.
 file=emulator.bas
-file=C:\workspaces\basic\games\memory.bas
 file=C:\workspaces\basic\include\keyjoystick.bas
 file=C:\workspaces\basic\halloide.bas
+file=C:\workspaces\basic\games\memory.bas
+file=C:\workspaces\basic\games\icontris.bas
+file=C:\workspaces\basic\games\blast.bas
