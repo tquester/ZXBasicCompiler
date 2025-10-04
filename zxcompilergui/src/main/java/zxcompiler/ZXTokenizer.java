@@ -31,6 +31,7 @@ public class ZXTokenizer {
 		public ZXTokenTyp typ; //
 		public int zxToken; // Any ZX Token
 		public int[] floatLiteral;
+		
 
 		public void copyFrom(ParserToken other) {
 			literal = other.literal;
@@ -53,15 +54,20 @@ public class ZXTokenizer {
 	public byte[] mZxBasic;
 	private int mPos;
 	private int mSize;
-
+	
+	
 	static public class ZXBasicLine {
 		public int mPos;
 		public int line;
 		public int len;
 		public byte[] bytes;
+		private ZXToken mzxToken = new ZXToken();
 		private ParserToken mUngetToken = null;
 		public ParserToken mPrevToken = new ParserToken();
 
+		public ZXBasicLine() {
+			mzxToken.addExtendTokens();
+		}
 		public String toString() {
 			return toString(false);
 		}
@@ -76,6 +82,7 @@ public class ZXTokenizer {
 
 		public String toString(boolean oneStatement, boolean skipBinary, boolean linefeed) {
 			ZXToken token = new ZXToken();
+			token.addExtendTokens();
 			String strLine = String.format("%d ", line);
 			int pos = 0;
 			if (oneStatement) {
@@ -107,6 +114,11 @@ public class ZXTokenizer {
 						strLine += "}";
 					}
 				} else {
+					if (b == 0x01) {
+						b = bytes[pos++];
+						if (b < 0) b+=256;
+						b+=1000;
+					}
 					String strToken = token.mMapTokens.get(b);
 					if (strToken == null) {
 						if (b != 13) {
@@ -228,6 +240,13 @@ public class ZXTokenizer {
 						token.literal += (char) bi;
 
 				}
+				break;
+			case 0x01:
+				b = bytes[mPos++];
+				if (b < 0) b+=256;
+				token.typ = ParserToken.ZXTokenTyp.ZX_Token;
+				token.zxToken = b+1000;
+				token.literal = mzxToken.mMapTokens.get(token.zxToken);
 				break;
 
 			case ZXToken.ZXB_UNEQUAL:

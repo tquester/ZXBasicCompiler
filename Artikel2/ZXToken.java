@@ -125,6 +125,10 @@ public class ZXToken {
 	public static final int ZXB_REPEAT 		= 1016;
 	public static final int ZXB_WHEN 		= 1017;
 	public static final int ZXB_ELSE 		= 1018;
+	public static final int ZXB_SPRITE 		= 1019;
+	public static final int ZXB_WITH	 	= 1020;
+	
+	
 	
 	
 	public String tokenToStr(int token) {
@@ -183,6 +187,7 @@ public class ZXToken {
 		addToken(ZXB_IN, "IN");
 		addToken(ZXB_USR, "USR");
 		addToken(ZXB_STR, "STR");
+		addToken(ZXB_STR, "STR$");
 		addToken(ZXB_CHR, "CHR$");
 		addToken(ZXB_NOTX, "NOT");
 		addToken(ZXB_BIN, "BIN");
@@ -281,6 +286,13 @@ public class ZXToken {
 		addToken(ZXB_REPEAT, "REPEAT");
 		addToken(ZXB_WHEN, "WHEN");
 		addToken(ZXB_ELSE, "ELSE");
+
+		addToken(ZXB_SPRITE,"SPRITE");
+		addToken(ZXB_WITH,"WITH");
+
+		
+		
+		
 	}
 
 	public Set<String> createExtendedSet(String[] strings) {

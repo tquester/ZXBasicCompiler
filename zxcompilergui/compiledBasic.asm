@@ -3,311 +3,713 @@ CBASIC_START
 compiledBasic:
 	call ZXHeapClear
 	LD (runtimeSaveSP),SP
-; 		1000.1  LET playerx=0{00 00 00 00 00 }
-	LD A,1
-	LD (23623),a
-	LD HL,0
-	LD (ZXBASIC_VAR_playerx),HL
+	LD (DATAPTR),HL
+	LD HL,DATA_1360
+; 		1000.1  GO SUB 1450{00 00 aa 05 00 }
+	CALL runtimeCheckBreak
+	CALL ZXBASIC_LINE_1450
 ZXBASIC_LINE_1010:
-; 1010  LET playery=0
-	LD HL,1010
-	LD (23621),HL
-; 		1010.1  LET playery=0{00 00 00 00 00 }
-	LD A,1
-	LD (23623),a
-	LD HL,0
-	LD (ZXBASIC_VAR_playery),HL
+; 1010  GO SUB 1060
+; 		1010.1  GO SUB 1060{00 00 24 04 00 }
+	CALL runtimeCheckBreak
+	CALL ZXBASIC_LINE_1060
 ZXBASIC_LINE_1020:
-; 1020  LET playerfire=0
-	LD HL,1020
-	LD (23621),HL
-; 		1020.1  LET playerfire=0{00 00 00 00 00 }
-	LD A,1
-	LD (23623),a
-	LD HL,0
-	LD (ZXBASIC_VAR_playerfire),HL
+; 1020  GOTO 1010
+; 		1020.1  GOTO 1010{00 00 f2 03 00 }
+	CALL runtimeCheckBreak
+	JP ZXBASIC_LINE_1010
 ZXBASIC_LINE_1030:
-; 1030  LET playerleft=0
-	LD HL,1030
-	LD (23621),HL
-; 		1030.1  LET playerleft=0{00 00 00 00 00 }
-	LD A,1
-	LD (23623),a
-	LD HL,0
-	LD (ZXBASIC_VAR_playerleft),HL
+; 1030  GOTO 2050
+; 		1030.1  GOTO 2050{00 00 02 08 00 }
+	CALL runtimeCheckBreak
+	JP ZXBASIC_LINE_2050
 ZXBASIC_LINE_1040:
-; 1040  LET playerright=31
-	LD HL,1040
-	LD (23621),HL
-; 		1040.1  LET playerright=31{00 00 1f 00 00 }
-	LD A,1
-	LD (23623),a
-	LD HL,31
-	LD (ZXBASIC_VAR_playerright),HL
+; 1040  REM  SUB game
 ZXBASIC_LINE_1050:
-; 1050  LET playerup=0
-	LD HL,1050
-	LD (23621),HL
-; 		1050.1  LET playerup=0{00 00 00 00 00 }
-	LD A,1
-	LD (23623),a
-	LD HL,0
-	LD (ZXBASIC_VAR_playerup),HL
+; 1050  REM  ---------
 ZXBASIC_LINE_1060:
-; 1060  LET playerdown=21
-	LD HL,1060
-	LD (23621),HL
-; 		1060.1  LET playerdown=21{00 00 15 00 00 }
-	LD A,1
-	LD (23623),a
-	LD HL,21
-	LD (ZXBASIC_VAR_playerdown),HL
+; 1060  PAPER 1: INK 7: CLS 
+; 		1060.1  PAPER 1{00 00 01 00 00 }
+	LD HL,1
+	CALL runtimePaper
+; 		1060.2  INK 7{00 00 07 00 00 }
+	LD HL,7
+	CALL runtimeInk
+; 		1060.3  CLS 
+	CALL runtimeCls
 ZXBASIC_LINE_1070:
-; 1070  LET playerKeyMoveLeft=113
-	LD HL,1070
-	LD (23621),HL
-; 		1070.1  LET playerKeyMoveLeft=113{00 00 71 00 00 }
-	LD A,1
-	LD (23623),a
-	LD HL,113
-	LD (ZXBASIC_VAR_playerKeyMoveLeft),HL
+; 1070  LET p1=1: LET p2=1: LET player=1
+; 		1070.1  LET p1=1{00 00 01 00 00 }
+	LD HL,1
+	LD (ZXBASIC_VAR_p1),HL
+; 		1070.2  LET p2=1{00 00 01 00 00 }
+	LD (ZXBASIC_VAR_p2),HL
+; 		1070.3  LET player=1{00 00 01 00 00 }
+	LD HL,1
+	LD (ZXBASIC_VAR_player),HL
 ZXBASIC_LINE_1080:
-; 1080  LET playerKeyMoveRight=119
-	LD HL,1080
-	LD (23621),HL
-; 		1080.1  LET playerKeyMoveRight=119{00 00 77 00 00 }
-	LD A,1
-	LD (23623),a
-	LD HL,119
-	LD (ZXBASIC_VAR_playerKeyMoveRight),HL
+; 1080  GO SUB 1780
+; 		1080.1  GO SUB 1780{00 00 f4 06 00 }
+	CALL runtimeCheckBreak
+	CALL ZXBASIC_LINE_1780
 ZXBASIC_LINE_1090:
-; 1090  LET playerKeyMoveUp=112
-	LD HL,1090
-	LD (23621),HL
-; 		1090.1  LET playerKeyMoveUp=112{00 00 70 00 00 }
-	LD A,1
-	LD (23623),a
-	LD HL,112
-	LD (ZXBASIC_VAR_playerKeyMoveUp),HL
+; 1090  GO SUB 1880
+; 		1090.1  GO SUB 1880{00 00 58 07 00 }
+	CALL runtimeCheckBreak
+	CALL ZXBASIC_LINE_1880
 ZXBASIC_LINE_1100:
-; 1100  LET playerKeyMoveDown=108
-	LD HL,1100
-	LD (23621),HL
-; 		1100.1  LET playerKeyMoveDown=108{00 00 6c 00 00 }
-	LD A,1
-	LD (23623),a
-	LD HL,108
-	LD (ZXBASIC_VAR_playerKeyMoveDown),HL
+; 1100  PRINT  PAPER 1; INK 7; AT 2,8;"Payer ";player;
+; 		1100.1  PRINT  PAPER 1{00 00 01 00 00 }; INK 7{00 00 07 00 00 }; AT 2{00 00 02 00 00 },8{00 00 08 00 00 };"Payer ";player;
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD HL,1
+	CALL runtimeLocalPaper
+	LD HL,7
+	CALL runtimeLocalInk
+	LD DE,2
+	LD HL,8
+	CALL runtimePrintAt
+	LD HL,STRING_0	;Payer 
+	CALL runtimePrintString
+	LD HL,(ZXBASIC_VAR_player)
+	CALL runtimePrintInt
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
 ZXBASIC_LINE_1110:
-; 1110  LET playerKeyFire=13
-	LD HL,1110
-	LD (23621),HL
-; 		1110.1  LET playerKeyFire=13{00 00 0d 00 00 }
-	LD A,1
-	LD (23623),a
-	LD HL,13
-	LD (ZXBASIC_VAR_playerKeyFire),HL
+; 1110  PRINT  PAPER 1; INK 2; AT 0,18;"P1: Field ";p1
+; 		1110.1  PRINT  PAPER 1{00 00 01 00 00 }; INK 2{00 00 02 00 00 }; AT 0{00 00 00 00 00 },18{00 00 12 00 00 };"P1
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD HL,1
+	CALL runtimeLocalPaper
+	LD HL,2
+	CALL runtimeLocalInk
+	LD DE,0
+	LD HL,18
+	CALL runtimePrintAt
+	LD HL,STRING_1	;P1: Field 
+	CALL runtimePrintString
+	LD HL,(ZXBASIC_VAR_p1)
+	CALL runtimePrintInt
+	CALL runtimePrintNewline
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
 ZXBASIC_LINE_1120:
-; 1120  LET playerKeyFire2=32
-	LD HL,1120
-	LD (23621),HL
-; 		1120.1  LET playerKeyFire2=32{00 00 20 00 00 }
-	LD A,1
-	LD (23623),a
-	LD HL,32
-	LD (ZXBASIC_VAR_playerKeyFire2),HL
+; 1120  PRINT  PAPER 1; INK 5; AT 1,18;"P2: Field ";p2
+; 		1120.1  PRINT  PAPER 1{00 00 01 00 00 }; INK 5{00 00 05 00 00 }; AT 1{00 00 01 00 00 },18{00 00 12 00 00 };"P2
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD HL,1
+	CALL runtimeLocalPaper
+	LD HL,5
+	CALL runtimeLocalInk
+	LD DE,1
+	LD HL,18
+	CALL runtimePrintAt
+	LD HL,STRING_2	;P2: Field 
+	CALL runtimePrintString
+	LD HL,(ZXBASIC_VAR_p2)
+	CALL runtimePrintInt
+	CALL runtimePrintNewline
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
 ZXBASIC_LINE_1130:
-; 1130  GO SUB 1140
-	LD HL,1130
-	LD (23621),HL
-; 		1130.1  GO SUB 1140{00 00 74 04 00 }
-	LD A,1
-	LD (23623),a
+; 1130  GO SUB 1660
+; 		1130.1  GO SUB 1660{00 00 7c 06 00 }
 	CALL runtimeCheckBreak
-	CALL ZXBASIC_LINE_1140
+	CALL ZXBASIC_LINE_1660
 ZXBASIC_LINE_1140:
-; 1140  REM  SUB test
-	LD HL,1140
-	LD (23621),HL
-	LD A,1
-	LD (23623),a
+; 1140  PRINT  INK 7; PAPER 1; AT 3,10;"                   ";
+; 		1140.1  PRINT  INK 7{00 00 07 00 00 }; PAPER 1{00 00 01 00 00 }; AT 3{00 00 03 00 00 },10{00 00 0a 00 00 };"                   ";
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD HL,7
+	CALL runtimeLocalInk
+	LD HL,1
+	CALL runtimeLocalPaper
+	LD DE,3
+	LD HL,10
+	CALL runtimePrintAt
+	LD HL,STRING_3	;                   
+	CALL runtimePrintString
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
 ZXBASIC_LINE_1150:
-; 1150  REM  ---------
-	LD HL,1150
-	LD (23621),HL
-	LD A,1
-	LD (23623),a
+; 1150  PRINT  AT 2,25;roll;
+; 		1150.1  PRINT  AT 2{00 00 02 00 00 },25{00 00 19 00 00 };roll;
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,2
+	LD HL,25
+	CALL runtimePrintAt
+	LD HL,(ZXBASIC_VAR_roll)
+	CALL runtimePrintInt
+	POP AF
+	LD (ZX_P_FLAG),A
 ZXBASIC_LINE_1160:
-; 1160  GO SUB 1190
-	LD HL,1160
-	LD (23621),HL
-; 		1160.1  GO SUB 1190{00 00 a6 04 00 }
-	LD A,1
-	LD (23623),a
+; 1160  IF  NOT (player=1) THEN  GOTO 1240
+; 		1160.1  IF  NOT (player=1{00 00 01 00 00 }) THEN  GOTO 1240{00 00 d8 04 00 }
+; NOT
+	LD DE,(ZXBASIC_VAR_player)
+	LD HL,1
+; =
+	CALL runtimeCmpHLEqDE
+	CALL runtimeNotHL
+	LD A,L
+	CP 0
+	JP Z,ZXB_LABEL_1
+; 		1160.2  GOTO 1240{00 00 d8 04 00 }
 	CALL runtimeCheckBreak
-	CALL ZXBASIC_LINE_1190
+	JP ZXBASIC_LINE_1240
+ZXB_LABEL_1:
 ZXBASIC_LINE_1170:
-; 1170  GOTO 1160
-	LD HL,1170
-	LD (23621),HL
-; 		1170.1  GOTO 1160{00 00 88 04 00 }
-	LD A,1
-	LD (23623),a
+; 1170  FOR p=1 TO roll
+; 		1170.1  FOR p=1{00 00 01 00 00 } TO roll
 	CALL runtimeCheckBreak
-	JP ZXBASIC_LINE_1160
+	LD HL,1
+	LD (ZXBASIC_VAR_p),HL
+	LD HL,(ZXBASIC_VAR_roll)
+	LD (ZXBASIC_VAR_for_p),HL
+FOR_0:
 ZXBASIC_LINE_1180:
-; 1180  RETURN 
-	LD HL,1180
-	LD (23621),HL
-; 		1180.1  RETURN 
-	LD A,1
-	LD (23623),a
+; 1180  LET p1=p1+1
+; 		1180.1  LET p1=p1+1{00 00 01 00 00 }
+	LD HL,(ZXBASIC_VAR_p1)
+	INC HL
+; +
+	LD (ZXBASIC_VAR_p1),HL
+ZXBASIC_LINE_1190:
+; 1190  GO SUB 1880
+; 		1190.1  GO SUB 1880{00 00 58 07 00 }
+	CALL runtimeCheckBreak
+	CALL ZXBASIC_LINE_1880
+ZXBASIC_LINE_1200:
+; 1200  NEXT p
+; 		1200.1  NEXT p
+	CALL runtimeCheckBreak
+	LD HL,(ZXBASIC_VAR_p)
+	INC HL
+	LD (ZXBASIC_VAR_p),HL
+	LD DE,(ZXBASIC_VAR_for_p)
+	EX HL,DE
+	SUB HL,DE
+	JP NC,FOR_0
+ZXBASIC_LINE_1210:
+; 1210  LET PROCcheckspecialfields0=p1: GO SUB 1980
+; 		1210.1  LET PROCcheckspecialfields0=p1
+	LD HL,(ZXBASIC_VAR_p1)
+	LD (ZXBASIC_VAR_PROCcheckspecialfields0),HL
+; 		1210.2  GO SUB 1980{00 00 bc 07 00 }
+	CALL runtimeCheckBreak
+	CALL ZXBASIC_LINE_1980
+ZXBASIC_LINE_1220:
+; 1220  IF p1 <> result THEN  LET p1=result: GO SUB 1880
+; 		1220.1  IF p1 <> result THEN  LET p1=result
+	LD DE,(ZXBASIC_VAR_p1)
+	LD HL,(ZXBASIC_VAR_result)
+; <>
+	CALL runtimeCmpHlNeDE
+	LD A,L
+	CP 0
+	JP Z,ZXB_LABEL_2
+; 		1220.2  LET p1=result
+	LD HL,(ZXBASIC_VAR_result)
+	LD (ZXBASIC_VAR_p1),HL
+; 		1220.3  GO SUB 1880{00 00 58 07 00 }
+	CALL runtimeCheckBreak
+	CALL ZXBASIC_LINE_1880
+ZXB_LABEL_2:
+ZXBASIC_LINE_1230:
+; 1230  GOTO 1300
+; 		1230.1  GOTO 1300{00 00 14 05 00 }
+	CALL runtimeCheckBreak
+	JP ZXBASIC_LINE_1300
+ZXBASIC_LINE_1240:
+; 1240  FOR p=1 TO roll
+; 		1240.1  FOR p=1{00 00 01 00 00 } TO roll
+	CALL runtimeCheckBreak
+	LD HL,1
+	LD (ZXBASIC_VAR_p),HL
+	LD HL,(ZXBASIC_VAR_roll)
+	LD (ZXBASIC_VAR_for_p),HL
+FOR_1:
+ZXBASIC_LINE_1250:
+; 1250  LET p2=p2+1
+; 		1250.1  LET p2=p2+1{00 00 01 00 00 }
+	LD HL,(ZXBASIC_VAR_p2)
+	INC HL
+; +
+	LD (ZXBASIC_VAR_p2),HL
+ZXBASIC_LINE_1260:
+; 1260  GO SUB 1880
+; 		1260.1  GO SUB 1880{00 00 58 07 00 }
+	CALL runtimeCheckBreak
+	CALL ZXBASIC_LINE_1880
+ZXBASIC_LINE_1270:
+; 1270  NEXT p
+; 		1270.1  NEXT p
+	CALL runtimeCheckBreak
+	LD HL,(ZXBASIC_VAR_p)
+	INC HL
+	LD (ZXBASIC_VAR_p),HL
+	LD DE,(ZXBASIC_VAR_for_p)
+	EX HL,DE
+	SUB HL,DE
+	JP NC,FOR_1
+ZXBASIC_LINE_1280:
+; 1280  LET PROCcheckspecialfields0=p2: GO SUB 1980
+; 		1280.1  LET PROCcheckspecialfields0=p2
+	LD HL,(ZXBASIC_VAR_p2)
+	LD (ZXBASIC_VAR_PROCcheckspecialfields0),HL
+; 		1280.2  GO SUB 1980{00 00 bc 07 00 }
+	CALL runtimeCheckBreak
+	CALL ZXBASIC_LINE_1980
+ZXBASIC_LINE_1290:
+; 1290  IF p2 <> result THEN  LET p2=result: GO SUB 1880
+; 		1290.1  IF p2 <> result THEN  LET p2=result
+	LD DE,(ZXBASIC_VAR_p2)
+	LD HL,(ZXBASIC_VAR_result)
+; <>
+	CALL runtimeCmpHlNeDE
+	LD A,L
+	CP 0
+	JP Z,ZXB_LABEL_3
+; 		1290.2  LET p2=result
+	LD HL,(ZXBASIC_VAR_result)
+	LD (ZXBASIC_VAR_p2),HL
+; 		1290.3  GO SUB 1880{00 00 58 07 00 }
+	CALL runtimeCheckBreak
+	CALL ZXBASIC_LINE_1880
+ZXB_LABEL_3:
+ZXBASIC_LINE_1300:
+; 1300  IF p1 >= 28 THEN  INK 2: PRINT  AT 16,0;"Spieler 1 gewinnt! ";: GOTO 1340
+; 		1300.1  IF p1 >= 28{00 00 1c 00 00 } THEN  INK 2{00 00 02 00 00 }
+	LD DE,(ZXBASIC_VAR_p1)
+	LD HL,28
+; >=
+	CALL runtimeCmpHLGeDE
+	LD A,L
+	CP 0
+	JP Z,ZXB_LABEL_4
+; 		1300.2  INK 2{00 00 02 00 00 }
+	LD HL,2
+	CALL runtimeInk
+; 		1300.3  PRINT  AT 16{00 00 10 00 00 },0{00 00 00 00 00 };"Spieler 1 gewinnt! ";
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,16
+	LD HL,0
+	CALL runtimePrintAt
+	LD HL,STRING_4	;Spieler 1 gewinnt! 
+	CALL runtimePrintString
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		1300.4  GOTO 1340{00 00 3c 05 00 }
+	CALL runtimeCheckBreak
+	JP ZXBASIC_LINE_1340
+ZXB_LABEL_4:
+ZXBASIC_LINE_1310:
+; 1310  IF p2 >= 28 THEN  INK 5: PRINT  AT 16,0;"Spieler 2 gewinnt! ";: GOTO 1340
+; 		1310.1  IF p2 >= 28{00 00 1c 00 00 } THEN  INK 5{00 00 05 00 00 }
+	LD DE,(ZXBASIC_VAR_p2)
+	LD HL,28
+; >=
+	CALL runtimeCmpHLGeDE
+	LD A,L
+	CP 0
+	JP Z,ZXB_LABEL_5
+; 		1310.2  INK 5{00 00 05 00 00 }
+	LD HL,5
+	CALL runtimeInk
+; 		1310.3  PRINT  AT 16{00 00 10 00 00 },0{00 00 00 00 00 };"Spieler 2 gewinnt! ";
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,16
+	LD HL,0
+	CALL runtimePrintAt
+	LD HL,STRING_5	;Spieler 2 gewinnt! 
+	CALL runtimePrintString
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		1310.4  GOTO 1340{00 00 3c 05 00 }
+	CALL runtimeCheckBreak
+	JP ZXBASIC_LINE_1340
+ZXB_LABEL_5:
+ZXBASIC_LINE_1320:
+; 1320  LET player=3-player
+; 		1320.1  LET player=3{00 00 03 00 00 }-player
+	LD HL,3
+	LD DE,(ZXBASIC_VAR_player)
+; -
+	SUB HL,DE
+	LD (ZXBASIC_VAR_player),HL
+ZXBASIC_LINE_1330:
+; 1330  GOTO 1100
+; 		1330.1  GOTO 1100{00 00 4c 04 00 }
+	CALL runtimeCheckBreak
+	JP ZXBASIC_LINE_1100
+ZXBASIC_LINE_1340:
+; 1340  PAUSE 0
+; 		1340.1  PAUSE 0{00 00 00 00 00 }
+	LD HL,0
+	CALL runtimePause
+ZXBASIC_LINE_1350:
+; 1350  RETURN 
+; 		1350.1  RETURN 
 	CALL runtimeCheckBreak
 	RET
-ZXBASIC_LINE_1190:
-; 1190  REM  SUB keyboard
-	LD HL,1190
-	LD (23621),HL
-	LD A,1
-	LD (23623),a
-ZXBASIC_LINE_1200:
-; 1200  REM  -------------
-	LD HL,1200
-	LD (23621),HL
-	LD A,1
-	LD (23623),a
-ZXBASIC_LINE_1210:
-; 1210  LET PROCkeyboarda= CODE  INKEY$ 
-	LD HL,1210
-	LD (23621),HL
-; 		1210.1  LET PROCkeyboarda= CODE  INKEY$ 
-	LD A,1
-	LD (23623),a
-; CODE
-; INKEY$
-	CALL runtimeInkey
-	CALL runtimeCode
-	LD (ZXBASIC_VAR_PROCkeyboarda),HL
-	CALL ZXFreeTempCompact
-ZXBASIC_LINE_1220:
-; 1220  LET playerx=playerx+((PROCkeyboarda=playerKeyMoveRight OR PROCkeyboarda=9) AND playerx<playerright)-((PROCkeyboarda=playerKeyMoveLeft OR PROCkeyboarda=8) AND playerx>playerleft)
-	LD HL,1220
-	LD (23621),HL
-; 		1220.1  LET playerx=playerx+((PROCkeyboarda=playerKeyMoveRight OR PROCkeyboarda=9{00 00 09 00 00 }) AND playerx<playerright)-((PROCkeyboarda=playerKeyMoveLeft OR PROCkeyboarda=8{00 00 08 00 00 }) AND playerx>playerleft)
-	LD A,1
-	LD (23623),a
-	LD HL,(ZXBASIC_VAR_playerx)
-	PUSH HL
-; (
-; (
-	LD DE,(ZXBASIC_VAR_PROCkeyboarda)
-	LD HL,(ZXBASIC_VAR_playerKeyMoveRight)
-; =
-	CALL runtimeCmpHLEqDE
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_PROCkeyboarda)
-	LD HL,9
-; =
-	CALL runtimeCmpHLEqDE
-; OR
-	POP DE
-	call runtimeOrHLDE
-	PUSH HL
-; )
-	LD DE,(ZXBASIC_VAR_playerx)
-	LD HL,(ZXBASIC_VAR_playerright)
-; <
-	CALL runtimeCmpHLltDE
-; AND
-	POP DE
-	call runtimeAndHLDE
-; )
-; +
-	POP DE
-	ADD HL,DE
-	PUSH HL
-; (
-; (
-	LD DE,(ZXBASIC_VAR_PROCkeyboarda)
-	LD HL,(ZXBASIC_VAR_playerKeyMoveLeft)
-; =
-	CALL runtimeCmpHLEqDE
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_PROCkeyboarda)
+ZXBASIC_LINE_1360:
+; 1360  DATA 24,60,126,219,255,126,60,24
+; 		1360.1  DATA 24{00 00 18 00 00 },60{00 00 3c 00 00 },126{00 00 7e 00 00 },219{00 00 db 00 00 },255{00 00 ff 00 00 },126{00 00 7e 00 00 },60{00 00 3c 00 00 },24{00 00 18 00 00 }
+ZXBASIC_LINE_1370:
+; 1370  DATA 24,60,126,219,255,102,60,24
+; 		1370.1  DATA 24{00 00 18 00 00 },60{00 00 3c 00 00 },126{00 00 7e 00 00 },219{00 00 db 00 00 },255{00 00 ff 00 00 },102{00 00 66 00 00 },60{00 00 3c 00 00 },24{00 00 18 00 00 }
+ZXBASIC_LINE_1380:
+; 1380  DATA 60,66,165,129,165,153,66,60
+; 		1380.1  DATA 60{00 00 3c 00 00 },66{00 00 42 00 00 },165{00 00 a5 00 00 },129{00 00 81 00 00 },165{00 00 a5 00 00 },153{00 00 99 00 00 },66{00 00 42 00 00 },60{00 00 3c 00 00 }
+ZXBASIC_LINE_1390:
+; 1390  DATA 60,66,165,129,153,165,66,60
+; 		1390.1  DATA 60{00 00 3c 00 00 },66{00 00 42 00 00 },165{00 00 a5 00 00 },129{00 00 81 00 00 },153{00 00 99 00 00 },165{00 00 a5 00 00 },66{00 00 42 00 00 },60{00 00 3c 00 00 }
+ZXBASIC_LINE_1400:
+; 1400  DATA 60,90,189,189,189,189,90,60
+; 		1400.1  DATA 60{00 00 3c 00 00 },90{00 00 5a 00 00 },189{00 00 bd 00 00 },189{00 00 bd 00 00 },189{00 00 bd 00 00 },189{00 00 bd 00 00 },90{00 00 5a 00 00 },60{00 00 3c 00 00 }
+ZXBASIC_LINE_1410:
+; 1410  DATA 0,0,24,60,60,24,0,0
+; 		1410.1  DATA 0{00 00 00 00 00 },0{00 00 00 00 00 },24{00 00 18 00 00 },60{00 00 3c 00 00 },60{00 00 3c 00 00 },24{00 00 18 00 00 },0{00 00 00 00 00 },0{00 00 00 00 00 }
+ZXBASIC_LINE_1420:
+; 1420  DATA 0,0,0,0,0,0,0
+; 		1420.1  DATA 0{00 00 00 00 00 },0{00 00 00 00 00 },0{00 00 00 00 00 },0{00 00 00 00 00 },0{00 00 00 00 00 },0{00 00 00 00 00 },0{00 00 00 00 00 }
+ZXBASIC_LINE_1430:
+; 1430  REM  SUB readudg
+ZXBASIC_LINE_1440:
+; 1440  REM  ------------
+ZXBASIC_LINE_1450:
+; 1450  RESTORE 1360
+; 		1450.1  RESTORE 1360{00 00 50 05 00 }
+	LD DE,1360
+	LD HL,ZXDATA
+	CALL runtimeFindLine
+	EX HL,DE
+	LD (DATAPTR),DE
+ZXBASIC_LINE_1460:
+; 1460  LET adr= USR "A"
+; 		1460.1  LET adr= USR "A"
+; USR
+	LD HL,STRING_6	;A
+	CALL runtimeUsrUDG
+	LD (ZXBASIC_VAR_adr),HL
+ZXBASIC_LINE_1470:
+; 1470  FOR i=1 TO 6
+; 		1470.1  FOR i=1{00 00 01 00 00 } TO 6{00 00 06 00 00 }
+	CALL runtimeCheckBreak
+	LD HL,1
+	LD (ZXBASIC_VAR_i),HL
+	LD HL,6
+	LD (ZXBASIC_VAR_for_i),HL
+FOR_2:
+ZXBASIC_LINE_1480:
+; 1480  FOR b=1 TO 8
+; 		1480.1  FOR b=1{00 00 01 00 00 } TO 8{00 00 08 00 00 }
+	CALL runtimeCheckBreak
+	LD HL,1
+	LD (ZXBASIC_VAR_b),HL
 	LD HL,8
-; =
-	CALL runtimeCmpHLEqDE
-; OR
-	POP DE
-	call runtimeOrHLDE
-	PUSH HL
-; )
-	LD DE,(ZXBASIC_VAR_playerx)
-	LD HL,(ZXBASIC_VAR_playerleft)
-; >
-	CALL runtimeCmpHlGtDE
-; AND
-	POP DE
-	call runtimeAndHLDE
-; )
-; -
-	POP DE
+	LD (ZXBASIC_VAR_for_b),HL
+FOR_3:
+ZXBASIC_LINE_1490:
+; 1490  READ a: POKE adr,a: LET adr=adr+1
+; 		1490.1  READ a
+	LD HL,(DATAPTR)
+	LD DE,(HL)
+	INC HL
+	INC HL
+	LD (DATAPTR),HL
+	LD (ZXBASIC_VAR_a),DE
+; 		1490.2  POKE adr,a
+	LD HL,(ZXBASIC_VAR_adr)
+	LD DE,(ZXBASIC_VAR_a)
+	LD (HL),E
+; 		1490.3  LET adr=adr+1{00 00 01 00 00 }
+	LD HL,(ZXBASIC_VAR_adr)
+	INC HL
+; +
+	LD (ZXBASIC_VAR_adr),HL
+ZXBASIC_LINE_1500:
+; 1500  NEXT b
+; 		1500.1  NEXT b
+	CALL runtimeCheckBreak
+	LD HL,(ZXBASIC_VAR_b)
+	INC HL
+	LD (ZXBASIC_VAR_b),HL
+	LD DE,(ZXBASIC_VAR_for_b)
 	EX HL,DE
 	SUB HL,DE
-	LD (ZXBASIC_VAR_playerx),HL
-ZXBASIC_LINE_1230:
-; 1230  LET playery=playery+(PROCkeyboarda=playerKeyMoveDown OR PROCkeyboarda=10)-(PROCkeyboarda=playerKeyMoveUp OR PROCkeyboarda=11)
-	LD HL,1230
-	LD (23621),HL
-; 		1230.1  LET playery=playery+(PROCkeyboarda=playerKeyMoveDown OR PROCkeyboarda=10{00 00 0a 00 00 })-(PROCkeyboarda=playerKeyMoveUp OR PROCkeyboarda=11{00 00 0b 00 00 })
-	LD A,1
-	LD (23623),a
-	LD HL,(ZXBASIC_VAR_playery)
+	JP NC,FOR_3
+ZXBASIC_LINE_1510:
+; 1510  NEXT i
+; 		1510.1  NEXT i
+	CALL runtimeCheckBreak
+	LD HL,(ZXBASIC_VAR_i)
+	INC HL
+	LD (ZXBASIC_VAR_i),HL
+	LD DE,(ZXBASIC_VAR_for_i)
+	EX HL,DE
+	SUB HL,DE
+	JP NC,FOR_2
+ZXBASIC_LINE_1520:
+; 1520  RETURN 
+; 		1520.1  RETURN 
+	CALL runtimeCheckBreak
+	RET
+ZXBASIC_LINE_1530:
+; 1530  REM  SUB drawdice
+ZXBASIC_LINE_1540:
+; 1540  REM  -------------
+ZXBASIC_LINE_1550:
+; 1550  INK 7: PAPER 1: GOTO 1560+10*frame
+; 		1550.1  INK 7{00 00 07 00 00 }
+	LD HL,7
+	CALL runtimeInk
+; 		1550.2  PAPER 1{00 00 01 00 00 }
+	LD HL,1
+	CALL runtimePaper
+; 		1550.3  GOTO 1560{00 00 18 06 00 }+10{00 00 0a 00 00 }*frame
+	CALL runtimeCheckBreak
+	LD HL,1560
 	PUSH HL
-; (
-	LD DE,(ZXBASIC_VAR_PROCkeyboarda)
-	LD HL,(ZXBASIC_VAR_playerKeyMoveDown)
-; =
-	CALL runtimeCmpHLEqDE
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_PROCkeyboarda)
-	LD HL,10
-; =
-	CALL runtimeCmpHLEqDE
-; OR
-	POP DE
-	call runtimeOrHLDE
-; )
+	LD DE,10
+	LD HL,(ZXBASIC_VAR_frame)
+; *
+	call runtimeMult16bit
 ; +
 	POP DE
 	ADD HL,DE
-	PUSH HL
-; (
-	LD DE,(ZXBASIC_VAR_PROCkeyboarda)
-	LD HL,(ZXBASIC_VAR_playerKeyMoveUp)
-; =
-	CALL runtimeCmpHLEqDE
-	PUSH HL
-	LD DE,(ZXBASIC_VAR_PROCkeyboarda)
-	LD HL,11
-; =
-	CALL runtimeCmpHLEqDE
-; OR
-	POP DE
-	call runtimeOrHLDE
-; )
-; -
-	POP DE
-	EX HL,DE
-	SUB HL,DE
-	LD (ZXBASIC_VAR_playery),HL
-ZXBASIC_LINE_1240:
-; 1240  PRINT  AT 0,0;"Key=";PROCkeyboarda;" x=";playerx;" y=";playery;"  ";
-	LD HL,1240
-	LD (23621),HL
-; 		1240.1  PRINT  AT 0{00 00 00 00 00 },0{00 00 00 00 00 };"Key=";PROCkeyboarda;" x=";playerx;" y=";playery;"  ";
-	LD A,1
-	LD (23623),a
+	LD DE,HL
+	LD HL,ZXLINES
+	CALL runtimeFindLine
+	JP (HL)
+ZXBASIC_LINE_1560:
+; 1560  REM  there is nice 0
+ZXBASIC_LINE_1570:
+; 1570  PRINT  AT 1,0;"\138   \133"; AT 2,0;"\138 \149 \133"; AT 3,0;"\138   \133";: RETURN 
+; 		1570.1  PRINT  AT 1{00 00 01 00 00 },0{00 00 00 00 00 };"\138   \133"; AT 2{00 00 02 00 00 },0{00 00 00 00 00 };"\138 \149 \133"; AT 3{00 00 03 00 00 },0{00 00 00 00 00 };"\138   \133";
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,1
+	LD HL,0
+	CALL runtimePrintAt
+	LD HL,STRING_7	;\138   \133
+	CALL runtimePrintString
+	LD DE,2
+	LD HL,0
+	CALL runtimePrintAt
+	LD HL,STRING_8	;\138 \149 \133
+	CALL runtimePrintString
+	LD DE,3
+	LD HL,0
+	CALL runtimePrintAt
+	LD HL,STRING_7	;\138   \133
+	CALL runtimePrintString
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		1570.2  RETURN 
+	CALL runtimeCheckBreak
+	RET
+ZXBASIC_LINE_1580:
+; 1580  PRINT  AT 1,0;"\138\149  \133"; AT 2,0;"\138   \133"; AT 3,0;"\138  \149\133";: RETURN 
+; 		1580.1  PRINT  AT 1{00 00 01 00 00 },0{00 00 00 00 00 };"\138\149  \133"; AT 2{00 00 02 00 00 },0{00 00 00 00 00 };"\138   \133"; AT 3{00 00 03 00 00 },0{00 00 00 00 00 };"\138  \149\133";
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,1
+	LD HL,0
+	CALL runtimePrintAt
+	LD HL,STRING_9	;\138\149  \133
+	CALL runtimePrintString
+	LD DE,2
+	LD HL,0
+	CALL runtimePrintAt
+	LD HL,STRING_7	;\138   \133
+	CALL runtimePrintString
+	LD DE,3
+	LD HL,0
+	CALL runtimePrintAt
+	LD HL,STRING_10	;\138  \149\133
+	CALL runtimePrintString
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		1580.2  RETURN 
+	CALL runtimeCheckBreak
+	RET
+ZXBASIC_LINE_1590:
+; 1590  PRINT  AT 1,0;"\138\149  \133"; AT 2,0;"\138 \149 \133"; AT 3,0;"\138  \149\133";: RETURN 
+; 		1590.1  PRINT  AT 1{00 00 01 00 00 },0{00 00 00 00 00 };"\138\149  \133"; AT 2{00 00 02 00 00 },0{00 00 00 00 00 };"\138 \149 \133"; AT 3{00 00 03 00 00 },0{00 00 00 00 00 };"\138  \149\133";
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,1
+	LD HL,0
+	CALL runtimePrintAt
+	LD HL,STRING_9	;\138\149  \133
+	CALL runtimePrintString
+	LD DE,2
+	LD HL,0
+	CALL runtimePrintAt
+	LD HL,STRING_8	;\138 \149 \133
+	CALL runtimePrintString
+	LD DE,3
+	LD HL,0
+	CALL runtimePrintAt
+	LD HL,STRING_10	;\138  \149\133
+	CALL runtimePrintString
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		1590.2  RETURN 
+	CALL runtimeCheckBreak
+	RET
+ZXBASIC_LINE_1600:
+; 1600  PRINT  AT 1,0;"\138\149 \149\133"; AT 2,0;"\138   \133"; AT 3,0;"\138\149 \149\133";: RETURN 
+; 		1600.1  PRINT  AT 1{00 00 01 00 00 },0{00 00 00 00 00 };"\138\149 \149\133"; AT 2{00 00 02 00 00 },0{00 00 00 00 00 };"\138   \133"; AT 3{00 00 03 00 00 },0{00 00 00 00 00 };"\138\149 \149\133";
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,1
+	LD HL,0
+	CALL runtimePrintAt
+	LD HL,STRING_11	;\138\149 \149\133
+	CALL runtimePrintString
+	LD DE,2
+	LD HL,0
+	CALL runtimePrintAt
+	LD HL,STRING_7	;\138   \133
+	CALL runtimePrintString
+	LD DE,3
+	LD HL,0
+	CALL runtimePrintAt
+	LD HL,STRING_11	;\138\149 \149\133
+	CALL runtimePrintString
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		1600.2  RETURN 
+	CALL runtimeCheckBreak
+	RET
+ZXBASIC_LINE_1610:
+; 1610  PRINT  AT 1,0;"\138\149 \149\133"; AT 2,0;"\138 \149 \133"; AT 3,0;"\138\149 \149\133";: RETURN 
+; 		1610.1  PRINT  AT 1{00 00 01 00 00 },0{00 00 00 00 00 };"\138\149 \149\133"; AT 2{00 00 02 00 00 },0{00 00 00 00 00 };"\138 \149 \133"; AT 3{00 00 03 00 00 },0{00 00 00 00 00 };"\138\149 \149\133";
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,1
+	LD HL,0
+	CALL runtimePrintAt
+	LD HL,STRING_11	;\138\149 \149\133
+	CALL runtimePrintString
+	LD DE,2
+	LD HL,0
+	CALL runtimePrintAt
+	LD HL,STRING_8	;\138 \149 \133
+	CALL runtimePrintString
+	LD DE,3
+	LD HL,0
+	CALL runtimePrintAt
+	LD HL,STRING_11	;\138\149 \149\133
+	CALL runtimePrintString
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		1610.2  RETURN 
+	CALL runtimeCheckBreak
+	RET
+ZXBASIC_LINE_1620:
+; 1620  PRINT  AT 1,0;"\138\149 \149\133"; AT 2,0;"\138\149 \149\133"; AT 3,0;"\138\149 \149\133";: RETURN 
+; 		1620.1  PRINT  AT 1{00 00 01 00 00 },0{00 00 00 00 00 };"\138\149 \149\133"; AT 2{00 00 02 00 00 },0{00 00 00 00 00 };"\138\149 \149\133"; AT 3{00 00 03 00 00 },0{00 00 00 00 00 };"\138\149 \149\133";
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,1
+	LD HL,0
+	CALL runtimePrintAt
+	LD HL,STRING_11	;\138\149 \149\133
+	CALL runtimePrintString
+	LD DE,2
+	LD HL,0
+	CALL runtimePrintAt
+	LD HL,STRING_11	;\138\149 \149\133
+	CALL runtimePrintString
+	LD DE,3
+	LD HL,0
+	CALL runtimePrintAt
+	LD HL,STRING_11	;\138\149 \149\133
+	CALL runtimePrintString
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		1620.2  RETURN 
+	CALL runtimeCheckBreak
+	RET
+ZXBASIC_LINE_1630:
+; 1630  RETURN 
+; 		1630.1  RETURN 
+	CALL runtimeCheckBreak
+	RET
+ZXBASIC_LINE_1640:
+; 1640  REM  SUB rolldice
+ZXBASIC_LINE_1650:
+; 1650  REM  -------------
+ZXBASIC_LINE_1660:
+; 1660  LET frame=0: LET lastKey=0: PRINT  AT 5,0;"Taste=STOP": INK 7: PAPER 1: PRINT  AT 0,0;"\139\131\131\131\135"; AT 4,0;"\142\140\140\140\141";
+; 		1660.1  LET frame=0{00 00 00 00 00 }
+	LD HL,0
+	LD (ZXBASIC_VAR_frame),HL
+; 		1660.2  LET lastKey=0{00 00 00 00 00 }
+	LD (ZXBASIC_VAR_lastKey),HL
+; 		1660.3  PRINT  AT 5{00 00 05 00 00 },0{00 00 00 00 00 };"Taste=STOP"
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,5
+	LD HL,0
+	CALL runtimePrintAt
+	LD HL,STRING_12	;Taste=STOP
+	CALL runtimePrintString
+	CALL runtimePrintNewline
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		1660.4  INK 7{00 00 07 00 00 }
+	LD HL,7
+	CALL runtimeInk
+; 		1660.5  PAPER 1{00 00 01 00 00 }
+	LD HL,1
+	CALL runtimePaper
+; 		1660.6  PRINT  AT 0{00 00 00 00 00 },0{00 00 00 00 00 };"\139\131\131\131\135"; AT 4{00 00 04 00 00 },0{00 00 00 00 00 };"\142\140\140\140\141";
 	LD A,2
 	CALL $1601	;Open Channel
 	LD A,(ZX_P_FLAG)
@@ -315,57 +717,1105 @@ ZXBASIC_LINE_1240:
 	LD DE,0
 	LD HL,0
 	CALL runtimePrintAt
-	LD HL,STRING_0	;Key=
+	LD HL,STRING_13	;\139\131\131\131\135
 	CALL runtimePrintString
-	LD HL,(ZXBASIC_VAR_PROCkeyboarda)
-	CALL runtimePrintInt
-	LD HL,STRING_1	; x=
-	CALL runtimePrintString
-	LD HL,(ZXBASIC_VAR_playerx)
-	CALL runtimePrintInt
-	LD HL,STRING_2	; y=
-	CALL runtimePrintString
-	LD HL,(ZXBASIC_VAR_playery)
-	CALL runtimePrintInt
-	LD HL,STRING_3	;  
+	LD DE,4
+	LD HL,0
+	CALL runtimePrintAt
+	LD HL,STRING_14	;\142\140\140\140\141
 	CALL runtimePrintString
 	POP AF
 	LD (ZX_P_FLAG),A
-ZXBASIC_LINE_1250:
-; 1250  RETURN 
-	LD HL,1250
-	LD (23621),HL
-; 		1250.1  RETURN 
-	LD A,1
-	LD (23623),a
+ZXBASIC_LINE_1670:
+; 1670  LET frame=frame+1
+; 		1670.1  LET frame=frame+1{00 00 01 00 00 }
+	LD HL,(ZXBASIC_VAR_frame)
+	INC HL
+; +
+	LD (ZXBASIC_VAR_frame),HL
+ZXBASIC_LINE_1680:
+; 1680  IF frame=7 THEN  LET frame=1
+; 		1680.1  IF frame=7{00 00 07 00 00 } THEN  LET frame=1{00 00 01 00 00 }
+	LD DE,(ZXBASIC_VAR_frame)
+	LD HL,7
+; =
+	CALL runtimeCmpHLEqDE
+	LD A,L
+	CP 0
+	JP Z,ZXB_LABEL_6
+; 		1680.2  LET frame=1{00 00 01 00 00 }
+	LD HL,1
+	LD (ZXBASIC_VAR_frame),HL
+ZXB_LABEL_6:
+ZXBASIC_LINE_1690:
+; 1690  LET PROCdrawdice0=frame: GO SUB 1550: LET k= CODE  INKEY$ : IF k <> 0 THEN  LET lastKey=k: GOTO 1720
+; 		1690.1  LET PROCdrawdice0=frame
+	LD HL,(ZXBASIC_VAR_frame)
+	LD (ZXBASIC_VAR_PROCdrawdice0),HL
+; 		1690.2  GO SUB 1550{00 00 0e 06 00 }
+	CALL runtimeCheckBreak
+	CALL ZXBASIC_LINE_1550
+; 		1690.3  LET k= CODE  INKEY$ 
+; CODE
+; INKEY$
+	CALL runtimeInkey
+	CALL runtimeCode
+	LD (ZXBASIC_VAR_k),HL
+	CALL ZXFreeTempCompact
+; 		1690.4  IF k <> 0{00 00 00 00 00 } THEN  LET lastKey=k
+	LD DE,(ZXBASIC_VAR_k)
+	LD HL,0
+; <>
+	CALL runtimeCmpHlNeDE
+	LD A,L
+	CP 0
+	JP Z,ZXB_LABEL_7
+; 		1690.5  LET lastKey=k
+	LD HL,(ZXBASIC_VAR_k)
+	LD (ZXBASIC_VAR_lastKey),HL
+; 		1690.6  GOTO 1720{00 00 b8 06 00 }
+	CALL runtimeCheckBreak
+	JP ZXBASIC_LINE_1720
+ZXB_LABEL_7:
+ZXBASIC_LINE_1700:
+; 1700  PAUSE 2
+; 		1700.1  PAUSE 2{00 00 02 00 00 }
+	LD HL,2
+	CALL runtimePause
+ZXBASIC_LINE_1710:
+; 1710  GOTO 1670
+; 		1710.1  GOTO 1670{00 00 86 06 00 }
+	CALL runtimeCheckBreak
+	JP ZXBASIC_LINE_1670
+ZXBASIC_LINE_1720:
+; 1720  LET roll=frame
+; 		1720.1  LET roll=frame
+	LD HL,(ZXBASIC_VAR_frame)
+	LD (ZXBASIC_VAR_roll),HL
+ZXBASIC_LINE_1730:
+; 1730  INK 7
+; 		1730.1  INK 7{00 00 07 00 00 }
+	LD HL,7
+	CALL runtimeInk
+ZXBASIC_LINE_1740:
+; 1740  PAPER 0
+; 		1740.1  PAPER 0{00 00 00 00 00 }
+	LD HL,0
+	CALL runtimePaper
+ZXBASIC_LINE_1750:
+; 1750  RETURN 
+; 		1750.1  RETURN 
 	CALL runtimeCheckBreak
 	RET
-ZXBASIC_LINE_1260:
-; 1260  STOP \000
-	LD HL,1260
-	LD (23621),HL
-ZXBASIC_VAR_PROCkeyboarda:	dw 0
-ZXBASIC_VAR_playerKeyFire:	dw 0
-ZXBASIC_VAR_playerKeyFire2:	dw 0
-ZXBASIC_VAR_playerKeyMoveDown:	dw 0
-ZXBASIC_VAR_playerKeyMoveLeft:	dw 0
-ZXBASIC_VAR_playerKeyMoveRight:	dw 0
-ZXBASIC_VAR_playerKeyMoveUp:	dw 0
-ZXBASIC_VAR_playerdown:	dw 0
-ZXBASIC_VAR_playerfire:	dw 0
-ZXBASIC_VAR_playerleft:	dw 0
-ZXBASIC_VAR_playerright:	dw 0
-ZXBASIC_VAR_playerup:	dw 0
-ZXBASIC_VAR_playerx:	dw 0
-ZXBASIC_VAR_playery:	dw 0
-STRING_0:	dw 4
-	db	"Key="
-STRING_1:	dw 3
-	db	" x="
-STRING_2:	dw 3
-	db	" y="
-STRING_3:	dw 2
+ZXBASIC_LINE_1760:
+; 1760  REM  SUB drawboard
+ZXBASIC_LINE_1770:
+; 1770  REM  --------------
+ZXBASIC_LINE_1780:
+; 1780  CLS : PRINT  AT 0,5;"LUCKY RACE";: LET row=0: LET col=0: LET x=0: LET y=6: FOR f=1 TO 28
+; 		1780.1  CLS 
+	CALL runtimeCls
+; 		1780.2  PRINT  AT 0{00 00 00 00 00 },5{00 00 05 00 00 };"LUCKY RACE";
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,0
+	LD HL,5
+	CALL runtimePrintAt
+	LD HL,STRING_15	;LUCKY RACE
+	CALL runtimePrintString
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		1780.3  LET row=0{00 00 00 00 00 }
+	LD HL,0
+	LD (ZXBASIC_VAR_row),HL
+; 		1780.4  LET col=0{00 00 00 00 00 }
+	LD (ZXBASIC_VAR_col),HL
+; 		1780.5  LET x=0{00 00 00 00 00 }
+	LD HL,0
+	LD (ZXBASIC_VAR_x),HL
+; 		1780.6  LET y=6{00 00 06 00 00 }
+	LD HL,6
+	LD (ZXBASIC_VAR_y),HL
+; 		1780.7  FOR f=1{00 00 01 00 00 } TO 28{00 00 1c 00 00 }
+	CALL runtimeCheckBreak
+	LD HL,1
+	LD (ZXBASIC_VAR_f),HL
+	LD HL,28
+	LD (ZXBASIC_VAR_for_f),HL
+FOR_4:
+ZXBASIC_LINE_1790:
+; 1790  INK 4: PAPER 7: LET r=y+row*3: LET c=x+col*4: PRINT  AT r,c;"\139\131\131\131";: PRINT  AT r+1,c;"\138";: PRINT "  ";: IF f=5 OR f=15 OR f=25 THEN  PRINT  INK 3;"\146";: GOTO 1830
+; 		1790.1  INK 4{00 00 04 00 00 }
+	LD HL,4
+	CALL runtimeInk
+; 		1790.2  PAPER 7{00 00 07 00 00 }
+	LD HL,7
+	CALL runtimePaper
+; 		1790.3  LET r=y+row*3{00 00 03 00 00 }
+	LD HL,(ZXBASIC_VAR_y)
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_row)
+	LD HL,3
+; *
+	call runtimeMult16bit
+; +
+	POP DE
+	ADD HL,DE
+	LD (ZXBASIC_VAR_r),HL
+; 		1790.4  LET c=x+col*4{00 00 04 00 00 }
+	LD HL,(ZXBASIC_VAR_x)
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_col)
+	LD HL,4
+; *
+	call runtimeMult16bit
+; +
+	POP DE
+	ADD HL,DE
+	LD (ZXBASIC_VAR_c),HL
+; 		1790.5  PRINT  AT r,c;"\139\131\131\131";
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,(ZXBASIC_VAR_r)
+	LD HL,(ZXBASIC_VAR_c)
+	CALL runtimePrintAt
+	LD HL,STRING_16	;\139\131\131\131
+	CALL runtimePrintString
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		1790.6  PRINT  AT r+1{00 00 01 00 00 },c;"\138";
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,(ZXBASIC_VAR_r)
+	LD HL,1
+; +
+	ADD HL,DE
+	LD DE,HL
+	LD HL,(ZXBASIC_VAR_c)
+	CALL runtimePrintAt
+	LD HL,STRING_17	;\138
+	CALL runtimePrintString
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		1790.7  PRINT "  ";
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD HL,STRING_18	;  
+	CALL runtimePrintString
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		1790.8  IF f=5{00 00 05 00 00 } OR f=15{00 00 0f 00 00 } OR f=25{00 00 19 00 00 } THEN  PRINT  INK 3{00 00 03 00 00 };"\146";
+	LD DE,(ZXBASIC_VAR_f)
+	LD HL,5
+; =
+	CALL runtimeCmpHLEqDE
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_f)
+	LD HL,15
+; =
+	CALL runtimeCmpHLEqDE
+; OR
+	POP DE
+	call runtimeOrHLDE
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_f)
+	LD HL,25
+; =
+	CALL runtimeCmpHLEqDE
+; OR
+	POP DE
+	call runtimeOrHLDE
+	LD A,L
+	CP 0
+	JP Z,ZXB_LABEL_8
+; 		1790.9  PRINT  INK 3{00 00 03 00 00 };"\146";
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD HL,3
+	CALL runtimeLocalInk
+	LD HL,STRING_19	;\146
+	CALL runtimePrintString
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		1790.10  GOTO 1830{00 00 26 07 00 }
+	CALL runtimeCheckBreak
+	JP ZXBASIC_LINE_1830
+ZXB_LABEL_8:
+ZXBASIC_LINE_1800:
+; 1800  IF f=8 OR f=18 OR f=28 THEN  PRINT  INK 1;"\147";: GOTO 1830
+; 		1800.1  IF f=8{00 00 08 00 00 } OR f=18{00 00 12 00 00 } OR f=28{00 00 1c 00 00 } THEN  PRINT  INK 1{00 00 01 00 00 };"\147";
+	LD DE,(ZXBASIC_VAR_f)
+	LD HL,8
+; =
+	CALL runtimeCmpHLEqDE
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_f)
+	LD HL,18
+; =
+	CALL runtimeCmpHLEqDE
+; OR
+	POP DE
+	call runtimeOrHLDE
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_f)
+	LD HL,28
+; =
+	CALL runtimeCmpHLEqDE
+; OR
+	POP DE
+	call runtimeOrHLDE
+	LD A,L
+	CP 0
+	JP Z,ZXB_LABEL_9
+; 		1800.2  PRINT  INK 1{00 00 01 00 00 };"\147";
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD HL,1
+	CALL runtimeLocalInk
+	LD HL,STRING_20	;\147
+	CALL runtimePrintString
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		1800.3  GOTO 1830{00 00 26 07 00 }
+	CALL runtimeCheckBreak
+	JP ZXBASIC_LINE_1830
+ZXB_LABEL_9:
+ZXBASIC_LINE_1810:
+; 1810  IF f=12 OR f=22 THEN  PRINT  INK 6;"\148";: GOTO 1830
+; 		1810.1  IF f=12{00 00 0c 00 00 } OR f=22{00 00 16 00 00 } THEN  PRINT  INK 6{00 00 06 00 00 };"\148";
+	LD DE,(ZXBASIC_VAR_f)
+	LD HL,12
+; =
+	CALL runtimeCmpHLEqDE
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_f)
+	LD HL,22
+; =
+	CALL runtimeCmpHLEqDE
+; OR
+	POP DE
+	call runtimeOrHLDE
+	LD A,L
+	CP 0
+	JP Z,ZXB_LABEL_10
+; 		1810.2  PRINT  INK 6{00 00 06 00 00 };"\148";
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD HL,6
+	CALL runtimeLocalInk
+	LD HL,STRING_21	;\148
+	CALL runtimePrintString
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		1810.3  GOTO 1830{00 00 26 07 00 }
+	CALL runtimeCheckBreak
+	JP ZXBASIC_LINE_1830
+ZXB_LABEL_10:
+ZXBASIC_LINE_1820:
+; 1820  PRINT " ";
+; 		1820.1  PRINT " ";
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD HL,STRING_22	; 
+	CALL runtimePrintString
+	POP AF
+	LD (ZX_P_FLAG),A
+ZXBASIC_LINE_1830:
+; 1830  INK 4: PAPER 7: PRINT  AT r+2,c;"\142\140\140\140";: LET col=col+1: IF col=7 THEN  PRINT  AT r,c+4;"\135"; AT r+1,c+4;"\133"; AT r+2,c+4;"\141";: LET col=0: LET row=row+1
+; 		1830.1  INK 4{00 00 04 00 00 }
+	LD HL,4
+	CALL runtimeInk
+; 		1830.2  PAPER 7{00 00 07 00 00 }
+	LD HL,7
+	CALL runtimePaper
+; 		1830.3  PRINT  AT r+2{00 00 02 00 00 },c;"\142\140\140\140";
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD DE,(ZXBASIC_VAR_r)
+	LD HL,2
+; +
+	ADD HL,DE
+	LD DE,HL
+	LD HL,(ZXBASIC_VAR_c)
+	CALL runtimePrintAt
+	LD HL,STRING_23	;\142\140\140\140
+	CALL runtimePrintString
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		1830.4  LET col=col+1{00 00 01 00 00 }
+	LD HL,(ZXBASIC_VAR_col)
+	INC HL
+; +
+	LD (ZXBASIC_VAR_col),HL
+; 		1830.5  IF col=7{00 00 07 00 00 } THEN  PRINT  AT r,c+4{00 00 04 00 00 };"\135"; AT r+1{00 00 01 00 00 },c+4{00 00 04 00 00 };"\133"; AT r+2{00 00 02 00 00 },c+4{00 00 04 00 00 };"\141";
+	LD DE,(ZXBASIC_VAR_col)
+	LD HL,7
+; =
+	CALL runtimeCmpHLEqDE
+	LD A,L
+	CP 0
+	JP Z,ZXB_LABEL_11
+; 		1830.6  PRINT  AT r,c+4{00 00 04 00 00 };"\135"; AT r+1{00 00 01 00 00 },c+4{00 00 04 00 00 };"\133"; AT r+2{00 00 02 00 00 },c+4{00 00 04 00 00 };"\141";
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD HL,(ZXBASIC_VAR_r)
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_c)
+	LD HL,4
+; +
+	ADD HL,DE
+	POP DE
+	CALL runtimePrintAt
+	LD HL,STRING_24	;\135
+	CALL runtimePrintString
+	LD DE,(ZXBASIC_VAR_r)
+	LD HL,1
+; +
+	ADD HL,DE
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_c)
+	LD HL,4
+; +
+	ADD HL,DE
+	POP DE
+	CALL runtimePrintAt
+	LD HL,STRING_25	;\133
+	CALL runtimePrintString
+	LD DE,(ZXBASIC_VAR_r)
+	LD HL,2
+; +
+	ADD HL,DE
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_c)
+	LD HL,4
+; +
+	ADD HL,DE
+	POP DE
+	CALL runtimePrintAt
+	LD HL,STRING_26	;\141
+	CALL runtimePrintString
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		1830.7  LET col=0{00 00 00 00 00 }
+	LD HL,0
+	LD (ZXBASIC_VAR_col),HL
+; 		1830.8  LET row=row+1{00 00 01 00 00 }
+	LD HL,(ZXBASIC_VAR_row)
+	INC HL
+; +
+	LD (ZXBASIC_VAR_row),HL
+ZXB_LABEL_11:
+ZXBASIC_LINE_1840:
+; 1840  NEXT f
+; 		1840.1  NEXT f
+	CALL runtimeCheckBreak
+	LD HL,(ZXBASIC_VAR_f)
+	INC HL
+	LD (ZXBASIC_VAR_f),HL
+	LD DE,(ZXBASIC_VAR_for_f)
+	EX HL,DE
+	SUB HL,DE
+	JP NC,FOR_4
+ZXBASIC_LINE_1850:
+; 1850  RETURN 
+; 		1850.1  RETURN 
+	CALL runtimeCheckBreak
+	RET
+ZXBASIC_LINE_1860:
+; 1860  REM  SUB updateboard
+ZXBASIC_LINE_1870:
+; 1870  REM  ----------------
+ZXBASIC_LINE_1880:
+; 1880  LET row=0: LET col=0: LET x=1: LET y=7: INK 5: PAPER 7: FOR f=1 TO 28: LET a$= STR$ f: IF f<10 THEN  LET a$=" "+a$
+; 		1880.1  LET row=0{00 00 00 00 00 }
+	LD HL,0
+	LD (ZXBASIC_VAR_row),HL
+; 		1880.2  LET col=0{00 00 00 00 00 }
+	LD (ZXBASIC_VAR_col),HL
+; 		1880.3  LET x=1{00 00 01 00 00 }
+	LD HL,1
+	LD (ZXBASIC_VAR_x),HL
+; 		1880.4  LET y=7{00 00 07 00 00 }
+	LD HL,7
+	LD (ZXBASIC_VAR_y),HL
+; 		1880.5  INK 5{00 00 05 00 00 }
+	LD HL,5
+	CALL runtimeInk
+; 		1880.6  PAPER 7{00 00 07 00 00 }
+	LD HL,7
+	CALL runtimePaper
+; 		1880.7  FOR f=1{00 00 01 00 00 } TO 28{00 00 1c 00 00 }
+	CALL runtimeCheckBreak
+	LD HL,1
+	LD (ZXBASIC_VAR_f),HL
+	LD HL,28
+	LD (ZXBASIC_VAR_for_f),HL
+FOR_5:
+; 		1880.8  LET a$= STR$ f
+; STR$
+	LD HL,(ZXBASIC_VAR_f)
+	CALL runtimeStrInt
+	LD DE,HL
+	LD HL,ZXBASIC_VAR_a_string
+	CALL runtimeStoreString
+; 		1880.9  IF f<10{00 00 0a 00 00 } THEN  LET a$=" "+a$
+	LD DE,(ZXBASIC_VAR_f)
+	LD HL,10
+; <
+	CALL runtimeCmpHLltDE
+	LD A,L
+	CP 0
+	JP Z,ZXB_LABEL_12
+; 		1880.10  LET a$=" "+a$
+	LD DE,STRING_22	; 
+	LD HL,(ZXBASIC_VAR_a_string)
+; +
+	CALL runtimeStringAdd
+	LD DE,HL
+	LD HL,ZXBASIC_VAR_a_string
+	CALL runtimeStoreString
+ZXB_LABEL_12:
+ZXBASIC_LINE_1890:
+; 1890  IF  NOT (p1=f OR p2=f) THEN  GOTO 1930
+; 		1890.1  IF  NOT (p1=f OR p2=f) THEN  GOTO 1930{00 00 8a 07 00 }
+; NOT
+	LD DE,(ZXBASIC_VAR_p1)
+	LD HL,(ZXBASIC_VAR_f)
+; =
+	CALL runtimeCmpHLEqDE
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_p2)
+	LD HL,(ZXBASIC_VAR_f)
+; =
+	CALL runtimeCmpHLEqDE
+; OR
+	POP DE
+	call runtimeOrHLDE
+	CALL runtimeNotHL
+	LD A,L
+	CP 0
+	JP Z,ZXB_LABEL_13
+; 		1890.2  GOTO 1930{00 00 8a 07 00 }
+	CALL runtimeCheckBreak
+	JP ZXBASIC_LINE_1930
+ZXB_LABEL_13:
+ZXBASIC_LINE_1900:
+; 1900  LET a$="": IF p1=f THEN  LET a$="\016\002\144"
+; 		1900.1  LET a$=""
+	LD DE,STRING_27	;
+	LD HL,ZXBASIC_VAR_a_string
+	CALL runtimeStoreString
+; 		1900.2  IF p1=f THEN  LET a$="\016\002\144"
+	LD DE,(ZXBASIC_VAR_p1)
+	LD HL,(ZXBASIC_VAR_f)
+; =
+	CALL runtimeCmpHLEqDE
+	LD A,L
+	CP 0
+	JP Z,ZXB_LABEL_14
+; 		1900.3  LET a$="\016\002\144"
+	LD DE,STRING_28	;\016\002\144
+	LD HL,ZXBASIC_VAR_a_string
+	CALL runtimeStoreString
+ZXB_LABEL_14:
+ZXBASIC_LINE_1910:
+; 1910  IF p2=f THEN  LET a$=a$+"\016\000\145"
+; 		1910.1  IF p2=f THEN  LET a$=a$+"\016\000\145"
+	LD DE,(ZXBASIC_VAR_p2)
+	LD HL,(ZXBASIC_VAR_f)
+; =
+	CALL runtimeCmpHLEqDE
+	LD A,L
+	CP 0
+	JP Z,ZXB_LABEL_15
+; 		1910.2  LET a$=a$+"\016\000\145"
+	LD DE,(ZXBASIC_VAR_a_string)
+	LD HL,STRING_29	;\016\000\145
+; +
+	CALL runtimeStringAdd
+	LD DE,HL
+	LD HL,ZXBASIC_VAR_a_string
+	CALL runtimeStoreString
+ZXB_LABEL_15:
+ZXBASIC_LINE_1920:
+; 1920  IF  LEN (a$)=3 THEN  LET a$=a$+" "
+; 		1920.1  IF  LEN (a$)=3{00 00 03 00 00 } THEN  LET a$=a$+" "
+; LEN
+	LD HL,(ZXBASIC_VAR_a_string)
+	CALL runtimeLen
+	LD DE,HL
+	LD HL,3
+; =
+	CALL runtimeCmpHLEqDE
+	LD A,L
+	CP 0
+	JP Z,ZXB_LABEL_16
+; 		1920.2  LET a$=a$+" "
+	LD DE,(ZXBASIC_VAR_a_string)
+	LD HL,STRING_22	; 
+; +
+	CALL runtimeStringAdd
+	LD DE,HL
+	LD HL,ZXBASIC_VAR_a_string
+	CALL runtimeStoreString
+ZXB_LABEL_16:
+ZXBASIC_LINE_1930:
+; 1930  PRINT  INK 5; PAPER 7; AT y+row*3,x+col*4;a$;: LET col=col+1: IF col=7 THEN  LET col=0: LET row=row+1
+; 		1930.1  PRINT  INK 5{00 00 05 00 00 }; PAPER 7{00 00 07 00 00 }; AT y+row*3{00 00 03 00 00 },x+col*4{00 00 04 00 00 };a$;
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD HL,5
+	CALL runtimeLocalInk
+	LD HL,7
+	CALL runtimeLocalPaper
+	LD HL,(ZXBASIC_VAR_y)
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_row)
+	LD HL,3
+; *
+	call runtimeMult16bit
+; +
+	POP DE
+	ADD HL,DE
+	PUSH HL
+	LD HL,(ZXBASIC_VAR_x)
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_col)
+	LD HL,4
+; *
+	call runtimeMult16bit
+; +
+	POP DE
+	ADD HL,DE
+	POP DE
+	CALL runtimePrintAt
+	LD HL,(ZXBASIC_VAR_a_string)
+	CALL runtimePrintString
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
+	CALL ZXFreeTempCompact
+; 		1930.2  LET col=col+1{00 00 01 00 00 }
+	LD HL,(ZXBASIC_VAR_col)
+	INC HL
+; +
+	LD (ZXBASIC_VAR_col),HL
+; 		1930.3  IF col=7{00 00 07 00 00 } THEN  LET col=0{00 00 00 00 00 }
+	LD DE,(ZXBASIC_VAR_col)
+	LD HL,7
+; =
+	CALL runtimeCmpHLEqDE
+	LD A,L
+	CP 0
+	JP Z,ZXB_LABEL_17
+; 		1930.4  LET col=0{00 00 00 00 00 }
+	LD HL,0
+	LD (ZXBASIC_VAR_col),HL
+; 		1930.5  LET row=row+1{00 00 01 00 00 }
+	LD HL,(ZXBASIC_VAR_row)
+	INC HL
+; +
+	LD (ZXBASIC_VAR_row),HL
+ZXB_LABEL_17:
+ZXBASIC_LINE_1940:
+; 1940  NEXT f
+; 		1940.1  NEXT f
+	CALL runtimeCheckBreak
+	LD HL,(ZXBASIC_VAR_f)
+	INC HL
+	LD (ZXBASIC_VAR_f),HL
+	LD DE,(ZXBASIC_VAR_for_f)
+	EX HL,DE
+	SUB HL,DE
+	JP NC,FOR_5
+ZXBASIC_LINE_1950:
+; 1950  RETURN 
+; 		1950.1  RETURN 
+	CALL runtimeCheckBreak
+	RET
+ZXBASIC_LINE_1960:
+; 1960  REM  SUB checkspecialfields(0=pos)
+ZXBASIC_LINE_1970:
+; 1970  REM  ------------------------------
+ZXBASIC_LINE_1980:
+; 1980  IF PROCcheckspecialfields0=5 OR PROCcheckspecialfields0=15 OR PROCcheckspecialfields0=25 THEN  INK 3: PRINT  INK 7; PAPER 1; AT 3,10;"Glueck! +2         ": LET PROCcheckspecialfields0=PROCcheckspecialfields0+2
+; 		1980.1  IF PROCcheckspecialfields0=5{00 00 05 00 00 } OR PROCcheckspecialfields0=15{00 00 0f 00 00 } OR PROCcheckspecialfields0=25{00 00 19 00 00 } THEN  INK 3{00 00 03 00 00 }
+	LD DE,(ZXBASIC_VAR_PROCcheckspecialfields0)
+	LD HL,5
+; =
+	CALL runtimeCmpHLEqDE
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_PROCcheckspecialfields0)
+	LD HL,15
+; =
+	CALL runtimeCmpHLEqDE
+; OR
+	POP DE
+	call runtimeOrHLDE
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_PROCcheckspecialfields0)
+	LD HL,25
+; =
+	CALL runtimeCmpHLEqDE
+; OR
+	POP DE
+	call runtimeOrHLDE
+	LD A,L
+	CP 0
+	JP Z,ZXB_LABEL_18
+; 		1980.2  INK 3{00 00 03 00 00 }
+	LD HL,3
+	CALL runtimeInk
+; 		1980.3  PRINT  INK 7{00 00 07 00 00 }; PAPER 1{00 00 01 00 00 }; AT 3{00 00 03 00 00 },10{00 00 0a 00 00 };"Glueck! +2         "
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD HL,7
+	CALL runtimeLocalInk
+	LD HL,1
+	CALL runtimeLocalPaper
+	LD DE,3
+	LD HL,10
+	CALL runtimePrintAt
+	LD HL,STRING_30	;Glueck! +2         
+	CALL runtimePrintString
+	CALL runtimePrintNewline
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		1980.4  LET PROCcheckspecialfields0=PROCcheckspecialfields0+2{00 00 02 00 00 }
+	LD DE,(ZXBASIC_VAR_PROCcheckspecialfields0)
+	LD HL,2
+; +
+	ADD HL,DE
+	LD (ZXBASIC_VAR_PROCcheckspecialfields0),HL
+ZXB_LABEL_18:
+ZXBASIC_LINE_1990:
+; 1990  IF PROCcheckspecialfields0=8 OR PROCcheckspecialfields0=18 OR PROCcheckspecialfields0=28 THEN  INK 1: PRINT  INK 7; PAPER 1; AT 3,10;"Pech! -3           ": LET PROCcheckspecialfields0=PROCcheckspecialfields0-3: IF PROCcheckspecialfields0<1 THEN  LET PROCcheckspecialfields0=1
+; 		1990.1  IF PROCcheckspecialfields0=8{00 00 08 00 00 } OR PROCcheckspecialfields0=18{00 00 12 00 00 } OR PROCcheckspecialfields0=28{00 00 1c 00 00 } THEN  INK 1{00 00 01 00 00 }
+	LD DE,(ZXBASIC_VAR_PROCcheckspecialfields0)
+	LD HL,8
+; =
+	CALL runtimeCmpHLEqDE
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_PROCcheckspecialfields0)
+	LD HL,18
+; =
+	CALL runtimeCmpHLEqDE
+; OR
+	POP DE
+	call runtimeOrHLDE
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_PROCcheckspecialfields0)
+	LD HL,28
+; =
+	CALL runtimeCmpHLEqDE
+; OR
+	POP DE
+	call runtimeOrHLDE
+	LD A,L
+	CP 0
+	JP Z,ZXB_LABEL_19
+; 		1990.2  INK 1{00 00 01 00 00 }
+	LD HL,1
+	CALL runtimeInk
+; 		1990.3  PRINT  INK 7{00 00 07 00 00 }; PAPER 1{00 00 01 00 00 }; AT 3{00 00 03 00 00 },10{00 00 0a 00 00 };"Pech! -3           "
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD HL,7
+	CALL runtimeLocalInk
+	LD HL,1
+	CALL runtimeLocalPaper
+	LD DE,3
+	LD HL,10
+	CALL runtimePrintAt
+	LD HL,STRING_31	;Pech! -3           
+	CALL runtimePrintString
+	CALL runtimePrintNewline
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
+; 		1990.4  LET PROCcheckspecialfields0=PROCcheckspecialfields0-3{00 00 03 00 00 }
+	LD HL,(ZXBASIC_VAR_PROCcheckspecialfields0)
+	LD DE,3
+; -
+	SUB HL,DE
+	LD (ZXBASIC_VAR_PROCcheckspecialfields0),HL
+; 		1990.5  IF PROCcheckspecialfields0<1{00 00 01 00 00 } THEN  LET PROCcheckspecialfields0=1{00 00 01 00 00 }
+	LD DE,(ZXBASIC_VAR_PROCcheckspecialfields0)
+	LD HL,1
+; <
+	CALL runtimeCmpHLltDE
+	LD A,L
+	CP 0
+	JP Z,ZXB_LABEL_20
+; 		1990.6  LET PROCcheckspecialfields0=1{00 00 01 00 00 }
+	LD HL,1
+	LD (ZXBASIC_VAR_PROCcheckspecialfields0),HL
+ZXB_LABEL_20:
+ZXB_LABEL_19:
+ZXBASIC_LINE_2000:
+; 2000  IF PROCcheckspecialfields0=12 OR PROCcheckspecialfields0=22 THEN  INK 6: PRINT  INK 7; PAPER 1; AT 3,10;"Nochmal wuerfeln!  "
+; 		2000.1  IF PROCcheckspecialfields0=12{00 00 0c 00 00 } OR PROCcheckspecialfields0=22{00 00 16 00 00 } THEN  INK 6{00 00 06 00 00 }
+	LD DE,(ZXBASIC_VAR_PROCcheckspecialfields0)
+	LD HL,12
+; =
+	CALL runtimeCmpHLEqDE
+	PUSH HL
+	LD DE,(ZXBASIC_VAR_PROCcheckspecialfields0)
+	LD HL,22
+; =
+	CALL runtimeCmpHLEqDE
+; OR
+	POP DE
+	call runtimeOrHLDE
+	LD A,L
+	CP 0
+	JP Z,ZXB_LABEL_21
+; 		2000.2  INK 6{00 00 06 00 00 }
+	LD HL,6
+	CALL runtimeInk
+; 		2000.3  PRINT  INK 7{00 00 07 00 00 }; PAPER 1{00 00 01 00 00 }; AT 3{00 00 03 00 00 },10{00 00 0a 00 00 };"Nochmal wuerfeln!  "
+	LD A,2
+	CALL $1601	;Open Channel
+	LD A,(ZX_P_FLAG)
+	PUSH AF
+	LD HL,7
+	CALL runtimeLocalInk
+	LD HL,1
+	CALL runtimeLocalPaper
+	LD DE,3
+	LD HL,10
+	CALL runtimePrintAt
+	LD HL,STRING_32	;Nochmal wuerfeln!  
+	CALL runtimePrintString
+	CALL runtimePrintNewline
+	LD A,(ZX_ATTR_P)
+	LD (ZX_ATTR_T),A
+	POP AF
+	LD (ZX_P_FLAG),A
+ZXB_LABEL_21:
+ZXBASIC_LINE_2010:
+; 2010  LET result=PROCcheckspecialfields0
+; 		2010.1  LET result=PROCcheckspecialfields0
+	LD HL,(ZXBASIC_VAR_PROCcheckspecialfields0)
+	LD (ZXBASIC_VAR_result),HL
+ZXBASIC_LINE_2020:
+; 2020  RETURN 
+; 		2020.1  RETURN 
+	CALL runtimeCheckBreak
+	RET
+ZXBASIC_LINE_2030:
+; 2030  REM  SUB sub
+ZXBASIC_LINE_2040:
+; 2040  REM  --------
+ZXBASIC_LINE_2050:
+; 2050  STOP 
+ZXBASIC_VAR_PROCcheckspecialfields0:	dw 0
+ZXBASIC_VAR_PROCdrawdice0:	dw 0
+ZXBASIC_VAR_a:	dw 0
+ZXBASIC_VAR_a_string:	dw 0
+ZXBASIC_VAR_adr:	dw 0
+ZXBASIC_VAR_b:	dw 0
+ZXBASIC_VAR_c:	dw 0
+ZXBASIC_VAR_col:	dw 0
+ZXBASIC_VAR_f:	dw 0
+ZXBASIC_VAR_for_b:	dw 0
+ZXBASIC_VAR_for_f:	dw 0
+ZXBASIC_VAR_for_i:	dw 0
+ZXBASIC_VAR_for_p:	dw 0
+ZXBASIC_VAR_frame:	dw 0
+ZXBASIC_VAR_i:	dw 0
+ZXBASIC_VAR_k:	dw 0
+ZXBASIC_VAR_lastKey:	dw 0
+ZXBASIC_VAR_p:	dw 0
+ZXBASIC_VAR_p1:	dw 0
+ZXBASIC_VAR_p2:	dw 0
+ZXBASIC_VAR_player:	dw 0
+ZXBASIC_VAR_r:	dw 0
+ZXBASIC_VAR_result:	dw 0
+ZXBASIC_VAR_roll:	dw 0
+ZXBASIC_VAR_row:	dw 0
+ZXBASIC_VAR_x:	dw 0
+ZXBASIC_VAR_y:	dw 0
+STRING_0:	dw 6
+	db	"Payer "
+STRING_1:	dw 10
+	db	"P1: Field "
+STRING_10:	dw 5
+	db	138, "  ", 149, 133
+STRING_11:	dw 5
+	db	138, 149, " ", 149, 133
+STRING_12:	dw 10
+	db	"Taste=STOP"
+STRING_13:	dw 5
+	db	139, 131, 131, 131, 135
+STRING_14:	dw 5
+	db	142, 140, 140, 140, 141
+STRING_15:	dw 10
+	db	"LUCKY RACE"
+STRING_16:	dw 4
+	db	139, 131, 131, 131
+STRING_17:	dw 1
+	db	138
+STRING_18:	dw 2
 	db	"  "
+STRING_19:	dw 1
+	db	146
+STRING_2:	dw 10
+	db	"P2: Field "
+STRING_20:	dw 1
+	db	147
+STRING_21:	dw 1
+	db	148
+STRING_22:	dw 1
+	db	" "
+STRING_23:	dw 4
+	db	142, 140, 140, 140
+STRING_24:	dw 1
+	db	135
+STRING_25:	dw 1
+	db	133
+STRING_26:	dw 1
+	db	141
+STRING_27:	dw 0
+STRING_28:	dw 3
+	db	16, 2, 144
+STRING_29:	dw 3
+	db	16, 0, 145
+STRING_3:	dw 19
+	db	"                   "
+STRING_30:	dw 19
+	db	"Glueck! +2         "
+STRING_31:	dw 19
+	db	"Pech! -3           "
+STRING_32:	dw 19
+	db	"Nochmal wuerfeln!  "
+STRING_4:	dw 19
+	db	"Spieler 1 gewinnt! "
+STRING_5:	dw 19
+	db	"Spieler 2 gewinnt! "
+STRING_6:	dw 1
+	db	"A"
+STRING_7:	dw 5
+	db	138, "   ", 133
+STRING_8:	dw 5
+	db	138, " ", 149, " ", 133
+STRING_9:	dw 5
+	db	138, 149, "  ", 133
+ZXLINES:
+	dw 1010, ZXBASIC_LINE_1010
+	dw 1020, ZXBASIC_LINE_1020
+	dw 1030, ZXBASIC_LINE_1030
+	dw 1040, ZXBASIC_LINE_1040
+	dw 1050, ZXBASIC_LINE_1050
+	dw 1060, ZXBASIC_LINE_1060
+	dw 1070, ZXBASIC_LINE_1070
+	dw 1080, ZXBASIC_LINE_1080
+	dw 1090, ZXBASIC_LINE_1090
+	dw 1100, ZXBASIC_LINE_1100
+	dw 1110, ZXBASIC_LINE_1110
+	dw 1120, ZXBASIC_LINE_1120
+	dw 1130, ZXBASIC_LINE_1130
+	dw 1140, ZXBASIC_LINE_1140
+	dw 1150, ZXBASIC_LINE_1150
+	dw 1160, ZXBASIC_LINE_1160
+	dw 1170, ZXBASIC_LINE_1170
+	dw 1180, ZXBASIC_LINE_1180
+	dw 1190, ZXBASIC_LINE_1190
+	dw 1200, ZXBASIC_LINE_1200
+	dw 1210, ZXBASIC_LINE_1210
+	dw 1220, ZXBASIC_LINE_1220
+	dw 1230, ZXBASIC_LINE_1230
+	dw 1240, ZXBASIC_LINE_1240
+	dw 1250, ZXBASIC_LINE_1250
+	dw 1260, ZXBASIC_LINE_1260
+	dw 1270, ZXBASIC_LINE_1270
+	dw 1280, ZXBASIC_LINE_1280
+	dw 1290, ZXBASIC_LINE_1290
+	dw 1300, ZXBASIC_LINE_1300
+	dw 1310, ZXBASIC_LINE_1310
+	dw 1320, ZXBASIC_LINE_1320
+	dw 1330, ZXBASIC_LINE_1330
+	dw 1340, ZXBASIC_LINE_1340
+	dw 1350, ZXBASIC_LINE_1350
+	dw 1360, ZXBASIC_LINE_1360
+	dw 1370, ZXBASIC_LINE_1370
+	dw 1380, ZXBASIC_LINE_1380
+	dw 1390, ZXBASIC_LINE_1390
+	dw 1400, ZXBASIC_LINE_1400
+	dw 1410, ZXBASIC_LINE_1410
+	dw 1420, ZXBASIC_LINE_1420
+	dw 1430, ZXBASIC_LINE_1430
+	dw 1440, ZXBASIC_LINE_1440
+	dw 1450, ZXBASIC_LINE_1450
+	dw 1460, ZXBASIC_LINE_1460
+	dw 1470, ZXBASIC_LINE_1470
+	dw 1480, ZXBASIC_LINE_1480
+	dw 1490, ZXBASIC_LINE_1490
+	dw 1500, ZXBASIC_LINE_1500
+	dw 1510, ZXBASIC_LINE_1510
+	dw 1520, ZXBASIC_LINE_1520
+	dw 1530, ZXBASIC_LINE_1530
+	dw 1540, ZXBASIC_LINE_1540
+	dw 1550, ZXBASIC_LINE_1550
+	dw 1560, ZXBASIC_LINE_1560
+	dw 1570, ZXBASIC_LINE_1570
+	dw 1580, ZXBASIC_LINE_1580
+	dw 1590, ZXBASIC_LINE_1590
+	dw 1600, ZXBASIC_LINE_1600
+	dw 1610, ZXBASIC_LINE_1610
+	dw 1620, ZXBASIC_LINE_1620
+	dw 1630, ZXBASIC_LINE_1630
+	dw 1640, ZXBASIC_LINE_1640
+	dw 1650, ZXBASIC_LINE_1650
+	dw 1660, ZXBASIC_LINE_1660
+	dw 1670, ZXBASIC_LINE_1670
+	dw 1680, ZXBASIC_LINE_1680
+	dw 1690, ZXBASIC_LINE_1690
+	dw 1700, ZXBASIC_LINE_1700
+	dw 1710, ZXBASIC_LINE_1710
+	dw 1720, ZXBASIC_LINE_1720
+	dw 1730, ZXBASIC_LINE_1730
+	dw 1740, ZXBASIC_LINE_1740
+	dw 1750, ZXBASIC_LINE_1750
+	dw 1760, ZXBASIC_LINE_1760
+	dw 1770, ZXBASIC_LINE_1770
+	dw 1780, ZXBASIC_LINE_1780
+	dw 1790, ZXBASIC_LINE_1790
+	dw 1800, ZXBASIC_LINE_1800
+	dw 1810, ZXBASIC_LINE_1810
+	dw 1820, ZXBASIC_LINE_1820
+	dw 1830, ZXBASIC_LINE_1830
+	dw 1840, ZXBASIC_LINE_1840
+	dw 1850, ZXBASIC_LINE_1850
+	dw 1860, ZXBASIC_LINE_1860
+	dw 1870, ZXBASIC_LINE_1870
+	dw 1880, ZXBASIC_LINE_1880
+	dw 1890, ZXBASIC_LINE_1890
+	dw 1900, ZXBASIC_LINE_1900
+	dw 1910, ZXBASIC_LINE_1910
+	dw 1920, ZXBASIC_LINE_1920
+	dw 1930, ZXBASIC_LINE_1930
+	dw 1940, ZXBASIC_LINE_1940
+	dw 1950, ZXBASIC_LINE_1950
+	dw 1960, ZXBASIC_LINE_1960
+	dw 1970, ZXBASIC_LINE_1970
+	dw 1980, ZXBASIC_LINE_1980
+	dw 1990, ZXBASIC_LINE_1990
+	dw 2000, ZXBASIC_LINE_2000
+	dw 2010, ZXBASIC_LINE_2010
+	dw 2020, ZXBASIC_LINE_2020
+	dw 2030, ZXBASIC_LINE_2030
+	dw 2040, ZXBASIC_LINE_2040
+	dw 2050, ZXBASIC_LINE_2050
+	dw 0, 0
+ZXDATA:
+	dw 1360, DATA_1360
+	dw 1370, DATA_1370
+	dw 1380, DATA_1380
+	dw 1390, DATA_1390
+	dw 1400, DATA_1400
+	dw 1410, DATA_1410
+	dw 1420, DATA_1420
+	dw 0, 0
+DATAPTR:	DW 0
+DATA_1360:
+	dw 24
+	dw 60
+	dw 126
+	dw 219
+	dw 255
+	dw 126
+	dw 60
+	dw 24
+DATA_1370:
+	dw 24
+	dw 60
+	dw 126
+	dw 219
+	dw 255
+	dw 102
+	dw 60
+	dw 24
+DATA_1380:
+	dw 60
+	dw 66
+	dw 165
+	dw 129
+	dw 165
+	dw 153
+	dw 66
+	dw 60
+DATA_1390:
+	dw 60
+	dw 66
+	dw 165
+	dw 129
+	dw 153
+	dw 165
+	dw 66
+	dw 60
+DATA_1400:
+	dw 60
+	dw 90
+	dw 189
+	dw 189
+	dw 189
+	dw 189
+	dw 90
+	dw 60
+DATA_1410:
+	dw 0
+	dw 0
+	dw 24
+	dw 60
+	dw 60
+	dw 24
+	dw 0
+	dw 0
+DATA_1420:
+	dw 0
+	dw 0
+	dw 0
+	dw 0
+	dw 0
+	dw 0
+	dw 0
 
 ZX_VARIABLES:
 	db 0

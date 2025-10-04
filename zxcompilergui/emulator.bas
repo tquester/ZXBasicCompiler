@@ -1,115 +1,92 @@
-1000 restore 2000
-1010 dim b(10)
-1020 dim c(10)
-1030 LET PROCreadudg0=10:GO SUB 1470
-1040 GO SUB 1550
-1050 GO SUB 1080
-1060 print "\144\145\146\147\148\149\150\151\152"
-1070 pause 0
-1080 REM SUB game
-1090 REM ---------
-1100 paper 1
-1110 ink 7
-1120 LET playerx=0
-1130 LET playery=17
-1140 cls
-1150 print at playery,playerx;"\145";
-1160 GO SUB 1580
-1170 GO SUB 1350
-1180 if playermoved then print at playeryold, playerxold;" ";at playery,playerx;"\145";
-1190 LET col = rnd*32+1
-1200 LET PROCshoot0=col:GO SUB 1230
-1210 GOTO 1160
+1000 !1000 GO SUB 1310
+1010 GO SUB 1050
+1020 GOTO 1910
+1030 REM SUB game
+1040 REM ---------
+1050 CLS
+1060 LET p1 = 1: LET p2 = 1: LET player = 1
+1070 LET PROCdrawboard0=p1:LET PROCdrawboard1= p2:GO SUB 1690
+1080 INK 7: PRINT AT 20, 0; "Spieler "; player; " am Zug ";
+1090 GO SUB 1510
+1100 IF NOT(player = 1) THEN GOTO 1140
+1110 LET p1 = p1 + roll
+1120 LET p1 = CALL checkSpecialFields(p1)
+1130 GOTO 1160
+1140 LET p2 = p2 + roll
+1150 LET p2 = CALL checkSpecialFields(p2)
+1160 LET PROCdrawboard0=p1:LET PROCdrawboard1= p2:GO SUB 1690
+1170 IF p1 >= 30 THEN INK 2: PRINT AT 16, 0; "Spieler 1 gewinnt! ";: GOTO 1210
+1180 IF p2 >= 30 THEN INK 5: PRINT AT 16, 0; "Spieler 2 gewinnt! ";: GOTO 1210
+1190 LET player = 3 - player
+1200 GOTO 1080
+1210 GOTO 1910
 1220 return
-1230 REM SUB shoot(0=column)
-1240 REM --------------------
-1250 LET i=1
-1260 IF NOT(i < 11 ) THEN GOTO 1340
-1270 IF NOT(b(i) = 0 ) THEN GOTO 1320
-1280 print at 0,0;"bullet #";i; " ";
-1290 LET b(i)=PROCshoot0
-1300 LET c(i)=17
-1310 return
-1320 LET i=i+1
-1330 GOTO 1260
-1340 return
-1350 REM SUB movebullets
-1360 REM ----------------
-1370 LET i = 1
-1380 IF NOT(i < 11) THEN GOTO 1450
-1390 IF NOT(b(i) <> 0 ) THEN GOTO 1430
-1400 print at c(i),b(i);" ";at c(i)-1,b(i);"\144";
-1410 LET c(i)=c(i)-1
-1420 if c(i) = 1 then LET b(i)=0: print at c(i),b(i);" ";
-1430 LET i=i+1
-1440 GOTO 1380
-1450 return
-1460 rem graphics library
-1470 REM SUB readudg(0=count)
-1480 REM ---------------------
-1490 LET a = USR "A"
-1500 LET last=a+PROCreadudg0*8
-1510 IF NOT(a < last) THEN GOTO 1540
-1520 READ b:POKE a,b:LET a = a + 1
-1530 GOTO 1510
-1540 return
-1550 REM SUB initmovement
-1560 REM -----------------
-1570 LET playerx = 0:LET playery = 0:LET playerxold = 0:LET playeryold = 0:LET playerfire = 0:LET playerstep=2:LET playermoved=0:LET singleKey=0:LET playerleft=0:LET playerright=31:LET playerup=0:LET playerdown=21:LET playerKeyMoveLeft = 111:LET playerKeyMoveRight = 112:LET playerKeyMoveUp = 113:LET playerKeyMoveDown = 97:LET playerKeyFire = 13:LET playerKeyFire2 = 32:LET playerInputSelect=2:LET playerWaitKeyRelease=0:LET playerWaitKeyPause=13:return
-1580 REM SUB playermovement
-1590 REM -------------------
-1600 IF playerInputSelect > 0 AND playerInputSelect < 4 THEN GOTO 1620+10*playerInputSelect
-1610 RETURN
-1620 PRINT "Error"
-1630 GO SUB 1780: RETURN
-1640 GO SUB 1670: RETURN
-1650 GO SUB 1730: RETURN
+1230 DATA 24, 60, 126, 219, 255, 126, 60, 24
+1240 DATA 24, 60, 126, 219, 255, 102, 60, 24
+1250 DATA 60, 66, 165, 129, 165, 153, 66, 60
+1260 DATA 60, 66, 165, 129, 153, 165, 66, 60
+1270 DATA 60, 90, 189, 189, 189, 189, 90, 60
+1280 DATA 0, 0, 24, 60, 60, 24, 0, 0
+1290 REM SUB readudg
+1300 REM ------------
+1310 LET adr = USR "A"
+1320 FOR i=1 TO 6
+1330 FOR b = 1 TO 8
+1340 READ a:POKE adr,a:LET adr=adr+1
+1350 NEXT b
+1360 NEXT i
+1370 return
+1380 REM SUB drawdice
+1390 REM -------------
+1400 GOTO 1410+10*frame
+1410 REM there is nice 0
+1420 PRINT AT 1, 0; "\138   \133";AT 2, 0; "\138 \149 \133";AT 3, 0; "\138   \133";:RETURN
+1430 PRINT AT 1, 0; "\138\149  \133";AT 2, 0; "\138   \133";AT 3, 0; "\138  \149\133";:RETURN
+1440 PRINT AT 1, 0; "\138\149  \133";AT 2, 0; "\138 \149 \133";AT 3, 0; "\138  \149\133";:RETURN
+1450 PRINT AT 1, 0; "\138\149 \149\133";AT 2, 0; "\138   \133";AT 3, 0; "\138\149 \149\133";:RETURN
+1460 PRINT AT 1, 0; "\138\149 \149\133";AT 2, 0; "\138 \149 \133";AT 3, 0; "\138\149 \149\133";:RETURN
+1470 PRINT AT 1, 0; "\138\149 \149\133";AT 2, 0; "\138\149 \149\133";AT 3, 0; "\138\149 \149\133";:RETURN
+1480 return
+1490 REM SUB rolldice
+1500 REM -------------
+1510 LET frame =0
+1520 LET lastKey =0
+1530 PRINT AT 5, 0; "Taste=STOP"
+1540 INK 7
+1550 PAPER 1
+1560 PRINT AT 0, 0; "\139\131\131\131\135";AT 4,0;"\142\140\140\140\141";
+1570 LET frame = frame + 1
+1580 IF frame = 7 THEN LET frame=1
+1590 LET PROCdrawdice0=frame:GO SUB 1400
+1600 LET k = CODE inkey$
+1610 IF k <> 0 THEN LET lastKey = k:GOTO 1630
+1620 GOTO 1570
+1630 LET roll=frame
+1640 INK 7
+1650 PAPER 0
 1660 return
-1670 REM SUB kempstonjoystick
-1680 REM ---------------------
-1690 LET playerfire = 0:LET playermoved=0:LET singleKey = CODE inkey$:LET port1=IN 31:if port1=0 then return
-1700 IF port1 > 15 THEN LET playerfire=1: LET port1=port1-16
-1710 LET playerxold = playerx:LET playeryold = playery:LET playerx = playerx - ((port1=2 OR port1=10 OR port1=6)  AND playerx > playerleft) + ((port1=1 OR port1=5 OR port1=9) AND playerx <playerright):LET playery = playery - ((port1=8 OR port1=9 OR port1=10) AND playery > playerup ) + ((port1=4 OR port1=5 OR port1=6)  AND playery <playerdown ):LET playermoved=1
-1720 return
-1730 REM SUB sinclairjoystick
-1740 REM ---------------------
-1750 LET playerfire = 0:LET playermoved=0:LET singleKey = CODE inkey$:LET playerxold = playerx:LET playeryold = playery:LET port1 = IN 61438:if port1 = 191 then return
-1760 LET p1 = INT(port1 / 2):LET playerfire = (port1 - p1*2) = 0:LET playerx = playerx - ((p1=85 OR p1=86 OR p1=87)  AND playerx > playerleft) + ((p1=89 OR p1=90 OR p1=91) AND playerx <playerright):LET playery = playery - ((p1=86 OR p1=90 OR p1=94) AND playery > playerup) + ((p1=85 OR p1=93 OR p1=89) AND playery <playerdown):IF playerxold <> playerx OR playeryold <> playery THEN LET playermoved=1
-1770 return
-1780 REM SUB keyboard
-1790 REM -------------
-1800 LET singleKey = 0
-1810 LET PROCkeyboarda = CODE inkey$
-1820 LET playermoved=0
-1830 IF PROCkeyboarda=0 THEN RETURN
-1840 LET singleKey = PROCkeyboarda
-1850 LET playerxold = playerx
-1860 LET playeryold = playery
-1870 LET playermoved=1
-1880 LET playerx = playerx + ((PROCkeyboarda=playerKeyMoveRight OR PROCkeyboarda=9) AND playerx <playerright) - ((PROCkeyboarda=playerKeyMoveLeft OR PROCkeyboarda=8) AND playerx > playerleft)
-1890 LET playery = playery + ((PROCkeyboarda=playerKeyMoveDown OR PROCkeyboarda=10) AND playery <playerdown) - ((PROCkeyboarda=playerKeyMoveUp OR PROCkeyboarda=11) AND playery > playerup)
-1900 IF playerxold <> playerx OR playeryold <> playery THEN LET playermoved=1
-1910 IF playerWaitKeyRelease=1 THEN GO SUB 1940
-1920 IF playerWaitKeyPause>0 THEN PAUSE playerWaitKeyPause
-1930 return
-1940 REM SUB waitkeyrelease
-1950 REM -------------------
-1960 LET PROCwaitkeyreleasea = CODE inkey$
-1970 IF PROCwaitkeyreleasea = 0 THEN GOTO 1990
-1980 GOTO 1960
-1990 return
-2000 DATA 16, 56, 56, 56, 56, 56, 56, 0
-2010 DATA 0, 24, 24, 60, 60, 126, 255, 219
-2020 DATA 0, 0, 153, 153, 153, 126, 60, 24
-2030 DATA 0, 24, 24, 24, 90, 60, 24, 0
-2040 DATA 24, 60, 102, 219, 255, 126, 0, 0
-2050 DATA 0, 0, 0, 0, 255, 255, 255, 255
-2060 DATA 0, 0, 0, 0, 239, 187, 247, 223
-2070 DATA 0, 0, 0, 0, 223, 205, 185, 255
-2080 DATA 0, 0, 0, 0, 171, 150, 197, 125
-2090 DATA 0, 0, 0, 0, 0, 66, 40, 129
-2100 DATA 0, 0, 0, 0, 0, 0, 0, 0
-2110 DATA 0, 0, 0, 0, 0, 0, 0, 0
-2120 DATA 0, 0, 0, 0, 0, 0, 0, 0
-2130 DATA 0, 0, 0, 0, 0, 0, 0, 0
-2140 stop
+1670 REM SUB drawboard(0=p1, 1=p2)
+1680 REM --------------------------
+1690 CLS
+1700 PRINT AT 0, 5; "LUCKY RACE";
+1710 LET row = 1
+1720 LET col = 1
+1730 FOR f = 1 TO 30
+1740 INK 4: PAPER 7
+1750 PRINT AT 2 + row * 2, col * 3; "\139";
+1760 IF f < 10 THEN PRINT " "; f;
+1770 if f >= 10 then PRINT f;
+1780 PRINT "\135"
+1790 IF f = PROCdrawboard0 THEN INK 2: PRINT AT 2 + row * 2, col * 3 + 1; "\144";:GOTO #drawBoard1
+1800 IF f = PROCdrawboard1 THEN INK 5: PRINT AT 2 + row * 2, col * 3 + 1; "\145";:GOTO #drawBoard1
+1810 IF f = 5 OR f = 15 OR f = 25 THEN INK 3: PRINT AT 2 + row * 2, col * 3 + 1; "\146";:GOTO #drawBoard1
+1820 IF f = 8 OR f = 18 OR f = 28 THEN INK 1: PRINT AT 2 + row * 2, col * 3 + 1; "\147";:GOTO #drawBoard1
+1830 IF f = 12 OR f = 22 THEN INK 6: PRINT AT 2 + row * 2, col * 3 + 1; "\148";:GOTO #drawBoard1
+1840 LET col=col+1: if col=11 then LET col=1: LET row=row+1
+1850 NEXT f
+1860 INK 2: PRINT AT 18, 0; "P1: Feld "; PROCdrawboard0
+1870 INK 5: PRINT AT 19, 0; "P2: Feld "; PROCdrawboard1
+1880 return
+1890 REM SUB sub
+1900 REM --------
+1910 STOP

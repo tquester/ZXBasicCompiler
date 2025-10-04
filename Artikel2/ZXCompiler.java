@@ -199,6 +199,7 @@ public class ZXCompiler {
 			String stmt =  mBasicLine.getStmt();
 			mEmitter.emitBasicLine(mBasicLine.line, mBasicStmt, stmt);
 			mEmitter.emitComment(String.format("\t\t%d.%d %s",mBasicLine.line, mBasicStmt, stmt));
+			mEmitter.log(String.format("\t\t%d.%d %s",mBasicLine.line, mBasicStmt, stmt));
 		}
 		if (mSettingLineNr) mEmitter.emitStmtNr(mBasicStmt);
 		if (mSettingCompileDebug) mEmitter.emitDebug(mBasicLine.line, mBasicStmt);
@@ -2717,16 +2718,16 @@ public class ZXCompiler {
 			popType();
 			int faktor=1;
 			if (i < variable.dimen.length ) {
-				if (variable.typ == VARTYP.TYPE_STRING || variable.typ == VARTYP.TYPE_FIXSTRING) {
+				//if (variable.typ == VARTYP.TYPE_STRING || variable.typ == VARTYP.TYPE_FIXSTRING) {
 					for (int j=i+1;j<variable.dimen.length;j++) {
 						faktor *= variable.dimen[j];
 					}
-				} else {
+					/*} else {
 					for (int j=i;j<variable.dimen.length;j++) {
 						faktor *= variable.dimen[j];
 					}
 
-				}
+				}*/
 					
 			}
 			if (faktor != 1) {

@@ -370,6 +370,14 @@ public class CBASICPreparser {
 					break;
 			}
 			break;
+		case ZXToken.ZXB_WITH:
+			entry = new CStackEntry();
+			entry.token = token.token;
+			entry.variable = "";
+			append("WITH ");
+			mStack.push(entry);
+			break;
+			
 		case ZXToken.ZXB_SELECT:
 			entry = new CStackEntry();
 			entry.token = token.token;
@@ -436,7 +444,9 @@ public class CBASICPreparser {
 				return;
 			}
 			entry = mStack.pop();
-			if (entry.token == ZXToken.ZXB_WHEN) {
+			if (entry.token == ZXToken.ZXB_WITH) {
+				append("END\n");
+			} else if (entry.token == ZXToken.ZXB_WHEN) {
 				if (entry.elseExist == false) {
 					append(String.format("#%s_exit\n", entry.label));
 				} else {

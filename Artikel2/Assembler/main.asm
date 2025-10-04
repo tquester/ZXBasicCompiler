@@ -23,7 +23,7 @@ SLOW_SPRITE_COUNT           equ 5
 
 
     include "macros.asm"
-    ORG 27000
+    ORG 28500
 PROGSTART:
 
     SLDOPT COMMENT WPMEM, LOGPOINT, ASSERTION
@@ -48,9 +48,6 @@ START:RELOCATE_START
 
 
 main:   
-
-
-
   		ld sp,stack_top
 		ld hl,EndOfCode
 		ld (ZXHeapStart),hl
@@ -62,7 +59,6 @@ main:
         endif
         call compiledBasic
         ret
-        jp debugDemo
 ;        jp relocator_code
 scroll: ret
 		if DEBUGBASIC=1
@@ -77,7 +73,7 @@ InitSpectrum:
 	    ld de,PROGSTART-1
         ld ($5CB0),de
         ld ($5CB2),de
-        ld HL,$ffff
+        ld HL,$FFFF
         ld ($5CB4),HL       ; phys ramtop
         ld HL, 20
         ld ($5C36),HL       ; RASP
@@ -281,47 +277,13 @@ EDITOR:
     include "ZXLibrary/math.asm"
     include "basicRuntime.asm"
     include "compiledBasic.asm"
-    
-    
-
-
-
-
-debugDemo:
-    if DEBUG=1
-    ld          a,WHITE*PAPER+BLACK
-    ld          (ZX_ATTR_P),a   
-    ld          (ZX_ATTR_T),a
-    endif
-    call        compiledBasic
-
-    if DEBUG=1
-    ; Disable interrupts
-    di
-    ld sp,stack_top
-
-        ld a, ZX_YELLOW*PAPER+ZX_BLUE
-        ld hl, ZX_ATTR_P
-        ld (hl),a
-
-    call        ZXHeapTest
-
-    ; CLS
-    call        ClearScreen
-    ld          h,1
-    ld          l,2
-    call        compiledBasic
-    ret
-
-
-        endif
 
 
 ;===========================================================================
 ; Stack.
 ;===========================================================================
 
-    if DEBUG=1
+    if DEBUGBASIC=1 || DEBUG=1
 
 ; Stack: this area is reserved for the stack
 STACK_SIZE: equ 400    ; in words

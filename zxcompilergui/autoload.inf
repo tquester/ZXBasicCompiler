@@ -1,7 +1,3 @@
-folder=.
-file=emulator.bas
-file=C:\workspaces\basic\include\keyjoystick.bas
-file=C:\workspaces\basic\halloide.bas
-file=C:\workspaces\basic\games\memory.bas
-file=C:\workspaces\basic\games\icontris.bas
-file=C:\workspaces\basic\games\blast.bas
+folder=C:\Users\User\OneDrive\Dokumente\Quester\ZXCompiler
+file=C:\workspaces\github\ZXBasicCompiler\Artikel2\Assembler\samples\speedtest.bas
+file=C:\workspaces\github\ZXBasicCompiler\Artikel2\Assembler\samples\welcome.bas

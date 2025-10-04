@@ -37,7 +37,7 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
-import main.precompiler.BasicPreparser;
+import main.precompiler.OldBasicPreparser;
 import main.precompiler.CBASICPreparser;
 import main.precompiler.CBASICTokenizer;
 import main.precompiler.CBASICTokenizer.BASICToken;
@@ -62,6 +62,8 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 //import org.eclipse.wb.swt.SWTResourceManager;
 
 public class CDialogIDEMain extends Dialog {
@@ -106,11 +108,22 @@ public class CDialogIDEMain extends Dialog {
 	 * @return the result
 	 */
 	public Object open() {
-		if (mFolder == null)
-			mFolder = ".";
+        System.out.println("Starting");
 
-		createContents();
-		shlZxBasic.open();
+        CDownloadAndInstallAssembler dass = new CDownloadAndInstallAssembler();
+
+        System.out.println("Create contents");
+
+        createContents();
+
+        System.out.println("shell open");
+
+        CSettings settings = CSettings.instance();
+         
+        shlZxBasic.open();
+        System.out.println("Loading assembler");
+        dass.assertAssemblerInstalled(shlZxBasic);
+        settings.assertEmulator(shlZxBasic);
 		createMenu();
 		shlZxBasic.layout();
 		display = shlZxBasic.getDisplay();
@@ -121,12 +134,17 @@ public class CDialogIDEMain extends Dialog {
 		        e.doit = false;
 		    }
 		});
+		System.out.println("auto load");
+		autoload();
+		System.out.println("Current folder = "+mFolder);
+		System.setProperty("user.dir", mFolder);
 
 		
-
-        autoload();
         mFileSystemPopulator = new FileSystemTreePopulator(tree);
-        mFileSystemPopulator.populateTree(System.getProperty("user.dir"));
+        mFileSystemPopulator.populateTree(mFolder);
+        System.out.println("Init complete");
+        
+        
 		Display display = getParent().getDisplay();
 		while (!shlZxBasic.isDisposed()) {
 			if (!display.readAndDispatch()) {
@@ -139,6 +157,8 @@ public class CDialogIDEMain extends Dialog {
 	
 
 	private void autoload() {
+		mFolder = null;
+		mFolder = CSettings.getDocumentsPath()+File.separator+"ZXCompiler"; 				
 			String text = getAutoload();
 			if (text == null) return;
 			String lines[] = text.split("\n");
@@ -146,9 +166,12 @@ public class CDialogIDEMain extends Dialog {
 				int p = line.indexOf('=');
 				if (p != -1) {
 					String name = line.substring(0, p);
-					String fname = line.substring(p + 1);
+					String fname = line.substring(p + 1).trim();
 					if (name.compareTo("folder") == 0) {
-						mFolder = fname;
+						if (fname != null) {
+							if (fname.compareTo(".") != 0 && fname.compareTo("null") != 0)
+								mFolder = fname;
+						}
 						//loadFilesTree();
 					} else {
 						loadFile(fname);
@@ -156,10 +179,13 @@ public class CDialogIDEMain extends Dialog {
 				} else
 					loadFile(line);
 			}
+			File f = new File(mFolder);
+			f.mkdirs();
+			System.setProperty("user.dir", mFolder);
 	}
 
 	private String getAutoload() {
-		String autoload = Tools.loadTextFile("autoload.inf");
+		String autoload = Tools.loadTextFile(CSettings.appData("autoload.inf"));
 		return autoload;
 	}
 
@@ -266,7 +292,8 @@ public class CDialogIDEMain extends Dialog {
 	        btnSuchen.addSelectionListener(new SelectionAdapter() {
 	        	@Override
 	        	public void widgetSelected(SelectionEvent e) {
-	        		openSearchDialog(shlZxBasic);
+	        		getEditor().openSearchDialog();
+	        		
 	        	}
 	        });
 	        btnSuchen.setText("Suchen");
@@ -316,6 +343,12 @@ public class CDialogIDEMain extends Dialog {
 	        
 	        	        // Linke Seite: Tree für Projekt-Navigation
 	        	        tree= new Tree(sashForm, SWT.BORDER | SWT.V_SCROLL);
+	        	        tree.addMouseListener(new MouseAdapter() {
+	        	        	@Override
+	        	        	public void mouseDoubleClick(MouseEvent e) {
+	        	        		onDoubleClickTree();
+	        	        	}
+	        	        });
 	        	        
 	        	        
 	        	        listNav = new org.eclipse.swt.widgets.List(sashForm, SWT.BORDER | SWT.V_SCROLL);
@@ -352,6 +385,22 @@ public class CDialogIDEMain extends Dialog {
 	        status.setText("Bereit");
 	}
  
+	protected void onDoubleClickTree() {
+		TreeItem[] sels = tree.getSelection();
+		if (sels.length > 0) {
+			TreeItem sel = sels[0];
+			File file = (File)sel.getData();
+			if (file != null) {
+				BASICSourceViewer viewer = createStyledText(file.getAbsolutePath());
+				viewer.setEditManager(new EditManager(viewer.getEditor(), file.getAbsolutePath()));
+				String text = Tools.loadTextFile(file.getAbsolutePath());
+				viewer.setText(text);
+			}
+			
+		}
+		
+	}
+
 	void captureParent() {
 		shlZxBasic = getParent();
 	}
@@ -437,7 +486,8 @@ private void createMenu() {
        mntmSuchen.addSelectionListener(new SelectionAdapter() {
        	@Override
        	public void widgetSelected(SelectionEvent e) {
-       		openSearchDialog(shlZxBasic);
+       		getEditor().openSearchDialog();
+       	
        	}
        });
        mntmSuchen.setText("Suchen\tCtrl+F");
@@ -502,6 +552,7 @@ private void createMenu() {
 }
 
 	protected void onTabChanged() {
+		try {
 		BASICSourceViewer editor=getEditor();
 		String filename = getFilename(editor);
 		if (filename == null) return;
@@ -528,6 +579,10 @@ private void createMenu() {
 		listNav.removeAll();
 		for (String s:mSetLabels)
 			listNav.add(s);
+		}
+		catch(Exception e)  {
+			e.printStackTrace();
+		}
 	}
 	
 	void updateLabeList() {
@@ -640,13 +695,14 @@ private void createMenu() {
 			compiler.mSettingStop = 2;
 			compiler.start(code);
 			compiler.compile();
-			compiler.writeCode(CSettings.instance().mAsmOutput);
+			String compiledBasic = CSettings.instance().mAsmOutput;
+			compiler.writeCode(compiledBasic);
 			BASICSourceViewer asmEditor=createStyledText("compiledBasic.asm", true);
 			asmEditor.setText(compiler.mEmitter.sbCode.toString());
 			StringBuilder sbbat = new StringBuilder();
 			String path = set.mTapFile;
 			int p = path.lastIndexOf('\\');
-			if (p == -1) p = path.lastIndexOf("/");
+			if (p == -1) p = path.lastIndexOf(File.separator);
 			if (p == -1) return;
 			path = path.substring(0,p);
 			String logfile = path+"\\log.txt";
@@ -654,7 +710,7 @@ private void createMenu() {
 			StringBuilder sbCompileBat = new StringBuilder();
 			sbCompileBat.append(String.format("cd \"%s\"\n",path));
 			sbCompileBat.append(String.format("del \"%s\"\n",set.mTapFile));
-			sbCompileBat.append(String.format("\"%s\" \"%s\" 2> %s\n", set.mAssembler, set.mMainAsm, logfile));
+			sbCompileBat.append(String.format("\"%s\" \"%s\" 2> \"%s\"\n", set.mAssembler, set.mMainAsm, logfile));
 			sbCompileBat.append(String.format("start \"%s\" \"%s\"\n", set.mEmulator, set.mTapFile));
 			sbCompileBat.append(String.format("pause\n" ));
 			Tools.writeTextFile(compileBat,  sbCompileBat.toString());
@@ -738,6 +794,7 @@ private void createMenu() {
 		fd.setText("Open basic program");
 		fd.setFilterExtensions(filterExt);
 		String filename = fd.open();
+		if (filename == null) return;
 		addFilenameToEditor(editor, filename);
 		setFilename(filename);
 		
@@ -781,13 +838,17 @@ private void createMenu() {
 		for (CTabItem item : mTabFolder.getItems()) {
 			if (item.getControl() instanceof Composite) {
 				BASICSourceViewer viewer = (BASICSourceViewer)item.getControl().getData();
-				String fname = viewer.getEditManager().getFilename();
-				if (fname != null)
-					sb.append("file=" + fname + "\n");
+				if (viewer != null) {
+					if (viewer.getEditManager() != null) {
+						String fname = viewer.getEditManager().getFilename();
+						if (fname != null)
+							sb.append("file=" + fname + "\n");
+					}
+				}
 			}
 		}
 
-		Tools.writeTextFile("autoload.inf", sb.toString());
+		Tools.writeTextFile(CSettings.appData("autoload.inf"), sb.toString());
 		
 	}
 
@@ -843,12 +904,6 @@ private void createMenu() {
 		text.addLineStyleListener(mBasicLineStyler);
 		if (z80) mBasicLineStyler.initializeZ80();
 
-		text.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyReleased(KeyEvent e) {
-				onKeyReleasedEditor(e);
-			}
-		});
 		text.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -880,10 +935,6 @@ private void createMenu() {
 		
 	}
 
-	protected void onKeyReleasedEditor(KeyEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
 
 	
 	/*
@@ -1004,121 +1055,4 @@ private void createMenu() {
 		
 	}
 
-	private void openSearchDialog(Shell parentShell) {
-	        Shell dialog = new Shell(parentShell, SWT.RESIZE | SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
-	        dialog.setText("Suchen");
-	        dialog.setLayout(new GridLayout(2, false));
-
-	        // Suchfeld
-	        Label label = new Label(dialog, SWT.NONE);
-	        label.setText("Suchbegriff:");
-	        Text searchText = new Text(dialog, SWT.BORDER);
-	        searchText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-	        
-	        Label replaceLabel = new Label(dialog, SWT.NONE);
-	        replaceLabel.setText("Ersetzen mit:");
-	        Text replaceText = new Text(dialog, SWT.BORDER);
-	        replaceText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-
-
-	        // Suchoptionen
-	        Button caseSensitive = new Button(dialog, SWT.CHECK);
-	        caseSensitive.setText("Groß-/Kleinschreibung beachten");
-	        caseSensitive.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
-
-	        // Suchbuttons
-	        Button findButton = new Button(dialog, SWT.PUSH);
-	        findButton.setText("Suchen");
-	        findButton.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
-
-	        Button replaceButton = new Button(dialog, SWT.PUSH);
-	        replaceButton.setText("Ersetzen");
-	        replaceButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
-
-	        
-	        Button cancelButton = new Button(dialog, SWT.PUSH);
-	        cancelButton.setText("Abbrechen");
-	        cancelButton.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false));
-	        
-	        
-	        // Event-Handler
-	        findButton.addListener(SWT.Selection, e -> {
-	            String searchString = searchText.getText();
-	            boolean matchCase = caseSensitive.getSelection();
-	            findText(getEditor().getTextWidget(),searchString, matchCase);
-	        });
-	        
-
-
-	        // Event-Handler für Ersetzen
-	        replaceButton.addListener(SWT.Selection, e -> {
-	            String searchStr = searchText.getText();
-	            String replaceStr = replaceText.getText();
-	            boolean matchCase = caseSensitive.getSelection();
-	            replaceText(getEditor().getTextWidget(),searchStr, replaceStr, matchCase);
-	        });	        
-
-	        cancelButton.addListener(SWT.Selection, e -> dialog.close());
-
-	        // Enter-Taste im Suchfeld
-	        searchText.addKeyListener(new KeyAdapter() {
-	            @Override
-	            public void keyPressed(KeyEvent e) {
-	                if (e.keyCode == SWT.CR || e.keyCode == SWT.KEYPAD_CR) {
-	                    String searchString = searchText.getText();
-	                    boolean matchCase = caseSensitive.getSelection();
-	                    findText(getEditor().getTextWidget(),searchString, matchCase);
-	                }
-	            }
-	        });
-
-	        dialog.pack();
-	        dialog.open();
-	    }
-	  
-	  private void replaceText(StyledText styledText, String searchString, String replaceString, boolean matchCase) {
-		    if (styledText.getSelectionCount() > 0) {
-		        String selected = styledText.getSelectionText();
-		        boolean matches = matchCase ? selected.equals(searchString) 
-		                                  : selected.equalsIgnoreCase(searchString);
-		        if (matches) {
-		            styledText.replaceTextRange(styledText.getSelectionRange().x, 
-		                                      searchString.length(), 
-		                                      replaceString);
-		        }
-		    }
-		    findText(styledText, searchString, matchCase);
-		}
-
-	    private void findText(StyledText styledText, String searchString, boolean matchCase) {
-	        if (searchString.isEmpty()) return;
-
-	        String content = styledText.getText();
-	        if (!matchCase) {
-	            content = content.toLowerCase();
-	            searchString = searchString.toLowerCase();
-	        }
-
-	        // Suche ab aktueller Position fortsetzen
-	        int start = lastSearchIndex + 1;
-	        if (start >= content.length()) start = 0;
-
-	        int foundIndex = content.indexOf(searchString, start);
-	        
-	        // Falls nicht gefunden, von vorne suchen
-	        if (foundIndex == -1 && start > 0) {
-	            foundIndex = content.indexOf(searchString, 0);
-	        }
-
-	        if (foundIndex != -1) {
-	            // Text markieren und anzeigen
-	            styledText.setSelection(foundIndex, foundIndex + searchString.length());
-	            styledText.showSelection();
-	            lastSearchIndex = foundIndex;
-	        } else {
-	            MessageBox mb = new MessageBox(styledText.getShell(), SWT.ICON_INFORMATION | SWT.OK);
-	            mb.setMessage("Text nicht gefunden: " + searchString);
-	            mb.open();
-	        }
-	    }	
 }

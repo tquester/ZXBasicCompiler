@@ -955,32 +955,27 @@ runtimeCopyStringToHeapEnd:
 ; HL = Adress of variable
 ; DE = Adress of string to store
 runtimeStoreString:
+    call ZXFreeStringVar                ; Free old string if it is a heap string
     push hl
-    push de
-    call ZXFreeStringVar ; Free old string if it is a heap string
-    pop de
-    pop hl
-    push hl
-  ;  ld   l,e
-  ;  ld   h,d
     ex hl,de
-    ld   bc,(hl)
+    ld   bc,(hl)                        ; bc = String length
     ld   a,b
     or   c
-    jr   z,runtimeStoreEmptyString
-    call ZXClaim ; Claim memory for the string
+    jr   z,runtimeStoreEmptyString      ; Empty string
+    call ZXClaim                        ; Claim memory for the string (if it is a heap address)
     ex hl,de
     pop  hl
-    ld   (hl),de
+    ld   (hl),de                        ; Store in variable
     call ZXFreeTemp
     call ZXHeapCompactFree
     ret
 runtimeStoreEmptyString:
     ex hl,de
-    ld bc,0
+    ld bc,emptyString
     ld (hl),bc
     pop hl
     ret    
+emptyString: dw 0    
 ; BC = String
 ; DE = von                  ;   1 = erste Position
 ; HL = bis    

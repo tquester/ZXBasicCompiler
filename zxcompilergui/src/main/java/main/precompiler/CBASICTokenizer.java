@@ -35,6 +35,10 @@ public class CBASICTokenizer {
 			return false;
 		}
 	}
+	
+	public CBASICTokenizer() {
+		zxtoken.addExtendTokens();
+	}
 
 	ZXToken zxtoken = new ZXToken();
 	ZX81CalcInputGenerator inputGenerator = new ZX81CalcInputGenerator();
@@ -70,7 +74,7 @@ public class CBASICTokenizer {
 	}
 
 	private void tokenizeLine(String line) throws Exception {
-		// System.out.println(line);
+		System.out.println(line);
 		mLine = line;
 		mPos = 0;
 		BASICToken token = new BASICToken();
@@ -96,7 +100,12 @@ public class CBASICTokenizer {
 					writeString(token.literal);
 					break;
 				case isKeyword:
-					mTemp[mLength++] = (byte) token.token;
+					if (token.token < 1000) {
+						mTemp[mLength++] = (byte) token.token;
+					} else {
+						mTemp[mLength++] = (byte) 1;
+						mTemp[mLength++] = (byte) (token.token-1000);
+					}
 					if (token.token == ZXToken.ZXB_REM) {
 						while (mPos < mLine.length()) {
 							char c = mLine.charAt(mPos);
@@ -221,7 +230,7 @@ public class CBASICTokenizer {
 		if (mbSpaceToken && token.typ == BASICTokenTyp.isSpace)
 			return true;
 
-		if (c >= '0' && c <= '9' || c == '.') {
+		if (c >= '0' && c <= '9' ) {
 			token.typ = BASICTokenTyp.isNumber;
 			token.literal = "" + c;
 			mPos++;
@@ -256,6 +265,13 @@ public class CBASICTokenizer {
 				mPos++;
 			}
 			Integer itoken = zxtoken.mMapRTokens.get(token.literal.toUpperCase());
+			if (itoken == null && token.literal.compareToIgnoreCase("def") == 0) {
+				if (mLine.substring(mPos).toLowerCase().startsWith(" fn")) {
+					itoken = ZXToken.ZXB_DEFFN;
+					mPos+=3;
+					token.literal = "DEF FN";
+				}
+			}
 			if (itoken != null) {
 				token.typ = BASICTokenTyp.isKeyword;
 				token.token = itoken.intValue();
@@ -279,6 +295,7 @@ public class CBASICTokenizer {
 		case ':':
 		case ';':
 		case '#':
+		case '.':
 		case ')':
 			token.typ = BASICTokenTyp.isKeyword;
 			token.token = c;

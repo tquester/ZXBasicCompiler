@@ -17,6 +17,38 @@ public class Z80Emitter {
 	boolean mLog = true;
 
 	// in order to optimize the code, it is stored in machine readable format
+	
+	public class CType {
+		public int ofs;
+		public int size;
+		public VARTYP typ;
+		public String name;
+	}
+	public class CStruct {
+		int ofs=0;
+		public String name;
+		public ArrayList<CType> elems = new ArrayList<>();
+		public TreeMap<String, CType> mapElem = new TreeMap<>();
+		public void add(String name, VARTYP typ) {
+			CType type = new CType();
+			type.name = name;
+			type.typ = typ;
+			int size=0;
+			switch(typ) {
+				case TYPE_INT: size=2; break;
+				case TYPE_FLOAT: size=5; break;
+				case TYPE_STRING: size=2; break;
+				default:
+					size=0;
+			}
+			type.ofs = ofs;
+			type.size= size;
+			ofs+=size;
+			elems.add(type);
+			mapElem.put(name, type);
+		}
+		
+	}
 
 	public class CBasicLine {
 		int line;
@@ -84,12 +116,28 @@ public class Z80Emitter {
 		public VARTYP typ;
 	}
 
+	public Z80Emitter() {
+		CStruct sprite = new CStruct();
+		sprite.add("x", VARTYP.TYPE_INT);
+		sprite.add("y", VARTYP.TYPE_INT);
+		sprite.add("x1", VARTYP.TYPE_INT);
+		sprite.add("x2", VARTYP.TYPE_INT);
+		sprite.add("y1", VARTYP.TYPE_INT);
+		sprite.add("y2", VARTYP.TYPE_INT);
+		sprite.add("dx", VARTYP.TYPE_INT);
+		sprite.add("dy", VARTYP.TYPE_INT);
+		sprite.add("bounce", VARTYP.TYPE_INT);
+		sprite.add("data", VARTYP.TYPE_STRING);
+		mMapStructs.put("sprite", sprite);
+	}
+	
 	public StringBuffer sbCode = new StringBuffer();
 	String lastCommand = "";
 	int lastLabel = 0;
 	int mLastString = 0;
 	int mLastFor = 0;
 	Stack<Integer> mForStack = new Stack<Integer>();
+	TreeMap<String, CStruct> mMapStructs = new TreeMap<>();
 	private TreeMap<String, CDefFN> mMapDefFn = new TreeMap<String, Z80Emitter.CDefFN>();
 	private TreeMap<String, Variable> mMapVariables = new TreeMap<String, Z80Emitter.Variable>();
 	private CDefFN mCurDefFN = null;

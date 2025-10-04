@@ -4,14 +4,27 @@ Pass 2 complete (0 errors)
 > ZX Size =418 bytes
 > Heap Size =835 bytes
 > Math Size =236 bytes
-basicRuntime.asm(543): warning: value 0x73DF is truncated to 8bit value: 0xDF
+basicRuntime.asm(543): warning: value 0x73DC is truncated to 8bit value: 0xDC
 basicRuntime.asm(543): warning[relunstable]: Relocation makes one of the expressions unstable, resulting machine code is not relocatable
-basicRuntime.asm(2783): warning: value 0x5C88 is truncated to 8bit value: 0x88
-> Runtime Size =3710 bytes
-> Compiled Basic = 3686 bytes
-> Code size = 9430 bytes
-> EndOfCode =0x8E4E
-main.asm(351): warning: Label has different value in pass 3: previous value 982 not equal 4294953796
-main.asm(355): warning[nexstack]: [SAVENEX] non-zero data are in stackAddress area, may get overwritten by NEXLOAD
+basicRuntime.asm(2778): warning: value 0x5C88 is truncated to 8bit value: 0x88
+> Runtime Size =3708 bytes
+compiledBasic.asm(18): error: Label not found: ZXBASIC_VAR_a
+compiledBasic.asm(25): error: Label not found: ZXBASIC_VAR_a
+compiledBasic.asm(46): error: Label not found: ZXBASIC_VAR_x
+compiledBasic.asm(53): error: Label not found: ZXBASIC_VAR_y
+compiledBasic.asm(60): error: Label not found: ZXBASIC_VAR_dx
+compiledBasic.asm(67): error: Label not found: ZXBASIC_VAR_dy
+compiledBasic.asm(74): error: Label not found: ZXBASIC_VAR_x1
+compiledBasic.asm(81): error: Label not found: ZXBASIC_VAR_x2
+compiledBasic.asm(88): error: Label not found: ZXBASIC_VAR_y1
+compiledBasic.asm(95): error: Label not found: ZXBASIC_VAR_y1
+compiledBasic.asm(99): error: Label not found: STRING_0
+compiledBasic.asm(102): error: Label not found: ZXBASIC_VAR_bytes
+compiledBasic.asm(110): error: Label not found: ZXBASIC_VAR_bounce
+compiledBasic.asm(121): error: Label not found: STRING_1
+> Code size = 5880 bytes
+> EndOfCode =0x8070
+main.asm(313): warning: Label has different value in pass 3: previous value 337 not equal 4294953796
+main.asm(317): warning[nexstack]: [SAVENEX] non-zero data are in stackAddress area, may get overwritten by NEXLOAD
 Pass 3 complete
-Errors: 0, warnings: 5, compiled: 7026 lines, work time: 0.532 seconds
+Errors: 14, warnings: 5, compiled: 4915 lines, work time: 0.062 seconds
