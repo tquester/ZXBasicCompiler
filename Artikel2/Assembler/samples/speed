@@ -1,0 +1,30 @@
+#define display 16358
+#define attributes 22528
+color=0
+for j=1 to 16
+   call box(color*8,j)
+   color=color+1
+   if color=9 then color=0
+next j
+stop
+
+
+; draw a box in attributes
+sub box(atr, ofs)
+ 
+  
+  adr = attributes+ofs*32
+  temp=adr
+  for i = ofs to 32-ofs
+    poke adr+i,atr
+  next i
+  adr=adr+32
+  for i=1 to 23-ofs*2
+     poke adr+ofs,atr
+     poke adr+32-ofs,atr
+     adr=adr+32
+  next i
+  for i = ofs to 32-ofs
+    poke adr+i,atr
+  next i
+end
