@@ -37,7 +37,6 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
-import main.precompiler.OldBasicPreparser;
 import main.precompiler.CBASICPreparser;
 import main.precompiler.CBASICTokenizer;
 import main.precompiler.CBASICTokenizer.BASICToken;

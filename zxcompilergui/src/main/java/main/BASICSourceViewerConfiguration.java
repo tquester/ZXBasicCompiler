@@ -1,5 +1,5 @@
 package main;
-
+/*
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
@@ -29,3 +29,4 @@ public class BASICSourceViewerConfiguration extends SourceViewerConfiguration {
     }
 }
 
+*/
