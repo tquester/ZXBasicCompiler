@@ -10,8 +10,11 @@ import java.util.zip.ZipInputStream;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
+
+import main.COSDetector.OS;
 
 public class CDownloadAndInstallAssembler {
     
@@ -29,6 +32,11 @@ public class CDownloadAndInstallAssembler {
     
     public void assertAssemblerInstalled(Shell shell) {
     	 if (checkAssembler()) return;
+    	 
+    	 if (COSDetector.detectOS() == OS.LINUX || COSDetector.detectOS() == OS.MACOS) {
+    		 selectSJASmPlus(shell);
+    		 return;
+    	 }
 
          // Create a MessageBox instance
          MessageBox messageBox = new MessageBox(shell, SWT.ICON_QUESTION | SWT.YES | SWT.NO);
@@ -40,7 +48,19 @@ public class CDownloadAndInstallAssembler {
     
     
     
-    public static void checkAndInstallAssembler(Shell shell) {
+    private void selectSJASmPlus(Shell shell) {
+    	FileDialog fd = new FileDialog(shell, SWT.OPEN);
+		fd.setText("Open Image");
+		String filename = fd.open();
+		if (filename != null) {
+			CSettings set = CSettings.instance();
+			set.mAssembler = filename;
+			set.save();
+		}
+		
+	}
+
+	public static void checkAndInstallAssembler(Shell shell) {
         try {
         	String currentDirectory = System.getProperty("user.home");
         	String appData = System.getenv("APPDATA");

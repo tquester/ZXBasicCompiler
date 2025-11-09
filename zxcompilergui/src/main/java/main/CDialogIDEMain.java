@@ -37,6 +37,7 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
+import main.COSDetector.OS;
 import main.precompiler.CBASICPreparser;
 import main.precompiler.CBASICTokenizer;
 import main.precompiler.CBASICTokenizer.BASICToken;
@@ -121,8 +122,10 @@ public class CDialogIDEMain extends Dialog {
          
         shlZxBasic.open();
         System.out.println("Loading assembler");
-        dass.assertAssemblerInstalled(shlZxBasic);
-        settings.assertEmulator(shlZxBasic);
+        if (COSDetector.detectOS() == OS.WINDOWS) {
+        	dass.assertAssemblerInstalled(shlZxBasic);
+        	settings.assertEmulator(shlZxBasic);
+        }
 		createMenu();
 		shlZxBasic.layout();
 		display = shlZxBasic.getDisplay();
@@ -143,7 +146,8 @@ public class CDialogIDEMain extends Dialog {
         mFileSystemPopulator.populateTree(mFolder);
         System.out.println("Init complete");
         
-        
+        shlZxBasic.setText("ZX Spectrum Compiler/Emulator IDE");
+
 		Display display = getParent().getDisplay();
 		while (!shlZxBasic.isDisposed()) {
 			if (!display.readAndDispatch()) {
@@ -694,35 +698,49 @@ private void createMenu() {
 			compiler.mSettingStop = 2;
 			compiler.start(code);
 			compiler.compile();
+			String path = set.mOutputDir;
 			String compiledBasic = CSettings.instance().mAsmOutput;
-			compiler.writeCode(compiledBasic);
+			compiler.writeCode(path + File.separator + compiledBasic);
 			BASICSourceViewer asmEditor=createStyledText("compiledBasic.asm", true);
 			asmEditor.setText(compiler.mEmitter.sbCode.toString());
 			StringBuilder sbbat = new StringBuilder();
-			String path = set.mTapFile;
-			int p = path.lastIndexOf('\\');
-			if (p == -1) p = path.lastIndexOf(File.separator);
-			if (p == -1) return;
-			path = path.substring(0,p);
-			String logfile = path+"\\log.txt";
-			String compileBat = path+"\\compileRun.bat";
+			String logfile = path+ File.separator + "log.txt";
+			String compileBat = path+ File.separator+ "compileRun";
+			OS os = COSDetector.detectOS();
+			String del = "del";
+			if (os == OS.WINDOWS) compileBat += ".bat"; 
+			else {
+				compileBat+=".sh";
+				del = "rm";
+			}
+			
 			StringBuilder sbCompileBat = new StringBuilder();
 			sbCompileBat.append(String.format("cd \"%s\"\n",path));
-			sbCompileBat.append(String.format("del \"%s\"\n",set.mTapFile));
-			sbCompileBat.append(String.format("\"%s\" \"%s\" 2> \"%s\"\n", set.mAssembler, set.mMainAsm, logfile));
-			sbCompileBat.append(String.format("start \"%s\" \"%s\"\n", set.mEmulator, set.mTapFile));
-			sbCompileBat.append(String.format("pause\n" ));
-			Tools.writeTextFile(compileBat,  sbCompileBat.toString());
+			sbCompileBat.append(String.format("%s \"%s%s%s\"\n",del, set.mOutputDir, File.separator, set.mTapFile));
+			sbCompileBat.append(String.format("\"%s\" \"%s%s%s\" 2> \"%s\"\n", set.mAssembler, set.mOutputDir, File.separator, set.mMainAsm, logfile));
+			System.out.println("Starting "+compileBat);
+			if (os == OS.WINDOWS) {
+				sbCompileBat.append(String.format("start \"%s\" \"%s%s%s\"\n", set.mEmulator, set.mOutputDir, File.separator, set.mTapFile));
+				sbCompileBat.append(String.format("pause\n" ));
+				Tools.writeTextFile(compileBat,  sbCompileBat.toString());
+				try {
+		            Runtime.getRuntime().exec(String.format("cmd.exe /c \"%s\"", compileBat));
+		        } catch (IOException e) {
+		            e.printStackTrace();
+		        }
+			}
+			else {
+				sbCompileBat.append(String.format("\"%s\" \"%s%s%s\"\n", set.mEmulator, set.mOutputDir, File.separator, set.mTapFile));
+				Tools.writeTextFile(compileBat,  sbCompileBat.toString());
+				Process chmod = new ProcessBuilder("chmod", "+x", compileBat).start();
+		        chmod.waitFor();
+		        Process runScript = new ProcessBuilder(compileBat).start();
+				
+			}
 			//StyledText editLog = createStyledText("log");
 			//editLog.setText(compiler.mEmitter.mSBLog.toString());
 			
 			//Tools.executeCommand(String.format("cmd /C \"start %s\"", compileBat), shlZxBasic);
-			System.out.println("Starting "+compileBat);
-			try {
-	            Runtime.getRuntime().exec(String.format("cmd.exe /c \"%s\"", compileBat));
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	        }
 			String log = Tools.loadTextFile(logfile);
 			
 			String clog = plog.toString()+"\n"+ compiler.mEmitter.mSBLog.toString();
@@ -982,33 +1000,34 @@ private void createMenu() {
 				
 				
 				if (filename == null) filename = "basic.bas";
-				String tapFilename = filename.trim()+".tap";
+				String path = set.mOutputDir;
+				String tapFilename = path + File.separator +"basic.tap";
 				tapWrite.writeZXBasic(tapFilename, "basic", code, 1000);
-				String path = tapFilename;
-				int p = path.lastIndexOf('\\');
-				if (p == -1) p = path.lastIndexOf("/");
-				if (p == -1) return;
-				path = path.substring(0,p);
 				System.out.println("Writing bat");
-				
-				String compileBat = path+"\\runemulator.bat";
+				OS os = COSDetector.detectOS();
+				String compileBat = path+File.separator+"runemulator";
+				if (os == OS.WINDOWS) compileBat += ".bat"; else compileBat+=".sh";
 				StringBuilder sbCompileBat = new StringBuilder();
 				sbCompileBat.append(String.format("cd \"%s\"\n",path));
-				sbCompileBat.append(String.format("start \"%s\" \"%s\"\n", set.mEmulator, tapFilename));
-				sbCompileBat.append(String.format("pause\n" ));
-				Tools.writeTextFile(compileBat,  sbCompileBat.toString());
-				//StyledText editLog = createStyledText("log");
-				//editLog.setText(compiler.mEmitter.mSBLog.toString());
-				
-				//Tools.executeCommand(String.format("cmd /C \"start %s\"", compileBat), shlZxBasic);
 				System.out.println("Starting "+compileBat);
-				try {
-		            Runtime.getRuntime().exec(String.format("cmd.exe /c \"%s\"", compileBat));
-		        } catch (IOException e) {
-		            e.printStackTrace();
-		        }
-				
-				//tapWrite.writeBasicTap(filename.trim()+".tap", "hello", code, 128*256);
+				if (os == OS.WINDOWS) {
+					sbCompileBat.append(String.format("start \"%s\" \"%s\"\n", set.mEmulator, tapFilename));
+					sbCompileBat.append(String.format("pause\n" ));
+					Tools.writeTextFile(compileBat,  sbCompileBat.toString());
+					try {
+			            Runtime.getRuntime().exec(String.format("cmd.exe /c \"%s\"", compileBat));
+			        } catch (IOException e) {
+			            e.printStackTrace();
+			        }
+				}
+				else {
+					sbCompileBat.append(String.format("\"%s\" \"%s\"\n", set.mEmulator, tapFilename));
+					Tools.writeTextFile(compileBat,  sbCompileBat.toString());
+					Process chmod = new ProcessBuilder("chmod", "+x", compileBat).start();
+			        chmod.waitFor();
+			        Process runScript = new ProcessBuilder(compileBat).start();
+					
+				}
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

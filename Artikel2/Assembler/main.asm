@@ -320,5 +320,3 @@ relocate_count equ (code_size-relocator_table)/2
         SAVENEX AUTO
         SAVENEX CLOSE
     ENDIF
-
-

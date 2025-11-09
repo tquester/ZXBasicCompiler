@@ -21,11 +21,12 @@ public class CSettings {
 	}
 
 	public String mAssembler = "c:/sjasmplus-1.20.2.win/sjasmplus.exe";
-	public String mAsmOutput = null;
-	public String mTapFile = null;
-	public String mMainAsm = null;
-	public String mEmulator = null;//"C:\\Program Files (x86)\\Spectaculator\\Spectaculator.exe";
+	public String mAsmOutput = "compiledBasic.asm";
+	public String mTapFile = "compiled.tap";
+	public String mMainAsm = "main.asm";
+	public String mEmulator = "fuse";//"C:\\Program Files (x86)\\Spectaculator\\Spectaculator.exe";
 	public String mCompilerOptions = "-s1 -o -l";
+	public String mOutputDir=null;
 
 	public CSettings() {
 		try {
@@ -65,6 +66,9 @@ public class CSettings {
 					case "options":
 						mCompilerOptions = val;
 						break;
+					case "outputdir":
+						mOutputDir = val;
+						break;
 					}
 				}
 			}
@@ -76,6 +80,7 @@ public class CSettings {
 		System.out.println(String.format("mMainAsm=%s", mMainAsm));
 		System.out.println(String.format("mEmulator=%s", mEmulator));
 		System.out.println(String.format("mAssembler=%s", mAssembler));
+		System.out.println(String.format("mOutputDir=%s", mOutputDir));
 	}
 
 	public static String getDocumentsPath() {
@@ -108,6 +113,7 @@ public class CSettings {
 		sb.append(String.format("tapfile=%s\n", mTapFile));
 		sb.append(String.format("emulator=%s\n", mEmulator));
 		sb.append(String.format("options=%s\n", mCompilerOptions));
+		sb.append(String.format("outputDir=%s\n",mOutputDir));
 		Tools.writeTextFile(fname, sb.toString());
 	}
 
