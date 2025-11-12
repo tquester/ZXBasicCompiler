@@ -1,16 +1,1 @@
-SjASMPlus Z80 Cross-Assembler v1.21.0 (https://github.com/z00m128/sjasmplus)
-Pass 1 complete (0 errors)
-Pass 2 complete (0 errors)
-> ZX Size =418 bytes
-> Heap Size =835 bytes
-> Math Size =236 bytes
-basicRuntime.asm(543): warning: value 0x79B8 is truncated to 8bit value: 0xB8
-basicRuntime.asm(543): warning[relunstable]: Relocation makes one of the expressions unstable, resulting machine code is not relocatable
-basicRuntime.asm(2778): warning: value 0x5C88 is truncated to 8bit value: 0x88
-> Runtime Size =3708 bytes
-> Compiled Basic = 515 bytes
-> Code size = 7053 bytes
-> EndOfCode =0x8AE1
-main.asm(313): warning: Label has different value in pass 3: previous value 429 not equal 4294953046
-Pass 3 complete
-Errors: 0, warnings: 4, compiled: 5121 lines, work time: 0.056 seconds
+/home/thomas/workspaces/ZXBasicCompiler/Artikel2/Assembler/compileRun.sh: 3: c:/sjasmplus-1.20.2.win/sjasmplus.exe: not found
