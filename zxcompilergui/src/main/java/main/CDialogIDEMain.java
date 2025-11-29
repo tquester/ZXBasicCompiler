@@ -331,8 +331,8 @@ public class CDialogIDEMain extends Dialog {
 	        btnNewButton.addSelectionListener(new SelectionAdapter() {
 	        	@Override
 	        	public void widgetSelected(SelectionEvent e) {
-	        		Shell sh = new Shell(display, SWT.DIALOG_TRIM | SWT.MODELESS);
-	        		CDialogOptions dlg = new CDialogOptions(sh, SWT.TITLE|SWT.CLOSE);
+	        		
+	        		CDialogOptions dlg = new CDialogOptions(shlZxBasic, SWT.TITLE|SWT.CLOSE);
 	        		dlg.open();
 	        	}
 	        });

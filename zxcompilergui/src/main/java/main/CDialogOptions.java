@@ -251,7 +251,7 @@ public class CDialogOptions extends Dialog {
 	}
 
 	protected void onFindAsmMainFile() {
-		String[] filterExt = { "*.bas" };
+		String[] filterExt = { "*.asm" };
 		FileDialog fd = new FileDialog(shlOptionen, SWT.OPEN);
 		fd.setText("Open basic program");
 		fd.setFilterExtensions(filterExt);
@@ -261,17 +261,14 @@ public class CDialogOptions extends Dialog {
 
 
 	protected void onFindAssembler() {
-		String[] filterExt = { "*.bas" };
 		FileDialog fd = new FileDialog(shlOptionen, SWT.OPEN);
-		fd.setText("Open basic program");
-		if (COSDetector.detectOS() == OS.WINDOWS)
-			fd.setFilterExtensions(filterExt);
+		fd.setText("Open assembler");
 		txtAssembler.setText(fd.open());
 		
 	}
 
 	protected void onFindOutputFile() {
-		String[] filterExt = { "*.bas" };
+		String[] filterExt = { "*.asm" };
 		FileDialog fd = new FileDialog(shlOptionen, SWT.OPEN);
 		fd.setText("Open basic program");
 		fd.setFilterExtensions(filterExt);
